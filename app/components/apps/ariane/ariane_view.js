@@ -1,5 +1,4 @@
 import { View, CollectionView } from 'backbone.marionette'
-import { app } from '@components/App.js'
 import item_tpl from '@templates/ariane/show/show-item.jst'
 import ariane_tpl from '@templates/ariane/show/show-list.jst'
 import not_loaded_tpl from '@templates/ariane/show/ariane-not-loaded-view.jst'
@@ -34,24 +33,24 @@ const ItemView = View.extend({
   triggers: {
     "click a.js-next" : "ariane:next",
     "click a.js-prev" : "ariane:prev",
-    "click a.js-link" : "ariane:navigate"
+    "click a.js-link" : "click:link"
   },
   onArianePrev() {
-    event_name = this.model.get("e");
-    data = this.model.get("prev");
-    app.trigger.apply(app,_.flatten([event_name,data]));
+    const event_name = this.model.get("e");
+    const data = this.model.get("prev");
+    this.trigger("navigation", event_name, data);
   },
   onArianeNext() {
-    event_name = this.model.get("e");
-    data = this.model.get("next");
-    app.trigger.apply(app,_.flatten([event_name,data]));
+    const event_name = this.model.get("e");
+    const data = this.model.get("next");
+    this.trigger("navigation", event_name, data);
   },
-  onArianeNavigate() {
-    active = this.model.get("active");
-    event_name = this.model.get("e");
-    data = this.model.get("data");
+  onClickLink() {
+    const active = this.model.get("active");
+    const event_name = this.model.get("e");
+    const data = this.model.get("data");
     if (active && event_name){
-      app.trigger.apply(app,_.flatten([event_name,data]));
+      this.trigger("navigation", event_name, data);
     }
   }
 });
@@ -76,6 +75,9 @@ const ArianeView = View.extend({
   onRender() {
     this.subCollection = new FilView({
       collection: this.collection
+    });
+    this.subCollection.on("item:navigation", (event_name, data) => {
+      this.trigger("navigation", event_name, data);
     });
     this.showChildView('body', this.subCollection);
   }
