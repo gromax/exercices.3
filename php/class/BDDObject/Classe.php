@@ -5,8 +5,6 @@ namespace BDDObject;
 use ErrorController as EC;
 use PDO;
 use PDOException;
-use DB;
-use MeekroDBException;
 use SessionController as SC;
 
 final class Classe
@@ -134,7 +132,11 @@ final class Classe
 
     require_once BDD_CONFIG;
     try {
-      $bdd_result=DB::queryFirstRow("SELECT c.id id, c.nom nom, c.description, c.idOwner idOwner, c.pwd pwd, c.date date, c.ouverte ouverte, u.nom nomOwner, u.prenom prenomOwner, u.rank rankOwner, u.email emailOwner FROM ".PREFIX_BDD."classes c INNER JOIN ".PREFIX_BDD."users u ON c.idOwner = u.id WHERE c.id=%s", $id);
+      $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $stmt = $pdo->prepare("SELECT c.id id, c.nom nom, c.description, c.idOwner idOwner, c.pwd pwd, c.date date, c.ouverte ouverte, u.nom nomOwner, u.prenom prenomOwner, u.rank rankOwner, u.email emailOwner FROM ".PREFIX_BDD."classes c INNER JOIN ".PREFIX_BDD."users u ON c.idOwner = u.id WHERE c.id = :id");
+      $stmt->execute(array(':id' => $id));
+      $bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
       if ($bdd_result==null) return null;
 
       // Construction de l'objet pour sauvegarde en session
@@ -147,7 +149,7 @@ final class Classe
       }
       return $bdd_result;
 
-    } catch(MeekroDBException $e) {
+    } catch(PDOException $e) {
       EC::addBDDError($e->getMessage(), 'Classe/get');
       return null;
     }
@@ -162,8 +164,12 @@ final class Classe
   {
     require_once BDD_CONFIG;
     try {
-      $bdd_result = DB::queryFirstRow("SELECT id FROM ".PREFIX_BDD."classes WHERE id=%s AND pwd=%s", $id, $pwd);
-    } catch(MeekroDBException $e) {
+      $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $stmt = $pdo->prepare("SELECT id FROM ".PREFIX_BDD."classes WHERE id = :id AND pwd = :pwd");
+      $stmt->execute(array(':id' => $id, ':pwd' => $pwd));
+      $bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch(PDOException $e) {
       EC::addBDDError($e->getMessage(), 'Logged/tryConnexion');
       return null;
     }
@@ -207,12 +213,22 @@ final class Classe
     require_once BDD_CONFIG;
     try {
       // Ajout de la classe
-      DB::insert(PREFIX_BDD.'classes', $this->toBDDArray() );
-    } catch(MeekroDBException $e) {
+      $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $stmt = $pdo->prepare("INSERT INTO ".PREFIX_BDD."classes (nom, description, pwd, idOwner, ouverte, date) VALUES (:nom, :description, :pwd, :idOwner, :ouverte, :date)");
+      $stmt->execute(array(
+        ':nom' => $this->nom,
+        ':description' => $this->description,
+        ':pwd' => $this->pwd,
+        ':idOwner' => $this->getOwnerId(),
+        ':ouverte' => $this->ouverte,
+        ':date' => $this->date
+      ));
+    } catch(PDOException $e) {
       EC::addBDDError($e->getMessage(),'Classe/insertion');
       return null;
     }
-    $this->id=DB::insertId();
+    $this->id=$pdo->lastInsertId();
     // sauvegarde d'une copie de la classe en session
     if (self::SAVE_IN_SESSION) $session=SC::get()->setParamInCollection('classes', $this->id, $this);
 
@@ -239,8 +255,19 @@ final class Classe
 
     require_once BDD_CONFIG;
     try{
-      DB::update(PREFIX_BDD.'classes', $this->toBDDArray(),"id=%i",$this->id);
-    } catch(MeekroDBException $e) {
+      $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $stmt = $pdo->prepare("UPDATE ".PREFIX_BDD."classes SET nom = :nom, description = :description, pwd = :pwd, idOwner = :idOwner, ouverte = :ouverte, date = :date WHERE id = :id");
+      $stmt->execute(array(
+        ':nom' => $this->nom,
+        ':description' => $this->description,
+        ':pwd' => $this->pwd,
+        ':idOwner' => $this->getOwnerId(),
+        ':ouverte' => $this->ouverte,
+        ':date' => $this->date,
+        ':id' => $this->id
+      ));
+    } catch(PDOException $e) {
       EC::addBDDError($e->getMessage(), 'Classe/update');
       return false;
     }
@@ -258,11 +285,14 @@ final class Classe
     }
     require_once BDD_CONFIG;
     try {
-      DB::delete(PREFIX_BDD.'classes', 'id=%i', $this->id);
+      $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."classes WHERE id = :id");
+      $stmt->execute(array(':id' => $this->id));
       EC::add("La classe a bien été supprimée.");
       if (self::SAVE_IN_SESSION) $session=SC::get()->unsetParamInCollection('classes', $this->id);
       return true;
-    } catch(MeekroDBException $e) {
+    } catch(PDOException $e) {
       EC::addBDDError($e->getMessage(), "Classe/Suppression");
     }
     return false;

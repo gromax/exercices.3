@@ -1,10 +1,10 @@
 <?php
 
 namespace BDDObject;
-use DB;
+use PDO;
+use PDOException;
 use ErrorController as EC;
 use SessionController as SC;
-use MeekroDBException;
 
 abstract class Item
 {
@@ -77,7 +77,11 @@ abstract class Item
 		// Pas trouvé dans la session, il faut chercher en bdd
 		require_once BDD_CONFIG;
 		try {
-			$bdd_result=DB::queryFirstRow("SELECT ".join(self::keys(),",")." FROM ".PREFIX_BDD.static::$BDDName." WHERE id=%i", $id);
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("SELECT ".join(self::keys(),",")." FROM ".PREFIX_BDD.static::$BDDName." WHERE id = :id");
+			$stmt->execute(array(':id' => $id));
+			$bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
 			if ($bdd_result === null) return null;
 
 			$item = new static($bdd_result);
@@ -114,19 +118,23 @@ abstract class Item
 		}
 		try {
 			// Suppression des assoc liées
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			$message = $this." supprimé avec succès.";
 			if (method_exists(get_called_class(),"getAssocs")) {
 				$arr = static::getAssocs();
 				foreach ($arr as $table => $col) {
-					DB::delete(PREFIX_BDD.$table, $col.'= %i', $this->id);
+					$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD.$table." WHERE ".$col." = :id");
+					$stmt->execute(array(':id' => $this->id));
 					if (static::SAVE_IN_SESSION) $session=SC::get()->unsetParam($table);
 				}
 			}
-			DB::delete(PREFIX_BDD.static::$BDDName, 'id=%i', $this->id);
+			$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD.static::$BDDName." WHERE id = :id");
+			$stmt->execute(array(':id' => $this->id));
 			EC::add($message);
 			if (static::SAVE_IN_SESSION) $session=SC::get()->unsetParamInCollection(static::$BDDName, $this->id);
 			return true;
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), static::$BDDName."/delete");
 		}
 		return false;
@@ -147,12 +155,15 @@ abstract class Item
 
 		require_once BDD_CONFIG;
 		try {
-			DB::insert(PREFIX_BDD.static::$BDDName, $toInsert);
-		} catch(MeekroDBException $e) {
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("INSERT INTO ".PREFIX_BDD.static::$BDDName." (".join(",", array_keys($toInsert)).") VALUES (".join(",", array_fill(0, count($toInsert), "?")).")");
+			$stmt->execute(array_values($toInsert));
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), static::$BDDName."/insertion");
 			return null;
 		}
-		$this->id=DB::insertId();
+		$this->id=$pdo->lastInsertId();
 		$this->values["id"] = $this->id;
 		EC::add($this." créé avec succès.");
 		return $this->id;
@@ -176,8 +187,11 @@ abstract class Item
 		}
 		require_once BDD_CONFIG;
 		try{
-			DB::update(PREFIX_BDD.static::$BDDName, $this->toArray(),"id=%i",$this->id);
-		} catch(MeekroDBException $e) {
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("UPDATE ".PREFIX_BDD.static::$BDDName." SET ".join("=?,", array_keys($this->toArray()))."=? WHERE id=?");
+			$stmt->execute(array_values($this->toArray()));
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), static::$BDDName."/update");
 			return false;
 		}

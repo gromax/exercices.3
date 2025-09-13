@@ -2,10 +2,10 @@
 
 namespace BDDObject;
 
-use DB;
+use PDO;
+use PDOException;
 use ErrorController as EC;
 use SessionController as SC;
-use MeekroDBException;
 
 final class Message extends Item
 {
@@ -29,11 +29,18 @@ final class Message extends Item
 	{
 		require_once BDD_CONFIG;
 		try {
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			// en tant qu'expéditeur
-			$expediteur_bdd_result = DB::query("SELECT m.id, m.idOwner, m.message, m.aUE, m.date, 'Moi' AS ownerName, m.idDest, CONCAT(u.nom,' ',u.prenom) AS destName, 1 AS lu FROM (".PREFIX_BDD."messages m JOIN ".PREFIX_BDD."users u ON u.id=m.idDest) WHERE m.idOwner=%i", $idUser);
+			$stmt = $pdo->prepare("SELECT m.id, m.idOwner, m.message, m.aUE, m.date, 'Moi' AS ownerName, m.idDest, CONCAT(u.nom,' ',u.prenom) AS destName, 1 AS lu FROM (".PREFIX_BDD."messages m JOIN ".PREFIX_BDD."users u ON u.id=m.idDest) WHERE m.idOwner=:idOwner");
+			$stmt->execute(array(':idOwner' => $idUser));
+			$expediteur_bdd_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 			// en tant que récepteur
-			$recepteur_bdd_result=DB::query("SELECT m.id, m.idOwner, m.message, m.aUE, m.date, CONCAT(u.prenom, ' ', u.nom) AS ownerName, '".$idUser."' AS idDest, 'Moi' AS destName, m.lu FROM (".PREFIX_BDD."messages m JOIN ".PREFIX_BDD."users u ON u.id = m.idOwner) WHERE m.idDest=%i", $idUser);
-		} catch(MeekroDBException $e) {
+			$stmt = $pdo->prepare("SELECT m.id, m.idOwner, m.message, m.aUE, m.date, CONCAT(u.prenom, ' ', u.nom) AS ownerName, :idDest AS idDest, 'Moi' AS destName, m.lu FROM (".PREFIX_BDD."messages m JOIN ".PREFIX_BDD."users u ON u.id = m.idOwner) WHERE m.idDest=:idDest");
+			$stmt->execute(array(':idDest' => $idUser));
+			$recepteur_bdd_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), "Messages/getList");
 			return array("error"=>true, "message"=>$e->getMessage());
 		}
@@ -48,9 +55,12 @@ final class Message extends Item
 	{
 		require_once BDD_CONFIG;
 		try{
-			DB::query("SELECT id FROM ".PREFIX_BDD.static::$BDDName." WHERE idDest = %i AND lu = 0", $idUser);
-			return DB::count();
-		} catch(MeekroDBException $e) {
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("SELECT id FROM ".PREFIX_BDD.static::$BDDName." WHERE idDest = :idDest AND lu = 0");
+			$stmt->execute(array(':idDest' => $idUser));
+			return $stmt->rowCount();
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), 'Messages/unReadNumber');
 		}
 		return 0;
@@ -74,9 +84,15 @@ final class Message extends Item
 	{
 		require_once BDD_CONFIG;
 		try{
-			DB::update(PREFIX_BDD.static::$BDDName, array("lu" => true), "id=%i", $this->id);
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("UPDATE ".PREFIX_BDD.static::$BDDName." SET lu = :lu WHERE id = :id");
+			$stmt->execute(array(
+				':lu' => true,
+				':id' => $this->id
+			));
 			$this->values['lu'] = true;
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), static::$BDDName."/setLu");
 			return false;
 		}
@@ -89,13 +105,17 @@ final class Message extends Item
 		// utile pour construire la réponse lors d'une insertion de message
 		require_once BDD_CONFIG;
 		try {
-			$out = DB::queryFirstRow("SELECT CONCAT(nom,' ',prenom) as fullname FROM ".PREFIX_BDD."users WHERE id = %i",$this->values['idDest']);
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("SELECT CONCAT(nom,' ',prenom) as fullname FROM ".PREFIX_BDD."users WHERE id = :id");
+			$stmt->execute(array(':id' => $this->values['idDest']));
+			$out = $stmt->fetch(PDO::FETCH_ASSOC);
 			if ($out !== null) {
 				return $out["fullname"];
 			} else {
 				return "?";
 			}
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			if (BDD_DEBUG_ON) return array('error'=>true, 'message'=>"#User/getList : ".$e->getMessage());
 			return "?";
 		}

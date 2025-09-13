@@ -3,8 +3,8 @@ namespace BDDObject;
 
 use ErrorController as EC;
 use SessionController as SC;
-use DB;
-use MeekroDBException;
+use PDO;
+use PDOException;
 
 final class Note
 {
@@ -44,27 +44,44 @@ final class Note
 		//renvoie les assoc entre un user et un exercice dans une fiche
 		require_once BDD_CONFIG;
 		try {
+			$pdo = new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			if (isset($params['idFiche'])) {
 				// Toutes les assocs dans une fiche
 				$idFiche = (integer) $params['idFiche'];
 				if (isset($params['idUser'])) {
 					$idUser = (integer) $params['idUser'];
-					return DB::query("SELECT ue.id, ue.aUF, ue.date, ue.note, ue.inputs, ue.answers, ue.finished, ue.aEF FROM ".PREFIX_BDD."assocUE ue INNER JOIN ".PREFIX_BDD."assocUF uf ON ue.aUF = uf.id WHERE uf.idFiche=%i AND uf.idUser=%i ORDER BY ue.date",$idFiche,$idUser);
-				} else return DB::query("SELECT ue.aUF, ue.aEF, ue.note FROM ".PREFIX_BDD."assocUE ue INNER JOIN ".PREFIX_BDD."assocUF uf ON ue.aUF = uf.id WHERE uf.idFiche=%i ORDER BY ue.aUF, ue.aEF, ue.date",$idFiche);
-				//return DB::query("SELECT ue.id, ue.aUF, ue.date, ue.note, ue.inputs, ue.answers, ue.finished, ue.aEF FROM ".PREFIX_BDD."assocUE ue INNER JOIN ".PREFIX_BDD."assocUF uf ON ue.aUF = uf.id WHERE uf.idFiche=%i ORDER BY uf.idUser, ue.date",$idFiche);
+					$stmt = $pdo->prepare("SELECT ue.id, ue.aUF, ue.date, ue.note, ue.inputs, ue.answers, ue.finished, ue.aEF FROM ".PREFIX_BDD."assocUE ue INNER JOIN ".PREFIX_BDD."assocUF uf ON ue.aUF = uf.id WHERE uf.idFiche=:idFiche AND uf.idUser=:idUser ORDER BY ue.date");
+					$stmt->execute(array(':idFiche' => $idFiche, ':idUser' => $idUser));
+					return $stmt->fetchAll(PDO::FETCH_ASSOC);
+				} else {
+					$stmt = $pdo->prepare("SELECT ue.aUF, ue.aEF, ue.note FROM ".PREFIX_BDD."assocUE ue INNER JOIN ".PREFIX_BDD."assocUF uf ON ue.aUF = uf.id WHERE uf.idFiche=:idFiche ORDER BY ue.aUF, ue.aEF, ue.date");
+					$stmt->execute(array(':idFiche' => $idFiche));
+					return $stmt->fetchAll(PDO::FETCH_ASSOC);
+				}
 			} elseif (isset($params['idUser'])) {
 				$idUser = (integer) $params['idUser'];
-				return DB::query("SELECT ue.id, ue.aUF, ue.date, ue.note, ue.inputs, ue.answers, ue.finished, ue.aEF FROM ".PREFIX_BDD."assocUE ue INNER JOIN ".PREFIX_BDD."assocUF uf ON ue.aUF = uf.id WHERE uf.idUser=%i ORDER BY ue.date",$idUser);
+				$stmt = $pdo->prepare("SELECT ue.id, ue.aUF, ue.date, ue.note, ue.inputs, ue.answers, ue.finished, ue.aEF FROM ".PREFIX_BDD."assocUE ue INNER JOIN ".PREFIX_BDD."assocUF uf ON ue.aUF = uf.id WHERE uf.idUser=:idUser ORDER BY ue.date");
+				$stmt->execute(array(':idUser' => $idUser));
+				return $stmt->fetchAll(PDO::FETCH_ASSOC);
 			} elseif (isset($params['usersList'])) {
-				return DB::query("SELECT ue.id, ue.aUF, ue.date, ue.note, ue.inputs, ue.answers, ue.finished, ue.aEF FROM ".PREFIX_BDD."assocUE ue INNER JOIN ".PREFIX_BDD."assocUF uf ON ue.aUF = uf.id WHERE uf.idUser IN %li ORDER BY ue.date",$params['usersList']);
+				$stmt = $pdo->prepare("SELECT ue.id, ue.aUF, ue.date, ue.note, ue.inputs, ue.answers, ue.finished, ue.aEF FROM ".PREFIX_BDD."assocUE ue INNER JOIN ".PREFIX_BDD."assocUF uf ON ue.aUF = uf.id WHERE uf.idUser IN (:usersList) ORDER BY ue.date");
+				$stmt->execute(array(':usersList' => $params['usersList']));
+				return $stmt->fetchAll(PDO::FETCH_ASSOC);
 			} elseif (isset($params['idOwner'])) {
 				$idOwner = (integer) $params['idOwner'];
-				return DB::query("SELECT ue.id, ue.aUF, ue.date, ue.note, ue.inputs, ue.answers, ue.finished, ue.aEF FROM ((".PREFIX_BDD."assocUE ue INNER JOIN ".PREFIX_BDD."assocUF uf ON ue.aUF = uf.id) INNER JOIN ".PREFIX_BDD."fiches f ON f.id = uf.idFiche) WHERE f.idOwner=%i ORDER BY ue.date",$idOwner);
+				$stmt = $pdo->prepare("SELECT ue.id, ue.aUF, ue.date, ue.note, ue.inputs, ue.answers, ue.finished, ue.aEF FROM ((".PREFIX_BDD."assocUE ue INNER JOIN ".PREFIX_BDD."assocUF uf ON ue.aUF = uf.id) INNER JOIN ".PREFIX_BDD."fiches f ON f.id = uf.idFiche) WHERE f.idOwner=:idOwner ORDER BY ue.date");
+				$stmt->execute(array(':idOwner' => $idOwner));
+				return $stmt->fetchAll(PDO::FETCH_ASSOC);
 			} elseif (isset($params['idClasse'])) {
 				$idClasse = (integer) $params['idClasse'];
-				return DB::query("SELECT ue.id, ue.aUF, ue.date, ue.note, ue.inputs, ue.answers, ue.finished, ue.aEF FROM ((".PREFIX_BDD."assocUE ue INNER JOIN ".PREFIX_BDD."assocUF uf ON ue.aUF = uf.id) INNER JOIN ".PREFIX_BDD."users u ON u.id = uf.idUser) WHERE u.idClasse=%i ORDER BY ue.date",$idClasse);
+				$stmt = $pdo->prepare("SELECT ue.id, ue.aUF, ue.date, ue.note, ue.inputs, ue.answers, ue.finished, ue.aEF FROM ((".PREFIX_BDD."assocUE ue INNER JOIN ".PREFIX_BDD."assocUF uf ON ue.aUF = uf.id) INNER JOIN ".PREFIX_BDD."users u ON u.id = uf.idUser) WHERE u.idClasse=:idClasse ORDER BY ue.date");
+				$stmt->execute(array(':idClasse' => $idClasse));
+				return $stmt->fetchAll(PDO::FETCH_ASSOC);
 			} else {
-				return DB::query("SELECT ue.id, ue.aUF, ue.date, ue.note, ue.inputs, ue.answers, ue.finished, ue.aEF FROM ".PREFIX_BDD."assocUE ue ORDER BY ue.date");
+				$stmt = $pdo->prepare("SELECT ue.id, ue.aUF, ue.date, ue.note, ue.inputs, ue.answers, ue.finished, ue.aEF FROM ".PREFIX_BDD."assocUE ue ORDER BY ue.date");
+				$stmt->execute();
+				return $stmt->fetchAll(PDO::FETCH_ASSOC);
 			}
 		} catch(MeekroDBException $e) {
 			EC::addBDDError($e->getMessage(), 'Note/getList');
@@ -87,7 +104,11 @@ final class Note
 
 		require_once BDD_CONFIG;
 		try {
-			$bdd_result=DB::queryFirstRow("SELECT ue.id, uf.idUser, ue.aUF, ue.date, ue.note, ue.inputs, ue.answers, ue.finished, ue.aEF FROM ".PREFIX_BDD."assocUE ue INNER JOIN ".PREFIX_BDD."assocUF uf ON ue.aUF = uf.id WHERE ue.id=%i",$id);
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("SELECT ue.id, uf.idUser, ue.aUF, ue.date, ue.note, ue.inputs, ue.answers, ue.finished, ue.aEF FROM ".PREFIX_BDD."assocUE ue INNER JOIN ".PREFIX_BDD."assocUF uf ON ue.aUF = uf.id WHERE ue.id=:id");
+			$stmt->execute(array(':id' => $id));
+			$bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
 			if ($bdd_result === null) {
 				EC::addError("Note introuvable.");
 				return null;
@@ -99,7 +120,7 @@ final class Note
 				else return $note->toArray();
 			}
 			return $bdd_result;
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), 'Note/get');
 			return null;
 		}
@@ -153,20 +174,23 @@ final class Note
 		require_once BDD_CONFIG;
 		try {
 			// Ajout de la note
-			DB::insert(PREFIX_BDD.'assocUE', array(
-				'note' => $this->note,
-				'inputs' => $this->inputs,
-				'answers'=>$this->answers,
-				'finished' => $this->finished,
-				'aEF' => $this->aEF,
-				'aUF' => $this->aUF,
-				'date' => $this->date
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("INSERT INTO ".PREFIX_BDD."assocUE (note, inputs, answers, finished, aEF, aUF, date) VALUES (:note, :inputs, :answers, :finished, :aEF, :aUF, :date)");
+			$stmt->execute(array(
+				':note' => $this->note,
+				':inputs' => $this->inputs,
+				':answers' => $this->answers,
+				':finished' => $this->finished,
+				':aEF' => $this->aEF,
+				':aUF' => $this->aUF,
+				':date' => $this->date
 				));
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(),'Note/insertion');
 			return null;
 		}
-		$this->id=DB::insertId();
+		$this->id=$pdo->lastInsertId();
 		// sauvegarde d'une copie de la note en session
 		if (self::SAVE_IN_SESSION) $session=SC::get()->setParamInCollection('notes', $this->id, $this);
 
@@ -202,8 +226,18 @@ final class Note
 
 		require_once BDD_CONFIG;
 		try{
-			DB::update(PREFIX_BDD.'assocUE', array('note'=>$this->note, 'finished'=>$this->finished, 'answers'=>$this->answers, 'inputs'=>$this->inputs, 'date'=>$this->date),"id=%i",$this->id);
-		} catch(MeekroDBException $e) {
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("UPDATE ".PREFIX_BDD."assocUE SET note = :note, finished = :finished, answers = :answers, inputs = :inputs, date = :date WHERE id = :id");
+			$stmt->execute(array(
+				':note' => $this->note,
+				':finished' => $this->finished,
+				':answers' => $this->answers,
+				':inputs' => $this->inputs,
+				':date' => $this->date,
+				':id' => $this->id
+			));
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), 'Note/update');
 			return false;
 		}
@@ -216,16 +250,20 @@ final class Note
 	{
 		require_once BDD_CONFIG;
 		try {
-			DB::delete(PREFIX_BDD.'assocUE', 'id=%i', $this->id);
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."assocUE WHERE id = :id");
+			$stmt->execute(array(':id' => $this->id));
 			EC::add("La note a bien été supprimée.");
 			if (self::SAVE_IN_SESSION) {
 				SC::get()->unsetParamInCollection('notes', $this->id);
 				SC::get()->unsetParam("messages");
 			}
 			// Il faut supprimer tous les commentaires liés
-			DB::delete(PREFIX_BDD."messages","aUE=%i", $this->id);
+			$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."messages WHERE aUE = :aUE");
+			$stmt->execute(array(':aUE' => $this->id));
 			return true;
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), "Note/Suppression");
 		}
 		return false;

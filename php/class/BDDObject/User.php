@@ -1,8 +1,8 @@
 <?php
 
 namespace BDDObject;
-use DB;
-use MeekroDBException;
+use PDO;
+use PDOException;
 use ErrorController as EC;
 use SessionController as SC;
 
@@ -24,7 +24,6 @@ class User
 	protected $prenom ='';
 	protected $email ='';
 	protected $pref = '';
-	protected $cas = '';
 	protected $date = null;
 	protected $bcryptHash = null;
 
@@ -44,7 +43,6 @@ class User
 		if(isset($options['rank'])) $this->rank = $options['rank'];
 		if(isset($options['pwd'])) $this->updatePwd($options['pwd']);
 		if(isset($options['pref'])) $this->pref=$options['pref'];
-		if(isset($options['cas'])) $this->cas=$options['cas'];
 	}
 
 	public static function getList($params=array())
@@ -55,16 +53,16 @@ class User
 		require_once BDD_CONFIG;
 		try {
 			// on n'utilise pas le champ pseudo
-			if (isset($params['ranks'])) return DB::query("SELECT u.id, idClasse, c.nom AS nomClasse, u.nom, prenom, email, rank, pref, u.date, u.cas FROM (".PREFIX_BDD."users u LEFT JOIN ".PREFIX_BDD."classes c ON u.idClasse = c.id) WHERE rank IN %ls ORDER BY u.date DESC",$params['ranks']);
-			elseif (isset($params['classe'])) return DB::query("SELECT u.id, c.nom AS nomClasse, idClasse, u.nom, prenom, email, rank, pref, u.date, u.cas FROM (".PREFIX_BDD."users u LEFT JOIN ".PREFIX_BDD."classes c ON u.idClasse = c.id) WHERE idClasse=%i",$params['classe']);
+			if (isset($params['ranks'])) return DB::query("SELECT u.id, idClasse, c.nom AS nomClasse, u.nom, prenom, email, rank, pref, u.date FROM (".PREFIX_BDD."users u LEFT JOIN ".PREFIX_BDD."classes c ON u.idClasse = c.id) WHERE rank IN %ls ORDER BY u.date DESC",$params['ranks']);
+			elseif (isset($params['classe'])) return DB::query("SELECT u.id, c.nom AS nomClasse, idClasse, u.nom, prenom, email, rank, pref, u.date FROM (".PREFIX_BDD."users u LEFT JOIN ".PREFIX_BDD."classes c ON u.idClasse = c.id) WHERE idClasse=%i",$params['classe']);
 			elseif (isset($params['classes'])) {
 				if (count($params['classes'])>0) {
-					return DB::query("SELECT u.id, c.nom AS nomClasse, idClasse, u.nom, prenom, email, rank, pref, u.date, u.cas FROM (".PREFIX_BDD."users u LEFT JOIN ".PREFIX_BDD."classes c ON u.idClasse = c.id) WHERE idClasse IN %ls",$params['classes']);
+					return DB::query("SELECT u.id, c.nom AS nomClasse, idClasse, u.nom, prenom, email, rank, pref, u.date FROM (".PREFIX_BDD."users u LEFT JOIN ".PREFIX_BDD."classes c ON u.idClasse = c.id) WHERE idClasse IN %ls",$params['classes']);
 				} else {
 					return array();
 				}
 			}
-			else return DB::query("SELECT u.id, c.nom AS nomClasse, idClasse, u.nom, prenom, email, rank, pref, u.date, u.cas FROM (".PREFIX_BDD."users u LEFT JOIN ".PREFIX_BDD."classes c ON u.idClasse = c.id)");
+			else return DB::query("SELECT u.id, c.nom AS nomClasse, idClasse, u.nom, prenom, email, rank, pref, u.date FROM (".PREFIX_BDD."users u LEFT JOIN ".PREFIX_BDD."classes c ON u.idClasse = c.id)");
 		} catch(MeekroDBException $e) {
 			if (BDD_DEBUG_ON) return array('error'=>true, 'message'=>"#User/getList : ".$e->getMessage());
 			return array('error'=>true, 'message'=>'Erreur BDD');
@@ -88,7 +86,7 @@ class User
 		// Pas trouvé dans la session, il faut chercher en bdd
 		require_once BDD_CONFIG;
 		try {
-			$bdd_result=DB::queryFirstRow("SELECT id, idClasse, nom, prenom, email, rank, date, cas FROM ".PREFIX_BDD."users WHERE id=%s", $idUser);
+			$bdd_result=DB::queryFirstRow("SELECT id, idClasse, nom, prenom, email, `rank`, date FROM ".PREFIX_BDD."users WHERE id=%s", $idUser);
 			if ($bdd_result === null) return null;
 
 			if ($returnObject || self::SAVE_IN_SESSION) {
@@ -136,36 +134,11 @@ class User
 		return false;
 	}
 
-	public static function casExists($cas)
-	{
-		if ($cas!='') {
-			require_once BDD_CONFIG;
-			try {
-				// Vérification que l'id cas n'existe pas déjà
-				$results = DB::query("SELECT id FROM ".PREFIX_BDD."users WHERE cas=%s",$cas);
-				if (DB::count()>0) return $results[0]["id"];
-			} catch(MeekroDBException $e) {
-				EC::addBDDError($e->getMessage());
-			}
-		}
-		return false;
-	}
-
 	##################################### METHODES #####################################
 
 	public function __toString()
 	{
 		return $this->nom;
-	}
-
-	public function casToEmail($force=false)
-	{
-		// si cas est défini, écrase email
-		// si email vide, ou si force
-		if (($this->cas!="") && ( $force || ($this->email=="")  ))
-		{
-			$this->email = $this->cas."@".CAS_MAIL_DOMAIN;
-		}
 	}
 
 	public function identifiant()
@@ -261,8 +234,6 @@ class User
 			$email_errors[] = "L'identifiant (email) existe déjà.";
 		if (count($email_errors)>0)
 			$errors['email'] = $email_errors;
-		if (self::casExists($this->cas))
-			$errors['cas'] = "L'identifiant CAS existe déjà";
 		if (count($errors)>0)
 			return $errors;
 		else
@@ -307,13 +278,6 @@ class User
 		if (isset($params['rank']) && ($params['rank']!=$this->rank))
 		{
 			$errors['rank'] = array("Le rang ne peut pas être modifié.");
-		}
-		if (isset($params['cas']) && ($params['cas']!==$this->cas))
-		{
-			if (self::casExists($params['cas']))
-			{
-				$errors['cas'] = "L'identifiant CAS existe déjà.";
-			}
 		}
 		if (count($errors)>0)
 			return $errors;
@@ -361,12 +325,6 @@ class User
 			$bddModif=true;
 		}
 
-		if(isset($params['cas']))
-		{
-			$this->cas = $params['cas'];
-			$bddModif=true;
-		}
-
 		if (!$bddModif)
 		{
 			EC::add("Aucune modification.");
@@ -409,8 +367,14 @@ class User
 		$this->date = date('Y-m-d H:i:s');
 		require_once BDD_CONFIG;
 		try{
-			DB::update(PREFIX_BDD.'users', array("date"=>$this->date),"id=%i",$this->id);
-		} catch(MeekroDBException $e) {
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("UPDATE ".PREFIX_BDD."users SET date=:date WHERE id=:id");
+			$stmt->execute(array(
+				':date' => $this->date,
+				':id' => $this->id
+			));
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), 'User/updateTime');
 		}
 		return $this;
@@ -430,7 +394,6 @@ class User
 			'rank'=>$this->rank,
 			'date'=>$this->date,
 			'pref'=>$this->pref,
-			'cas' =>$this->cas
 		);
 		if ($this->id !== null) $answer['id']=$this->id;
 		if ($this->idClasse !== null) $answer['idClasse'] = $this->idClasse;
@@ -447,8 +410,7 @@ class User
 			'email'=>$this->email,
 			'rank'=>$this->rank,
 			'date'=>$this->date,
-			'pref'=>$this->pref,
-			'cas' =>$this->cas
+			'pref'=>$this->pref
 		);
 
 		if ($this->id !== null) $answer['id']=$this->id;

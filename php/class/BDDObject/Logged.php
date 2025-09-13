@@ -100,7 +100,7 @@ class Logged extends User
       {
         $idUser = (integer) $initKeys_result['idUser'];
         DB::delete(PREFIX_BDD.'initKeys', 'idUser=%i', $idUser);
-        $bdd_result = DB::queryFirstRow("SELECT id, idClasse, nom, prenom, email, pref, rank, cas FROM ".PREFIX_BDD."users WHERE id=%i", $idUser);
+        $bdd_result = DB::queryFirstRow("SELECT id, idClasse, nom, prenom, email, pref, `rank` FROM ".PREFIX_BDD."users WHERE id=%i", $idUser);
         if ($bdd_result !== null)
         { // Connexion réussie
           return (new Logged($bdd_result))->updateTime()->setConnectedUser();
