@@ -61,7 +61,6 @@ class session
                 $logged->toArray(),
                 array("unread"=>Message::unReadNumber($logged->getId()) )
             );
-            //return $logged->toArray();
         }
     }
 
