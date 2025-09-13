@@ -4,7 +4,6 @@ import Radio from 'backbone.radio';
 
 
 const HeaderView = View.extend({
-  channelName: "header",
   template: header_tpl,
   logged: { isOff: true },
   triggers: {
