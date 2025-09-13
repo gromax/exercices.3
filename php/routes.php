@@ -2,10 +2,6 @@
 require "../php/class/Router.php";
 $router = Router::getInstance();
 
-// auth
-// Expérimental
-$router->addRule('api/auth', 'cas', 'authAccess', 'GET'); // Session active
-
 // session
 $router->addRule('api/session', 'session', 'fetch', 'GET'); // Session active
 $router->addRule('api/session/:id', 'session', 'insert', 'PUT'); // reconnexion
