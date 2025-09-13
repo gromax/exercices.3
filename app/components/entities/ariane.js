@@ -13,7 +13,7 @@ const home = {
     active: false
 }
 
-const ArianeController = {
+const arianeController = {
     collection: new ArianeCollection([ home ]), // comme on ne parse pas ici, le active restera false
     reset(models) {
         models.unshift(home)
@@ -37,4 +37,4 @@ const ArianeController = {
     }
 }
 
-export { ArianeController }
+export { arianeController }
