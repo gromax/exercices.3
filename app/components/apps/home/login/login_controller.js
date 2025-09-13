@@ -2,10 +2,6 @@ import Radio from 'backbone.radio';
 import { MnObject, Region } from 'backbone.marionette';
 import { LoginView } from '@apps/home/login/login_view.js';
 
-const myRegion = new Region({
-  el: '#main-region'
-});
-
 const headerChannel = Radio.channel("header");
 const sessionChannel = Radio.channel("session");
 const commonChannel = Radio.channel("common");
@@ -13,6 +9,7 @@ const commonChannel = Radio.channel("common");
 const Controller = MnObject.extend({
   channelName: "navigation",
   showLogin() {
+    console.log("Affichage de la page de connexion");
     const channel = this.getChannel();
     const view = new LoginView({ generateTitle: true, showForgotten:true });
     view.on("form:submit", (data) => {
@@ -20,7 +17,21 @@ const Controller = MnObject.extend({
       let openingSession = logged.save(data);
       if (openingSession){
         headerChannel.trigger("loading:up");
-        Promise.resolve(openingSession)
+        $.when(openingSession).done( function(response){
+          channel.trigger("home:show");
+        }).fail((xhr) => {
+          console.log("réponse erreur :");
+          console.log(xhr); // Ou pour voir tout l'objet
+          console.log('responseJSON:', xhr.responseJSON);
+          console.log('responseText:', xhr.responseText);
+          console.log('response:', xhr);
+          console.log('responseStatus:', xhr.status);
+          
+          commonChannel.trigger("data:fetch:fail", xhr, "025");
+        }).always(() => {
+          headerChannel.trigger("loading:down");
+        });
+        /*Promise.resolve(openingSession)
           .then(() => {
             channel.trigger("home:show");
           })
@@ -29,7 +40,7 @@ const Controller = MnObject.extend({
           })
           .finally(() => {
             headerChannel.trigger("loading:down");
-          })
+          })*/
       } else {
         view.triggerMethod("form:data:invalid", logged.validationError);
       }
@@ -55,7 +66,7 @@ const Controller = MnObject.extend({
         })
       }
     });
-    myRegion.show(view);
+    new Region({ el: '#main-region'}).show(view);
   },
   showReLogin(options) {
     let that = this;
@@ -89,7 +100,7 @@ const Controller = MnObject.extend({
         view.triggerMethod("form:data:invalid", [{success:false, message:"C'est une reconnexion : Vous devez réutiliser le même identifiant que précedemment."}]);
       }
     });
-    view.render();
+    new Region({ el: '#main-region'}).show(view);
   }
 });
 
