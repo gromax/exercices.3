@@ -15,6 +15,7 @@ const HomeApp = MnObject.extend({
   },
 
   onShow() {
+    console.log("Navigation vers l'accueil");
     Backbone.history.navigate("home", {});
     this.showHome();
   },
