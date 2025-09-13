@@ -16,7 +16,7 @@ const HeaderApp = MnObject.extend({
   },
   ajaxCount: 0,
 
-  initialze() {
+  initialize() {
     navbar.on("home:show", this.onHomeShow);
     navbar.on("home:editme", this.onHomeEditme);
     navbar.on("home:login", this.onHomeLogin);
