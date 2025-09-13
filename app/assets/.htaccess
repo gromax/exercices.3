@@ -1,0 +1,4 @@
+AddDefaultCharset UTF-8
+Options +FollowSymlinks
+RewriteEngine On
+RewriteRule ^api/ ./api.php [L]
