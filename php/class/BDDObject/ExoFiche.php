@@ -2,15 +2,14 @@
 
 namespace BDDObject;
 
-use DB;
+use PDO;
 use SessionController as SC;
 use ErrorController as EC;
-use MeekroDBException;
+use PDOException;
 
 
 final class ExoFiche
 {
-	const SAVE_IN_SESSION = true;
 
 	private static $_liste = null;
 
@@ -37,31 +36,24 @@ final class ExoFiche
 	public static function get($id,$returnObject=false)
 	{
 		if ($id === null) return null;
-
-		if (self::SAVE_IN_SESSION) {
-			// On essaie de récupérer l'assoc en session
-			$exofiche = SC::get()->getParamInCollection('exosfiche', $id, null);
-			if ($exofiche !== null){
-				if ($returnObject) return $exofiche;
-				else return $exofiche->toArray();
-			}
-		}
-
 		require_once BDD_CONFIG;
 		try {
-			$bdd_result=DB::queryFirstRow("SELECT id, idE, idFiche, num, coeff, options FROM ".PREFIX_BDD."assocEF WHERE id=%s", $id);
+			$pdo = new PDO(BDD_DSN, BDD_USER, BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("SELECT id, idE, idFiche, num, coeff, options FROM ".PREFIX_BDD."assocEF WHERE id = :id");
+			$stmt->execute(array(':id' => $id));
+			$bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
 			if ($bdd_result === null) {
 				EC::addError("Association Exercice-Fiche introuvable.");
 				return null;
 			}
-			if ($returnObject || self::SAVE_IN_SESSION) {
-				$exoFicheObject = new ExoFiche($bdd_result);
-				if (self::SAVE_IN_SESSION) SC::get()->setParamInCollection('exosfiche', $exoFicheObject->getId(), $exoFicheObject);
-				if ($returnObject) return $exoFicheObject;
+			if ($returnObject) {
+				return new ExoFiche($bdd_result);
+			}
 				else return $exoFicheObject->toArray();
 			}
 			return $bdd_result;
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), 'ExoFiche/get');
 			return null;
 		}
@@ -77,23 +69,36 @@ final class ExoFiche
 		// Charge en une seule fois l'ensemble des informations sur les fiches
 		require_once BDD_CONFIG;
 		try{
+			// Filtrage des paramètres
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			if (isset($params['idFiche'])) {
 				$idFiche = (integer) $params['idFiche'];
-				return DB::query("SELECT id, idE, num, coeff, options FROM ".PREFIX_BDD."assocEF WHERE idFiche=%i",$idFiche);
+				$stmt = $pdo->prepare("SELECT id, idE, num, coeff, options FROM ".PREFIX_BDD."assocEF WHERE idFiche = :idFiche");
+				$stmt->execute(array(':idFiche' => $idFiche));
+				return $stmt->fetchAll(PDO::FETCH_ASSOC);
 			} elseif (isset($params['idUser'])) {
 				$idUser = (integer) $params['idUser'];
-				return DB::query("SELECT DISTINCT f.id, f.idE, f.num, f.coeff, f.options, f.idFiche FROM ".PREFIX_BDD."assocEF f INNER JOIN ".PREFIX_BDD."assocUF u ON f.idFiche = u.idFiche WHERE u.idUser=%i",$idUser);
+				$stmt = $pdo->prepare("SELECT DISTINCT f.id, f.idE, f.num, f.coeff, f.options, f.idFiche FROM ".PREFIX_BDD."assocEF f INNER JOIN ".PREFIX_BDD."assocUF u ON f.idFiche = u.idFiche WHERE u.idUser = :idUser");
+				$stmt->execute(array(':idUser' => $idUser));
+				return $stmt->fetchAll(PDO::FETCH_ASSOC);
 				// Cherche dans les noeuds liant l'utilisateur à une fiche. En admettant qu'il y ait plusieurs lien d'un même utilisateur à une fiche, on ne doit renvoyer ici qu'une mention (ou pas ?)
 			} elseif (isset($params['idOwner'])) {
 				$idOwner = (integer) $params['idOwner'];
-				return DB::query("SELECT f.id, f.idE, f.num, f.coeff, f.options, f.idFiche FROM ".PREFIX_BDD."assocEF f INNER JOIN ".PREFIX_BDD."fiches u ON f.idFiche = u.id WHERE u.idOwner=%i",$idOwner);
+				$stmt = $pdo->prepare("SELECT f.id, f.idE, f.num, f.coeff, f.options, f.idFiche FROM ".PREFIX_BDD."assocEF f INNER JOIN ".PREFIX_BDD."fiches u ON f.idFiche = u.id WHERE u.idOwner = :idOwner");
+				$stmt->execute(array(':idOwner' => $idOwner));
+				return $stmt->fetchAll(PDO::FETCH_ASSOC);
 			} elseif (isset($params['idClasse'])) {
-				$Classe = (integer) $params['iClasse'];
-				return DB::query("SELECT f.id, f.idE, f.num, f.coeff, f.options, f.idFiche, f.idUser FROM ".PREFIX_BDD."assocEF f INNER JOIN ".PREFIX_BDD."users u ON f.idUser = u.id WHERE u.idClasse=%i",$idClasse);
+				$idClasse = (integer) $params['idClasse'];
+				$stmt = $pdo->prepare("SELECT f.id, f.idE, f.num, f.coeff, f.options, f.idFiche, f.idUser FROM ".PREFIX_BDD."assocEF f INNER JOIN ".PREFIX_BDD."users u ON f.idUser = u.id WHERE u.idClasse = :idClasse");
+				$stmt->execute(array(':idClasse' => $idClasse));
+				return $stmt->fetchAll(PDO::FETCH_ASSOC);
 			} else {
-				return DB::query("SELECT id, idE, num, coeff, options, idFiche FROM ".PREFIX_BDD."assocEF");
+				$stmt = $pdo->prepare("SELECT id, idE, num, coeff, options, idFiche FROM ".PREFIX_BDD."assocEF");
+				$stmt->execute();
+				return $stmt->fetchAll(PDO::FETCH_ASSOC);
 			}
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), 'ExoFiche/getList');
 		}
 		return array();
@@ -115,13 +120,16 @@ final class ExoFiche
 	{
 		require_once BDD_CONFIG;
 		try {
-			DB::insert(PREFIX_BDD.'assocEF', $this->toArray());
-		} catch(MeekroDBException $e) {
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("INSERT INTO ".PREFIX_BDD."assocEF (".join(",", array_keys($this->toArray())).") VALUES (".join(",", array_fill(0, count($this->toArray()), "?")).")");
+			$stmt->execute(array_values($this->toArray()));
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), 'ExoFiche/insertion');
 			return null;
 		}
 
-		$this->id = DB::insertId();
+		$this->id = $pdo->lastInsertId();
 
 		EC::add("Association Exercice-Fiche créée avec succès");
 
@@ -133,13 +141,16 @@ final class ExoFiche
 		require_once BDD_CONFIG;
 		try {
 			// Suppression des notes liées à l'exercice
-			DB::delete(PREFIX_BDD.'assocUE', 'aEF=%i', $this->id);
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."assocUE WHERE aEF = :id");
+			$stmt->execute(array(':id' => $this->id));
 			// Suppression de l'exercice
-			DB::delete(PREFIX_BDD.'assocEF', 'id=%i', $this->id);
+			$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."assocEF WHERE id = :id");
+			$stmt->execute(array(':id' => $this->id));
 			EC::add("L'exercice a bien été supprimé.");
-			if (self::SAVE_IN_SESSION) $session=SC::get()->unsetParamInCollection('exosfiche', $this->id);
 			return true;
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), "ExoFiche/Suppression");
 		}
 		return false;
@@ -167,8 +178,11 @@ final class ExoFiche
 
 		require_once BDD_CONFIG;
 		try{
-			DB::update(PREFIX_BDD.'assocEF', $this->toArray(),"id=%i",$this->id);
-		} catch(MeekroDBException $e) {
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("UPDATE ".PREFIX_BDD."assocEF SET ".join("=?,", array_keys($this->toArray()))."=? WHERE id=?");
+			$stmt->execute(array_merge(array_values($this->toArray()), array($this->id)));
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), 'ExoFiche/update');
 			return false;
 		}

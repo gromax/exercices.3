@@ -4,8 +4,6 @@
 namespace BDDObject;
 use PDO;
 use PDOException;
-use DB;
-use MeekroDBException;
 use ErrorController as EC;
 use SessionController as SC;
 
@@ -95,19 +93,29 @@ class Logged extends User
   {
     require_once BDD_CONFIG;
     try {
-      $initKeys_result = DB::queryFirstRow("SELECT id, idUser FROM ".PREFIX_BDD."initKeys WHERE initKey=%s", $key);
+      $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $stmt = $pdo->prepare("SELECT id, idUser FROM ".PREFIX_BDD."initKeys WHERE initKey=:initKey");
+      $stmt->bindValue(':initKey', $key, PDO::PARAM_STR);
+      $stmt->execute();
+      $initKeys_result = $stmt->fetch(PDO::FETCH_ASSOC);
       if ($initKeys_result !== null)
       {
         $idUser = (integer) $initKeys_result['idUser'];
-        DB::delete(PREFIX_BDD.'initKeys', 'idUser=%i', $idUser);
-        $bdd_result = DB::queryFirstRow("SELECT id, idClasse, nom, prenom, email, pref, `rank` FROM ".PREFIX_BDD."users WHERE id=%i", $idUser);
+        $stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."initKeys WHERE idUser=:idUser");
+        $stmt->bindValue(':idUser', $idUser, PDO::PARAM_INT);
+        $stmt->execute();
+        $stmt = $pdo->prepare("SELECT id, idClasse, nom, prenom, email, pref, `rank` FROM ".PREFIX_BDD."users WHERE id=:id");
+        $stmt->bindValue(':id', $idUser, PDO::PARAM_INT);
+        $stmt->execute();
+        $bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($bdd_result !== null)
         { // Connexion réussie
           return (new Logged($bdd_result))->updateTime()->setConnectedUser();
         }
       }
     }
-    catch(MeekroDBException $e)
+    catch(PDOException $e)
     {
       EC::addBDDError($e->getMessage(), 'Logged/tryInitMDP');
     }

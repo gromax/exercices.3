@@ -8,7 +8,6 @@ use PDOException;
 
 final class Note
 {
-	const SAVE_IN_SESSION = true;
 	private static $_liste = null;
 
 	private $idUser = null;
@@ -93,15 +92,6 @@ final class Note
 	{
 		if ($id === null) return null;
 
-		if (self::SAVE_IN_SESSION) {
-			// On essaie de récupérer l'assoc en session
-			$note = SC::get()->getParamInCollection('notes', $id, null);
-			if ($note !== null){
-				if ($returnObject) return $note;
-				else return $note->toArray();
-			}
-		}
-
 		require_once BDD_CONFIG;
 		try {
 			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
@@ -113,11 +103,8 @@ final class Note
 				EC::addError("Note introuvable.");
 				return null;
 			}
-			if ($returnObject || self::SAVE_IN_SESSION) {
-				$note = new Note($bdd_result);
-				if (self::SAVE_IN_SESSION) SC::get()->setParamInCollection('notes', $note->getId(), $note);
-				if ($returnObject) return $note;
-				else return $note->toArray();
+			if ($returnObject) {
+				return new Note($bdd_result);
 			}
 			return $bdd_result;
 		} catch(PDOException $e) {
@@ -191,9 +178,6 @@ final class Note
 			return null;
 		}
 		$this->id=$pdo->lastInsertId();
-		// sauvegarde d'une copie de la note en session
-		if (self::SAVE_IN_SESSION) $session=SC::get()->setParamInCollection('notes', $this->id, $this);
-
 		EC::add("La note a bien été ajoutée.");
 		return $this->id;
 	}
@@ -255,10 +239,6 @@ final class Note
 			$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."assocUE WHERE id = :id");
 			$stmt->execute(array(':id' => $this->id));
 			EC::add("La note a bien été supprimée.");
-			if (self::SAVE_IN_SESSION) {
-				SC::get()->unsetParamInCollection('notes', $this->id);
-				SC::get()->unsetParam("messages");
-			}
 			// Il faut supprimer tous les commentaires liés
 			$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."messages WHERE aUE = :aUE");
 			$stmt->execute(array(':aUE' => $this->id));

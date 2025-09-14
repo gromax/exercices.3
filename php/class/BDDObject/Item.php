@@ -8,7 +8,6 @@ use SessionController as SC;
 
 abstract class Item
 {
-	const	SAVE_IN_SESSION = true;
 	protected $id = null;
 	protected $values = null;
 	protected static $BDDName = "Item";
@@ -67,12 +66,6 @@ abstract class Item
 		if (is_numeric($idInput)) {
 			$id = (integer) $idInput;
 		} else return null;
-		if (self::SAVE_IN_SESSION) {
-			$item = SC::get()->getParamInCollection(static::$BDDName, $id, null);
-			if ($item !== null){
-				return $item;
-			}
-		}
 
 		// Pas trouvé dans la session, il faut chercher en bdd
 		require_once BDD_CONFIG;
@@ -85,11 +78,8 @@ abstract class Item
 			if ($bdd_result === null) return null;
 
 			$item = new static($bdd_result);
-			if (self::SAVE_IN_SESSION) {
-				SC::get()->setParamInCollection(static::$BDDName, $item->id, $item);
-			}
 			return $item;
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(),static::$BDDName."/getObject");
 		}
 		return null;
@@ -126,13 +116,11 @@ abstract class Item
 				foreach ($arr as $table => $col) {
 					$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD.$table." WHERE ".$col." = :id");
 					$stmt->execute(array(':id' => $this->id));
-					if (static::SAVE_IN_SESSION) $session=SC::get()->unsetParam($table);
 				}
 			}
 			$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD.static::$BDDName." WHERE id = :id");
 			$stmt->execute(array(':id' => $this->id));
 			EC::add($message);
-			if (static::SAVE_IN_SESSION) $session=SC::get()->unsetParamInCollection(static::$BDDName, $this->id);
 			return true;
 		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), static::$BDDName."/delete");

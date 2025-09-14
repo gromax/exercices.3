@@ -2,15 +2,13 @@
 
 namespace BDDObject;
 
-use DB;
+use PDO;
+use PDOException;
 use ErrorController as EC;
 use SessionController as SC;
-use MeekroDBException;
 
 final class Fiche
 {
-	const SAVE_IN_SESSION = true;
-
 	private $id=null;					// id en BDD
 	private $idOwner=null;				// id du créateur de la fiche
 	private $nom = 'Nouvelle série';	// nom de la série d'exercices
@@ -60,30 +58,22 @@ final class Fiche
 	{
 		if ($id === null) return null;
 
-		if (self::SAVE_IN_SESSION) {
-			// On essaie de récupérer la fiche en session
-			$fiche = SC::get()->getParamInCollection('fiches', $id, null);
-			if ($fiche !== null){
-				if ($returnObject) return $fiche;
-				else return $fiche->toArray();
-			}
-		}
-
 		require_once BDD_CONFIG;
 		try {
-			$bdd_result=DB::queryFirstRow("SELECT id, idOwner, nom, date, description, visible, actif FROM ".PREFIX_BDD."fiches WHERE id=%s", $id);
+			$pdo = new PDO(BDD_DSN, BDD_USER, BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("SELECT id, idOwner, nom, date, description, visible, actif FROM ".PREFIX_BDD."fiches WHERE id = :id");
+			$stmt->execute(array(':id' => $id));
+			$bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
 			if ($bdd_result === null) {
 				EC::addError("Fiche introuvable.");
 				return null;
 			}
-			if ($returnObject || self::SAVE_IN_SESSION) {
-				$ficheObject = new Fiche($bdd_result);
-				if (self::SAVE_IN_SESSION) SC::get()->setParamInCollection('fiches', $ficheObject->getId(), $ficheObject);
-				if ($returnObject) return $ficheObject;
-				else return $ficheObject->toArray();
+			if ($returnObject) {
+				return new Fiche($bdd_result);
 			}
 			return $bdd_result;
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), 'Fiche/get');
 			return null;
 		}
@@ -105,13 +95,16 @@ final class Fiche
 	{
 		require_once BDD_CONFIG;
 		try {
-			DB::insert(PREFIX_BDD.'fiches', $this->toArray());
-		} catch(MeekroDBException $e) {
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("INSERT INTO ".PREFIX_BDD."fiches (".join(",", array_keys($this->toArray())).") VALUES (".join(",", array_fill(0, count($this->toArray()), "?")).")");
+			$stmt->execute(array_values($this->toArray()));
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), 'Fiche/insertion');
 			return null;
 		}
 
-		$this->id = DB::insertId();
+		$this->id = $pdo->lastInsertId();
 
 		EC::add("Fiche créée avec succès");
 		return $this->id;
@@ -121,24 +114,27 @@ final class Fiche
 	{
 		require_once BDD_CONFIG;
 		try {
-			if (self::SAVE_IN_SESSION) {
-				SC::get()->unsetParamInCollection('fiches', $this->id);
-				SC::get()->unsetParam("messages");
-				SC::get()->unsetParam("notes");
-			}
+			$pdo = new PDO(BDD_DSN, BDD_USER, BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
 			// Suppression des exams liés à la fiche
-			DB::delete(PREFIX_BDD."exams", "idFiche=%i", $this->id);
+			$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."exams WHERE idFiche = :idFiche");
+			$stmt->execute(array(':idFiche' => $this->id));
 			// Suppression des messages liés à des exercices de la fiche
-			DB::query("DELETE ".PREFIX_BDD."messages FROM ((".PREFIX_BDD."messages JOIN ".PREFIX_BDD."assocUE ON ".PREFIX_BDD."assocUE.id = ".PREFIX_BDD."messages.aUE) JOIN ".PREFIX_BDD."assocEF ON ".PREFIX_BDD."assocEF.id=".PREFIX_BDD."assocUE.aEF) WHERE ".PREFIX_BDD."assocEF.idFiche=%i", $this->id);
+			$stmt = $pdo->prepare("DELETE ".PREFIX_BDD."messages FROM ((".PREFIX_BDD."messages JOIN ".PREFIX_BDD."assocUE ON ".PREFIX_BDD."assocUE.id = ".PREFIX_BDD."messages.aUE) JOIN ".PREFIX_BDD."assocEF ON ".PREFIX_BDD."assocEF.id=".PREFIX_BDD."assocUE.aEF) WHERE ".PREFIX_BDD."assocEF.idFiche = :idFiche");
+			$stmt->execute(array(':idFiche' => $this->id));
 			// Suppression des notes liées aux exercices contenues dans la fiche
-			DB::query("DELETE ".PREFIX_BDD."assocUE FROM ".PREFIX_BDD."assocUE INNER JOIN ".PREFIX_BDD."assocEF ON (".PREFIX_BDD."assocUE.aEF = ".PREFIX_BDD."assocEF.id) WHERE ".PREFIX_BDD."assocEF.idFiche=%i", $this->id);
+			$stmt = $pdo->prepare("DELETE ".PREFIX_BDD."assocUE FROM ".PREFIX_BDD."assocUE INNER JOIN ".PREFIX_BDD."assocEF ON (".PREFIX_BDD."assocUE.aEF = ".PREFIX_BDD."assocEF.id) WHERE ".PREFIX_BDD."assocEF.idFiche = :idFiche");
+			$stmt->execute(array(':idFiche' => $this->id));
 			// Suppression des exercices de la fiche
-			DB::delete(PREFIX_BDD.'assocEF', 'idFiche=%i', $this->id);
+			$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."assocEF WHERE idFiche = :idFiche");
+			$stmt->execute(array(':idFiche' => $this->id));
 			// Suppression de la fiche
-			DB::delete(PREFIX_BDD.'fiches', 'id=%i', $this->id);
+			$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."fiches WHERE id = :id");
+			$stmt->execute(array(':id' => $this->id));
 			EC::add("La fiche a bien été supprimée.");
 			return true;
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), "Fiche/Suppression");
 		}
 		return false;

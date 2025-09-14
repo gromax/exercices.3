@@ -2,15 +2,13 @@
 
 namespace BDDObject;
 
-use DB;
+use PDO;
 use ErrorController as EC;
 use SessionController as SC;
-use MeekroDBException;
+use PDOException;
 
 final class Exam
 {
-	const SAVE_IN_SESSION = true;
-
 	private $id=null;					// id en BDD
 	private $idFiche=null;				// id de la fiche parente
 	private $date=null;					// Date de création
@@ -35,15 +33,24 @@ final class Exam
 	{
 		require_once BDD_CONFIG;
 		try {
+			// Filtrage des paramètres
+			$pdo = new PDO(BDD_DSN, BDD_USER, BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			if (isset($params["idFiche"])) {
-				$bdd_result=DB::query("SELECT id, idFiche, nom, date, data, locked FROM ".PREFIX_BDD."exams WHERE idFiche=%i ORDER BY date",$params["idFiche"]);
+				$stmt = $pdo->prepare("SELECT id, idFiche, nom, date, data, locked FROM ".PREFIX_BDD."exams WHERE idFiche = :idFiche ORDER BY date");
+				$stmt->execute(array(':idFiche' => $params["idFiche"]));
+				$bdd_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			} elseif (isset($params['idOwner'])) {
 				$idOwner = (integer) $params['idOwner'];
-				$bdd_result=DB::query("SELECT e.id, e.idFiche, e.nom, e.date, e.data, e.locked FROM (".PREFIX_BDD."exams e JOIN ".PREFIX_BDD."fiches f ON e.idFiche = f.id) WHERE f.idOwner = %i ORDER BY date", $idOwner);
+				$stmt = $pdo->prepare("SELECT e.id, e.idFiche, e.nom, e.date, e.data, e.locked FROM (".PREFIX_BDD."exams e JOIN ".PREFIX_BDD."fiches f ON e.idFiche = f.id) WHERE f.idOwner = :idOwner ORDER BY date");
+				$stmt->execute(array(':idOwner' => $idOwner));
+				$bdd_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			} else {
-				$bdd_result=DB::query("SELECT id, idFiche, nom, date, data, locked FROM ".PREFIX_BDD."exams ORDER BY date");
+				$stmt = $pdo->prepare("SELECT id, idFiche, nom, date, data, locked FROM ".PREFIX_BDD."exams ORDER BY date");
+				$stmt->execute();
+				$bdd_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			}
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), "Exam/getList");
 			return array();
 		}
@@ -53,31 +60,22 @@ final class Exam
 	public static function get($id,$returnObject=false)
 	{
 		if ($id === null) return null;
-
-		if (self::SAVE_IN_SESSION) {
-			// On essaie de récupérer la fiche en session
-			$exam = SC::get()->getParamInCollection('exams', $id, null);
-			if ($exam !== null){
-				if ($returnObject) return $exam;
-				else return $exam->toArray();
-			}
-		}
-
 		require_once BDD_CONFIG;
 		try {
-			$bdd_result=DB::queryFirstRow("SELECT id, idFiche, nom, date, data, locked FROM ".PREFIX_BDD."exams WHERE id=%i", $id);
+			$pdo = new PDO(BDD_DSN, BDD_USER, BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("SELECT id, idFiche, nom, date, data, locked FROM ".PREFIX_BDD."exams WHERE id = :id");
+			$stmt->execute(array(':id' => $id));
+			$bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
 			if ($bdd_result === null) {
 				EC::addError("Exam introuvable.");
 				return null;
 			}
-			if ($returnObject || self::SAVE_IN_SESSION) {
-				$examObject = new Exam($bdd_result);
-				if (self::SAVE_IN_SESSION) SC::get()->setParamInCollection('exams', $examObject->getId(), $examObject);
-				if ($returnObject) return $examObject;
-				else return $examObject->toArray();
+			if ($returnObject) {
+				return new Exam($bdd_result);
 			}
 			return $bdd_result;
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), 'Exam/get');
 			return null;
 		}
@@ -104,13 +102,16 @@ final class Exam
 	{
 		require_once BDD_CONFIG;
 		try {
-			DB::insert(PREFIX_BDD.'exams', $this->toArray());
-		} catch(MeekroDBException $e) {
+			$pdo = new PDO(BDD_DSN, BDD_USER, BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("INSERT INTO ".PREFIX_BDD."exams (".join(",", array_keys($this->toArray())).") VALUES (".join(",", array_fill(0, count($this->toArray()), "?")).")");
+			$stmt->execute(array_values($this->toArray()));
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), 'Exam/insertion');
 			return null;
 		}
 
-		$this->id = DB::insertId();
+		$this->id = $pdo->lastInsertId();
 
 		EC::add("Exam créé avec succès");
 		return $this->id;
@@ -121,11 +122,13 @@ final class Exam
 		require_once BDD_CONFIG;
 		try {
 			// Suppression de la fiche
-			DB::delete(PREFIX_BDD.'exams', 'id=%i', $this->id);
+			$pdo = new PDO(BDD_DSN, BDD_USER, BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."exams WHERE id = :id");
+			$stmt->execute(array(':id' => $this->id));
 			EC::add("L'exam a bien été supprimé.");
-			if (self::SAVE_IN_SESSION) $session=SC::get()->unsetParamInCollection('exams', $this->id);
 			return true;
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), "Exam/Suppression");
 		}
 		return false;
@@ -153,8 +156,11 @@ final class Exam
 
 		require_once BDD_CONFIG;
 		try{
-			DB::update(PREFIX_BDD.'exams', $this->toArray(),"id=%s",$this->id);
-		} catch(MeekroDBException $e) {
+			$pdo = new PDO(BDD_DSN, BDD_USER, BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("UPDATE ".PREFIX_BDD."exams SET ".join(",", array_map(function($key){ return "$key = ?"; }, array_keys($this->toArray()))) ." WHERE id = ?");
+			$stmt->execute(array_merge(array_values($this->toArray()), array($this->id)));
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), 'Exam/update');
 			return false;
 		}

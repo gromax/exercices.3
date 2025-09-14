@@ -9,8 +9,6 @@ use SessionController as SC;
 
 final class Classe
 {
-  const SAVE_IN_SESSION = true;
-
   private $id='';
   private $nom='';
   private $description='';
@@ -121,15 +119,6 @@ final class Classe
       return $id->toArray;
     } elseif (is_numeric($id)) $id = (integer) $id;
 
-    if (self::SAVE_IN_SESSION) {
-      // On essaie de récupérer la classe en session
-      $classe = SC::get()->getParamInCollection('classes', $id, null);
-      if ($classe !== null){
-        if ($returnObject) return $classe;
-        else return $classe->toArray();
-      }
-    }
-
     require_once BDD_CONFIG;
     try {
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
@@ -140,12 +129,9 @@ final class Classe
       if ($bdd_result==null) return null;
 
       // Construction de l'objet pour sauvegarde en session
-      if ((self::SAVE_IN_SESSION) || ($returnObject)) {
+      if ($returnObject) {
         $bdd_result['owner']=new User(array('id'=>$bdd_result['idOwner'], 'nom'=>$bdd_result['nomOwner'], 'prenom'=>$bdd_result['prenomOwner'], 'rank'=>$bdd_result['rankOwner'], 'email'=>$bdd_result['emailOwner']));
-        $classe = new Classe($bdd_result);
-        if (self::SAVE_IN_SESSION) SC::get()->setParamInCollection('classes', $classe->getId(), $classe);
-        if ($returnObject) return $classe;
-        else return $classe->toArray();
+        return new Classe($bdd_result);
       }
       return $bdd_result;
 
@@ -229,8 +215,6 @@ final class Classe
       return null;
     }
     $this->id=$pdo->lastInsertId();
-    // sauvegarde d'une copie de la classe en session
-    if (self::SAVE_IN_SESSION) $session=SC::get()->setParamInCollection('classes', $this->id, $this);
 
     EC::add("La classe a bien été ajoutée.");
     return $this->id;
@@ -290,7 +274,6 @@ final class Classe
       $stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."classes WHERE id = :id");
       $stmt->execute(array(':id' => $this->id));
       EC::add("La classe a bien été supprimée.");
-      if (self::SAVE_IN_SESSION) $session=SC::get()->unsetParamInCollection('classes', $this->id);
       return true;
     } catch(PDOException $e) {
       EC::addBDDError($e->getMessage(), "Classe/Suppression");

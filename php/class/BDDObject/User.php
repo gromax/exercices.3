@@ -8,13 +8,11 @@ use SessionController as SC;
 
 class User
 {
-	const	RANK_ROOT="Root";
-	const	RANK_ADMIN="Admin";
-	const	RANK_PROF="Prof";
-	const	RANK_ELEVE="Élève";
-	const	RANK_DISCONNECTED="Off";
-
-	const	SAVE_IN_SESSION = true;
+	const	RANK_ROOT="root";
+	const	RANK_ADMIN="admin";
+	const	RANK_PROF="prof";
+	const	RANK_ELEVE="eleve";
+	const	RANK_DISCONNECTED="off";
 
 	protected $id=null;
 	protected $idClasse = null; // 0 est équivalent à pas de classe
@@ -53,18 +51,41 @@ class User
 		require_once BDD_CONFIG;
 		try {
 			// on n'utilise pas le champ pseudo
-			if (isset($params['ranks'])) return DB::query("SELECT u.id, idClasse, c.nom AS nomClasse, u.nom, prenom, email, rank, pref, u.date FROM (".PREFIX_BDD."users u LEFT JOIN ".PREFIX_BDD."classes c ON u.idClasse = c.id) WHERE rank IN %ls ORDER BY u.date DESC",$params['ranks']);
-			elseif (isset($params['classe'])) return DB::query("SELECT u.id, c.nom AS nomClasse, idClasse, u.nom, prenom, email, rank, pref, u.date FROM (".PREFIX_BDD."users u LEFT JOIN ".PREFIX_BDD."classes c ON u.idClasse = c.id) WHERE idClasse=%i",$params['classe']);
-			elseif (isset($params['classes'])) {
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			if (isset($params['ranks'])) {
+				$in = [];
+				foreach ($params['ranks'] as $i => $rank) {
+					$in[] = ":rank_$i";
+				}
+				$sql = "SELECT u.id, idClasse, c.nom AS nomClasse, u.nom, prenom, email, `rank`, pref, u.date FROM (".PREFIX_BDD."users u LEFT JOIN ".PREFIX_BDD."classes c ON u.idClasse = c.id) WHERE `rank` IN (".implode(',', $in).") ORDER BY u.date DESC";
+				$stmt = $pdo->prepare($sql);
+				foreach ($params['ranks'] as $i => $rank) {
+					$stmt->bindValue(":rank_$i", $rank, PDO::PARAM_STR);
+				}
+				$stmt->execute();
+				return $stmt->fetchAll(PDO::FETCH_ASSOC);
+			} elseif (isset($params['classe'])) {
+				$stmt = $pdo->prepare("SELECT u.id, c.nom AS nomClasse, idClasse, u.nom, prenom, email, `rank`, pref, u.date FROM (".PREFIX_BDD."users u LEFT JOIN ".PREFIX_BDD."classes c ON u.idClasse = c.id) WHERE idClasse=:idClasse");
+				$stmt->bindValue(':idClasse', $params['classe'], PDO::PARAM_INT);
+				$stmt->execute();
+				return $stmt->fetchAll(PDO::FETCH_ASSOC);
+			} elseif (isset($params['classes'])) {
 				if (count($params['classes'])>0) {
-					return DB::query("SELECT u.id, c.nom AS nomClasse, idClasse, u.nom, prenom, email, rank, pref, u.date FROM (".PREFIX_BDD."users u LEFT JOIN ".PREFIX_BDD."classes c ON u.idClasse = c.id) WHERE idClasse IN %ls",$params['classes']);
+					$stmt = $pdo->prepare("SELECT u.id, c.nom AS nomClasse, idClasse, u.nom, prenom, email, `rank`, pref, u.date FROM (".PREFIX_BDD."users u LEFT JOIN ".PREFIX_BDD."classes c ON u.idClasse = c.id) WHERE idClasse IN (:classes)");
+					$stmt->bindValue(':classes', implode(',', $params['classes']), PDO::PARAM_STR);
+					$stmt->execute();
+					return $stmt->fetchAll(PDO::FETCH_ASSOC);
 				} else {
 					return array();
 				}
+			} else {
+				$stmt = $pdo->prepare("SELECT u.id, c.nom AS nomClasse, idClasse, u.nom, prenom, email, `rank`, pref, u.date FROM (".PREFIX_BDD."users u LEFT JOIN ".PREFIX_BDD."classes c ON u.idClasse = c.id)");
+				$stmt->execute();
+				return $stmt->fetchAll(PDO::FETCH_ASSOC);
 			}
-			else return DB::query("SELECT u.id, c.nom AS nomClasse, idClasse, u.nom, prenom, email, rank, pref, u.date FROM (".PREFIX_BDD."users u LEFT JOIN ".PREFIX_BDD."classes c ON u.idClasse = c.id)");
-		} catch(MeekroDBException $e) {
-			if (BDD_DEBUG_ON) return array('error'=>true, 'message'=>"#User/getList : ".$e->getMessage());
+		} catch(PDOException $e) {
+			if (EC::BDD_DEBUG) return array('error'=>true, 'message'=>"#User/getList : ".$e->getMessage());
 			return array('error'=>true, 'message'=>'Erreur BDD');
 		}
 	}
@@ -75,30 +96,22 @@ class User
 			$idUser = (integer) $id;
 		} else return null;
 
-		if (self::SAVE_IN_SESSION) {
-			$user = SC::get()->getParamInCollection('users', $idUser, null);
-			if ($user !== null){
-				if ($returnObject) return $user;
-				else return $user->toArray();
-			}
-		}
-
-		// Pas trouvé dans la session, il faut chercher en bdd
 		require_once BDD_CONFIG;
 		try {
-			$bdd_result=DB::queryFirstRow("SELECT id, idClasse, nom, prenom, email, `rank`, date FROM ".PREFIX_BDD."users WHERE id=%s", $idUser);
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("SELECT id, idClasse, nom, prenom, email, `rank`, date FROM ".PREFIX_BDD."users WHERE id=:id");
+			$stmt->bindValue(':id', $idUser, PDO::PARAM_INT);
+			$stmt->execute();
+			$bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
 			if ($bdd_result === null) return null;
 
-			if ($returnObject || self::SAVE_IN_SESSION) {
-				$user = new User($bdd_result);
-				if (self::SAVE_IN_SESSION) {
-					SC::get()->setParamInCollection('users', $user->getId(), $user);
-				}
-				if ($returnObject) return $user;
+			if ($returnObject) {
+				return new User($bdd_result);
 			}
 
 			return $bdd_result;
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(),"User/Search");
 		}
 		return null;
@@ -126,9 +139,14 @@ class User
 		require_once BDD_CONFIG;
 		try {
 			// Vérification que l'email
-			$results = DB::query("SELECT id FROM ".PREFIX_BDD."users WHERE email=%s",$email);
-			if (DB::count()>0) return $results[0]["id"];
-		} catch(MeekroDBException $e) {
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("SELECT id FROM ".PREFIX_BDD."users WHERE email=:email");
+			$stmt->bindValue(':email', $email, PDO::PARAM_STR);
+			$stmt->execute();
+			$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			if (count($results) > 0) return $results[0]["id"];
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage());
 		}
 		return false;
@@ -195,25 +213,33 @@ class User
 		}
 
 		require_once BDD_CONFIG;
-		if (self::SAVE_IN_SESSION) {
-			$session=SC::get()->unsetParamInCollection('users', $this->id);
-			$session=SC::get()->unsetParam('notes');
-			$session=SC::get()->unsetParam('messages');
-		}
 		if ($this->isEleve()) {
 			try {
 				// Suppression de toutes les notes liées
-				DB::query("DELETE ".PREFIX_BDD."assocUE FROM ".PREFIX_BDD."assocUE LEFT JOIN ".PREFIX_BDD."assocUF ON (".PREFIX_BDD."assocUF.id = ".PREFIX_BDD."assocUE.aUF) WHERE ".PREFIX_BDD."assocUF.idUser = %i", $this->id);
+				$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+				$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+				$stmt = $pdo->prepare("DELETE ".PREFIX_BDD."assocUE FROM ".PREFIX_BDD."assocUE LEFT JOIN ".PREFIX_BDD."assocUF ON (".PREFIX_BDD."assocUF.id = ".PREFIX_BDD."assocUE.aUF) WHERE ".PREFIX_BDD."assocUF.idUser = :idUser");
+				$stmt->bindValue(':idUser', $this->id, PDO::PARAM_INT);
+				$stmt->execute();
 				// Suppression de tous les devoirs liés
-				DB::delete(PREFIX_BDD.'assocUF', 'idUser=%i', $this->id);
-			} catch(MeekroDBException $e) {
+				$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."assocUF WHERE idUser = :idUser");
+				$stmt->bindValue(':idUser', $this->id, PDO::PARAM_INT);
+				$stmt->execute();
+			} catch(PDOException $e) {
 				EC::addBDDError($e->getMessage(), "User/Suppression");
 			}
 		}
 		try {
-			DB::delete(PREFIX_BDD.'users', 'id=%i', $this->id);
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."users WHERE id = :id");
+			$stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
+			$stmt->execute();
 			// Suppression de tous les messages
-			DB::query("DELETE FROM ".PREFIX_BDD."messages WHERE idOwner = %i OR idDest = %i", $this->id, $this->id);
+			$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."messages WHERE idOwner = :idOwner OR idDest = :idDest");
+			$stmt->bindValue(':idOwner', $this->id, PDO::PARAM_INT);
+			$stmt->bindValue(':idDest', $this->id, PDO::PARAM_INT);
+			$stmt->execute();
 			EC::add("L'utilisateur a bien été supprimée.");
 
 			return true;
@@ -245,10 +271,22 @@ class User
 	{
 		require_once BDD_CONFIG;
 		try {
-			DB::insert(PREFIX_BDD.'users', $this->toBDDArray());
-			$this->id=DB::insertId();
+			// Insertion de l'utilisateur
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("INSERT INTO ".PREFIX_BDD."users (nom, prenom, email, `rank`, date, pref, idClasse, hash) VALUES (:nom, :prenom, :email, :rank, :date, :pref, :idClasse, :hash)");
+			$stmt->bindValue(':nom', $this->nom, PDO::PARAM_STR);
+			$stmt->bindValue(':prenom', $this->prenom, PDO::PARAM_STR);
+			$stmt->bindValue(':email', $this->email, PDO::PARAM_STR);
+			$stmt->bindValue(':rank', $this->rank, PDO::PARAM_STR);
+			$stmt->bindValue(':date', $this->date, PDO::PARAM_STR);
+			$stmt->bindValue(':pref', $this->pref, PDO::PARAM_STR);
+			$stmt->bindValue(':idClasse', $this->idClasse, PDO::PARAM_INT);
+			$stmt->bindValue(':hash', $this->bcryptHash, PDO::PARAM_STR);
+			$stmt->execute();
+			$this->id = $pdo->lastInsertId();
 			return $this->id;
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage());
 		}
 		return null;
@@ -331,14 +369,6 @@ class User
 			return true;
 		}
 
-		// La mise à jour est utile quand on accède à l'utilisateur
-		// via le uLog, ce qui laisse inchangé la copie de l'utilisateur
-		// dans la liste des user
-		if (self::SAVE_IN_SESSION)
-		{
-			SC::get()->setParamInCollection('users', $this->getId(), $this);
-		}
-
 		if (!$updateBDD) {
 			EC::add("La modification a bien été effectuée.");
 			return true;
@@ -346,8 +376,21 @@ class User
 
 		require_once BDD_CONFIG;
 		try{
-			DB::update(PREFIX_BDD.'users', $this->toBDDArray() ,"id=%i",$this->id);
-		} catch(MeekroDBException $e) {
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$stmt = $pdo->prepare("UPDATE ".PREFIX_BDD."users SET nom=:nom, prenom=:prenom, email=:email, `rank`=:rank, date=:date, pref=:pref".($this->bcryptHash!==null?", hash=:hash":"")." WHERE id=:id");
+			$stmt->bindValue(':nom', $this->nom, PDO::PARAM_STR);
+			$stmt->bindValue(':prenom', $this->prenom, PDO::PARAM_STR);
+			$stmt->bindValue(':email', $this->email, PDO::PARAM_STR);
+			$stmt->bindValue(':rank', $this->rank, PDO::PARAM_STR);
+			$stmt->bindValue(':date', $this->date, PDO::PARAM_STR);
+			$stmt->bindValue(':pref', $this->pref, PDO::PARAM_STR);
+			if ($this->bcryptHash !== null) {
+				$stmt->bindValue(':hash', $this->bcryptHash, PDO::PARAM_STR);
+			}
+			$stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
+			$stmt->execute();
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage(), 'User/update');
 			return false;
 		}
@@ -430,8 +473,14 @@ class User
 		if ($this->isEleve()) {
 			require_once BDD_CONFIG;
 			try{
-				return DB::query("SELECT a.id,a.idFiche, a.actif, a.date FROM (".PREFIX_BDD."assocUF a JOIN ".PREFIX_BDD."fiches f ON f.id = a.idFiche) WHERE idUser=%i AND f.visible=1 ORDER BY idFiche",$this->id);
-			} catch(MeekroDBException $e) {
+				$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+				$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+				// On ne retourne que les fiches visibles
+				$stmt = $pdo->prepare("SELECT a.id,a.idFiche, a.actif, a.date FROM (".PREFIX_BDD."assocUF a JOIN ".PREFIX_BDD."fiches f ON f.id = a.idFiche) WHERE idUser=:idUser AND f.visible=1 ORDER BY idFiche");
+				$stmt->bindValue(':idUser', $this->id, PDO::PARAM_INT);
+				$stmt->execute();
+				return $stmt->fetchAll(PDO::FETCH_ASSOC);
+			} catch(PDOException $e) {
 				EC::addBDDError($e->getMessage(), "User/assocUF");
 				return array();
 			}
@@ -509,9 +558,18 @@ class User
 		$key = md5(rand());
 		require_once BDD_CONFIG;
 		try {
-			DB::insert(PREFIX_BDD.'initKeys', array("initKey"=>$key, "idUser"=>$this->id));
+			$pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+			$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			// On supprime d'abord les anciennes clés
+			$stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."initKeys WHERE idUser=:idUser");
+			$stmt->bindValue(':idUser', $this->id, PDO::PARAM_INT);
+			$stmt->execute();
+			$stmt = $pdo->prepare("INSERT INTO ".PREFIX_BDD."initKeys (initKey, idUser) VALUES (:initKey, :idUser)");
+			$stmt->bindValue(':initKey', $key, PDO::PARAM_STR);
+			$stmt->bindValue(':idUser', $this->id, PDO::PARAM_INT);
+			$stmt->execute();
 			return $key;
-		} catch(MeekroDBException $e) {
+		} catch(PDOException $e) {
 			EC::addBDDError($e->getMessage());
 		}
 		return null;
