@@ -1,15 +1,13 @@
 import { MnObject, Region } from 'backbone.marionette';
-import Radio from 'backbone.radio';
 import { AlertView, MissingView } from '@apps/common/common_views.js'
 
 const messageRegion = new Region({
   el: '#message-region'
 });
 
-const navChannel = Radio.channel("navigation");
 
 const Controller = MnObject.extend({
-  channelName: "common",
+  channelName: "app",
   radioEvents: {
     "show:message:success":"showMessageSuccess",
     "show:message:error":"showMessageError",
@@ -50,7 +48,7 @@ const Controller = MnObject.extend({
     switch(xhr.status) {
       case 401:
         alert("Vous devez vous (re)connecter !");
-        navChannel.trigger("home:logout");
+        this.getChannel().trigger("home:logout");
         break;
       case 404:
         const mView = new MissingView();
