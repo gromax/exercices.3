@@ -11,17 +11,6 @@ const Session = Backbone.Model.extend({
         age: 0
     },
 
-    initialize() {
-        // Hook into jquery
-        // Use withCredentials to send the server cookies
-        // The server must allow this through response headers
-        $.ajaxPrefilter( function( options, originalOptions, jqXHR) {
-            options.xhrFields = {
-                withCredentials: true
-            };
-        });
-    },
-
     validate(attrs, options) {
         const errors = [];
         if (!attrs.identifiant) {
@@ -51,11 +40,11 @@ const Session = Backbone.Model.extend({
             logged.nomClasse = "N/A";
         }
         logged.unread = Number(logged.unread || 0);
-        logged.isRoot = (logged.rank === "Root")
-        logged.isAdmin = (logged.rank === "Root") || (logged.rank === "Admin");
-        logged.isProf = (logged.rank === "Prof");
-        logged.isEleve = (logged.rank === "Élève");
-        logged.logged_in = (logged.rank !== "Off");
+        logged.isRoot = (logged.rank === "root")
+        logged.isAdmin = (logged.rank === "root") || (logged.rank === "admin");
+        logged.isProf = (logged.rank === "prof");
+        logged.isEleve = (logged.rank === "eleve");
+        logged.logged_in = (logged.rank !== "off");
         if (logged.logged_in) {
             logged.nomComplet = `${logged.prenom} ${logged.nom}`;
         } else {
@@ -72,14 +61,10 @@ const Session = Backbone.Model.extend({
         return logged;
     },
 
-    refresh(data) {
-        this.set(this.parse(data));
-    },
-
     load() {
         this.fetch({
             success: function(){
-                sessionChannel.trigger("load:success");
+                console.log("Session loaded");
             },
             error: function(model, xhr, options) {
                 sessionChannel.trigger("load:error", {status:xhr.status, response:xhr.responseText});
@@ -87,7 +72,7 @@ const Session = Backbone.Model.extend({
         });
     },
 
-    getWithForgottenKey(key) {
+    /*getWithForgottenKey(key) {
         let defer = $.Deferred()
         let request = $.ajax(`api/forgotten/${key}`, {
             method:'GET',
@@ -100,26 +85,26 @@ const Session = Backbone.Model.extend({
             defer.reject(response);
         });
         return defer.promise();
-    },
+    },*/
     
     isAdmin() {
         let rank = this.get("rank");
-        return (rank === "Root") || (rank === "Admin");
+        return (rank === "root") || (rank === "admin");
     },
 
     isProf() {
-        return (this.get("rank") === "Prof");
+        return (this.get("rank") === "prof");
     },
 
     isEleve() {
-        return (this.get("rank") === "Élève");
+        return (this.get("rank") === "eleve");
     },
 
     isOff() {
         return this.get("isOff");
     },
 
-    sudo(id) {
+    /*sudo(id) {
         let that = this;
         let defer = $.Deferred();
         if (!this.isAdmin()){
@@ -138,41 +123,41 @@ const Session = Backbone.Model.extend({
             });
         }
         return defer.promise();
-    },
+    },*/
 
     mapItem(itemsList){
         itemsList = itemsList || {};
         let rank = this.get("rank");
         switch (rank) {
-            case "Root":
-                if (_.has(itemsList,"Root")) {
-                    return itemsList["Root"]
-                } else if (_.has(itemsList,"Admin")) {
-                    return itemsList["Admin"];
+            case "root":
+                if (_.has(itemsList,"root")) {
+                    return itemsList["root"]
+                } else if (_.has(itemsList,"admin")) {
+                    return itemsList["admin"];
                 } else {
                     return itemsList.def;
                 }
-            case "Admin":
-                if (_.has(itemsList,"Admin")) {
-                    return itemsList["Admin"];
+            case "admin":
+                if (_.has(itemsList,"admin")) {
+                    return itemsList["admin"];
                 } else {
                     return itemsList.def;
                 }
-            case "Prof":
-                if (_.has(itemsList,"Prof")) {
-                    return itemsList["Prof"];
+            case "prof":
+                if (_.has(itemsList,"prof")) {
+                    return itemsList["prof"];
                 } else {
                     return itemsList.def;
                 }
-            case "Élève":
-                if (_.has(itemsList,"Eleve")) {
-                    return itemsList["Eleve"];
+            case "eleve":
+                if (_.has(itemsList,"eleve")) {
+                    return itemsList["eleve"];
                 } else {
                     return itemsList.def;
                 }
             default:
-                if (_.has(itemsList,"Off")) {
-                    return itemsList["Off"];
+                if (_.has(itemsList,"off")) {
+                    return itemsList["off"];
                 } else {
                     return itemsList.def;
                 }
