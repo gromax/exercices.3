@@ -14,7 +14,7 @@ const UsersPanel = View.extend ({
   triggers: {
     "click button.js-new": "user:new"
   },
-  templateContext: () => {
+  templateContext() {
     return {
       filterCriterion: this.getOption("filterCriterion") || "",
       showAddButton: this.getOption("showAddButton")
@@ -58,12 +58,12 @@ const UsersCollectionView = CollectionView.extend ({
   childViewEventPrefix: "item",
   childViewContainer: "tbody",
   filterKeys: ["nom", "prenom", "nomClasse"],
-  childViewOptions: () => {
+  childViewOptions() {
     return {
       adminMode: this.getOption("adminMode")
     };
   },
-  getTemplate: (data) => {
+  getTemplate(data) {
     if (this.getOption("adminMode")) {
       return users_admin_view_tpl;
     } else {
