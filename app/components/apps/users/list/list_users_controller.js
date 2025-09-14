@@ -13,7 +13,7 @@ const Controller = MnObject.extend ({
     const channel = this.getChannel();
     require('@entities/dataManager.js');
     headerRadio.trigger("loading:up");
-    const fetchingUsers = channel.request("custom:entities", ["users"]);
+    const fetchingUsers = Radio.channel('entities').request("custom:entities", ["users"]);
     const logged = Radio.channel('session').request("logged");
     $.when(fetchingUsers).done((users) => {
       criterion = criterion || "";
