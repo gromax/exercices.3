@@ -8,34 +8,30 @@ import { AdminProfPanel } from './admin_prof_panel';
 
 // import { AlertView } from 'apps/common/common_views.coffee'
 
-const myRegion = new Region({
-  el: '#main-region'
-});
-
 const headerChannel = Radio.channel("header");
 
 const Controller = MnObject.extend({
   channelName: "navigation",
   notFound() {
     const view = new NotFoundView();
-    myRegion.show(view);
+    new Region({ el: '#main-region'}).show(view);
   },
   showAdminHome() {
     let unread = Radio.channel('session').request("get").get("unread");
     const view = new AdminProfPanel({adminMode:true, unread:unread});
     view.on("show:list", (cible)=> this.getChannel().trigger(`${cible}:list`));
-    myRegion.show(view);
+    new Region({ el: '#main-region'}).show(view);
   },
   showProfHome() {
     let unread = Radio.channel('session').request("get").get("unread");
     const view = new AdminProfPanel({adminMode:false, unread:unread});
     view.on("show:list", (cible)=> this.getChannel().trigger(`${cible}:list`));
-    myRegion.show(view);
+    new Region({ el: '#main-region'}).show(view);
   },
   showOffHome() {
     const view = new OffView();
     view.on("home:login", () => { this.getChannel().trigger("home:login"); });
-    myRegion.show(view);
+    new Region({ el: '#main-region'}).show(view);
   },
   showEleveHome() {
     headerChannel.trigger("loading:up");
@@ -78,7 +74,7 @@ const Controller = MnObject.extend({
             layout.getRegion('unfinishedRegion').show(unfinishedMessageView);
           }
         });
-        myRegion.show(layout);
+        new Region({ el: '#main-region'}).show(layout);
       }
     }).fail( (response) => {
       this.getChannel().trigger("data:fetch:fail", response);
@@ -93,7 +89,7 @@ const Controller = MnObject.extend({
       view.on("forgotten:reinitMDP:click", () => {
         this.getChannel().trigger("user:editPwd", null);
       });
-      myRegion.show(view);
+      new Region({ el: '#main-region'}).show(view);
     } else {
       this.getChannel().trigger("show:message:error", {
         title:"Clé introuvable !",
