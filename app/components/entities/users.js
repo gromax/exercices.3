@@ -25,7 +25,7 @@ const Item = Backbone.Model.extend ({
       data.nomClasse = "N/A";
     }
     data.nomComplet = `${data.nom} ${data.prenom}`;
-    data.isEleve = (data.rank === "Élève");
+    data.isEleve = (data.rank === "eleve");
     if (typeof data.pref === "string" && data.pref !== "") {
       data.pref = JSON.parse(data.pref);
     } else {
@@ -45,7 +45,7 @@ const Item = Backbone.Model.extend ({
   },
   validate: (attrs, options) => {
     const errors = {};
-    if (this.get("rank") === "Root") {
+    if (this.get("rank") === "root") {
       errors.email = "Root ne peut être modifié";
     } else {
       if (typeof attrs.pwd !== "undefined" && typeof attrs.pwdConfirm !== "undefined" && attrs.pwd !== attrs.pwdConfirm) {
