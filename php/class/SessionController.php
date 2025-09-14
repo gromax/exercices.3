@@ -27,11 +27,15 @@ final class SessionController
 
     public static function verify_token()
     {
+        require_once BDD_CONFIG;
         $headers = getallheaders();
-        if (!isset($headers['Authorization'])) {
+        if (isset($headers['Authorization'])) {
+            $token = str_replace('Bearer ', '', $headers['Authorization']);
+        } elseif (isset($headers['authorization'])) {
+            $token = str_replace('Bearer ', '', $headers['authorization']);
+        } else {
             return null;
         }
-        $token = str_replace('Bearer ', '', $headers['Authorization']);
         try {
             $decoded = JWT::decode($token, new Key(SECRET_KEY, 'HS256'));
             return $decoded->data;
