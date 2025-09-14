@@ -68,7 +68,6 @@ const Manager = Application.extend({
     this.settings = {};
     
     //require('apps/classes/classes_app.coffee');
-    //require('apps/users/users_app.coffee');
     //require('apps/fiches/fiches_app.coffee');
     //require('apps/exercices/exercices_app.coffee');
 
@@ -79,6 +78,7 @@ const Manager = Application.extend({
     require('@apps/ariane/ariane_app.js').arianeApp.show();
     require('@apps/common/common_app.js');
     require('@apps/common/not_found_app.js');
+    require('@apps/users/users_app.js');
     Backbone.history.on("route:missing", function(fragment) {
       Radio.channel("navigation").trigger("not:found");
     });
