@@ -25,7 +25,9 @@ const Controller = MnObject.extend({
   showProfHome() {
     let unread = Radio.channel('session').request("get").get("unread");
     const view = new AdminProfPanel({adminMode:false, unread:unread});
-    view.on("show:list", (cible)=> this.getChannel().trigger(`${cible}:list`));
+    view.on("show:list", (cible)=> {
+      this.getChannel().trigger(`${cible}:list`);
+    });
     new Region({ el: '#main-region'}).show(view);
   },
   showOffHome() {
