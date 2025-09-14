@@ -17,7 +17,7 @@ const Controller = MnObject.extend({
   stored_data:{},
   stored_time:{},
 
-  getCustomEntities: (ask) => {
+  getCustomEntities(ask) {
     const t = Date.now();
     const defer = $.Deferred();
     const toFetch = _.filter(ask, (item) => (typeof this.stored_data[item] === "undefined") || (typeof this.stored_time[item] === "undefined") || (t - this.stored_time[item] > this.timeout));
@@ -53,7 +53,8 @@ const Controller = MnObject.extend({
         defer.reject(response);
       });
     }
-    return promise = defer.promise();
+    const promise = defer.promise();
+    return promise;
   },
   getItem: (entityName, idItem) => {
     $.Deferred().resolve(this.getCustomEntities([entityName]).get(idItem))
