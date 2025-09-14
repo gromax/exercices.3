@@ -78,14 +78,22 @@ const Manager = Application.extend({
     require('@apps/ariane/ariane_app.js').arianeApp.show();
     require('@apps/common/common_app.js');
     require('@apps/common/not_found_app.js');
+    require('@apps/common/dataManager.js');
     require('@apps/users/users_app.js');
+    
+
     Backbone.history.on("route:missing", function(fragment) {
       Radio.channel("navigation").trigger("not:found");
     });
     Backbone.history.start();
+    /*
+    const appChannel = Radio.channel("app");
+    
     if (this.getCurrentRoute() === "") {
-      Radio.channel("navigation").trigger("home:show");
-    }
+      appChannel.trigger("home:show");
+    }*/
+
+
   }
 });
 
