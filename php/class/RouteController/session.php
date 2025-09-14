@@ -3,6 +3,8 @@
 namespace RouteController;
 use ErrorController as EC;
 use SessionController as SC;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use BDDObject\Classe;
 use BDDObject\User;
 use BDDObject\Logged;
@@ -57,9 +59,14 @@ class session
         }
         else
         {
+            $data = $logged->toArray();
+            $jwt = SC::make_token($data['id'], $data['email'], $data['rank']);
             return array_merge(
                 $logged->toArray(),
-                array("unread"=>Message::unReadNumber($logged->getId()) )
+                array(
+                    "unread"=>Message::unReadNumber($logged->getId()),
+                    "token" => $jwt
+                )
             );
         }
     }
@@ -103,6 +110,7 @@ class session
 
     protected function getData($uLog = null)
     {
+        
         if ($uLog === null) $uLog = Logged::getConnectedUser();
         if ($uLog->connexionOk()) {
             if($uLog->isRoot()) {
