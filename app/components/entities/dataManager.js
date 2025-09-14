@@ -34,15 +34,14 @@ const Controller = MnObject.extend({
         for (const colName in ask) {
           let colObj = false;
           switch (colName) {
-            case "fiches": colObj = require("@entities/fiches.js"); break;
-            case "devoirs": colObj = require("@entities/devoirs.js"); break;
-            case "userfiches": colObj = require("@entities/userfiches.js"); break;
+            //case "fiches": colObj = require("@entities/fiches.js"); break;
+            //case "devoirs": colObj = require("@entities/devoirs.js"); break;
+            //case "userfiches": colObj = require("@entities/userfiches.js"); break;
             case "users": colObj = require("@entities/users.js"); break;
-            case "classes": colObj = require("@entities/classes.js"); break;
-            case "exofiches": colObj = require("@entities/exofiches.js"); break;
-            case "faits": colObj = require("@entities/faits.js"); break;
-            case "exams": colObj = require("@entities/exams.js"); break;
-            case "messages": colObj = require("@entities/messages.js"); break;
+            //case "classes": colObj = require("@entities/classes.js"); break;
+            //case "exofiches": colObj = require("@entities/exofiches.js"); break;
+            //case "faits": colObj = require("@entities/faits.js"); break;
+            //case "exams": colObj = require("@entities/exams.js"); break;
           }
           if ((colObj !== false) && (data[colName])) {
             this.stored_data[colName] = new colObj.Collection(data[colName], { parse:true });
@@ -76,7 +75,7 @@ const Controller = MnObject.extend({
         dataType:'json'
       })
       request.done( (data) => {
-        User = require("entities/user").Item;
+        User = require("@entities/users").Item;
         this.stored_data.me = new User(data, {parse:true});
         this.stored_time.me = t;
         defer.resolve(this.stored_data.me);
