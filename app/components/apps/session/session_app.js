@@ -1,29 +1,33 @@
 import { MnObject } from 'backbone.marionette';
 import { Session } from '@entities/session.js';
-import Radio from 'backbone.radio';
 
 
 const SessionApp = MnObject.extend({
-  channelName: "session",
+  channelName: "app",
   radioEvents: {
     'forgotten:password':'onSendForgottenEmail',
-    'load:success':'onLoadSuccess',
     'load:error':'onLoadError'
   },
 
   radioRequests: {
-    'get':'onGet'
+    'logged:get':'onGet'
   },
 
   initialize() {
+    const channel = this.getChannel();
     this.logged = new Session();
+    const logged = this.logged;
     this.logged.load();
+
     this.logged.on("destroy", function() {
         this.unset("id");
-        Radio.channel("data").request("purge");
+        localStorage.removeItem('jwt');
+        channel.trigger("logged:destroy");
     });
     this.logged.on("change", function(){
-        Radio.channel("header").trigger("logged:changed");
+        localStorage.setItem('jwt', logged.get("token"));
+        console.log("Token set to", logged.get("token"));
+        channel.trigger("logged:changed");
     });
   },
 
@@ -40,10 +44,6 @@ const SessionApp = MnObject.extend({
         data: { email:email }
       }
     )
-  },
-
-  onLoadSuccess() {
-    Radio.channel("header").trigger("logged:changed");
   },
 
   onLoadError(data) {

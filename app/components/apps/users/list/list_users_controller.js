@@ -1,20 +1,17 @@
 import { MnObject, Region } from 'backbone.marionette';
-import Radio from 'backbone.radio';
 import { UsersPanel, UsersCollectionView } from '@apps/users/list/list_users_views.js';
 //import { NewUserView, EditUserView, EditPwdUserView } from '@apps/users/edit/edit_user_views.js';
 import { ListLayout } from '@apps/common/common_views.js';
 
-const headerRadio = Radio.channel('header');
-const commonRadio = Radio.channel('common');
 
 const Controller = MnObject.extend ({
-  channelName: 'navigation',
+  channelName: 'app',
   listUsers(criterion) {
+    console.log("listUsers", criterion);
     const channel = this.getChannel();
-    require('@entities/dataManager.js');
-    headerRadio.trigger("loading:up");
-    const fetchingUsers = Radio.channel('entities').request("custom:entities", ["users"]);
-    const logged = Radio.channel('session').request("logged");
+    channel.trigger("loading:up");
+    const fetchingUsers = channel.request("custom:entities", ["users"]);
+    const logged = channel.request("logged:get");
     $.when(fetchingUsers).done((users) => {
       criterion = criterion || "";
       const usersListLayout = new ListLayout();
@@ -51,7 +48,7 @@ const Controller = MnObject.extend ({
 
       usersListView.on("item:show", (childView, args) => {
         const model = childView.model;
-        this.getChannel().trigger("user:show", model.get("id"));
+        channel.trigger("user:show", model.get("id"));
       });
 
       usersListView.on("item:edit", (childView, args) => {
@@ -81,10 +78,10 @@ const Controller = MnObject.extend ({
         const model = childView.model;
         const email = model.get("email");
         if (confirm(`Envoyer un mail de réinitialisation à « ${model.get('nomComplet')} » ?`)) {
-          headerRadio.trigger("loading:up");
+          channel.trigger("loading:up");
           const sendingMail = channel.request("forgotten:password", email);
           sendingMail.always(() =>
-            headerRadio.trigger("loading:down")
+            channel.trigger("loading:down")
           ).done((response) => {
             childView.trigger("flash:success");
           }).fail((response) => {
@@ -95,7 +92,7 @@ const Controller = MnObject.extend ({
 
       usersListView.on("item:sudo", (childView, e) => {
         const model = childView.model;
-        headerRadio.trigger("loading:up");
+        channel.trigger("loading:up");
         const connecting = logged && logged.sudo(model.get("id"));
         $.when(connecting).done((response) => {
           channel.trigger("home:show");
@@ -111,15 +108,15 @@ const Controller = MnObject.extend ({
               alert("Erreur inconnue.");
           }
         }).always(() =>
-          headerRadio.trigger("loading:down")
+          channel.trigger("loading:down")
         );
       });
 
       new Region({ el: "#main-region" }).show(usersListLayout);
     }).fail((response) => {
-      commonRadio.trigger("data:fetch:fail", response);
+      channel.trigger("data:fetch:fail", response);
     }).always(() => {
-      headerRadio.trigger("loading:down");
+      channel.trigger("loading:down");
     });
   },
 });

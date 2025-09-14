@@ -1,12 +1,7 @@
 import { MnObject } from 'backbone.marionette';
 
-import Radio from 'backbone.radio';
-
-const arianeRadio = Radio.channel('ariane');
-const sessionRadio = Radio.channel('session');
-
 const Controller = MnObject.extend ({
-  channelName: 'navigation',
+  channelName: 'app',
   radioEvents: {
     "users:list": "onListUsers",
     "users:filter": "onFilterUsers",
@@ -16,6 +11,7 @@ const Controller = MnObject.extend ({
   },
 
   onListUsers(criterion) {
+    console.log("onListUsers", criterion);
     Backbone.history.navigate("users", {});
     this.listUsers(criterion);
   },
@@ -44,24 +40,26 @@ const Controller = MnObject.extend ({
   },
 
   listUsers(criterion) {
-    const logged = sessionRadio.request("get");
     const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    console.log(logged);
     const forProf = () => {
-      arianeRadio.trigger("reset", [{ text:"Utilisateurs", e:"users:list", link:"users"}]);
+      channel.trigger("ariane:reset", [{ text:"Utilisateurs", e:"users:list", link:"users"}]);
       require("@apps/users/list/list_users_controller.js").controller.listUsers(criterion)
     };
 
     const todo = logged.mapItem({
-      "Admin": forProf,
-      "Prof": forProf,
-      "Eleve": () => channel.trigger("notFound"),
+      "admin": forProf,
+      "prof": forProf,
+      "eleve": () => channel.trigger("notFound"),
       "def": () => channel.trigger("home:login")
     });
+    console.log(todo);
     todo();
   },
 
   showUser(id) {
-    const logged = sessionRadio.request("get");
+    const logged = channel.request("logged:get");
     /*
     if (logged.get("id") === id) {
       arianeRadio.trigger("reset", []);
@@ -76,7 +74,7 @@ const Controller = MnObject.extend ({
   },
 
   editUser(id) {
-    const logged = sessionRadio.request("get");
+    const logged = channel.request("logged:get");
     /*
     if (logged.get("id") === id) {
       arianeRadio.trigger("reset", []);
@@ -91,7 +89,7 @@ const Controller = MnObject.extend ({
   },
 
   editUserPwd(id) {
-    const logged = sessionRadio.request("get");
+    const logged = channel.request("logged:get");
     /*
     id = id ? logged.get("id") : id;
     if (logged.get("id") === id) {

@@ -1,4 +1,3 @@
-import Radio from 'backbone.radio';
 import { MnObject, Region } from 'backbone.marionette';
 import { EleveListeDevoirs, EleveLayout, UnfinishedsView } from './home_eleve_views';
 import { NotFoundView } from './not_found_view';
@@ -8,37 +7,37 @@ import { AdminProfPanel } from './admin_prof_panel';
 
 // import { AlertView } from 'apps/common/common_views.coffee'
 
-const headerChannel = Radio.channel("header");
-
 const Controller = MnObject.extend({
-  channelName: "navigation",
+  channelName: "app",
   notFound() {
     const view = new NotFoundView();
     new Region({ el: '#main-region'}).show(view);
   },
   showAdminHome() {
-    let unread = Radio.channel('session').request("get").get("unread");
+    let unread = this.getChannel().request("logged:get").get("unread");
     const view = new AdminProfPanel({adminMode:true, unread:unread});
     view.on("show:list", (cible)=> this.getChannel().trigger(`${cible}:list`));
     new Region({ el: '#main-region'}).show(view);
   },
   showProfHome() {
-    let unread = Radio.channel('session').request("get").get("unread");
+    let unread = this.getChannel().request("logged:get").get("unread");
     const view = new AdminProfPanel({adminMode:false, unread:unread});
+    const channel = this.getChannel();
     view.on("show:list", (cible)=> {
-      this.getChannel().trigger(`${cible}:list`);
+      channel.trigger(`${cible}:list`);
     });
     new Region({ el: '#main-region'}).show(view);
   },
   showOffHome() {
     const view = new OffView();
-    view.on("home:login", () => { this.getChannel().trigger("home:login"); });
+    const channel = this.getChannel();
+    view.on("home:login", () => { channel.trigger("home:login"); });
     new Region({ el: '#main-region'}).show(view);
   },
   showEleveHome() {
-    headerChannel.trigger("loading:up");
+    const channel = this.getChannel();
+    channel.trigger("loading:up");
     let layout = new EleveLayout();
-    let channel = this.getChannel();
     //require('entities/dataManager.coffee');
     let fetchingData = channel.request("custom:entities", ["userfiches", "exofiches", "faits"]);
     $.when(fetchingData).done( (userfiches, exofiches, faits) => {
@@ -49,7 +48,7 @@ const Controller = MnObject.extend({
       });
       listEleveView.on("item:devoir:show", (childView) => {
         model = childView.model;
-        this.getChannel().trigger("devoir:show", model.get("id"));
+        channel.trigger("devoir:show", model.get("id"));
       });
       let unfinishedMessageView = null;
       listeUnfinished = _.filter(
@@ -79,9 +78,9 @@ const Controller = MnObject.extend({
         new Region({ el: '#main-region'}).show(layout);
       }
     }).fail( (response) => {
-      this.getChannel().trigger("data:fetch:fail", response);
+      channel.trigger("data:fetch:fail", response);
     }).always( function(){
-      headerChannel.trigger("loading:down");
+      channel.trigger("loading:down");
     });
   },
 

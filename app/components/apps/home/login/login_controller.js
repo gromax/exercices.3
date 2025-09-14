@@ -1,35 +1,22 @@
-import Radio from 'backbone.radio';
 import { MnObject, Region } from 'backbone.marionette';
 import { LoginView } from '@apps/home/login/login_view.js';
 
-const headerChannel = Radio.channel("header");
-const sessionChannel = Radio.channel("session");
-const commonChannel = Radio.channel("common");
-
 const Controller = MnObject.extend({
-  channelName: "navigation",
+  channelName: "app",
   showLogin() {
-    console.log("Affichage de la page de connexion");
     const channel = this.getChannel();
     const view = new LoginView({ generateTitle: true, showForgotten:true });
     view.on("form:submit", (data) => {
-      let logged = sessionChannel.request("get");
+      let logged = channel.request("logged:get");
       let openingSession = logged.save(data);
       if (openingSession){
-        headerChannel.trigger("loading:up");
+        channel.trigger("loading:up");
         $.when(openingSession).done( function(response){
           channel.trigger("home:show");
         }).fail((xhr) => {
-          console.log("réponse erreur :");
-          console.log(xhr); // Ou pour voir tout l'objet
-          console.log('responseJSON:', xhr.responseJSON);
-          console.log('responseText:', xhr.responseText);
-          console.log('response:', xhr);
-          console.log('responseStatus:', xhr.status);
-          
-          commonChannel.trigger("data:fetch:fail", xhr, "025");
+          channel.trigger("data:fetch:fail", xhr, "025");
         }).always(() => {
-          headerChannel.trigger("loading:down");
+          channel.trigger("loading:down");
         });
         /*Promise.resolve(openingSession)
           .then(() => {
@@ -52,7 +39,7 @@ const Controller = MnObject.extend({
       if (!re.test(email)){
         view.triggerMethod("form:data:invalid", [{ success:false, message: "L'email n'est pas valide"}]);
       } else {
-        headerChannel.trigger("loading:up");
+        channel.trigger("loading:up");
         let sendingMail = channel.request("forgotten:password", email);
         sendingMail.done( function(response){
           channel.trigger("show:message:success", {
@@ -60,9 +47,9 @@ const Controller = MnObject.extend({
             message:"Un message a été envoyé à l'adresse #{email}. Veuillez vérifier dans votre boîte mail et cliquer sur le lien contenu dans le mail. [Cela peut prendre plusieurs minutes...]"
           });
         }).fail( function(response){
-          commonChannel.trigger("data:fech:fail", response, "033");
+          channel.trigger("data:fetch:fail", response, "033");
         }).always( function(){
-          headerChannel.trigger("loading:down");
+          channel.trigger("loading:down");
         })
       }
     });
@@ -83,15 +70,15 @@ const Controller = MnObject.extend({
         // C'est bien la même personne qui se reconnecte
         let openingSession = logged.save(data);
         if (openingSession){
-          headerChannel.trigger("loading:up");
+          channel.trigger("loading:up");
           $.when(openingSession).done( function(response){
             that.stopListening();
             view.trigger("dialog:close");
             return (options && typeof options.done == 'function') && options.done();
           }).fail( function(response){
-            commonChannel.trigger("data:fech:fail", response, "025");
+            channel.trigger("data:fetch:fail", response, "025");
           }).always( function(){
-            headerChannel.trigger("loading:down");
+            channel.trigger("loading:down");
           });
         } else {
           view.triggerMethod("form:data:invalid", logged.validationError);

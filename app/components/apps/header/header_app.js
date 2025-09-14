@@ -1,15 +1,11 @@
-import Radio from 'backbone.radio';
 import { MnObject, Region } from 'backbone.marionette';
-import { HeaderView } from '@apps/header/show/header_show_view.js';
-
-const navChannel = Radio.channel("navigation");
+import { HeaderView } from '@apps/header/header_view.js';
 
 const navbar = new HeaderView();
 
 const HeaderApp = MnObject.extend({
-  channelName: "header",
+  channelName: "app",
   radioEvents: {
-    'show': 'onShow',
     'loading:up': 'onLoadingUp',
     'loading:down': 'onLoadingDown',
     'logged:changed': 'onLoggedChanged'
@@ -17,22 +13,19 @@ const HeaderApp = MnObject.extend({
   ajaxCount: 0,
 
   initialize() {
-    navbar.on("home:show", this.onHomeShow);
-    navbar.on("home:editme", this.onHomeEditme);
-    navbar.on("home:login", this.onHomeLogin);
-    navbar.on("home:logout", this.onHomeLogout);
-    navbar.on("messages:list", this.onHomeEditme);
-  },
-
-  onShow() {
-    const myRegion = new Region({
-      el: '#header-region'   // le sélecteur CSS du div cible
-    });
-    myRegion.show(navbar);
+    const channel = this.getChannel();
+    navbar.on("home:show", () => { channel.trigger("home:show"); });
+    navbar.on("home:editme", () => { channel.trigger("home:editme"); });
+    navbar.on("home:login", () => { channel.trigger("home:login"); });
+    navbar.on("home:logout", () => { channel.trigger("home:logout"); });
+    navbar.on("messages:list", () => { channel.trigger("messages:show:list"); });
   },
 
   show() {
-    this.onShow();
+    const myRegion = new Region({
+      el: '#header-region'
+    });
+    myRegion.show(navbar);
   },
 
   onLoadingDown() {
@@ -50,23 +43,7 @@ const HeaderApp = MnObject.extend({
 
   onLoggedChanged() {
     navbar.render();
-  },
-
-  onHomeShow() {
-    navChannel.trigger("home:show");
-  },
-  onHomeEditme() {
-    navChannel.trigger("logged:show");
-  },
-  onHomeLogin() {
-    navChannel.trigger("home:login");
-  },
-  onHomeLogout() {
-    navChannel.trigger("home:logout");
-  },
-  onMessagesList() {
-    navChannel.trigger("messages:show:list");
-  },
+  }
 });
 
 const headerApp = new HeaderApp();
