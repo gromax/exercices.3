@@ -41,6 +41,4 @@
 	//define("POIDS_GEO", 0.8);
 	define("N_EXO_SUP", 5); // Nombre d'exercices encore pris en compte au-delà de la quantité à faire
 
-	// session
-	define("SAVE_CLASSES_IN_SESSION",true);
 ?>

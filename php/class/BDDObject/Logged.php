@@ -32,17 +32,18 @@ class Logged extends User
   {
     if ( (self::$_connectedUser === null) || ($force === true) )
     {
-      $trySession = SC::get()->getParam('user', null);
-      if (($trySession instanceof Logged) && $trySession->connexionOk())
-      {
-        self::$_connectedUser = $trySession;
-      }
-      else
-      {
+      $data = SC::verify_token();
+      if ($data === null) {
         self::$_connectedUser = new Logged();
+      } else {
+        self::$_connectedUser = new Logged(array(
+          "id" => $data->id,
+          "email" => $data->email,
+          "rank" => $data->rank
+        ));
       }
+      return self::$_connectedUser;
     }
-    return self::$_connectedUser;
   }
 
   public static function tryConnexion($identifiant, $pwd, $idClasse = null)
@@ -75,18 +76,13 @@ class Logged extends User
         if (($hash=="") || (password_verify($pwd, $hash))) {
           // Le hash correspond, connexion réussie
           //$bdd_result["pwd"] = $pwd;
-          return (new Logged($bdd_result))->updateTime()->setConnectedUser();
+          return new Logged($bdd_result);
         }
       }
     }
     EC::addError("Mot de passe ou identifiant invalide.");
     EC::set_error_code(422);
     return null;
-  }
-
-  public static function setUser($user)
-  {
-    return (new Logged($user->toArray()))->updateTime()->setConnectedUser();
   }
 
   public static function tryConnexionOnInitMDP($key)
@@ -111,7 +107,7 @@ class Logged extends User
         $bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($bdd_result !== null)
         { // Connexion réussie
-          return (new Logged($bdd_result))->updateTime()->setConnectedUser();
+          return new Logged($bdd_result);
         }
       }
     }
@@ -124,26 +120,10 @@ class Logged extends User
 
   ##################################### METHODES #####################################
 
-  public function __wakeup()
-  {
-    $this->isConnected=null; // Réinitialise le flag de connexion au moment du redémarrage de la session
-  }
-
-  public function __sleep()
-  {
-    return array_keys(get_object_vars($this));
-  }
-
   private function refreshTimeOut()
   {
     $this->lastTime=time();
     return $this;
-  }
-
-  public function setConnectedUser()
-  {
-    SC::get()->setParam('user',$this);
-    return self::getConnectedUser(true);
   }
 
   public function connexionOk()

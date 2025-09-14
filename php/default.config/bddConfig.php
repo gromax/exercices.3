@@ -5,5 +5,6 @@
   define("BDD_HOST", "localhost"); // Hote de la BDD
   define("BDD_NAME", "exercices"); // Nom de la BDD
   $dsn="mysql:dbname=".BDD_NAME.";host=".BDD_HOST;
-  define("BDD_DSN", $dsn); // DSN de la BDD
+  define("BDD_DSN", $dsn); // DSN de la BDD;
+  define("SECRET_KEY", "votre_cle_secrete_pour_le_jwt"); // Clé secrète pour le JWT
 ?>
