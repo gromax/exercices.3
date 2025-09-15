@@ -51,6 +51,7 @@
 		public static function header($redirect='')
 		{
 			if ($redirect === '') {
+				header('Content-Type: application/json; charset=utf-8');
 				switch (self::$_error_code) {
 					case 401:
 						header('HTTP/1.0 401 Unauthorized');
