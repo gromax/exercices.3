@@ -2,6 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Application} from 'backbone.marionette';
+import { SessionApp } from '@apps/session/session_app';
 import Radio from 'backbone.radio';
 
 /* Surcharge pour rendre history sensible
@@ -72,28 +73,25 @@ const Manager = Application.extend({
     //require('apps/exercices/exercices_app.coffee');
 
     // import de l'appli entities, session
-    require('@apps/session/session_app.js');
-    require('@apps/header/header_app.js').headerApp.show();
-    require('@apps/home/home_app.js');
-    require('@apps/ariane/ariane_app.js').arianeApp.show();
-    require('@apps/common/common_app.js');
-    require('@apps/common/not_found_app.js');
-    require('@apps/common/dataManager.js');
-    require('@apps/users/users_app.js');
-    
+    const whenSessionLoaded = () => {
+      require('@apps/session/session_app.js');
+      require('@apps/header/header_app.js').headerApp.show();
+      require('@apps/home/home_app.js');
+      require('@apps/ariane/ariane_app.js').arianeApp.show();
+      require('@apps/common/common_app.js');
+      require('@apps/common/not_found_app.js');
+      require('@apps/common/dataManager.js');
+      require('@apps/users/users_app.js');
+      
+      console.log("token", Radio.channel("app").request("jwt:get"));
 
-    Backbone.history.on("route:missing", function(fragment) {
-      Radio.channel("navigation").trigger("not:found");
-    });
-    Backbone.history.start();
-    /*
-    const appChannel = Radio.channel("app");
-    
-    if (this.getCurrentRoute() === "") {
-      appChannel.trigger("home:show");
-    }*/
+      Backbone.history.on("route:missing", function(fragment) {
+        Radio.channel("navigation").trigger("not:found");
+      });
+      Backbone.history.start();
+    };
 
-
+    new SessionApp({callBack:whenSessionLoaded});
   }
 });
 
