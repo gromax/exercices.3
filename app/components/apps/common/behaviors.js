@@ -9,8 +9,8 @@ const SortList = Behavior.extend({
     e.preventDefault();
     this.view.$el.find(".js-sort-icon").remove();
     let $sortEl = $(e.currentTarget);
-    let tag = $sortEl.attr("sort");
-    let collection = this.collection;
+    let tag = $sortEl.data("sort");
+    let collection = this.view.collection;
     if (collection.comparatorAttr === tag) {
       $sortEl.append("<span class='js-sort-icon'>&nbsp;<i class='fa fa-sort-amount-desc'></i></span>");
       collection.comparatorAttr = `inv_${tag}`;
@@ -43,10 +43,10 @@ const FilterList = Behavior.extend({
     } else {
       let filterKeys = this.view.getOption("filterKeys");
       let parseFct = function(model){
-        reductionFct = function(m,k) {
+        const reductionFct = function(m,k) {
           return m+model.get(k);
         }
-        _.reduce(filterKeys, reductionFct, "").normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        return _.reduce(filterKeys, reductionFct, "").normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
       };
       let filterFct = function(view, index, children) {
         return parseFct(view.model).indexOf(criterion) !== -1;
