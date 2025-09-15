@@ -41,6 +41,7 @@ class Logged extends User
           "email" => $data->email,
           "rank" => $data->rank
         ));
+        self::$_connectedUser->consolidate();
       }
       return self::$_connectedUser;
     }
@@ -123,6 +124,39 @@ class Logged extends User
   private function refreshTimeOut()
   {
     $this->lastTime=time();
+    return $this;
+  }
+
+  private function consolidate()
+  {
+    require_once BDD_CONFIG;
+    try {
+      $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $stmt = $pdo->prepare("SELECT id, idClasse, nom, prenom, email, pref, `rank` FROM ".PREFIX_BDD."users WHERE id=:id");
+      $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
+      $stmt->execute();
+      $bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
+      if (($bdd_result) && ($this->email == $bdd_result['email']) && ($this->rank == $bdd_result['rank'])){
+        $this->idClasse = $bdd_result['idClasse'];
+        $this->nom = $bdd_result['nom'];
+        $this->prenom = $bdd_result['prenom'];
+        $this->email = $bdd_result['email'];
+        $this->pref = $bdd_result['pref'];
+        $this->rank = $bdd_result['rank'];
+      } else {
+        // L'utilisateur a été supprimé ou son email/rank ont été modifiés
+        $this->id = null;
+        $this->idClasse = null;
+        $this->nom = 'Disconnected';
+        $this->prenom = '';
+        $this->email = '';
+        $this->pref = '';
+        $this->rank = self::RANK_DISCONNECTED;
+      }
+    } catch(PDOException $e) {
+      EC::addBDDError($e->getMessage(), 'Logged/consolidate');
+    }
     return $this;
   }
 
