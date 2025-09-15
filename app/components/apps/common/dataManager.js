@@ -18,9 +18,8 @@ const Controller = MnObject.extend({
   stored_time:{},
 
   getCustomEntities(ask) {
-    const t = Date.now();
     const defer = $.Deferred();
-    const toFetch = _.filter(ask, (item) => (typeof this.stored_data[item] === "undefined") || (typeof this.stored_time[item] === "undefined") || (t - this.stored_time[item] > this.timeout));
+    const toFetch = _.filter(ask, (item) => (typeof this.stored_data[item] === "undefined") || (typeof this.stored_time[item] === "undefined") || (Date.now() - this.stored_time[item] > this.timeout));
     if (toFetch.length === 0) {
       // Pas de fetch requis => on renvoie les résultats
       defer.resolve.apply(null,_.map(ask, (item) => this.stored_data[item]));
@@ -33,7 +32,8 @@ const Controller = MnObject.extend({
       });
 
       request.done( (data) => {
-        for (const colName in ask) {
+        for (const colName of ask) {
+          if (!data[colName]) continue;
           let colObj = false;
           switch (colName) {
             //case "fiches": colObj = require("@entities/fiches.js"); break;
@@ -45,9 +45,9 @@ const Controller = MnObject.extend({
             //case "faits": colObj = require("@entities/faits.js"); break;
             //case "exams": colObj = require("@entities/exams.js"); break;
           }
-          if ((colObj !== false) && (data[colName])) {
+          if (colObj !== false) {
             this.stored_data[colName] = new colObj.Collection(data[colName], { parse:true });
-            this.stored_time[colName] = t;
+            this.stored_time[colName] = Date.now();
           }
         }
         defer.resolve.apply(null,_.map(ask, (item) => { return this.stored_data[item]; } ));
