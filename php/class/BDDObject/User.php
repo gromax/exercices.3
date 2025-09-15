@@ -493,6 +493,16 @@ class User
 		return $this->id;
 	}
 
+	public function getEmail()
+	{
+		return $this->email;
+	}
+
+	public function getRank()
+	{
+		return $this->rank;
+	}
+
 	public function getClasseId()
 	{
 		return $this->idClasse;
