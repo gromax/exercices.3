@@ -10,29 +10,30 @@ const SessionApp = MnObject.extend({
   },
 
   radioRequests: {
-    'logged:get':'onGet'
+    'logged:get':'onGet',
+    'jwt:get':'onGetToken'
   },
 
   initialize() {
     const channel = this.getChannel();
     this.logged = new Session();
-    const logged = this.logged;
-    this.logged.load();
-
+    this.logged.load(this.getOption("callBack"));
     this.logged.on("destroy", function() {
         this.unset("id");
         localStorage.removeItem('jwt');
         channel.trigger("logged:destroy");
     });
     this.logged.on("change", function(){
-        localStorage.setItem('jwt', logged.get("token"));
-        console.log("Token set to", logged.get("token"));
         channel.trigger("logged:changed");
     });
   },
 
   onGet() {
     return this.logged;
+  },
+
+  onGetToken() {
+    return localStorage.getItem('jwt');
   },
 
   onSendForgottenEmail(email) {
@@ -51,4 +52,4 @@ const SessionApp = MnObject.extend({
   }
 });
 
-export const sessionApp = new SessionApp();
+export { SessionApp }
