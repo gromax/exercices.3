@@ -42,10 +42,17 @@ const Controller = MnObject.extend ({
   listUsers(criterion) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
-    console.log(logged);
     const forProf = () => {
       channel.trigger("ariane:reset", [{ text:"Utilisateurs", e:"users:list", link:"users"}]);
-      require("@apps/users/list/list_users_controller.js").controller.listUsers(criterion)
+      channel.trigger("loading:up");
+      const fetchingUsers = channel.request("custom:entities", ["users"]);
+      $.when(fetchingUsers).done((users) => {
+        require("@apps/users/list/list_users_controller.js").controller.listUsers(users, logged.get("rank"), criterion);
+      }).fail((response) => {
+        channel.trigger("data:fetch:fail", response);
+      }).always(() => {
+        channel.trigger("loading:down");
+      });
     };
 
     const todo = logged.mapItem({
@@ -54,7 +61,6 @@ const Controller = MnObject.extend ({
       "eleve": () => channel.trigger("notFound"),
       "def": () => channel.trigger("home:login")
     });
-    console.log(todo);
     todo();
   },
 
