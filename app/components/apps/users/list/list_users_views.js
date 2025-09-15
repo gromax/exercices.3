@@ -32,7 +32,7 @@ const UserView = View.extend ({
   tagName: "tr",
   adminMode: false,
   behaviors: [DestroyWarn, FlashItem],
-  getTemplate: (data) => {
+  getTemplate(data) {
     if (this.getOption("adminMode")) {
       return item_admin_view_tpl;
     } else {
