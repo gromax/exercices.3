@@ -27,7 +27,16 @@ class session
 
     public function fetch()
     {
-        return $this->getData(null);
+        $uLog = Logged::getConnectedUser();
+        $data = $this->getData($uLog);
+        // ajout du token si l'utilisateur est connecté
+        if ($uLog->connexionOk()) {
+            return array_merge(
+                $data,
+                array("token" => SC::make_token($uLog->getId(), $uLog->getEmail(), $uLog->getRank()) )
+            );
+        }
+        return $data;
     }
 
     public function delete()
@@ -61,12 +70,10 @@ class session
         {
             $data = $logged->toArray();
             $jwt = SC::make_token($data['id'], $data['email'], $data['rank']);
-            return array_merge(
-                $logged->toArray(),
-                array(
-                    "unread"=>Message::unReadNumber($logged->getId()),
-                    "token" => $jwt
-                )
+            return array(
+                "logged" => $logged->toArray(),
+                "unread" => Message::unReadNumber($logged->getId()),
+                "token" => $jwt
             );
         }
     }
@@ -110,7 +117,6 @@ class session
 
     protected function getData($uLog = null)
     {
-        
         if ($uLog === null) $uLog = Logged::getConnectedUser();
         if ($uLog->connexionOk()) {
             if($uLog->isRoot()) {
