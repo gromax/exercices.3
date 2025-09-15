@@ -1,5 +1,3 @@
-import { sync } from "backbone";
-
 const Item = Backbone.Model.extend ({
   urlRoot: "api/users",
   defaults: {
