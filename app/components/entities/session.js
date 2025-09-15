@@ -11,6 +11,17 @@ const Session = Backbone.Model.extend({
         age: 0
     },
 
+    sync(method, model, options) {
+        options = options || {};
+        const token = localStorage.getItem('jwt');
+        options.beforeSend = function (xhr) {
+            if (token) {
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+            }
+        };
+        return Backbone.sync(method, model, options);
+    },
+
     validate(attrs, options) {
         const errors = [];
         if (!attrs.identifiant) {
@@ -32,9 +43,9 @@ const Session = Backbone.Model.extend({
     },
 
     parse(data) {
-        let logged = data;
-        if (data.logged) {
-            logged = data.logged;
+        let logged = data.logged;
+        if (data.token) {
+            localStorage.setItem('jwt', data.token);
         }
         if (!logged.nomClasse) {
             logged.nomClasse = "N/A";
@@ -61,10 +72,13 @@ const Session = Backbone.Model.extend({
         return logged;
     },
 
-    load() {
+    load(callBack) {
+        /* Charge la session depuis le serveur */
+        const that = this;
         this.fetch({
             success: function(){
                 console.log("Session loaded");
+                if (callBack) callBack();
             },
             error: function(model, xhr, options) {
                 sessionChannel.trigger("load:error", {status:xhr.status, response:xhr.responseText});
@@ -88,19 +102,23 @@ const Session = Backbone.Model.extend({
     },*/
     
     isAdmin() {
+        /* Renvoie true si l'utilisateur est admin (ou root) */
         let rank = this.get("rank");
         return (rank === "root") || (rank === "admin");
     },
 
     isProf() {
+        /* Renvoie true si l'utilisateur est prof (et pas eleve ni off) */
         return (this.get("rank") === "prof");
     },
 
     isEleve() {
+        /* Renvoie true si l'utilisateur est eleve (et pas prof ni off) */
         return (this.get("rank") === "eleve");
     },
 
     isOff() {
+        /* Renvoie true si l'utilisateur est off (et pas prof ni eleve) */
         return this.get("isOff");
     },
 
@@ -126,6 +144,11 @@ const Session = Backbone.Model.extend({
     },*/
 
     mapItem(itemsList){
+        /* Renvoie l'item de la liste correspondant au rang de l'utilisateur
+        itemsList doit être un objet avec des clés "root", "admin", "prof", "eleve", "off" et "def"
+        Si la clé correspondant au rang n'existe pas, on renvoie l'item "def"
+        Si le rang est inconnu, on renvoie l'item "off" ou "def" s'il n'existe pas
+        */
         itemsList = itemsList || {};
         let rank = this.get("rank");
         switch (rank) {
