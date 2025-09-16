@@ -37,12 +37,12 @@ const Controller = MnObject.extend ({
     this.editUser(id);
   },
 
-  onUserEditModal(model, pwd = false) {
+  onUserEditModal(model, callBack, pwd = false) {
     const logged = this.getChannel().request("logged:get");
     if (!logged.isAdmin() && !logged.isProf()) {
       return;
     }
-    require("./edit/controller.js").controller.editUser(model.get("id"), model, pwd, true);
+    require("./edit/controller.js").controller.editUser(model.get("id"), model, pwd, true, callBack);
   },
 
   onUserEditPwd(id) {
@@ -50,8 +50,8 @@ const Controller = MnObject.extend ({
     this.editUserPwd(id);
   },
 
-  onUserEditPwdModal(id) {
-    this.onUserEditModal(id, true);
+  onUserEditPwdModal(model, callBack) {
+    this.onUserEditModal(model, callBack, true);
   },
 
   listUsers(criterion) {
@@ -123,7 +123,10 @@ const Controller = MnObject.extend ({
       if (isMe) {
         require("./edit/controller.js").controller.editMe(id, user, pwd);
       } else {
-        require("./edit/controller.js").controller.editUser(id, user, pwd, false);
+        const callBack = () => {
+          channel.trigger("user:show", id);
+        };
+        require("./edit/controller.js").controller.editUser(id, user, pwd, false, callBack);
       }
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
