@@ -47,12 +47,19 @@ const Controller = MnObject.extend ({
 
     usersListView.on("item:edit", (childView, args) => {
       const model = childView.model;
-      channel.trigger("user:edit:modal", model);
+      const callBack = () => {
+        childView.render();
+        childView.trigger("flash:success");
+      };
+      channel.trigger("user:edit:modal", model, callBack);
     });
 
     usersListView.on("item:editPwd", (childView, args) => {
       const model = childView.model;
-      channel.trigger("user:editPwd:modal", model);
+      const callBack = () => {
+        childView.trigger("flash:success");
+      };
+      channel.trigger("user:editPwd:modal", model, callBack);
     });
 
     usersListView.on("item:forgotten", (childView, e) => {
