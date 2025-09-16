@@ -65,6 +65,17 @@ const Item = Backbone.Model.extend ({
     if (!_.isEmpty(errors)) {
       return errors;
     }
+  },
+  sync(method, model, options) {
+    options = options || {};
+    const token = localStorage.getItem('jwt');
+    console.log("Token dans users.js :", token);
+    options.beforeSend = function (xhr) {
+      if (token) {
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      }
+    };
+    return Backbone.sync(method, model, options);
   }
 });
 
