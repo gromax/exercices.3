@@ -35,7 +35,7 @@ const Controller = MnObject.extend ({
 
   },
   
-  editUser(id, user, pwd, modal) {
+  editUser(id, user, pwd, modal, callBack) {
     const trigger = pwd === true ? "user:editPwd" : "user:edit";
     const textLink = pwd === true ? "Modification du mot de passe" : "Modification de l'utilisateur";
     const channel = this.getChannel();
@@ -61,7 +61,7 @@ const Controller = MnObject.extend ({
       editorIsAdmin: isAdmin,
       errorCode: "028",
       onSuccess: (model, data) => {
-        channel.trigger("user:show", model.get("id"));
+        callBack();
       }
     });
     if (modal) {
