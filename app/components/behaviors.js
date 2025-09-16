@@ -1,4 +1,7 @@
 import { Behavior } from 'backbone.marionette';
+import Radio from 'backbone.radio';
+
+const radioApp = Radio.channel("app");
 
 const SortList = Behavior.extend({
   events: {
@@ -71,9 +74,8 @@ const DestroyWarn = Behavior.extend({
     let model = this.view.model
     let message = `Supprimer l'élément #${model.get("id")} ?`;
     if (confirm(message)) {
-      app = require('@components/App.js').app
       destroyRequest = model.destroy()
-      app.trigger("loading:up");
+      radioApp.trigger("loading:up");
       $.when(destroyRequest).done( function(){
         let view = this.view;
         view.$el.fadeOut( function(){
@@ -83,7 +85,7 @@ const DestroyWarn = Behavior.extend({
       }).fail( function(response){
         alert("Erreur. Essayez à nouveau !");
       }).always( function() {
-        app.trigger("loading:down");
+        radioApp.trigger("loading:down");
       });
     }
   }
@@ -187,15 +189,14 @@ const ToggleItemValue = Behavior.extend({
     let updatingItem = model.save();
     let self = this;
     if (updatingItem) {
-      let app = require('@components/App.js').app;
-      app.trigger("loading:up");
+      radioApp.trigger("loading:up");
       $.when(updatingItem).done( function(){
         self.view.render();
         self.view.trigger("flash:success");
       }).fail( function(response) {
         if (response.status === 401) {
           alert("Vous devez vous (re)connecter !");
-          app.trigger("home:logout");
+          radioApp.trigger("home:logout");
         } else {
           let errorCode = self.view.getOption("errorCode");
           if (errorCode) {
@@ -206,7 +207,7 @@ const ToggleItemValue = Behavior.extend({
           alert(`Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}${errorCode}]`);
         }
       }).always( function(){
-        app.trigger("loading:down");
+        radioApp.trigger("loading:down");
       });
     } else {
       this.view.trigger("flash:error");
@@ -232,14 +233,14 @@ const EditItem = Behavior.extend({
     let updatingFunctionName = this.getOption("updatingFunctionName");
     let updatingItem = model[updatingFunctionName](data);
     if (updatingItem) {
-      let app = require('@components/App.js').app;
-      app.trigger("loading:up");
+      radioApp.trigger("loading:up");
       let view = this.view;
       $.when(updatingItem).done( function(){
         let itemView = view.getOption("itemView");
         let listView = view.getOption("listView");
         itemView?.render() // cas d'une itemView existante
-        if ((collection=listView?.collection) && !collection.get(model.get("id"))) {
+        const collection = listView?.collection;
+        if (collection && !collection.get(model.get("id"))) {
           // c'est un ajout
           collection.add(model);
         }
@@ -260,7 +261,7 @@ const EditItem = Behavior.extend({
           case 401:
             alert("Vous devez vous (re)connecter !");
             view.trigger("dialog:close");
-            app.trigger("home:logout");
+            radioApp.trigger("home:logout");
             break;
           default:
             let errorCode= view.getOption("errorCode");
@@ -272,7 +273,7 @@ const EditItem = Behavior.extend({
             alert(`Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}${errorCode}]`);
         }
       }).always( function() {
-        app.trigger("loading:down", false);
+        radioApp.trigger("loading:down");
       });
     } else {
       this.view.trigger("form:data:invalid",model.validationError);
