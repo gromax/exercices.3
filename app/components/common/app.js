@@ -1,5 +1,5 @@
 import { MnObject, Region } from 'backbone.marionette';
-import { AlertView, MissingView } from '@apps/common/common_views.js'
+import { AlertView, MissingView } from './views.js'
 
 const messageRegion = new Region({
   el: '#message-region'
@@ -11,7 +11,9 @@ const Controller = MnObject.extend({
   radioEvents: {
     "show:message:success":"showMessageSuccess",
     "show:message:error":"showMessageError",
-    "data:fetch:fail":"dataFetchFail"
+    "data:fetch:fail":"dataFetchFail",
+    "not:found": "notFound",
+    "missing:item": "missingItem"
   },
   showMessageSuccess(message) {
     let view;
@@ -74,7 +76,25 @@ const Controller = MnObject.extend({
         });
         messageRegion.show(aView);
     }
+  },
+  notFound() {
+    const view = new AlertView({
+      message: "Page introuvable",
+      dismiss: false
+    });
+    this.getChannel().trigger("ariane:reset", [
+      { text:"Page introuvable", e:"", link:"" }
+    ]);
+    new Region({ el: '#main-region' }).show(view);
+  },
+
+  missingItem(item) {
+    const view = new MissingView();
+    new Region({ el: '#main-region' }).show(view);
   }
 });
+
+
+
 
 new Controller();

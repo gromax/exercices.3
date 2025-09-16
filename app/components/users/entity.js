@@ -7,14 +7,14 @@ const Item = Backbone.Model.extend ({
     nomClasse: "N/A",
     rank: "Off"
   },
-  toJSON: () => {
+  toJSON() {
     const output = _.clone(_.omit(this.attributes, "pref"));
     if (this.attributes.pref !== false) {
       output.pref = JSON.stringify(this.attributes.pref);
     }
     return output;
   },
-  parse: (data) => {
+  parse(data) {
     if (data.id) {
       data.id = Number(data.id);
     }
@@ -33,7 +33,7 @@ const Item = Backbone.Model.extend ({
     }
     return data;
   },
-  testClasseMdp: (mdp) => {
+  testClasseMdp(mdp) {
     const promise = $.ajax(`api/classes/${this.get('idClasse')}/test`, {
       data: {
         pwd: mdp
@@ -43,7 +43,7 @@ const Item = Backbone.Model.extend ({
     });
     return promise;
   },
-  validate: (attrs, options) => {
+  validate(attrs, options) {
     const errors = {};
     if (this.get("rank") === "root") {
       errors.email = "Root ne peut être modifié";

@@ -1,11 +1,21 @@
 import { View, CollectionView } from 'backbone.marionette';
-import { DestroyWarn, FlashItem, FilterList, SortList, FilterPanel } from '@apps/common/behaviors.js';
+import { DestroyWarn, FlashItem, FilterList, SortList, FilterPanel } from '../../behaviors.js';
 import users_panel_tpl from '@templates/users/list/user-list-panel.jst';
 import no_item_tpl from '@templates/users/list/user-list-none.jst';
 import item_admin_view_tpl from '@templates/users/list/user-list-admin-item.jst';
 import item_prof_view_tpl from '@templates/users/list/user-list-prof-item.jst';
 import users_admin_view_tpl from '@templates/users/list/user-list-admin.jst';
 import users_prof_view_tpl from '@templates/users/list/user-list-prof.jst';
+import user_list_layout_tpl from '@templates/users/list/user-list-layout.jst';
+
+const ListLayout = View.extend ({
+  template: user_list_layout_tpl,
+  regions: {
+    panelRegion: "#panel-region",
+    itemsRegion: "#items-region"
+  }
+});
+
 
 const UsersPanel = View.extend ({
   template: users_panel_tpl,
@@ -72,4 +82,4 @@ const UsersCollectionView = CollectionView.extend ({
   }
 });
 
-export { UsersPanel, UsersCollectionView }
+export { UsersPanel, UsersCollectionView, ListLayout }

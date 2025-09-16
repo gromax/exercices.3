@@ -33,12 +33,5 @@ const MissingView = View.extend ({
   }
 });
 
-const ListLayout = View.extend ({
-  template: list_layout_tpl,
-  regions: {
-    panelRegion: "#panel-region",
-    itemsRegion: "#items-region"
-  }
-});
 
-export { AlertView, MissingView, ListLayout };
+export { AlertView, MissingView };

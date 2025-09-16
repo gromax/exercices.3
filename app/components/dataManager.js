@@ -58,27 +58,39 @@ const Controller = MnObject.extend({
     const promise = defer.promise();
     return promise;
   },
-  getItem: (entityName, idItem) => {
-    $.Deferred().resolve(this.getCustomEntities([entityName]).get(idItem))
+  getItem(entityName, idItem) {
+    const defer = $.Deferred();
+    if ((typeof this.stored_data[entityName] === "undefined") || (typeof this.stored_time[entityName] === "undefined") || (Date.now() - this.stored_time[entityName] > this.timeout)) {
+      const fetching = this.getCustomEntities([entityName]);
+      $.when(fetching).done( (col) => {
+        defer.resolve(col.get(idItem));
+      }).fail( (response) => {
+        defer.reject(response);
+      });
+    } else {
+      defer.resolve(this.stored_data[entityName].get(idItem));
+    }
+    return defer.promise();
   },
-  getUser: (id) => {
-    this.getItem("users", id);
+  getUser(id) {
+    return this.getItem("users", id);
   },
-  getClasse: (id) => {
-    this.getItem("classes", id);
+  getClasse(id) {
+    return this.getItem("classes", id);
   },
-  getMe: () => {
+  getMe() {
     const defer = $.Deferred();
     const t = Date.now();
     if (typeof this.stored_data.me !== "undefined" && typeof this.stored_time.me !== "undefined" && t - this.stored_time.me < this.timeout) {
       defer.resolve(this.stored_data.me);
     } else {
-      request = $.ajax("api/me",{
+      const request = $.ajax("api/me",{
         method:'GET',
-        dataType:'json'
+        dataType:'json',
+        headers: localStorage.getItem('jwt') ? { Authorization: 'Bearer ' + localStorage.getItem('jwt') } : {}
       })
       request.done( (data) => {
-        User = require("./users/entity.js").Item;
+        const User = require("./users/entity.js").Item;
         this.stored_data.me = new User(data, {parse:true});
         this.stored_time.me = t;
         defer.resolve(this.stored_data.me);
@@ -89,11 +101,11 @@ const Controller = MnObject.extend({
     return defer.promise();
   },
 
-  purge: () => {
+  purge() {
     this.stored_data = {};
   },
 
-  userDestroyUpdate: (idUser) => {
+  userDestroyUpdate(idUser) {
     //  Assure le cache quand un user est supprimé
     if (this.stored_data.userfiches) {
       userfichesToPurge = this.stored_data.userfiches.where({idUser : idUser});
@@ -107,7 +119,7 @@ const Controller = MnObject.extend({
     }
   },
 
-  ficheDestroyUpdate: (idFiche) => {
+  ficheDestroyUpdate(idFiche) {
     //  Assure le cache quand un user est supprimé
     if (this.stored_data.userfiches) {
       userfichesToPurge = this.stored_data.userfiches.where({idFiche : idFiche});
@@ -125,7 +137,7 @@ const Controller = MnObject.extend({
     }
   },
 
-  aUEDestroyUpdate: () => {
+  aUEDestroyUpdate() {
     if (this.stored_data.messages) {
       delete this.stored_data.messages;
     }

@@ -6,7 +6,8 @@ import { arianeController } from './entity.js';
 const ArianeApp = MnObject.extend({
   channelName: "app",
   radioEvents: {
-    'ariane:reset': 'onReset'
+    'ariane:reset': 'onReset',
+    'ariane:add': 'add'
   },
 
   onReset(data) {
@@ -23,7 +24,15 @@ const ArianeApp = MnObject.extend({
       channel.trigger(event_name, data);
     });
     new Region({ el: '#ariane-region' }).show(view);
+  },
+
+  add(data) {
+    if (!Array.isArray(data)) {
+      data = [data];
+    }
+    arianeController.add(data);
   }
+
 });
 
 export const arianeApp = new ArianeApp();

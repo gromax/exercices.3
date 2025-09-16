@@ -1,6 +1,5 @@
 import { View } from 'backbone.marionette';
-import { SubmitClicked, EditItem } from '@apps/common/behaviors.js';
-
+import { SubmitClicked, EditItem } from '../../behaviors.js';
 import edit_user_tpl from '@templates/users/edit/user-form.jst'
 import edit_pwd_user_tpl from '@templates/users/edit/userpwd-form.jst'
 
@@ -47,4 +46,4 @@ const EditPwdUserView = View.extend ({
 
 
 
-export { EditUserView, EditPwdUserView, NewUserView }
+export { EditUserView, EditPwdUserView }

@@ -8,10 +8,12 @@ import Radio from 'backbone.radio';
 /* Surcharge pour rendre history sensible
    À une route introuvable
 */
+
+const radioApp = Radio.channel("app");
+
 _.extend(Backbone.History.prototype, {
   loadUrl: function(fragment) {
     fragment = this.fragment = this.getFragment(fragment);
-
     let matched = _.any(this.handlers, function(handler) {
       if (handler.route.test(fragment)) {
         handler.callback(fragment);
@@ -20,7 +22,7 @@ _.extend(Backbone.History.prototype, {
     });
 
     if (!matched) {
-      this.trigger("route:missing", fragment);
+      radioApp.trigger("not:found");
     }
 
     return matched;
@@ -77,16 +79,12 @@ const Manager = Application.extend({
       require('./header/app.js').headerApp.show();
       require('./home/app.js');
       require('./ariane/app.js').arianeApp.show();
-      require('@apps/common/common_app.js');
-      require('@apps/common/not_found_app.js');
+      require('./common/app.js');
       require('./dataManager.js');
       require('./users/app.js');
       
       console.log("token", Radio.channel("app").request("jwt:get"));
 
-      Backbone.history.on("route:missing", function(fragment) {
-        Radio.channel("navigation").trigger("not:found");
-      });
       Backbone.history.start();
     };
 

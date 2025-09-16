@@ -1,8 +1,6 @@
 import { MnObject, Region } from 'backbone.marionette';
-import { UsersPanel, UsersCollectionView } from './views.js';
-//import { NewUserView, EditUserView, EditPwdUserView } from '@apps/users/edit/edit_user_views.js';
-import { ListLayout } from '@apps/common/common_views.js';
-
+import { UsersPanel, UsersCollectionView, ListLayout } from './views.js';
+//import { NewUserView } from '@apps/users/edit/edit_user_views.js';
 
 const Controller = MnObject.extend ({
   channelName: 'app',
@@ -49,25 +47,12 @@ const Controller = MnObject.extend ({
 
     usersListView.on("item:edit", (childView, args) => {
       const model = childView.model;
-      const editView = new EditUserView({
-        model: model,
-        itemView: childView,
-        errorCode: "031",
-        editorIsAdmin: (rank == "admin") || (rank == "root")
-      });
-
-      new Region({ el: "#dialog-region" }).show(editView);
+      channel.trigger("user:edit:modal", model);
     });
 
     usersListView.on("item:editPwd", (childView, args) => {
       const model = childView.model;
-      const editPwdView = new EditPwdUserView({
-        model: model,
-        itemView: childView,
-        errorCode: "032"
-      });
-
-      new Region({ el: "#dialog-region" }).show(editPwdView);
+      channel.trigger("user:editPwd:modal", model);
     });
 
     usersListView.on("item:forgotten", (childView, e) => {

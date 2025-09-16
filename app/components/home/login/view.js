@@ -1,5 +1,5 @@
 import { View } from 'backbone.marionette';
-import { SubmitClicked } from '@apps/common/behaviors.js';
+import { SubmitClicked } from '../../behaviors.js';
 import login_tpl from '@templates/home/login/home-login.jst';
 
 const LoginView = View.extend({

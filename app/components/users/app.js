@@ -5,9 +5,11 @@ const Controller = MnObject.extend ({
   radioEvents: {
     "users:list": "onListUsers",
     "users:filter": "onFilterUsers",
-    "user:show": "onShowUser",
-    "user:edit": "onEditUser",
-    "user:editPwd": "onEditUserPwd"
+    "user:show": "onUserShow",
+    "user:edit": "onUserEdit",
+    "user:editPwd": "onUserEditPwd",
+    "user:edit:modal": "onUserEditModal",
+    "user:editPwd:modal": "onUserEditPwdModal"
   },
 
   onListUsers(criterion) {
@@ -25,6 +27,7 @@ const Controller = MnObject.extend ({
   },
 
   onUserShow(id) {
+    console.log("onUserShow", id);
     Backbone.history.navigate(`user:${id}`, {});
     this.showUser(id);
   },
@@ -34,9 +37,21 @@ const Controller = MnObject.extend ({
     this.editUser(id);
   },
 
+  onUserEditModal(model, pwd = false) {
+    const logged = this.getChannel().request("logged:get");
+    if (!logged.isAdmin() && !logged.isProf()) {
+      return;
+    }
+    require("./edit/controller.js").controller.editUser(model.get("id"), model, pwd, true);
+  },
+
   onUserEditPwd(id) {
     Backbone.history.navigate(`user:${id}/password`, {});
     this.editUserPwd(id);
+  },
+
+  onUserEditPwdModal(id) {
+    this.onUserEditModal(id, true);
   },
 
   listUsers(criterion) {
@@ -58,56 +73,67 @@ const Controller = MnObject.extend ({
     const todo = logged.mapItem({
       "admin": forProf,
       "prof": forProf,
-      "eleve": () => channel.trigger("notFound"),
+      "eleve": () => channel.trigger("not:found"),
       "def": () => channel.trigger("home:login")
     });
     todo();
   },
 
   showUser(id) {
+    const channel = this.getChannel();
     const logged = channel.request("logged:get");
-    /*
-    if (logged.get("id") === id) {
-      arianeRadio.trigger("reset", []);
-      require("@apps/users/show/show_user_controller.js").controller.showUser(id, true);
-    } else if (logged.isAdmin() || logged.isProf()) {
-      arianeRadio.trigger("reset", [{ text:"Utilisateurs", e:"users:list", link:"users"}]);
-      require("@apps/users/show/show_user_controller.js").controller.showUser(id, false);
-    } else {
-      this.channel().trigger("notFound");
+    const isMe = (logged.get("id") === Number(id));
+
+    if (!isMe && !(logged.isAdmin() || logged.isProf())) {
+      channel.trigger("not:found");
+      return;
     }
-    */
+    channel.trigger("loading:up");
+    if (isMe) {
+      channel.trigger("ariane:reset", []);
+    } else {
+      channel.trigger("ariane:reset", [{ text:"Utilisateurs", e:"users:list", link:"users"}]);
+    }
+    const fetchingUser = isMe ? channel.request("user:me") : channel.request("user:entity", id);
+    $.when(fetchingUser).done( (user) => {
+      require("./show/controller.js").controller.showUser(id, user, isMe);
+    }).fail( (response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always( () => {
+      channel.trigger("loading:down");
+    });
   },
 
-  editUser(id) {
+  editUser(id, pwd = false) {
+    const channel = this.getChannel();
     const logged = channel.request("logged:get");
-    /*
-    if (logged.get("id") === id) {
-      arianeRadio.trigger("reset", []);
-      require("@apps/users/edit/edit_user_controller.js").controller.editUser(id, true, logged.isAdmin(), false);
-    } else if (logged.isAdmin() || logged.isProf()) {
-      arianeRadio.trigger("reset", [{ text:"Utilisateurs", e:"users:list", link:"users"}]);
-      require("@apps/users/edit/edit_user_controller.js").controller.editUser(id, false, logged.isAdmin(), false);
-    } else {
-      this.channel().trigger("notFound");
+    const isMe = (logged.get("id") === Number(id));
+    if (!isMe && !(logged.isAdmin() || logged.isProf())) {
+      channel.trigger("not:found");
+      return;
     }
-    */
+    if (isMe) {
+      channel.trigger("ariane:reset", []);
+    } else {
+      channel.trigger("ariane:reset", [{ text:"Utilisateurs", e:"users:list", link:"users"}]);
+    }
+    channel.trigger("loading:up");
+    const fetchingUser = isMe ? channel.request("user:me") : channel.request("user:entity", id);
+    $.when(fetchingUser).done( (user) => {
+      if (isMe) {
+        require("./edit/controller.js").controller.editMe(id, user, pwd);
+      } else {
+        require("./edit/controller.js").controller.editUser(id, user, pwd, false);
+      }
+    }).fail( (response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always( () => {
+      channel.trigger("loading:down");
+    });
   },
 
   editUserPwd(id) {
-    const logged = channel.request("logged:get");
-    /*
-    id = id ? logged.get("id") : id;
-    if (logged.get("id") === id) {
-      arianeRadio.trigger("reset", []);
-      require("@apps/users/edit/edit_user_controller.js").controller.editUser(id, true, logged.isAdmin(), true);
-    } else if (logged.isAdmin() || logged.isProf()) {
-      arianeRadio.trigger("reset", [{ text:"Utilisateurs", e:"users:list", link:"users"}]);
-      require("@apps/users/edit/edit_user_controller.js").controller.editUser(id, false, logged.isAdmin(), true);
-    } else {
-      this.channel().trigger("notFound");
-    }
-    */
+    this.editUser(id, true);
   }
 });
 
@@ -126,6 +152,7 @@ const Router = Backbone.Router.extend({
   },
 
   showUser(id) {
+    console.log("Router showUser", id);
     controller.showUser(id);
   },
 
