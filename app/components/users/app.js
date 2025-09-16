@@ -47,7 +47,7 @@ const Controller = MnObject.extend ({
       channel.trigger("loading:up");
       const fetchingUsers = channel.request("custom:entities", ["users"]);
       $.when(fetchingUsers).done((users) => {
-        require("@apps/users/list/list_users_controller.js").controller.listUsers(users, logged.get("rank"), criterion);
+        require("./list/controller.js").controller.listUsers(users, logged.get("rank"), criterion);
       }).fail((response) => {
         channel.trigger("data:fetch:fail", response);
       }).always(() => {

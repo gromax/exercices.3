@@ -1,5 +1,5 @@
 import { MnObject, Region } from 'backbone.marionette';
-import { HeaderView } from '@apps/header/header_view.js';
+import { HeaderView } from './view.js';
 
 const navbar = new HeaderView();
 

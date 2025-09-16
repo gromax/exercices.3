@@ -1,5 +1,5 @@
 import { MnObject, Region } from 'backbone.marionette';
-import { LoginView } from '@apps/home/login/login_view.js';
+import { LoginView } from './view.js';
 
 const Controller = MnObject.extend({
   channelName: "app",

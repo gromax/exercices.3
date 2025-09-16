@@ -1,7 +1,7 @@
 import { MnObject } from 'backbone.marionette';
-import { ArianeView } from "@apps/ariane/ariane_view.js";
 import { Region } from 'backbone.marionette'
-import { arianeController } from '@entities/ariane.js';
+import { ArianeView } from "./view.js";
+import { arianeController } from './entity.js';
 
 const ArianeApp = MnObject.extend({
   channelName: "app",

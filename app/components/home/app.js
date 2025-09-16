@@ -30,7 +30,7 @@ const HomeApp = MnObject.extend({
 
   showHome() {
     this.getChannel().trigger("ariane:reset", []);
-    let controller = require("@apps/home/show/home_show_controller.js").controller;
+    let controller = require("./show/controller.js").controller;
     let logged = this.getChannel().request("logged:get");
     if (logged.isAdmin()) {
       controller.showAdminHome();
@@ -49,12 +49,12 @@ const HomeApp = MnObject.extend({
       this.showHome();
     } else {
       this.getChannel().trigger("ariane:reset", [{text:"Connexion", link:"login", e:"home:login"}]);
-      require("@apps/home/login/login_controller.js").controller.showLogin();
+      require("./login/controller.js").controller.showLogin();
     }
   },
 
   showReLogin(options) {
-    require("@apps/home/login/login_controller.js").controller.showReLogin();
+    require("./login/controller.js").controller.showReLogin();
   },
 
   logout() {
@@ -81,7 +81,7 @@ const HomeApp = MnObject.extend({
     } else {
       this.getChannel().trigger("ariane:reset", [{text:"Réinitialisation de mot de passe"}]);
       this.getChannel().trigger("loading:up");
-      let showController = require("@apps/home/show/home_show_controller.js").controller;
+      let showController = require("./show/controller.js").controller;
       let fetching = logged.getWithForgottenKey(key);
       $.when(fetching).done( function(){
         showController.showLogOnForgottenKey(true);

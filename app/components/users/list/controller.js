@@ -1,5 +1,5 @@
 import { MnObject, Region } from 'backbone.marionette';
-import { UsersPanel, UsersCollectionView } from '@apps/users/list/list_users_views.js';
+import { UsersPanel, UsersCollectionView } from './views.js';
 //import { NewUserView, EditUserView, EditPwdUserView } from '@apps/users/edit/edit_user_views.js';
 import { ListLayout } from '@apps/common/common_views.js';
 
@@ -31,7 +31,7 @@ const Controller = MnObject.extend ({
     });
 
     usersListPanel.on("user:new", () => {
-      const User = require("@entities/users.js").Item;
+      const User = require("../entity.js").Item;
       const newUser = new User();
       const newUserView = new NewUserView({
         model: newUser,

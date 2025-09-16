@@ -39,7 +39,7 @@ const Controller = MnObject.extend({
             //case "fiches": colObj = require("@entities/fiches.js"); break;
             //case "devoirs": colObj = require("@entities/devoirs.js"); break;
             //case "userfiches": colObj = require("@entities/userfiches.js"); break;
-            case "users": colObj = require("@entities/users.js"); break;
+            case "users": colObj = require("./users/entity.js"); break;
             //case "classes": colObj = require("@entities/classes.js"); break;
             //case "exofiches": colObj = require("@entities/exofiches.js"); break;
             //case "faits": colObj = require("@entities/faits.js"); break;
@@ -78,7 +78,7 @@ const Controller = MnObject.extend({
         dataType:'json'
       })
       request.done( (data) => {
-        User = require("@entities/users").Item;
+        User = require("./users/entity.js").Item;
         this.stored_data.me = new User(data, {parse:true});
         this.stored_time.me = t;
         defer.resolve(this.stored_data.me);

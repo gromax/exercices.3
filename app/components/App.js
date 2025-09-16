@@ -2,7 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Application} from 'backbone.marionette';
-import { SessionApp } from '@apps/session/session_app';
+import { SessionApp } from './session/app';
 import Radio from 'backbone.radio';
 
 /* Surcharge pour rendre history sensible
@@ -74,14 +74,13 @@ const Manager = Application.extend({
 
     // import de l'appli entities, session
     const whenSessionLoaded = () => {
-      require('@apps/session/session_app.js');
-      require('@apps/header/header_app.js').headerApp.show();
-      require('@apps/home/home_app.js');
-      require('@apps/ariane/ariane_app.js').arianeApp.show();
+      require('./header/app.js').headerApp.show();
+      require('./home/app.js');
+      require('./ariane/app.js').arianeApp.show();
       require('@apps/common/common_app.js');
       require('@apps/common/not_found_app.js');
-      require('@apps/common/dataManager.js');
-      require('@apps/users/users_app.js');
+      require('./dataManager.js');
+      require('./users/app.js');
       
       console.log("token", Radio.channel("app").request("jwt:get"));
 
