@@ -43,7 +43,6 @@ const Controller = MnObject.extend ({
     usersListView.on("item:edit", (childView, args) => {
       const model = childView.model;
       const view = channel.request("user:edit:modal", model);
-      console.log(view);
       view.on("success", (model, data) => {
         childView.render();
         childView.trigger("flash:success");
@@ -52,7 +51,6 @@ const Controller = MnObject.extend ({
 
     usersListView.on("item:editPwd", (childView, args) => {
       const model = childView.model;
-
       const view = channel.request("user:editPwd:modal", model);
       view.on("success", (model, data) => {
         childView.trigger("flash:success");
