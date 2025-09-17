@@ -84,10 +84,10 @@ const Manager = Application.extend({
       require('./users/app.js');
       
       console.log("token", Radio.channel("app").request("jwt:get"));
-
+    
       Backbone.history.start();
     };
-
+    
     new SessionApp({callBack:whenSessionLoaded});
   }
 });
