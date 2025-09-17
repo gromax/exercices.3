@@ -1,5 +1,6 @@
 import { MnObject, Region } from 'backbone.marionette'
 import { EditUserView, EditPwdUserView } from './edit_views.js'
+import { NewUserView } from './new_view.js';
 
 const Controller = MnObject.extend ({
   channelName: "app",
@@ -35,7 +36,7 @@ const Controller = MnObject.extend ({
 
   },
   
-  editUser(id, user, pwd, modal, callBack) {
+  editUser(id, user, pwd, modal) {
     const trigger = pwd === true ? "user:editPwd" : "user:edit";
     const textLink = pwd === true ? "Modification du mot de passe" : "Modification de l'utilisateur";
     const channel = this.getChannel();
@@ -56,19 +57,29 @@ const Controller = MnObject.extend ({
     const OView = pwd === true ? EditPwdUserView : EditUserView;
 
     const view = new OView({
+      title: pwd === true ? "Modification du mot de passe" : `Modification de ${user.get('prenom')} ${user.get('nom')}`,
+      isModal: modal === true,
       model: user,
-      generateTitle: true,
       editorIsAdmin: isAdmin,
       errorCode: "028",
-      onSuccess: (model, data) => {
-        callBack();
-      }
     });
     if (modal) {
       new Region({ el: '#dialog-region' }).show(view);
     } else {
       new Region({ el: '#main-region' }).show(view);
     }
+    return view;
+  },
+
+  NewUserView(model) {
+    const isRoot = this.getChannel().request("logged:get").isRoot();
+    const newUserView = new NewUserView({
+      model: model,
+      ranks: isRoot ? 2 : 1,
+      errorCode: "030"
+    });
+    new Region({ el: "#dialog-region" }).show(newUserView);
+    return newUserView;
   }
 });
 
