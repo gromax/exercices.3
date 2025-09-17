@@ -15,7 +15,7 @@ const SortList = Behavior.extend({
     let tag = $sortEl.data("sort");
     let collection = this.view.collection;
     if (collection.comparatorAttr === tag) {
-      $sortEl.append("<span class='js-sort-icon'>&nbsp;<i class='fa fa-sort-amount-desc'></i></span>");
+      $sortEl.append("<span class='js-sort-icon' style='margin-left: 5px;'><i class='fa fa-sort-amount-desc'></i></span>");
       collection.comparatorAttr = `inv_${tag}`;
       collection.comparator = function(a,b) {
         if (a.get(tag)>b.get(tag)) {
@@ -25,7 +25,7 @@ const SortList = Behavior.extend({
         }
       };
     } else {
-       $sortEl.append("<span class='js-sort-icon'>&nbsp;<i class='fa fa-sort-amount-asc'></i></span>");
+       $sortEl.append("<span class='js-sort-icon' style='margin-left: 5px;'><i class='fa fa-sort-amount-asc'></i></span>");
        collection.comparatorAttr = tag;
        collection.comparator = tag;
     }
@@ -104,8 +104,8 @@ const SubmitClicked = Behavior.extend({
     const form_bootstrap5 = this.view.el.querySelector('form.needs-validation');
     const that = this;
     if (form_bootstrap5) {
-      form_bootstrap5.classList.add('was-validated');
       form_bootstrap5.addEventListener('submit', function(event) {
+        form_bootstrap5.classList.add('was-validated');
         event.preventDefault();
         event.stopPropagation();
         if (!form_bootstrap5.checkValidity()) {
