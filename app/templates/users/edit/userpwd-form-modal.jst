@@ -1,13 +1,13 @@
 <div class="modal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form class="row g-3 needs-validation" novalidate>
-        <div class="modal-header">
-          <h5 class="modal-title"><%= title %></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <h2><%= prenom %> <%= nom %></h2>
+      <div class="modal-header">
+        <h5 class="modal-title"><%= title %></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="row g-3 needs-validation" novalidate>
+          <h5><%= prenom %> <%= nom %></h5>
           <div class="col-md-12">
             <label for="user-pwd" class="form-label">Mot de passe</label>
             <input type="password" class="form-control" id="user-pwd" name="pwd" value="" placeholder="Mot de passe" required>
@@ -23,12 +23,11 @@
               Ne peut être vide.
             </div>
           </div>
-        </div>
-        <div class="modal-footer" id ="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abandon</button>
           <button class="btn btn-success js-submit">Enregistrer</button>
-        </div>
-      </form>
+        </form>
+      </div>
+      <div class="modal-footer" id ="modal-footer"></div>
     </div>
   </div>
 </div>

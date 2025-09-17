@@ -1,12 +1,12 @@
 <div class="modal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form class="row g-3 needs-validation" novalidate>
-        <div class="modal-header">
-          <h5 class="modal-title"><%= title %></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
+      <div class="modal-header">
+        <h5 class="modal-title"><%= title %></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="row g-3 needs-validation" novalidate>
           <% if (rank!="Root"){ %>
           <div class="col-md-6">
             <label for="user-prenom" class="form-label">Prénom</label>
@@ -22,7 +22,7 @@
               Le nom est requis.
             </div>
           </div>
-          <div class="col-md-12">
+          <div class="col-md-10">
             <label for="user-email" class="form-label"><i class="fa fa-envelope"></i></label>
             <input type="email" class="form-control" id="user-email" name="email" value="<%- email %>" placeholder="email" required>
             <div class="invalid-feedback">
@@ -65,12 +65,12 @@
             <label class="form-check-label" for="mathquillCheck">Champs de saisie intuitifs</label>
           </div>
           <%}%>
-        </div>
-        <div class="modal-footer" id ="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abandon</button>
           <button class="btn btn-success js-submit">Enregistrer</button>
-        </div>
-      </form>
+        </form>
+      </div>
+      <div class="modal-footer" id ="modal-footer"></div>
+
     </div>
   </div>
 </div>
