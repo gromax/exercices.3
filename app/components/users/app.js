@@ -8,8 +8,13 @@ const Controller = MnObject.extend ({
     "user:show": "onUserShow",
     "user:edit": "onUserEdit",
     "user:editPwd": "onUserEditPwd",
+    "user:sudo":"onUserSudo"
+  },
+
+  radioRequests: {
     "user:edit:modal": "onUserEditModal",
-    "user:editPwd:modal": "onUserEditPwdModal"
+    "user:editPwd:modal": "onUserEditPwdModal",
+    "new:user:modal": "onNewUserModal"
   },
 
   onListUsers(criterion) {
@@ -37,12 +42,12 @@ const Controller = MnObject.extend ({
     this.editUser(id);
   },
 
-  onUserEditModal(model, callBack, pwd = false) {
+  onUserEditModal(model, pwd = false) {
     const logged = this.getChannel().request("logged:get");
     if (!logged.isAdmin() && !logged.isProf()) {
       return;
     }
-    require("./edit/controller.js").controller.editUser(model.get("id"), model, pwd, true, callBack);
+    return require("./edit/controller.js").controller.editUser(model.get("id"), model, pwd, true);
   },
 
   onUserEditPwd(id) {
@@ -50,8 +55,14 @@ const Controller = MnObject.extend ({
     this.editUserPwd(id);
   },
 
-  onUserEditPwdModal(model, callBack) {
-    this.onUserEditModal(model, callBack, true);
+  onUserEditPwdModal(model) {
+    return this.onUserEditModal(model, true);
+  },
+
+  onNewUserModal() {
+    const User = require("./entity.js").Item;
+    const newUser = new User();
+    return require("./edit/controller.js").controller.NewUserView(newUser);
   },
 
   listUsers(criterion) {
@@ -123,10 +134,10 @@ const Controller = MnObject.extend ({
       if (isMe) {
         require("./edit/controller.js").controller.editMe(id, user, pwd);
       } else {
-        const callBack = () => {
+        const view = require("./edit/controller.js").controller.editUser(id, user, pwd, false);
+        view.on("success", function (model, data) {
           channel.trigger("user:show", id);
-        };
-        require("./edit/controller.js").controller.editUser(id, user, pwd, false, callBack);
+        });
       }
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
@@ -137,7 +148,31 @@ const Controller = MnObject.extend ({
 
   editUserPwd(id) {
     this.editUser(id, true);
+  },
+
+  onUserSudo(id) {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    channel.trigger("loading:up");
+    const connecting = logged && logged.sudo(id);
+    $.when(connecting).done( (data) => {
+      channel.trigger("home:show");
+    }).fail( (response) => {
+      switch (response.status) {
+        case 404:
+          channel.trigger("popup:alert", "Page inconnue !");
+          break;
+        case 403:
+          channel.trigger("popup:alert", "Non autorisé !");
+          break;
+        default:
+          channel.trigger("popup:alert", `Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}/035]`);
+      }
+    }).always( () => {
+      channel.trigger("loading:down");
+    });
   }
+
 });
 
 const controller = new Controller();
