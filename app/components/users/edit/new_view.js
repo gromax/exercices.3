@@ -1,5 +1,5 @@
 import { View } from 'backbone.marionette';
-import { SubmitClicked, EditItem } from '@apps/common/behaviors.js';
+import { SubmitClicked, EditItem } from '../../behaviors.js';
 
 import edit_user_tpl from '@templates/users/edit/user-form.jst'
 
