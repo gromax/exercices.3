@@ -1,7 +1,8 @@
+import { Toast } from 'bootstrap';
 import { View } from 'backbone.marionette'
-import alert_tpl from 'templates/common/alert-view.jst'
-import list_layout_tpl from 'templates/common/list-layout.jst'
-import missing_item_tpl from 'templates/common/missing-item.jst'
+import alert_tpl from '@templates/common/alert-view.jst'
+import missing_item_tpl from '@templates/common/missing-item.jst'
+import popup_tpl from '@templates/common/popup.jst'
 
 const AlertView = View.extend ({
   tag: "div",
@@ -33,5 +34,26 @@ const MissingView = View.extend ({
   }
 });
 
+const PopupView = View.extend ({
+  template: popup_tpl,
+  title: "Alerte",
+  message: "Ceci est un message d'alerte.",
+  type: "alert",
+  onRender() {
+    const modalEl = this.el.querySelector('.toast');
+    if (modalEl) {
+      const toast = new Toast(modalEl, { autohide: false });
+      toast.show();
+    }
+  },
+  templateContext() {
+    return {
+      title: this.getOption("title"),
+      message: this.getOption("message"),
+      type: this.getOption("type"),
+      time: this.getOption("time")
+    };
+  }
+});
 
-export { AlertView, MissingView };
+export { AlertView, MissingView, PopupView };

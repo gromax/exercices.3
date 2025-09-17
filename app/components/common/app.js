@@ -1,10 +1,9 @@
 import { MnObject, Region } from 'backbone.marionette';
-import { AlertView, MissingView } from './views.js'
+import { AlertView, MissingView, PopupView } from './views.js'
 
 const messageRegion = new Region({
   el: '#message-region'
 });
-
 
 const Controller = MnObject.extend({
   channelName: "app",
@@ -13,7 +12,11 @@ const Controller = MnObject.extend({
     "show:message:error":"showMessageError",
     "data:fetch:fail":"dataFetchFail",
     "not:found": "notFound",
-    "missing:item": "missingItem"
+    "missing:item": "missingItem",
+    "popup:alert": "popupAlert",
+    "popup:error": "popupError",
+    "popup:info": "popupInfo",
+    "popup:success": "popupSuccess"
   },
   showMessageSuccess(message) {
     let view;
@@ -91,6 +94,61 @@ const Controller = MnObject.extend({
   missingItem(item) {
     const view = new MissingView();
     new Region({ el: '#main-region' }).show(view);
+  },
+
+  popup(data) {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const strHour = `${hours}:${minutes}`;
+    data.time = strHour;
+    const view = new PopupView(data);
+    view.render();
+    document.getElementById('toast-region').appendChild(view.el);
+  },
+
+  popupAlert(data) {
+    if (typeof data == "string") {
+      data = { message: data };
+    }
+    if (!data.title) {
+      data.title = "Alerte";
+    }
+    data.type = "alert";
+    this.popup(data);
+  },
+
+  popupError(data) {
+    if (typeof data == "string") {
+      data = { message: data };
+    }
+    if (!data.title) {
+      data.title = "Erreur";
+    }
+    data.type = "error";
+    this.popup(data);
+  },
+
+  popupInfo(data) {
+    if (typeof data == "string") {
+      data = { message: data };
+    }
+    if (!data.title) {
+      data.title = "Information";
+    }
+    data.type = "info";
+    this.popup(data);
+  },
+
+  popupSuccess(data) {
+    if (typeof data == "string") {
+      data = { message: data };
+    }
+    if (!data.title) {
+      data.title = "Succès";
+    }
+    data.type = "success";
+    this.popup(data);
   }
 });
 

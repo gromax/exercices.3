@@ -1,0 +1,21 @@
+<div class="toast bottom-0 end-0" role="<%= type %>" aria-live="assertive" aria-atomic="true">
+<div class="toast-header">
+    <% if (type=='alert') { %>
+      <i class="fa fa-exclamation-triangle"></i>&nbsp;
+    <% } else if (type == 'error') { %>
+      <i class="fa-solid fa-skull-crossbones"></i>&nbsp;
+    <% } else if (type == 'success') { %>
+      <i class="fa-solid fa-thumbs-up"></i>
+    <% } else if (type == 'info') { %>
+      <i class="fa-solid fa-info-circle"></i>
+    <% } %>
+    <strong class="me-auto"><%= title %></strong>
+    <% if (time) { %>
+      <small class="text-muted ms-2"><i class="fa fa-clock"></i> <%= time %></small>
+    <% } %>
+    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+</div>
+<div class="toast-body">
+    <%= message %>
+</div>
+</div>
