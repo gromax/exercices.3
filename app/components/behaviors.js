@@ -96,18 +96,43 @@ const SubmitClicked = Behavior.extend({
     submit: 'button.js-submit'
   },
   messagesDivId: "messages",
-  events: {
-    'click @ui.submit': 'submitClicked'
+
+  onRender() {
+    // Ce code s’exécute après le render de la vue
+    // Tu peux manipuler le DOM ici, le formulaire existe
+
+    const form_bootstrap5 = this.view.el.querySelector('form.needs-validation');
+    const that = this;
+    if (form_bootstrap5) {
+      form_bootstrap5.classList.add('was-validated');
+      form_bootstrap5.addEventListener('submit', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!form_bootstrap5.checkValidity()) {
+          return;
+        }
+        const fdata = new FormData(form_bootstrap5);
+        const data = Object.fromEntries(fdata.entries());
+        that.view.trigger("form:submit", data);
+        event.preventDefault();
+        event.stopPropagation(); // empêche la propagation d'un submit à l'élément parent dans le dom
+      }, false);
+      return;
+    }
+    const form = this.el.querySelector('form');
+    if (form) {
+      form.addEventListener('submit',function(event) {
+        event.preventDefault();
+        event.stopPropagation(); // empêche la propagation d'un submit à l'élément parent dans le dom
+        const fdata = new FormData(form);
+        const data = Object.fromEntries(fdata.entries());
+        that.view.trigger("form:submit", data);
+        event.preventDefault();
+        event.stopPropagation(); // empêche la propagation d'un submit à l'élément parent dans le dom
+      });
+    }
   },
 
-  submitClicked(e) {
-    e.preventDefault();
-    e.stopPropagation() // empêche la propagation d'un click à l'élément parent dans le dom
-    const form = this.el.querySelector('form');
-    const fdata = new FormData(form);
-    const data = Object.fromEntries(fdata.entries());
-    this.view.trigger("form:submit", data);
-  },
   clearForm() {
     let $view = this.view.$el
     $(".is-invalid",$view).each(function() { $(this).removeClass("is-invalid"); });
@@ -226,40 +251,22 @@ const EditItem = Behavior.extend({
     }
   },
   onEditSubmit(data) {
-    // pour une création fournir listView
-    // pour une modification fournir itemView
     let model = this.view.model
-    // éventuellement une création, si on a fourni "collection"
     let updatingFunctionName = this.getOption("updatingFunctionName");
     let updatingItem = model[updatingFunctionName](data);
     if (updatingItem) {
       radioApp.trigger("loading:up");
       let view = this.view;
       $.when(updatingItem).done( function(){
-        let itemView = view.getOption("itemView");
-        let listView = view.getOption("listView");
-        itemView?.render() // cas d'une itemView existante
-        const collection = listView?.collection;
-        if (collection && !collection.get(model.get("id"))) {
-          // c'est un ajout
-          collection.add(model);
-        }
-        view.trigger("dialog:close"); // si ce n'est pas une vue dialog, le trigger ne fait rien
-        // soit itemView éxistait et on flash direct
-        itemView?.trigger("flash:success");
-        // soit on a fournit la liste et on flash via la liste
-        listView?.children.findByModel(model)?.trigger("flash:success");
-        let onSuccess = view.getOption("onSuccess");
-        if (onSuccess) {
-          onSuccess(model,data);
-        }
+        view.trigger("dialog:close");
+        view.trigger("success", model, data);
       }).fail( function(response){
         switch (response.status) {
           case 422:
             view.trigger("form:data:invalid", response.responseJSON.errors);
             break;
           case 401:
-            alert("Vous devez vous (re)connecter !");
+            radioApp.trigger("popup:alert", "Vous devez vous (re)connecter !");
             view.trigger("dialog:close");
             radioApp.trigger("home:logout");
             break;
@@ -270,12 +277,13 @@ const EditItem = Behavior.extend({
             } else {
               errorCode = "";
             }
-            alert(`Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}${errorCode}]`);
+            radioApp.trigger("popup:alert", `Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}${errorCode}]`);
         }
       }).always( function() {
         radioApp.trigger("loading:down");
       });
     } else {
+      console.log("Validation errors :", model.validationError);
       this.view.trigger("form:data:invalid",model.validationError);
     }
   }
