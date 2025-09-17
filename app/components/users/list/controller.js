@@ -1,6 +1,5 @@
 import { MnObject, Region } from 'backbone.marionette';
 import { UsersPanel, UsersCollectionView, ListLayout } from './views.js';
-//import { NewUserView } from '@apps/users/edit/edit_user_views.js';
 
 const Controller = MnObject.extend ({
   channelName: 'app',
@@ -29,15 +28,11 @@ const Controller = MnObject.extend ({
     });
 
     usersListPanel.on("user:new", () => {
-      const User = require("../entity.js").Item;
-      const newUser = new User();
-      const newUserView = new NewUserView({
-        model: newUser,
-        listView: usersListView,
-        ranks: (rank =="root") ? 2 : 1,
-        errorCode: "030"
+      const view = channel.request("new:user:modal");
+      view.on("success", (model, data) => {
+        usersListView.collection.add(model);
+        usersListView.children.findByModel(model)?.trigger("flash:success");
       });
-      new Region({ el: "#dialog-region" }).show(newUserView);
     });
 
     usersListView.on("item:show", (childView, args) => {
@@ -47,19 +42,21 @@ const Controller = MnObject.extend ({
 
     usersListView.on("item:edit", (childView, args) => {
       const model = childView.model;
-      const callBack = () => {
+      const view = channel.request("user:edit:modal", model);
+      console.log(view);
+      view.on("success", (model, data) => {
         childView.render();
         childView.trigger("flash:success");
-      };
-      channel.trigger("user:edit:modal", model, callBack);
+      });
     });
 
     usersListView.on("item:editPwd", (childView, args) => {
       const model = childView.model;
-      const callBack = () => {
+
+      const view = channel.request("user:editPwd:modal", model);
+      view.on("success", (model, data) => {
         childView.trigger("flash:success");
-      };
-      channel.trigger("user:editPwd:modal", model, callBack);
+      });
     });
 
     usersListView.on("item:forgotten", (childView, e) => {
@@ -68,37 +65,19 @@ const Controller = MnObject.extend ({
       if (confirm(`Envoyer un mail de réinitialisation à « ${model.get('nomComplet')} » ?`)) {
         channel.trigger("loading:up");
         const sendingMail = channel.request("forgotten:password", email);
-        sendingMail.always(() =>
-          channel.trigger("loading:down")
-        ).done((response) => {
+        sendingMail.done((response) => {
           childView.trigger("flash:success");
         }).fail((response) => {
-          alert(`Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}/034]`);
+          channel.trigger("popup:alert", `Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}/034]`);
+        }).always(() => {
+          channel.trigger("loading:down");
         });
       }
     });
 
     usersListView.on("item:sudo", (childView, e) => {
       const model = childView.model;
-      channel.trigger("loading:up");
-      const logged = channel.request("logged:get");
-      const connecting = logged && logged.sudo(model.get("id"));
-      $.when(connecting).done((response) => {
-        channel.trigger("home:show");
-      }).fail((response) => {
-        switch (response.status) {
-          case 404:
-            alert("Page inconnue !");
-            break;
-          case 403:
-            alert("Non autorisé !");
-            break;
-          default:
-            alert("Erreur inconnue.");
-        }
-      }).always(() =>
-        channel.trigger("loading:down")
-      );
+      channel.trigger("user:sudo", model.get("id"));
     });
 
     new Region({ el: "#main-region" }).show(usersListLayout);
