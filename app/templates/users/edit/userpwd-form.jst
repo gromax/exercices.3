@@ -1,12 +1,21 @@
-<form>
-	<h2><%- prenom %> <%- nom %></h2>
-	<div class="form-group">
-		<label for="user-pwd" class="control-label">Mot de passe :</label>
-		<input class="form-control" id="user-pwd" name="pwd" type="password" value="" placeHolder="Mot de passe"/>
-	</div>
-	<div class="form-group">
-		<label for="user-pwdConfirm" class="control-label">Confirmation :</label>
-		<input class="form-control" id="user-pwdConfirm" name="pwdConfirm" type="password" value="" placeHolder="Confirmation"/>
-	</div>
-	<button class="btn btn-success js-submit">Enregistrer</button>
+<h1><%= title %></h1>
+<form class="row g-3 needs-validation" novalidate>
+    <h2><%= prenom %> <%= nom %></h2>
+    <div class="col-md-12">
+        <label for="user-pwd" class="form-label">Mot de passe</label>
+        <input type="password" class="form-control" id="user-pwd" name="pwd" value="" placeholder="Mot de passe" required>
+        <div class="invalid-feedback">
+            Ne peut être vide.
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <label for="user-pwdConfirm" class="form-label">Confirmation</label>
+        <input type="password" class="form-control" id="user-pwdConfirm" name="pwdConfirm" value="" placeholder="Confirmation" required>
+        <div class="invalid-feedback">
+            Ne peut être vide.
+        </div>
+    </div>
+
+    <button class="btn btn-success js-submit">Enregistrer</button>
 </form>
