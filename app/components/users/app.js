@@ -169,7 +169,23 @@ const Controller = MnObject.extend ({
     }).always( () => {
       channel.trigger("loading:down");
     });
+  },
+
+  showSignin() {
+    const channel = this.getChannel();
+    const fetchingClasses = channel.request("classes:entities");
+    channel.trigger("loading:up");
+    $.when(fetchingClasses).done( (classes) => {
+      require("./signin/controller.js").controller.showSignin(classes);
+    }).fail( (response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always( () => {
+      channel.trigger("loading:down");
+    });
+    
   }
+
+
 
 });
 
