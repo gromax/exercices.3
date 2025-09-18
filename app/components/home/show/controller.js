@@ -32,6 +32,7 @@ const Controller = MnObject.extend({
     const view = new OffView();
     const channel = this.getChannel();
     view.on("home:login", () => { channel.trigger("home:login"); });
+    view.on("home:join", () => { channel.trigger("classes:tojoin"); });
     new Region({ el: '#main-region'}).show(view);
   },
   showEleveHome() {
