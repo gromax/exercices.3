@@ -1,5 +1,5 @@
 import { MnObject, Region } from 'backbone.marionette';
-import { ShowClasseView } from './views.js';
+import { ShowClasseView, ClasseMotdepasseVerifyView } from './views.js';
 
 const Controller = MnObject.extend({
   channelName: 'app',
@@ -30,44 +30,46 @@ const Controller = MnObject.extend({
     const listClassesView = new SigninClassesCollectionView({
       collection: classes
     });
-    
-    new Region({ el: "#main-region" }).show(listClassesView);
-    // le morceau qui suit doit être déplacé comme un trigger dans l'app
     listClassesView.on("item:join", (childView) => {
-      const classe = childView.model;
-      const User = require("../entity.js").Item;
-      const newUser = new User({ nomClasse: classe.get("nom"), idClasse: classe.get("id") });
-      const mdp_view = new TestMdpView({ model: newUser });
-
-      mdp_view.on("form:submit", (data_test) => {
-        const testingMdp = newUser.testClasseMdp(data_test.mdp);
-        channel.trigger("loading:up");
-        $.when(testingMdp).done(() => {
-          newUser.set("classeMdp", data_test.mdp);
-          mdp_view.trigger("dialog:close");
-          signin_eleve_view = new SigninView({ model: newUser });
-          signin_eleve_view.on("model:save:success", (model) => {
-            channel.trigger("home:show");
-            channel.trigger("show:message:success", {
-              title: "Inscription réussie",
-              message: "Vous avez créé un compte. Vous pouvez maintenant vous connecter."
-            });
-          });
-          channel.trigger("dialog:show", signin_eleve_view);
-        }).fail((response) => {
-          if (response.status === 422) {
-            mdp_view.trigger("form:data:invalid", { mdp: "Mot de passe incorrect." });
-          } else {
-            alert("Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code #{response.status}/027]");
-          }
-        }).always(() => {
-          channel.trigger("loading:down");
-        });
-      });
-      channel.trigger("dialog:show", mdp_view);
+      channel.trigger("classe:motdepasse:verify", childView.model.get("id"));
     });
-    
+    new Region({ el: "#main-region" }).show(listClassesView);
   },
+
+  showMotdepasseVerify(id, classe) {
+    const channel = this.getChannel();
+    if (classe === undefined) {
+      channel.trigger("ariane:reset", [
+        { text: "Rejoindre une classe", e: "classes:tojoin", data: null, link: `classe/tojoin` },
+        { text: "Classe inconnue", e: "classe:motdepasse:verify", data: id, link: `classe:${id}/motdepasse` }
+      ]);
+      channel.trigger("missing:item");
+      return;
+    }
+    channel.trigger("ariane:reset", [
+      { text: "Rejoindre une classe", e: "classes:tojoin", data: null, link: `classe/tojoin` },
+      { text: `Test du mot de passe pour ${classe.get("nom")}`, e: "classe:motdepasse:verify", data: id, link: `classe:${id}/motdepasse` }
+    ]);
+    const view = new ClasseMotdepasseVerifyView({
+      model: classe
+    });
+    view.on("form:submit", (data) => {
+      const testingMdp = classe.testClasseMdp(data.mdp);
+      channel.trigger("loading:up");
+      $.when(testingMdp).done( (data_test) => {
+        channel.trigger("user:join:classe", data_test.classe, data_test.mdp);
+      }).fail( (response) => {
+        if (response.status === 422) {
+          view.trigger("form:data:invalid", { mdp: "Mot de passe incorrect." });
+        } else {
+          channel.trigger("popup:error", { title:`Mot de passe de ${classe.get("nom")}`, message: `Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}/027]` });
+        }
+      }).always(() => {
+        channel.trigger("loading:down");
+      });
+    });
+    new Region({ el: "#main-region" }).show(view);
+  }
 });
 
 export const controller = new Controller();
