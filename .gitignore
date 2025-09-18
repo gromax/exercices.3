@@ -27,4 +27,4 @@ composer.lock
 # Output folder.
 public/
 vendor/
-php/PHPMailer/
+php/class/PHPMailer/
