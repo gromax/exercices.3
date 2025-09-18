@@ -3,8 +3,8 @@ import { MnObject } from 'backbone.marionette';
 const Controller = MnObject.extend ({
   channelName: 'app',
   radioEvents: {
-    "users:list": "onListUsers",
-    "users:filter": "onFilterUsers",
+    "users:list": "onUsersList",
+    "users:filter": "onUsersFilter",
     "user:show": "onUserShow",
     "user:edit": "onUserEdit",
     "user:editPwd": "onUserEditPwd",
@@ -17,13 +17,12 @@ const Controller = MnObject.extend ({
     "new:user:modal": "onNewUserModal"
   },
 
-  onListUsers(criterion) {
-    console.log("onListUsers", criterion);
+  onUsersList(criterion) {
     Backbone.history.navigate("users", {});
     this.listUsers(criterion);
   },
 
-  onFilterUsers(criterion) {
+  onUsersFilter(criterion) {
     if (criterion) {
       Backbone.history.navigate(`users/filter/criterion:${criterion}`, {});
     } else {
@@ -32,7 +31,6 @@ const Controller = MnObject.extend ({
   },
 
   onUserShow(id) {
-    console.log("onUserShow", id);
     Backbone.history.navigate(`user:${id}`, {});
     this.showUser(id);
   },
