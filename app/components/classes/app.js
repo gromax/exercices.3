@@ -139,6 +139,26 @@ const Controller = MnObject.extend ({
     todo();
   },
 
+  classesToJoinShow() {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    if (logged.isAdmin() || logged.isProf() ) {
+      channel.trigger("not:found");
+      return;
+    }
+
+    const fetchingClasses = channel.request("classes:entities");
+    channel.trigger("loading:up");
+    $.when(fetchingClasses).done( (classes) => {
+      require("./show/controller.js").controller.showSigninClasses(classes);
+    }).fail( (response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always( () => {
+      channel.trigger("loading:down");
+    });
+    
+  },
+
 });
 
 const controller = new Controller();
@@ -148,7 +168,8 @@ const Router = Backbone.Router.extend({
     "classes/prof::id": "classesProf",
     "classes": "classesList",
     "classe::id": "classeShow",
-    "classe::id/edit": "classeEdit"
+    "classe::id/edit": "classeEdit",
+    "classe::id/join": "classeJoin"
   },
 
   classesProf(id) {
@@ -165,6 +186,10 @@ const Router = Backbone.Router.extend({
 
   classeEdit(id) {
     controller.classeEdit(id);
+  },
+
+  classeJoin(id) {
+    controller.classeJoin(id);
   }
 });
 
