@@ -36,17 +36,6 @@ const Item = Backbone.Model.extend ({
     return data;
   },
 
-  testClasseMdp(mdp) {
-    const promise = $.ajax(`api/classes/${this.get('idClasse')}/test`, {
-      data: {
-        pwd: mdp
-      },
-      dataType: "json",
-      method: "GET"
-    });
-    return promise;
-  },
-
   validate(attrs, options) {
     const errors = {};
     if (this.get("rank") === "root") {
