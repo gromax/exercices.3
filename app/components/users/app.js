@@ -8,7 +8,8 @@ const Controller = MnObject.extend ({
     "user:show": "onUserShow",
     "user:edit": "onUserEdit",
     "user:editPwd": "onUserEditPwd",
-    "user:sudo":"onUserSudo"
+    "user:sudo":"onUserSudo",
+    "user:join:classe":"onUserJoinClasse"
   },
 
   radioRequests: {
@@ -61,6 +62,15 @@ const Controller = MnObject.extend ({
     const User = require("./entity.js").Item;
     const newUser = new User();
     return require("./edit/controller.js").controller.NewUserView(newUser);
+  },
+
+  onUserJoinClasse(classe, mdp) {
+    const channel = this.getChannel();
+    if (!classe || !mdp) {
+      channel.trigger("popup:error", { title: "Erreur", message: "Données manquantes pour rejoindre la classe." });
+      return;
+    }
+    require("./signin/controller.js").controller.joinClasse(classe, mdp);
   },
 
   listUsers(criterion) {
