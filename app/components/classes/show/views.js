@@ -4,8 +4,6 @@ import test_mdp_classe_tpl from '@templates/classes/show/test-mdp-classe-form.js
 import no_classe_tpl from '@templates/classes/show/signin-no-classe.jst'
 import classe_item_tpl from '@templates/classes/show/signin-classe-item.jst'
 
-//import signin_tpl from '@templates/classes/show/userpwd-form.jst'
-
 const ShowClasseView = View.extend({
   template: show_item_tpl,
   events: {
@@ -17,7 +15,7 @@ const ShowClasseView = View.extend({
   }
 });
 
-const TestMdpView = View.extend ({
+const ClasseMotdepasseVerifyView = View.extend ({
   template: test_mdp_classe_tpl,
   behaviors: [SubmitClicked],
   initialize() { 
@@ -46,27 +44,4 @@ const SigninClassesCollectionView = CollectionView.extend({
   childViewEventPrefix: "item"
 });
 
-
-const SigninView = View.extend ({
-  title: "Rejoindre une classe",
-  template: signin_tpl,
-  errorCode: "026",
-  behaviors: [SubmitClicked, EditItem],
-  initialize() {
-    this.title = `Rejoindre la classe ${this.model.get("nomClasse")}`;
-  },
-  templateContext() {
-    return {
-      showPWD: true,
-      showPref: false,
-      ranks: false,
-      editorIsAdmin: false
-    };
-  }
-});
-
-
-
-
-
-export { ShowClasseView, TestMdpView, SigninView, SigninClassesCollectionView }
+export { ShowClasseView, ClasseMotdepasseVerifyView, SigninClassesCollectionView }
