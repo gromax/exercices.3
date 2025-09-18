@@ -7,6 +7,7 @@ const Item = Backbone.Model.extend ({
     nomClasse: "N/A",
     rank: "Off"
   },
+  
   toJSON() {
     const output = _.clone(_.omit(this.attributes, "pref"));
     if (this.attributes.pref !== false) {
@@ -14,6 +15,7 @@ const Item = Backbone.Model.extend ({
     }
     return output;
   },
+
   parse(data) {
     if (data.id) {
       data.id = Number(data.id);
@@ -33,6 +35,7 @@ const Item = Backbone.Model.extend ({
     }
     return data;
   },
+
   testClasseMdp(mdp) {
     const promise = $.ajax(`api/classes/${this.get('idClasse')}/test`, {
       data: {
@@ -43,6 +46,7 @@ const Item = Backbone.Model.extend ({
     });
     return promise;
   },
+
   validate(attrs, options) {
     const errors = {};
     if (this.get("rank") === "root") {
@@ -66,6 +70,7 @@ const Item = Backbone.Model.extend ({
       return errors;
     }
   },
+
   sync(method, model, options) {
     options = options || {};
     const token = localStorage.getItem('jwt');
