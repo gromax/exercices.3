@@ -7,7 +7,9 @@ const Controller = MnObject.extend ({
     "classes:list": "onClassesList",
     "classe:show": "onClasseShow",
     "classe:edit": "onClasseEdit",
-    "classes:prof": "onClassesProf"
+    "classes:prof": "onClassesProf",
+    "classes:tojoin": "onClassesToJoinShow",
+    "classe:motdepasse:verify": "onClasseMotdepasseVerify"
   },
 
   onClassesList() {
@@ -28,6 +30,16 @@ const Controller = MnObject.extend ({
   onClassesProf(id) {
     Backbone.history.navigate(`classes/prof:${id}`, {});
     this.classeProf(id);
+  },
+
+  onClassesToJoinShow() {
+    Backbone.history.navigate("classes/tojoin", {});
+    this.classesToJoinShow();
+  },
+
+  onClasseMotdepasseVerify(idClasse) {
+    Backbone.history.navigate(`classe:${idClasse}/motdepasse`, {});
+    this.classeMotdepasseVerify(idClasse);
   },
 
   classesList() {
@@ -156,9 +168,30 @@ const Controller = MnObject.extend ({
     }).always( () => {
       channel.trigger("loading:down");
     });
-    
   },
 
+  classeMotdepasseVerify(idClasse) {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get"); 
+    if (logged.isAdmin() || logged.isProf() ) {
+      channel.trigger("not:found");
+      return;
+    }
+    const fetchingClasses = channel.request("classes:entities");
+    channel.trigger("loading:up");
+    $.when(fetchingClasses).done( (classes) => {
+      const classe = classes.get(idClasse);
+      if (!classe) {
+        channel.trigger("not:found");
+        return;
+      }
+      require("./show/controller.js").controller.showMotdepasseVerify(idClasse, classe);
+    }).fail( (response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always( () => {
+      channel.trigger("loading:down");
+    });
+  }
 });
 
 const controller = new Controller();
@@ -169,7 +202,8 @@ const Router = Backbone.Router.extend({
     "classes": "classesList",
     "classe::id": "classeShow",
     "classe::id/edit": "classeEdit",
-    "classe::id/join": "classeJoin"
+    "classes/tojoin": "classesToJoinShow",
+    "classe::id/motdepasse": "classeMotdepasseVerify"
   },
 
   classesProf(id) {
@@ -188,8 +222,12 @@ const Router = Backbone.Router.extend({
     controller.classeEdit(id);
   },
 
-  classeJoin(id) {
-    controller.classeJoin(id);
+  classesToJoinShow() {
+    controller.classesToJoinShow();
+  },
+
+  classeMotdepasseVerify(id) {
+    controller.classeMotdepasseVerify(id);
   }
 });
 
