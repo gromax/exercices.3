@@ -39,6 +39,17 @@ const Item = Backbone.Model.extend ({
     }
   },
 
+  testClasseMdp(mdp) {
+    const promise = $.ajax(`api/classes/${this.get('idClasse')}/test`, {
+      data: {
+        pwd: mdp
+      },
+      dataType: "json",
+      method: "GET"
+    });
+    return promise;
+  },
+
   sync(method, model, options) {
     options = options || {};
     const token = localStorage.getItem('jwt');
