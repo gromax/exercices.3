@@ -80,6 +80,48 @@ const Controller = MnObject.extend ({
     });
     new Region({ el: "#dialog-region" }).show(newUserView);
     return newUserView;
+  },
+
+  addUserToClasse(classe, mdp) {
+    const channel = this.getChannel();
+    if (!classe || !mdp) {
+      channel.trigger("popup:error", { title: "Erreur", message: "Données manquantes pour rejoindre la classe." });
+      return;
+    }
+    const logged = channel.request("logged:get");
+    if (logged.isAdmin()||logged.isProf()) {
+      channel.trigger("popup:error", { title: "Erreur", message: "Seuls les élèves ou les nouveaux utilisateurs peuvent rejoindre une classe." });
+      return;
+    }
+    const User = require('./entitys.js').User;
+    const user = new User({idClasse: classe.get("id"), mdp: mdp, rank:"eleve"});
+    const newUserView = new NewUserView({
+      model: user,
+      ranks: false,
+      showPref: false,
+      showPWD: true,
+      editorIsAdmin: false,
+      title: `Rejoindre la classe ${classe.get("nomClasse")}`,
+      errorCode: "030"
+    });
+    new Region({ el: "#dialog-region" }).show(newUserView);
+    newUserView.on("success", (data) => {
+      channel.trigger("popup:info", {
+        title: `Bienvenue ${data.prenom} ${data.nom}`,
+        message: `Vous avez rejoint la classe ${classe.get("nomClasse")}. Vous pouvez vous connecter.`
+      });
+      channel.trigger("home:show");
+    });
+    return newUserView;
+
+    // Il faut encore créer la vue
+    /*const view = new SigninView({
+      model: classe
+    });
+    view.on("form:submit", (data) => {
+      channel.trigger("classe:join", { classe: classe, mdp: data.mdp });
+    });
+    new Region({ el: "#main-region" }).show(view);*/
   }
 });
 

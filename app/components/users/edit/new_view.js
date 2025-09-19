@@ -16,7 +16,8 @@ const NewUserView = View.extend ({
       showPWD: this.getOption("showPWD"),
       showPref: this.getOption("showPref"),
       ranks: this.getOption("ranks"),
-      editorIsAdmin: this.getOption("editorIsAdmin")
+      editorIsAdmin: this.getOption("editorIsAdmin"),
+      title: this.getOption("title")
     };
   }
 });
