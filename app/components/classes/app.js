@@ -162,7 +162,7 @@ const Controller = MnObject.extend ({
     const fetchingClasses = channel.request("classes:entities");
     channel.trigger("loading:up");
     $.when(fetchingClasses).done( (classes) => {
-      require("./show/controller.js").controller.showSigninClasses(classes);
+      require("./signin/controller.js").controller.showSigninClasses(classes);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
     }).always( () => {
@@ -185,7 +185,7 @@ const Controller = MnObject.extend ({
         channel.trigger("not:found");
         return;
       }
-      require("./show/controller.js").controller.showMotdepasseVerify(idClasse, classe);
+      require("./signin/controller.js").controller.showMotdepasseVerify(idClasse, classe);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
     }).always( () => {
