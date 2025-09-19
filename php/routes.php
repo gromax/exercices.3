@@ -28,7 +28,6 @@ $router->addRule('api/classes', 'classes', 'insert', 'POST');
 $router->addRule('api/classes/:id/test', 'classes', 'testMDP', 'GET');
 $router->addRule('api/classe/:id/fill', 'classes', 'fill', 'POST');
 
-
 // fiches
 $router->addRule('api/fiches/:id', 'fiches', 'delete', 'DELETE');
 $router->addRule('api/fiches/:id', 'fiches', 'update', 'PUT');
@@ -38,11 +37,6 @@ $router->addRule('api/fiches', 'fiches', 'insert', 'POST');
 $router->addRule('api/exosfiche/:id', 'exosfiche', 'delete', 'DELETE');
 $router->addRule('api/exosfiche/:id', 'exosfiche', 'update', 'PUT');
 $router->addRule('api/exosfiche', 'exosfiche', 'insert', 'POST');
-
-// exams
-$router->addRule('api/exams/:id', 'exams', 'delete', 'DELETE');
-$router->addRule('api/exams/:id', 'exams', 'update', 'PUT');
-$router->addRule('api/exams', 'exams', 'insert', 'POST');
 
 // assosUF
 $router->addRule('api/assosUF/:id', 'assosUF', 'delete', 'DELETE');
