@@ -16,11 +16,11 @@ final class Exercice extends Item
     protected static function champs()
     {
         return array(
-            'nom' => array( 'def' => "", 'type'=> 'string'),        // nom de l'exercice
+            'title' => array( 'def' => "", 'type'=> 'string'),        // nom de l'exercice
             'keywords' => array( 'def' => "", 'type'=> 'string'),   // mots-clés de l'exercice
-            'descriptif' => array( 'def' => "", 'type'=> 'string'), // descriptif de l'exercice
+            'description' => array( 'def' => "", 'type'=> 'string'), // descriptif de l'exercice
             'options' => array( 'def' => "", 'type'=> 'string'),   // options de l'exercice (json)
-            'data' => array( 'def' => "", 'type'=> 'string'),      // code de l'exercice (json)
+            'code' => array( 'def' => "", 'type'=> 'string'),      // code de l'exercice (json)
             );
     }
 
@@ -30,7 +30,7 @@ final class Exercice extends Item
         try {
             $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $stmt = $pdo->prepare("SELECT id, nom, descriptif, keywords, options, data FROM (".PREFIX_BDD."exercices");
+            $stmt = $pdo->prepare("SELECT id, title, `description`, keywords, options, code FROM ".PREFIX_BDD."exercices");
             $stmt->execute();
             $bdd_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch(PDOException $e) {
