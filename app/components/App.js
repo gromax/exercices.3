@@ -5,10 +5,6 @@ import { Application} from 'backbone.marionette';
 import { SessionApp } from './session/app';
 import Radio from 'backbone.radio';
 
-/* Surcharge pour rendre history sensible
-   À une route introuvable
-*/
-
 const radioApp = Radio.channel("app");
 
 _.extend(Backbone.History.prototype, {
@@ -42,37 +38,12 @@ const Manager = Application.extend({
     Backbone.history.navigate(route, options)
   },
 
-  onBeforeStart(app, options) {
-    /*
-    app.getRegion("dialog").onShow = function(region,view) {
-      self = this;
-      const closeDialog = function() {
-        self.stopListening();
-        self.empty();
-        view.trigger("dialog:closed");
-      };
-      this.listenTo(view, "dialog:close", closeDialog);
-      const modal = new bootstrap.Modal(this.$el, {
-        backdrop: 'static',
-        title: view.title,
-        width: "auto",
-        keyboard: false,
-        close: function(e, ui) {
-          closeDialog();
-        }
-      });
-      modal.show();
-    };
-    */
-  },
   onStart(app, options) {
     console.log("App started");
     this.version = APP_VERSION;
     this.settings = {};
     
     //require('apps/classes/classes_app.coffee');
-    //require('apps/fiches/fiches_app.coffee');
-    //require('apps/exercices/exercices_app.coffee');
 
     // import de l'appli entities, session
     const whenSessionLoaded = () => {
@@ -82,6 +53,8 @@ const Manager = Application.extend({
       require('./common/app.js');
       require('./dataManager.js');
       require('./users/app.js');
+      require('./exercices/app.js');
+      require('./classes/app.js');
       
       console.log("token", Radio.channel("app").request("jwt:get"));
     
