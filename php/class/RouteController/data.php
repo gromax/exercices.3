@@ -8,9 +8,9 @@ use BDDObject\ExoFiche;
 use BDDObject\Note;
 use BDDObject\Fiche;
 use BDDObject\User;
-use BDDObject\Exam;
 use BDDObject\Message;
 use BDDObject\Classe;
+use BDDObject\Exercice;
 
 class data
 {
@@ -47,7 +47,7 @@ class data
                 "aEFs" => ExoFiche::getList(array("idUser"=>$uLog->getId())),
                 "devoirs" => AssoUF::getList(array("idUser"=> $uLog->getId() )),
                 "aUEs" => Note::getList(array("idUser"=>$uLog->getId())),
-                "messages" => Message::getList($uLog->getId())
+                "messages" => Message::getList($uLog->getId()),
             );
         } else {
             EC::set_error_code(403);
@@ -83,10 +83,22 @@ class data
             return false;
         }
         $asks = explode("&",$this->params['asks']);
+        $output = array();
+
+        // Les exercices sont publics et accessibles à tous les rangs
+        if (in_array("exercices", $asks)){
+            $answer =  Exercice::getList();
+            if (isset($answer["error"]) && $answer["error"]) {
+                EC::addError($answer["message"]);
+                EC::set_error_code(501);
+                return false;
+            } else {
+                $output["exercices"] = $answer;
+            }
+        }
 
         if ($uLog->isEleve())
         {
-            $output = array();
             if (in_array("exofiches", $asks)){
                 $answer = ExoFiche::getList(array("idUser"=>$uLog->getId()));
                 if (isset($answer["error"]) && $answer["error"]) {
@@ -153,13 +165,11 @@ class data
                     $output["classes"] = $answer;
                 }
             }
-
             return $output;
         }
 
         if ($uLog->isProf())
         {
-            $output = array();
             if (in_array("fiches", $asks)){
                 $answer = Fiche::getList(array("owner"=> $uLog->getId() ));
                 if (isset($answer["error"]) && $answer["error"]) {
@@ -209,17 +219,6 @@ class data
                 }
             }
 
-            if (in_array("exams", $asks)){
-                $answer = Exam::getList(array('idOwner'=>$uLog->getId()));
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["exams"] = $answer;
-                }
-            }
-
             if (in_array("messages", $asks)){
                 $answer = Message::getList($uLog->getId());
                 if (isset($answer["error"]) && $answer["error"]) {
@@ -247,7 +246,6 @@ class data
         }
 
         if ($uLog->isAdmin()) {
-            $output = array();
             if (in_array("fiches", $asks)){
                 $answer = Fiche::getList();
                 if (isset($answer["error"]) && $answer["error"]) {
@@ -302,17 +300,6 @@ class data
                     return false;
                 } else {
                     $output["users"] = $answer;
-                }
-            }
-
-            if (in_array("exams", $asks)){
-                $answer = Exam::getList();
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["exams"] = $answer;
                 }
             }
 

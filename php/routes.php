@@ -33,6 +33,10 @@ $router->addRule('api/fiches/:id', 'fiches', 'delete', 'DELETE');
 $router->addRule('api/fiches/:id', 'fiches', 'update', 'PUT');
 $router->addRule('api/fiches', 'fiches', 'insert', 'POST');
 
+// exercices
+$router->addRule('api/exercices/:id', 'exercices', 'fetch', 'GET');
+$router->addRule('api/exercices', 'exercices', 'fetchList', 'GET');
+
 // exosfiche
 $router->addRule('api/exosfiche/:id', 'exosfiche', 'delete', 'DELETE');
 $router->addRule('api/exosfiche/:id', 'exosfiche', 'update', 'PUT');
