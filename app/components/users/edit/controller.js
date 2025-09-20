@@ -93,7 +93,7 @@ const Controller = MnObject.extend ({
       channel.trigger("popup:error", { title: "Erreur", message: "Seuls les élèves ou les nouveaux utilisateurs peuvent rejoindre une classe." });
       return;
     }
-    const User = require('./entitys.js').User;
+    const User = require('../entity.js').User;
     const user = new User({idClasse: classe.get("id"), mdp: mdp, rank:"eleve"});
     const newUserView = new NewUserView({
       model: user,
