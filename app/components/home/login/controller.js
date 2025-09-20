@@ -18,16 +18,6 @@ const Controller = MnObject.extend({
         }).always(() => {
           channel.trigger("loading:down");
         });
-        /*Promise.resolve(openingSession)
-          .then(() => {
-            channel.trigger("home:show");
-          })
-          .catch((xhr) => {
-            commonChannel.trigger("data:fetch:fail", xhr, "025");
-          })
-          .finally(() => {
-            headerChannel.trigger("loading:down");
-          })*/
       } else {
         view.triggerMethod("form:data:invalid", logged.validationError);
       }
