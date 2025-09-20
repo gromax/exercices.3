@@ -28,3 +28,8 @@ composer.lock
 public/
 vendor/
 php/class/PHPMailer/
+
+# dev files
+curl.md
+data.json
+log_error_php.txt
