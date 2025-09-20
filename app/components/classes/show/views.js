@@ -1,8 +1,8 @@
 import { View } from 'backbone.marionette'
 import show_item_tpl from '@templates/classes/show/show-classe.jst'
-import test_mdp_classe_tpl from '@templates/classes/show/test-mdp-classe-form.jst'
-import no_classe_tpl from '@templates/classes/show/signin-no-classe.jst'
-import classe_item_tpl from '@templates/classes/show/signin-classe-item.jst'
+import test_mdp_classe_tpl from '@templates/classes/signin/test-mdp-classe-form.jst'
+import no_classe_tpl from '@templates/classes/signin/signin-no-classe.jst'
+import classe_item_tpl from '@templates/classes/signin/signin-classe-item.jst'
 
 const ShowClasseView = View.extend({
   template: show_item_tpl,
