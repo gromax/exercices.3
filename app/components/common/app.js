@@ -41,6 +41,7 @@ const Controller = MnObject.extend({
   },
 
   dataFetchFail(xhr, errorCode) {
+    const channel = this.getChannel();
     let messages = '';
     if (xhr.responseText) {
       let items = JSON.parse(xhr.responseText);
@@ -60,11 +61,10 @@ const Controller = MnObject.extend({
         messageRegion.show(mView);
         break;
       case 422:
-        const fView = new AlertView({
-          message:messages?messages:"Impossible d'exécuter la commande.",
-          title: "Échec !"
+        channel.trigger("popup:alert", {
+          title: "Erreur",
+          message: messages?messages:"Impossible d'exécuter la commande."
         });
-        messageRegion.show(fView);
         break;
       default:
         let message;
@@ -73,11 +73,10 @@ const Controller = MnObject.extend({
         } else {
           message = `Essayez à nouveau ou prévenez l'administrateur [code ${xhr.status}]`
         }
-        const aView = new AlertView({
-          message: message,
-          title: "Erreur inconnue"
+        channel.trigger("popup:error", {
+          title:"",
+          message: messages?`${messages} ${message}`:message
         });
-        messageRegion.show(aView);
     }
   },
   notFound() {
