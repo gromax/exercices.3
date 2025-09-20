@@ -108,7 +108,7 @@ const Controller = MnObject.extend ({
       }).always( () => {
         channel.trigger("loading:down");
       });
-      require("apps/classes/edit/edit_classe_controller.coffee").controller.edit(id);
+      require("./edit/controller.js").controller.edit(id);
     }
 
     const todo = logged.mapItem({
