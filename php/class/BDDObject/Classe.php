@@ -222,13 +222,17 @@ final class Classe
 
   public function update($params=array(),$updateBDD=true)
   {
-    $bddModif=false;
-    if(isset($params['nom'])) { $this->nom = $params['nom']; $bddModif=true; }
-    if(isset($params['description'])) { $this->description = $params['description']; $bddModif=true; }
-    if(isset($params['pwd'])) { $this->pwd = $params['pwd']; $bddModif=true; }
-    if(isset($params['ouverte'])) { $this->ouverte = (boolean)$params['ouverte']; $bddModif=true; }
+    if(isset($params['nom'])) { $this->nom = $params['nom']; }
+    if(isset($params['description'])) { $this->description = $params['description']; }
+    if(isset($params['pwd'])) { $this->pwd = $params['pwd']; }
+    if(isset($params['ouverte'])) {
+      $this->ouverte = (boolean)$params['ouverte'];
+    }
 
-    if (!$bddModif) {
+    $keys = ['nom', 'description', 'pwd', 'ouverte']; // les clés à garder
+    $modifs = array_intersect_key($params, array_flip($keys));
+
+    if (count($modifs) === 0) {
       EC::add("Aucune modification.");
       return true;
     }
@@ -241,16 +245,14 @@ final class Classe
     try{
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $stmt = $pdo->prepare("UPDATE ".PREFIX_BDD."classes SET nom = :nom, description = :description, pwd = :pwd, idOwner = :idOwner, ouverte = :ouverte, date = :date WHERE id = :id");
-      $stmt->execute(array(
-        ':nom' => $this->nom,
-        ':description' => $this->description,
-        ':pwd' => $this->pwd,
-        ':idOwner' => $this->getOwnerId(),
-        ':ouverte' => $this->ouverte,
-        ':date' => $this->date,
-        ':id' => $this->id
-      ));
+      $modifications = implode(", ", array_map(function($k){ return "$k=:$k"; }, array_keys($modifs)));
+      $stmt = $pdo->prepare("UPDATE ".PREFIX_BDD."classes SET $modifications WHERE id = :id");
+      foreach ($modifs as $k => $v) {
+        $stmt->bindValue(":$k", $v);
+        $modifs[$k] = ($k=='ouverte') ? (boolean)$v : $v;
+      }
+      $stmt->bindValue(':id', $this->id);
+      $stmt->execute();
     } catch(PDOException $e) {
       EC::addBDDError($e->getMessage(), 'Classe/update');
       return false;
