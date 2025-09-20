@@ -49,7 +49,7 @@ const Controller = MnObject.extend ({
     const forProf = () => {
       channel.trigger("ariane:reset", [{ text: "Classes", e: "classes:list", link: "classes" }]);
       channel.trigger("loading:up");
-      fetching = channel.request("custom:entities", ["classes"]);
+      const fetching = channel.request("custom:entities", ["classes"]);
       $.when(fetching).done( (classes) => {
         require("./list/controller.js").controller.list(classes, false);
       }).fail( (response) => {
@@ -60,9 +60,9 @@ const Controller = MnObject.extend ({
     };
 
     const todo = logged.mapItem({
-      "Admin": forProf,
-      "Prof": forProf,
-      "Eleve": () => channel.trigger("not:found"),
+      "admin": forProf,
+      "prof": forProf,
+      "eleve": () => channel.trigger("not:found"),
       "def": () => channel.trigger("home:login")
     });
     todo();
@@ -86,9 +86,9 @@ const Controller = MnObject.extend ({
     };
 
     const todo = logged.mapItem({
-      "Admin": forProf,
-      "Prof": forProf,
-      "Eleve": () => channel.trigger("not:found"),
+      "admin": forProf,
+      "prof": forProf,
+      "eleve": () => channel.trigger("not:found"),
       "def": () => channel.trigger("home:login")
     });
     todo();
@@ -108,13 +108,12 @@ const Controller = MnObject.extend ({
       }).always( () => {
         channel.trigger("loading:down");
       });
-      require("./edit/controller.js").controller.edit(id);
     }
 
     const todo = logged.mapItem({
-      "Admin": forProf,
-      "Prof": forProf,
-      "Eleve": () => channel.trigger("not:found"),
+      "admin": forProf,
+      "prof": forProf,
+      "eleve": () => channel.trigger("not:found"),
       "def": () => channel.trigger("home:login")
     });
     todo();
