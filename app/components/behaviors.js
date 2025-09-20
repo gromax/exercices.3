@@ -126,6 +126,11 @@ const SubmitClicked = Behavior.extend({
         event.stopPropagation(); // empêche la propagation d'un submit à l'élément parent dans le dom
         const fdata = new FormData(form);
         const data = Object.fromEntries(fdata.entries());
+        Array.from(form.elements).filter(el => el.type === "checkbox").forEach(function(element) {
+          if (element.name) {
+            data[element.name] = element.checked ? 1 : 0; // ou true/false
+          }
+        });
         that.view.trigger("form:submit", data);
         event.preventDefault();
         event.stopPropagation(); // empêche la propagation d'un submit à l'élément parent dans le dom
