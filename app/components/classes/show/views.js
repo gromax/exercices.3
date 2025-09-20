@@ -1,4 +1,5 @@
-import { View } from 'backbone.marionette'
+import { View, CollectionView } from 'backbone.marionette'
+import { SubmitClicked } from '../../behaviors.js';
 import show_item_tpl from '@templates/classes/show/show-classe.jst'
 import test_mdp_classe_tpl from '@templates/classes/signin/test-mdp-classe-form.jst'
 import no_classe_tpl from '@templates/classes/signin/signin-no-classe.jst'
