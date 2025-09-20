@@ -11,7 +11,7 @@ const Controller = MnObject.extend({
       return;
     }
     channel.trigger("ariane:add", { text: classe.get("nom"), e: "classe:show", data: id, link: `classe:${id}` });
-    view = new ShowClasseView({
+    const view = new ShowClasseView({
       model: classe
     });
     view.on("classe:edit", (item) => {
