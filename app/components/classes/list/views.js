@@ -39,9 +39,9 @@ const ItemView = View.extend({
   },
 
   templateContext() {
-    showProfName = this.getOption("showProfName");
+    const showProfName = this.getOption("showProfName");
     return {
-      showProfName,
+      showProfName: showProfName,
       linkProf: showProfName,
       showFillClassButton: this.getOption("showFillClassButton")
     };
@@ -62,7 +62,7 @@ const ClassesCollectionView = CollectionView.extend({
       showProfName: this.getOption("showProfName")
     };
   },
-  childViewOptions: (model) => {
+  childViewOptions(model) {
     return {
       showFillClassButton: this.getOption("showFillClassButton"),
       showProfName: this.getOption("showProfName")
