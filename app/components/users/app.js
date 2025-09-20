@@ -70,14 +70,14 @@ const Controller = MnObject.extend ({
       channel.trigger("popup:error", { title: "Erreur", message: "Données manquantes pour rejoindre la classe." });
       return;
     }
-    require("./signin/controller.js").controller.joinClasse(classe, mdp);
+    require("./edit/controller.js").controller.addUserToClasse(classe, mdp);
   },
 
   listUsers(criterion) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
     const forProf = () => {
-      channel.trigger("ariane:reset", [{ text:"Utilisateurs", e:"users:list", link:"users"}]);
+      channel.trigger("ariane:reset", [{ text:"Utilisateurs", e:"users:list", data:criterion, link:"users"}]);
       channel.trigger("loading:up");
       const fetchingUsers = channel.request("custom:entities", ["users"]);
       $.when(fetchingUsers).done((users) => {
