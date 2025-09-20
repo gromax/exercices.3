@@ -10,7 +10,7 @@ const Controller = MnObject.extend({
     const listItemsLayout = new ListLayout()
     const listItemsPanel = new ClassesPanel({
       addToProf: prof ? prof.get("nomComplet") : false,
-      showAddButton: prof ? true : app.Auth.isProf()
+      showAddButton: prof ? true : logged.isProf()
     });
 
     const listItemsView = new ClassesCollectionView({
@@ -33,7 +33,10 @@ const Controller = MnObject.extend({
     });
 
     listItemsPanel.on("classe:new", () => {
-      console.warn("New classe : pas encore implémenté.");
+      channel.trigger("popup:info", {
+        title:"Nouvelle classe",
+        message: "La création d'une nouvelle classe n'est pas encore implémentée."
+      });
       /*
       OClasse = require("entities/classes.coffee").Item
       newItem = new OClasse()
@@ -59,7 +62,10 @@ const Controller = MnObject.extend({
     });
 
     listItemsView.on("item:fill", (childView) => {
-      console.warn("Fill classe : pas encore implémenté.");
+      channel.trigger("popup:info", {
+        title:"Remplissage d'une classe",
+        message: "Le remplissage d'une classe n'est pas encore implémenté."
+      });
       /*
       const model = childView.model;
       const view = new FillClasseView({
@@ -71,17 +77,9 @@ const Controller = MnObject.extend({
     });
 
     listItemsView.on("item:edit", (childView) => {
-      console.warn("Edit classe : pas encore implémenté.");
-      /*
-      const model = childView.model;
-      const view = new EditClasseView({
-        model: model,
-        itemView: childView,
-        errorCode: "003"
-      });
-      app.regions.getRegion('dialog').show(view);
-      */
+      channel.trigger("classe:edit", childView.model.get("id"));
     });
+
     new Region({ el: "#main-region" }).show(listItemsLayout);
   }
 });
