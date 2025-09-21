@@ -12,6 +12,10 @@ const Controller = MnObject.extend ({
     "classe:motdepasse:verify": "onClasseMotdepasseVerify"
   },
 
+  radioRequests: {
+    "new:classe:modal": "onNewClasseViewModal"
+  },
+
   onClassesList() {
     Backbone.history.navigate("classes", {});
     this.classesList();
@@ -40,6 +44,23 @@ const Controller = MnObject.extend ({
   onClasseMotdepasseVerify(idClasse) {
     Backbone.history.navigate(`classe:${idClasse}/motdepasse`, {});
     this.classeMotdepasseVerify(idClasse);
+  },
+
+  onNewClasseViewModal(model) {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    if (!logged.isProf() && !logged.isAdmin()) {
+      channel.trigger("popup:alert", {
+        title: "Création de classe",
+        message: "Vous n'avez pas les droits pour créer une classe."
+      });
+      return;
+    }
+    const Classe = require("./entity.js").Item;
+    const classe = new Classe();
+    classe.set("idOwner", logged.get("id"));
+    const view = require("./edit/controller.js").controller.newClasseView(classe);
+    return view;
   },
 
   classesList() {
