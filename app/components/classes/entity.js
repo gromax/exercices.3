@@ -30,7 +30,8 @@ const Item = Backbone.Model.extend ({
     if (!attrs.nom) {
       errors.nom = "Ne doit pas être vide";
     } else {
-      if (attrs.nom.length < 2) {
+      console.log(attrs.nom.length);
+      if (attrs.nom.length < 3) {
         errors.nom = "Trop court";
       }
     }
@@ -53,7 +54,7 @@ const Item = Backbone.Model.extend ({
   sync(method, model, options) {
     options = options || {};
     const token = localStorage.getItem('jwt');
-    console.log("Token dans users.js :", token);
+    console.log("Token dans classes.js :", token);
     options.beforeSend = function (xhr) {
       if (token) {
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
@@ -71,7 +72,7 @@ const Collection = Backbone.Collection.extend({
   sync(method, model, options) {
     options = options || {};
     const token = localStorage.getItem('jwt');
-    console.log("Token dans users.js :", token);
+    console.log("Token dans classes.js :", token);
     options.beforeSend = function (xhr) {
       if (token) {
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
