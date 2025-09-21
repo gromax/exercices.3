@@ -33,20 +33,11 @@ const Controller = MnObject.extend({
     });
 
     listItemsPanel.on("classe:new", () => {
-      channel.trigger("popup:info", {
-        title:"Nouvelle classe",
-        message: "La création d'une nouvelle classe n'est pas encore implémentée."
-      });
-      /*
-      OClasse = require("entities/classes.coffee").Item
-      newItem = new OClasse()
-      view = new NewClasseView {
-        model: newItem
-        errorCode: "002"
-        listView: listItemsView
-      }
-      app.regions.getRegion('dialog').show(view)
-      */
+        const view = channel.request("new:classe:modal");
+        view.on("success", (model, resp) => {
+          listItemsView.collection.add(model);
+          listItemsView.children.findByModel(model)?.trigger("flash:success");
+        });
     });
 
     if (!prof) {
@@ -82,6 +73,8 @@ const Controller = MnObject.extend({
 
     new Region({ el: "#main-region" }).show(listItemsLayout);
   }
+
+
 });
 
 export const controller = new Controller()
