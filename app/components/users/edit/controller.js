@@ -72,6 +72,7 @@ const Controller = MnObject.extend ({
   },
 
   NewUserView(model) {
+    // modal
     const isRoot = this.getChannel().request("logged:get").isRoot();
     const newUserView = new NewUserView({
       model: model,
