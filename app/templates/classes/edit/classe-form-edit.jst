@@ -1,0 +1,28 @@
+<h1><%- title %></h1>
+<form class="row g-3 needs-validation" novalidate>
+  <div class="col-md-12">
+    <label for="classe-nom" class="form-label">Nom :</label>
+    <input class="form-control" id="classe-nom" name="nom" type="text" value="<%= nom %>" placeHolder="Nom" required/>
+    <div class="invalid-feedback">
+      Le nom est requis.
+    </div>
+  </div>
+
+  <div class="col-md-12">
+    <label for="classe-description" class="form-label">Description :</label>
+    <input class="form-control" id="classe-description" name="description" type="text" value="<%= description %>" placeHolder="Description"/>
+  </div>
+
+  <div class="checkbox">
+    <label>
+      <input type="checkbox" name="ouverte" <% if (ouverte) { %> checked <% } %> > Classe ouverte
+    </label>
+  </div>
+
+  <div class="col-md-12">
+    <label for="classe-pwd" class="form-label">Mot de passe :</label>
+    <input class="form-control" id="classe-pwd" name="pwd" type="text" value="<%= pwd %>" placeHolder="Mot de passe"/>
+  </div>
+
+  <button class="btn btn-success js-submit">Enregistrer</button>
+</form>
