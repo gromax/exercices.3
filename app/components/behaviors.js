@@ -100,42 +100,37 @@ const SubmitClicked = Behavior.extend({
   onRender() {
     // Ce code s’exécute après le render de la vue
     // Tu peux manipuler le DOM ici, le formulaire existe
-
-    const form_bootstrap5 = this.view.el.querySelector('form.needs-validation');
+    const el = this.view.getOption("isModal")?document.body.querySelector('.modal'):this.view.el;
     const that = this;
-    if (form_bootstrap5) {
-      form_bootstrap5.addEventListener('submit', function(event) {
-        form_bootstrap5.classList.add('was-validated');
-        event.preventDefault();
-        event.stopPropagation();
-        if (!form_bootstrap5.checkValidity()) {
-          return;
-        }
-        const fdata = new FormData(form_bootstrap5);
-        const data = Object.fromEntries(fdata.entries());
-        that.view.trigger("form:submit", data);
-        event.preventDefault();
-        event.stopPropagation(); // empêche la propagation d'un submit à l'élément parent dans le dom
-      }, false);
+    let form = el.querySelector('form.needs-validation');
+    const isbootstrap5 = form ? true : false;
+    if (!isbootstrap5) {
+        form = this.el.querySelector('form');
+    }
+    if (!form) {
+      console.warn("Aucun formulaire trouvé dans la vue !");
       return;
     }
-    const form = this.el.querySelector('form');
-    if (form) {
-      form.addEventListener('submit',function(event) {
-        event.preventDefault();
-        event.stopPropagation(); // empêche la propagation d'un submit à l'élément parent dans le dom
-        const fdata = new FormData(form);
-        const data = Object.fromEntries(fdata.entries());
-        Array.from(form.elements).filter(el => el.type === "checkbox").forEach(function(element) {
-          if (element.name) {
-            data[element.name] = element.checked ? 1 : 0; // ou true/false
-          }
-        });
-        that.view.trigger("form:submit", data);
-        event.preventDefault();
-        event.stopPropagation(); // empêche la propagation d'un submit à l'élément parent dans le dom
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (isbootstrap5) {
+        form.classList.add('was-validated');
+        if (!form.checkValidity()) {
+          return;
+        }
+      }
+      const fdata = new FormData(form);
+      const data = Object.fromEntries(fdata.entries());
+      Array.from(form.elements).filter(el => el.type === "checkbox").forEach(function(element) {
+        if (element.name) {
+          data[element.name] = element.checked ? 1 : 0; // ou true/false
+        }
       });
-    }
+      console.log("Données du formulaire :", data);
+      that.view.trigger("form:submit", data);
+    }, false);
   },
 
   clearForm() {
@@ -259,6 +254,7 @@ const EditItem = Behavior.extend({
     let model = this.view.model
     let updatingFunctionName = this.getOption("updatingFunctionName");
     let updatingItem = model[updatingFunctionName](data);
+    console.log("updatingItem", updatingItem);
     if (updatingItem) {
       radioApp.trigger("loading:up");
       let view = this.view;
