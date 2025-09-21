@@ -1,23 +1,34 @@
 import { View } from 'backbone.marionette'
+import { Modal } from 'bootstrap'
 import { SubmitClicked, EditItem } from '../../behaviors.js'
-import edit_tpl from '@templates/classes/common/classe-form.jst'
-import new_tpl from '@templates/classes/common/classe-form.jst'
+import edit_tpl from '@templates/classes/edit/classe-form-edit.jst'
+import edit_modal_tpl from '@templates/classes/edit/classe-form-edit-modal.jst'
 import fill_tpl from '@templates/classes/list/classe-fill-form.jst'
 
 const EditClasseView = View.extend({
   template: edit_tpl,
   behaviors: [SubmitClicked, EditItem],
   title: "Modification de la classe",
-
-  onRender: function() {
-    // en attente
+  templateContext() {
+    return {
+      title: this.getOption('title')
+    }
   }
 });
 
 const NewClasseView = View.extend({
-  title: "Nouvelle classe",
-  template: new_tpl,
-  behaviors: [SubmitClicked, EditItem]
+  template: edit_modal_tpl,
+  isModal: true,
+  behaviors: [SubmitClicked, EditItem],
+  onRender() {
+    const modalEl = this.el.querySelector('.modal');
+    if (modalEl) {
+      const modal = new Modal(modalEl);
+      modal.show();
+    } else {
+      console.warn("Aucun élément .modal trouvé dans la vue !");
+    }
+  }
 });
 
 const FillClasseView = View.extend({
