@@ -36,18 +36,16 @@ const Controller = MnObject.extend ({
 
   },
   
-  editUser(id, user, pwd, modal) {
+  editUser(id, user, pwd) {
     const trigger = pwd === true ? "user:editPwd" : "user:edit";
     const textLink = pwd === true ? "Modification du mot de passe" : "Modification de l'utilisateur";
     const channel = this.getChannel();
     const isAdmin = channel.request("logged:get").isAdmin();
 
-    if (!modal) {
-      channel.trigger("ariane:add", [
-        { text:user ? user.get("nomComplet") : "Utilisateur inconnu", e:"user:show", data:id, link:`user:${id}` },
-        { text:textLink, e:trigger, data:id, link:`user:${id}/edit` }
-      ]);
-    }
+    channel.trigger("ariane:add", [
+      { text:user ? user.get("nomComplet") : "Utilisateur inconnu", e:"user:show", data:id, link:`user:${id}` },
+      { text:textLink, e:trigger, data:id, link:`user:${id}/edit` }
+    ]);
 
     if (user === undefined) {
       channel.trigger("missing:item");
@@ -58,17 +56,14 @@ const Controller = MnObject.extend ({
 
     const view = new OView({
       title: pwd === true ? "Modification du mot de passe" : `Modification de ${user.get('prenom')} ${user.get('nom')}`,
-      isModal: modal === true,
       model: user,
       editorIsAdmin: isAdmin,
       errorCode: "028",
     });
-    if (modal) {
-      new Region({ el: '#dialog-region' }).show(view);
-    } else {
-      new Region({ el: '#main-region' }).show(view);
-    }
-    return view;
+    view.on("success", function (model, data) {
+      channel.trigger("user:show", id);
+    });
+    new Region({ el: '#main-region' }).show(view);
   },
 
   NewUserView(model) {
