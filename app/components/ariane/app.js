@@ -23,7 +23,7 @@ const ArianeApp = MnObject.extend({
     view.on("navigation", function(event_name, data) {
       channel.trigger(event_name, data);
     });
-    new Region({ el: '#ariane-region' }).show(view);
+    new Region({ el: '#ariane' }).show(view);
   },
 
   add(data) {
