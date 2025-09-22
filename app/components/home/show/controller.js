@@ -19,22 +19,18 @@ const Controller = MnObject.extend({
     view.on("show:list", (cible)=> this.getChannel().trigger(`${cible}:list`));
     new Region({ el: '#main-region'}).show(view);
   },
+
   showProfHome() {
     let unread = this.getChannel().request("logged:get").get("unread");
     const view = new AdminProfPanel({adminMode:false, unread:unread});
-    const channel = this.getChannel();
-    view.on("show:list", (cible)=> {
-      channel.trigger(`${cible}:list`);
-    });
     new Region({ el: '#main-region'}).show(view);
   },
+
   showOffHome() {
     const view = new OffView();
-    const channel = this.getChannel();
-    view.on("home:login", () => { channel.trigger("home:login"); });
-    view.on("home:join", () => { channel.trigger("classes:tojoin"); });
     new Region({ el: '#main-region'}).show(view);
   },
+
   showEleveHome() {
     const channel = this.getChannel();
     channel.trigger("loading:up");
