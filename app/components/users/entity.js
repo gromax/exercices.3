@@ -63,7 +63,6 @@ const Item = Backbone.Model.extend ({
   sync(method, model, options) {
     options = options || {};
     const token = localStorage.getItem('jwt');
-    console.log("Token dans users.js :", token);
     options.beforeSend = function (xhr) {
       if (token) {
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
@@ -80,7 +79,6 @@ const Collection = Backbone.Collection.extend({
   sync(method, model, options) {
     options = options || {};
     const token = localStorage.getItem('jwt');
-    console.log("Token dans users.js :", token);
     options.beforeSend = function (xhr) {
       if (token) {
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
