@@ -1,8 +1,7 @@
 import { View } from 'backbone.marionette';
-import { Modal } from 'bootstrap';
 import { SubmitClicked, EditItem } from '../../behaviors.js';
 
-import edit_user_modal_tpl from '@templates/users/edit/user-form-modal.jst'
+import edit_user_tpl from '@templates/users/edit/user-form.jst'
 
 const NewUserView = View.extend ({
   title: "Nouvel Utilisateur",
@@ -10,7 +9,7 @@ const NewUserView = View.extend ({
   showPref: true,
   ranks: 1,
   editorIsAdmin: true,
-  template: edit_user_modal_tpl,
+  template: edit_user_tpl,
   behaviors: [SubmitClicked, EditItem],
   templateContext() {
     return {
@@ -21,12 +20,6 @@ const NewUserView = View.extend ({
       title: this.getOption("title")
     };
   },
-
-  onRender() {
-    const modalEl = this.el.querySelector('.modal');
-    const modal = new Modal(modalEl);
-    modal.show();
-  }
 
 });
 
