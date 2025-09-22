@@ -71,18 +71,12 @@ const DestroyWarn = Behavior.extend({
   warnBeforeDestroy(e) {
     e.preventDefault();
     e.stopPropagation(); // empêche la propagation d'un click à l'élément parent dans le dom
-    let model = this.view.model
-    let message = `Supprimer l'élément #${model.get("id")} ?`;
+    const model = this.view.model;
+    const message = `Supprimer l'élément #${model.get("id")} : ${model.get("nomComplet")} ?`;
     if (confirm(message)) {
-      destroyRequest = model.destroy()
+      const destroyRequest = model.destroy();
       radioApp.trigger("loading:up");
-      $.when(destroyRequest).done( function(){
-        let view = this.view;
-        view.$el.fadeOut( function(){
-          view.trigger("model:destroy", view.model);
-          view.remove();
-        });
-      }).fail( function(response){
+      $.when(destroyRequest).fail( function(response){
         alert("Erreur. Essayez à nouveau !");
       }).always( function() {
         radioApp.trigger("loading:down");
@@ -100,13 +94,8 @@ const SubmitClicked = Behavior.extend({
   onRender() {
     // Ce code s’exécute après le render de la vue
     // Tu peux manipuler le DOM ici, le formulaire existe
-    const el = this.view.getOption("isModal")?document.body.querySelector('.modal'):this.view.el;
     const that = this;
-    let form = el.querySelector('form.needs-validation');
-    const isbootstrap5 = form ? true : false;
-    if (!isbootstrap5) {
-        form = this.el.querySelector('form');
-    }
+    let form = this.view.el.querySelector('form');
     if (!form) {
       console.warn("Aucun formulaire trouvé dans la vue !");
       return;
@@ -115,7 +104,7 @@ const SubmitClicked = Behavior.extend({
     form.addEventListener('submit', function(event) {
       event.preventDefault();
       event.stopPropagation();
-      if (isbootstrap5) {
+      if (form.checkValidity !== undefined) {
         form.classList.add('was-validated');
         if (!form.checkValidity()) {
           return;
@@ -128,7 +117,6 @@ const SubmitClicked = Behavior.extend({
           data[element.name] = element.checked ? 1 : 0; // ou true/false
         }
       });
-      console.log("Données du formulaire :", data);
       that.view.trigger("form:submit", data);
     }, false);
   },
@@ -254,7 +242,6 @@ const EditItem = Behavior.extend({
     let model = this.view.model
     let updatingFunctionName = this.getOption("updatingFunctionName");
     let updatingItem = model[updatingFunctionName](data);
-    console.log("updatingItem", updatingItem);
     if (updatingItem) {
       radioApp.trigger("loading:up");
       let view = this.view;
