@@ -3,24 +3,10 @@ import { MnObject } from 'backbone.marionette';
 const Controller = MnObject.extend ({
   channelName: 'app',
   radioEvents: {
-    "users:list": "onUsersList",
     "users:filter": "onUsersFilter",
-    "user:show": "onUserShow",
-    "user:edit": "onUserEdit",
-    "user:editPwd": "onUserEditPwd",
     "user:sudo":"onUserSudo",
-    "user:join:classe":"onUserJoinClasse"
-  },
-
-  radioRequests: {
-    "user:edit:modal": "onUserEditModal",
-    "user:editPwd:modal": "onUserEditPwdModal",
-    "new:user:modal": "onNewUserModal"
-  },
-
-  onUsersList(criterion) {
-    Backbone.history.navigate("users", {});
-    this.listUsers(criterion);
+    "user:join:classe":"onUserJoinClasse",
+    "user:show": "onShowUser"
   },
 
   onUsersFilter(criterion) {
@@ -31,34 +17,12 @@ const Controller = MnObject.extend ({
     }
   },
 
-  onUserShow(id) {
+  onShowUser(id) {
     Backbone.history.navigate(`user:${id}`, {});
     this.showUser(id);
   },
 
-  onUserEdit(id) {
-    Backbone.history.navigate(`user:${id}/edit`, {});
-    this.editUser(id);
-  },
-
-  onUserEditModal(model, pwd = false) {
-    const logged = this.getChannel().request("logged:get");
-    if (!logged.isAdmin() && !logged.isProf()) {
-      return;
-    }
-    return require("./edit/controller.js").controller.editUser(model.get("id"), model, pwd, true);
-  },
-
-  onUserEditPwd(id) {
-    Backbone.history.navigate(`user:${id}/password`, {});
-    this.editUserPwd(id);
-  },
-
-  onUserEditPwdModal(model) {
-    return this.onUserEditModal(model, true);
-  },
-
-  onNewUserModal() {
+  onNewUser() {
     const User = require("./entity.js").Item;
     const newUser = new User();
     return require("./edit/controller.js").controller.NewUserView(newUser);
@@ -142,10 +106,7 @@ const Controller = MnObject.extend ({
       if (isMe) {
         require("./edit/controller.js").controller.editMe(id, user, pwd);
       } else {
-        const view = require("./edit/controller.js").controller.editUser(id, user, pwd, false);
-        view.on("success", function (model, data) {
-          channel.trigger("user:show", id);
-        });
+        require("./edit/controller.js").controller.editUser(id, user, pwd, false);
       }
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
@@ -206,6 +167,7 @@ const Router = Backbone.Router.extend({
   },
 
   editUserPwd(id) {
+    console.log("Router editUserPwd", id);
     controller.editUserPwd(id);
   }
 });
