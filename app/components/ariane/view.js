@@ -32,9 +32,9 @@ const ItemView = View.extend({
   },
   triggers: {
     "click a.js-next" : "ariane:next",
-    "click a.js-prev" : "ariane:prev",
-    "click a.js-link" : "click:link"
+    "click a.js-prev" : "ariane:prev"
   },
+  /*
   onArianePrev() {
     const event_name = this.model.get("e");
     const data = this.model.get("prev");
@@ -44,43 +44,18 @@ const ItemView = View.extend({
     const event_name = this.model.get("e");
     const data = this.model.get("next");
     this.trigger("navigation", event_name, data);
-  },
-  onClickLink() {
-    const active = this.model.get("active");
-    const event_name = this.model.get("e");
-    const data = this.model.get("data");
-    if (active && event_name){
-      this.trigger("navigation", event_name, data);
-    }
   }
+
+    */
 });
 
-const FilView = CollectionView.extend({
-  tagName:"ol",
+
+const ArianeView = CollectionView.extend({
+  tagName: "ol",
   className: "breadcrumb",
-  childViewEventPrefix: "item",
   childView: ItemView,
-  emptyView: NoView
-});
-
-const ArianeView = View.extend({
-  tagName: "nav",
+  emptyView: NoView,
   template: ariane_tpl,
-  regions: {
-    body: {
-      el:'ol',
-      replaceElement:true
-    }
-  },
-  onRender() {
-    this.subCollection = new FilView({
-      collection: this.collection
-    });
-    this.subCollection.on("item:navigation", (event_name, data) => {
-      this.trigger("navigation", event_name, data);
-    });
-    this.showChildView('body', this.subCollection);
-  }
 });
 
 export { ArianeView }
