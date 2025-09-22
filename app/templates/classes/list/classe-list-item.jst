@@ -5,11 +5,9 @@
 <td><%= date %></td> <!-- à parser -->
 <td align="right">
 	<div class="btn-group" role="group">
-		<!-- Bouton d'édition -->
-		<a href="#classe:<%= id %>/edit" class="btn btn-outline-secondary btn-sm js-edit" role="button"><i class="fa fa-pencil" title="Modifier"></i></a>
 		<% if (showFillClassButton) {%><!-- Bouton de chargement élève -->
 		<a href="#classe:<%= id %>/fill" class="btn btn-outline-secondary btn-sm js-fill" role="button"><i class="fa fa-file-text-o" title="Charger les élèves"></i></a>
 		<% } %><!-- Bouton suppression -->
-		<button type="button" class="btn btn-outline-secondary btn-sm js-delete"><i class="fa fa-trash" aria-hidden="true" title="Supprimer"></i></button>
+		<button type="button" class="btn btn-outline-danger btn-sm js-delete"><i class="fa fa-trash" aria-hidden="true" title="Supprimer"></i></button>
 	</div>
 </td>
