@@ -9,7 +9,6 @@ const ArianeCollection = Backbone.Collection.extend({
 const home = {
     text: "<i class='fa fa-home'></i>",
     link: "home",
-    e: "home:show",
     active: false
 }
 
