@@ -40,23 +40,6 @@ const Controller = MnObject.extend ({
       channel.trigger("user:show", model.get("id"));
     });
 
-    usersListView.on("item:edit", (childView, args) => {
-      const model = childView.model;
-      const view = channel.request("user:edit:modal", model);
-      view.on("success", (model, data) => {
-        childView.render();
-        childView.trigger("flash:success");
-      });
-    });
-
-    usersListView.on("item:editPwd", (childView, args) => {
-      const model = childView.model;
-      const view = channel.request("user:editPwd:modal", model);
-      view.on("success", (model, data) => {
-        childView.trigger("flash:success");
-      });
-    });
-
     usersListView.on("item:forgotten", (childView, e) => {
       const model = childView.model;
       const email = model.get("email");
