@@ -50,8 +50,6 @@ const UserView = View.extend ({
     }
   },
   triggers: {
-    "click td a.js-edit": "edit",
-    "click td a.js-editPwd": "editPwd",
     "click button.js-forgotten": "forgotten",
     "click button.js-sudo": "sudo",
     "click": "show"
