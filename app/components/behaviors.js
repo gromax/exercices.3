@@ -104,12 +104,6 @@ const SubmitClicked = Behavior.extend({
     form.addEventListener('submit', function(event) {
       event.preventDefault();
       event.stopPropagation();
-      if (form.checkValidity !== undefined) {
-        form.classList.add('was-validated');
-        if (!form.checkValidity()) {
-          return;
-        }
-      }
       const fdata = new FormData(form);
       const data = Object.fromEntries(fdata.entries());
       Array.from(form.elements).filter(el => el.type === "checkbox").forEach(function(element) {
@@ -117,6 +111,13 @@ const SubmitClicked = Behavior.extend({
           data[element.name] = element.checked ? 1 : 0; // ou true/false
         }
       });
+      if (that.view.model) {
+        const errors = that.view.model.validate ? that.view.model.validate(data) : null;
+        if (errors) {
+          that.view.trigger("form:data:invalid", errors);
+          return;
+        }
+      }
       that.view.trigger("form:submit", data);
     }, false);
   },
@@ -124,52 +125,52 @@ const SubmitClicked = Behavior.extend({
   clearForm() {
     let $view = this.view.$el
     $(".is-invalid",$view).each(function() { $(this).removeClass("is-invalid"); });
-    //$(".is-valid",$view).each -> $(@).removeClass("is-valid")
-    $view.find("div.alert").each(function(){ $(this).remove(); });
+    $(".is-valid",$view).each(function() { $(this).removeClass("is-valid"); });
     $view.find(".invalid-feedback.d-block").remove();
   },
   onFormDataValid() {
-    // nettoyage d'erreurs précédentes
     this.clearForm();
   },
   onFormDataInvalid(errors) {
+    console.log("Données invalides :", errors);
     let $view = this.view.$el;
-    let messagesDivId = this.getOption("messagesDivId");
-    let markErrors;
-    if (Array.isArray(errors)) {
-      let $messagesContainer = $(`#${messagesDivId}`,$view);
-      if (!$messagesContainer) {
-        $messagesContainer = $view.append(`<div id='${messagesDivId}'></div>`);
-      }
-      markErrors = function(value) {
-        if (value.success) {
-          $messagesContainer.append($("<div>", { class: "alert alert-success", role:"alert", text: value.message }));
-        } else {
-          $messagesContainer.append($("<div>", { class: "alert alert-danger", role:"alert", text: value.message }));
-        }
-      };
-    } else {
-      markErrors = function(value, key) {
-        let $inp = $view.find("input[name='#{key}']");
-        let html = "";
-        if (Array.isArray(value)){
-          let reduceFct = function(m,v,i) { return `${m}<p>${v}</p>`; }
-          html = _.reduce(value, reduceFct, "")
-        } else {
-          html = value;
-        }
-        let $feedback = $inp.siblings('.invalid-feedback').first();
-        if ($feedback.length === 0) {
-          let $parent = $inp.closest('.form-group');
-          $feedback = $("<div class='invalid-feedback d-block'></div>").appendTo($parent)
-        }
-        $feedback.html(html);
-        $inp.addClass("is-invalid");
-      }
-    }
-    // nettoyage d'erreurs précédentes
     this.clearForm();
-    _.each(errors, markErrors)
+    if (Array.isArray(errors)) {
+      for (const key in errors) {
+        const error = errors[key];
+        if (error.success) {
+          radioApp.trigger("popup:success", error.message);
+        } else {
+          radioApp.trigger("popup:error", error.message);
+        }
+      }
+      return;
+    }
+    $view.find("input").each(function(index, item) {
+      $(item).addClass("is-valid").off("input").on("input", function() {
+        $(this).removeClass("is-invalid").removeClass("is-valid");
+      });
+    });
+    Object.entries(errors).forEach(([key, value]) => {
+      const $inp = $view.find(`input[name='${key}']`);
+      if ($inp.length === 0) {
+        console.warn(`Aucun champ trouvé pour la clé ${key}`);
+        return;
+      }
+      let $feedback = $inp.siblings('.invalid-feedback').first();
+      if ($feedback.length === 0) {
+        let $parent = $inp.parent();
+        $feedback = $("<div class='invalid-feedback d-block'></div>").appendTo($parent);
+      }
+      let html = value;
+      if (Array.isArray(value)){
+        let reduceFct = function(m,v,i) { return `${m}<p>${v}</p>`; }
+        html = _.reduce(value, reduceFct, "")
+      }
+      $feedback.html(html);
+      $inp.removeClass("is-valid");
+      $inp.addClass("is-invalid");
+    });
   }
 });
 
