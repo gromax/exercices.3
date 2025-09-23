@@ -27,47 +27,50 @@ class classes
     public function fetch()
     {
         $uLog =Logged::getConnectedUser();
+        if (!$uLog->connexionOk())
+        {
+            EC::set_error_code(401);
+            return false;
+        }
+
         if (isset($this->params['id']))
         {
             $id = (integer) $this->params['id'];
-            // Dans ce cas la connexion est impérative
-            if (!$uLog->connexionOk())
-            {
-                EC::set_error_code(401);
-                return false;
-            }
-            else
-            {
-                $classe = Classe::getObject($id);
-                if ($classe===null)
-                {
-                    EC::set_error_code(404);
-                    return false;
-                }
-                elseif ( $uLog->isAdmin() || $classe->isOwnedBy($uLog) )
-                {
-                    return $classe->toArray();
-                }
-                else
-                {
-                    EC::set_error_code(403);
-                    return false;
-                }
-            }
+            return $this->fetchClasse($id);
         }
-        else
+
+        if ($uLog->isAdmin()) return Classe::getList();
+        if ($uLog->isProf()) return Classe::getList(array('ownerIs'=> $uLog->getId() ));
+        if ($uLog->isEleve()) return Classe::getList(array('forEleve'=> $uLog->getId() ));
+        EC::set_error_code(403);
+        return false;
+    }
+
+    private function fetchClasse($id) {
+        $uLog =Logged::getConnectedUser();
+        if (!$uLog->connexionOk())
         {
-            // Dans ce cas, en l'absence de connexion,
-            // il faut renvoyer les classes à rejoindre
-            if ($uLog->connexionOk())
-            {
-                if ($uLog->isAdmin()) return Classe::getList();
-                if ($uLog->isProf()) return Classe::getList(array('ownerIs'=> $uLog->getId() ));
-                if ($uLog->isEleve()) return Classe::getList(array('forEleve'=> $uLog->getId() ));
-            }
-            // Liste des classes à rejoindre
-            return Classe::getList(array('forJoin'=> true ));
+            EC::set_error_code(401);
+            return false;
         }
+        $classe = Classe::getObject($id);
+        if ($classe===null)
+        {
+            EC::set_error_code(404);
+            return false;
+        }
+        if ( $uLog->isAdmin() || $classe->isOwnedBy($uLog) )
+        {
+            return $classe->toArray();
+        }
+        EC::set_error_code(403);
+        return false;
+    }
+
+    public function fetchToJoin()
+    {
+        // Renvoie la liste des classes ouvertes à l'inscription
+        return Classe::getList(array('forJoin'=> true ));
     }
 
     public function delete()

@@ -1,0 +1,45 @@
+<h1><%= title %></h1>
+<% if (description) { %>
+    <p><%= description %></p>
+<% } %>
+
+<form class="row g-3 needs-validation">
+    <div class="col-md-12">
+        <label for="class-pwd" class="form-label">Mot de passe pour entrer dans la classe</label>
+        <input type="password" class="form-control" id="class-pwd" name="classeMdp" value="" placeholder="Fourni par votre professeur">
+    </div>
+
+    <div class="col-md-6">
+        <label for="user-prenom" class="form-label">Prénom</label>
+        <input type="text" class="form-control" id="user-prenom" name="prenom" value="<%- prenom %>" placeholder="Prénom" required>
+        <div class="invalid-feedback">
+            Le prénom est requis.
+        </div>
+    </div>
+    <div class="col-md-6">
+        <label for="user-nom" class="form-label">Nom</label>
+        <input type="text" class="form-control" id="user-nom" name="nom" value="<%- nom %>" placeholder="Nom" required>
+        <div class="invalid-feedback">
+            Le nom est requis.
+        </div>
+    </div>
+    <div class="col-md-12">
+        <label for="user-email" class="form-label"><i class="fa fa-envelope"></i></label>
+        <input type="email" class="form-control" id="user-email" name="email" value="<%- email %>" placeholder="email" required>
+        <div class="invalid-feedback">
+            Un email valide est requis.
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <label for="user-pwd" class="form-label"><i class="fa fa-lock"></i></label>
+        <input type="password" class="form-control" id="user-pwd" name="pwd" value="" placeholder="Mot de passe">
+    </div>
+
+    <div class="col-md-12">
+        <label for="user-pwdConfirm" class="form-label">Confirmation</label>
+        <input type="password" class="form-control" id="user-pwdConfirm" name="pwdConfirm" value="" placeholder="Confirmation">
+    </div>
+
+    <button class="btn btn-success js-submit">Enregistrer</button>
+</form>

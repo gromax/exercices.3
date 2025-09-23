@@ -4,9 +4,9 @@ const Controller = MnObject.extend ({
   channelName: 'app',
   radioEvents: {
     "users:filter": "onUsersFilter",
+    "user:show": "onShowUser",
+    "user:classe:signin":"onUserClasseSignin",
     "user:sudo":"onUserSudo",
-    "user:join:classe":"onUserJoinClasse",
-    "user:show": "onShowUser"
   },
 
   onUsersFilter(criterion) {
@@ -22,19 +22,61 @@ const Controller = MnObject.extend ({
     this.showUser(id);
   },
 
-  onNewUser() {
+  /*onNewUser() {
     const User = require("./entity.js").Item;
     const newUser = new User();
     return require("./edit/controller.js").controller.NewUserView(newUser);
+  },*/
+
+  onUserClasseSignin(id) {
+    Backbone.history.navigate(`user/classe:${id}/signin`, {});
+    this.classeSignin(id);
   },
 
-  onUserJoinClasse(classe, mdp) {
+  onUserSudo(id) {
     const channel = this.getChannel();
-    if (!classe || !mdp) {
-      channel.trigger("popup:error", { title: "Erreur", message: "Données manquantes pour rejoindre la classe." });
+    const logged = channel.request("logged:get");
+    channel.trigger("loading:up");
+    const connecting = logged && logged.sudo(id);
+    $.when(connecting).done( (data) => {
+      channel.trigger("home:show");
+    }).fail( (response) => {
+      switch (response.status) {
+        case 404:
+          channel.trigger("popup:alert", "Page inconnue !");
+          break;
+        case 403:
+          channel.trigger("popup:alert", "Non autorisé !");
+          break;
+        default:
+          channel.trigger("popup:alert", `Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}/035]`);
+      }
+    }).always( () => {
+      channel.trigger("loading:down");
+    });
+  },
+
+  classeSignin(idClasse) {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    if (logged.isAdmin() || logged.isProf()) {
+      channel.trigger("not:found");
       return;
     }
-    require("./edit/controller.js").controller.addUserToClasse(classe, mdp);
+    const fetchingClasses = channel.request("classes:tojoin:fetch");
+    channel.trigger("loading:up");
+    $.when(fetchingClasses).done( (classes) => {
+      const classe = classes.get(idClasse);
+      if (!classe) {
+        channel.trigger("not:found");
+        return;
+      }
+      require("./edit/controller.js").controller.classeSignin(idClasse, classe);
+    }).fail( (response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always( () => {
+      channel.trigger("loading:down");
+    });
   },
 
   listUsers(criterion) {
@@ -119,28 +161,7 @@ const Controller = MnObject.extend ({
     this.editUser(id, true);
   },
 
-  onUserSudo(id) {
-    const channel = this.getChannel();
-    const logged = channel.request("logged:get");
-    channel.trigger("loading:up");
-    const connecting = logged && logged.sudo(id);
-    $.when(connecting).done( (data) => {
-      channel.trigger("home:show");
-    }).fail( (response) => {
-      switch (response.status) {
-        case 404:
-          channel.trigger("popup:alert", "Page inconnue !");
-          break;
-        case 403:
-          channel.trigger("popup:alert", "Non autorisé !");
-          break;
-        default:
-          channel.trigger("popup:alert", `Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}/035]`);
-      }
-    }).always( () => {
-      channel.trigger("loading:down");
-    });
-  },
+
 });
 
 const controller = new Controller();
@@ -150,7 +171,8 @@ const Router = Backbone.Router.extend({
     "users(/filter/criterion::criterion)": "listUsers",
     "user::id": "showUser",
     "user::id/edit": "editUser",
-    "user::id/password": "editUserPwd"
+    "user::id/password": "editUserPwd",
+    "user/classe::id/signin": "classeSignin",
   },
 
   listUsers(criterion) {
@@ -167,8 +189,11 @@ const Router = Backbone.Router.extend({
   },
 
   editUserPwd(id) {
-    console.log("Router editUserPwd", id);
     controller.editUserPwd(id);
+  },
+
+  classeSignin(id) {
+    controller.classeSignin(id);
   }
 });
 

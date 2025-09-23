@@ -1,15 +1,6 @@
-import { View } from 'backbone.marionette'
-import test_mdp_classe_tpl from '@templates/classes/signin/test-mdp-classe-form.jst'
+import { View, CollectionView } from 'backbone.marionette'
 import no_classe_tpl from '@templates/classes/signin/signin-no-classe.jst'
 import classe_item_tpl from '@templates/classes/signin/signin-classe-item.jst'
-
-const ClasseMotdepasseVerifyView = View.extend ({
-  template: test_mdp_classe_tpl,
-  behaviors: [SubmitClicked],
-  initialize() { 
-    this.title = `Rejoindre la classe ${this.model.get("nomClasse")}`;
-  }
-});
 
 const SigninNoClasseView = View.extend ({
   template: no_classe_tpl
@@ -32,4 +23,4 @@ const SigninClassesCollectionView = CollectionView.extend({
   childViewEventPrefix: "item"
 });
 
-export { ClasseMotdepasseVerifyView, SigninClassesCollectionView }
+export { SigninClassesCollectionView }

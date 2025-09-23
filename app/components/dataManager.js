@@ -4,6 +4,7 @@ import { get } from 'jquery';
 const Controller = MnObject.extend({
   channelName: 'app',
   radioRequests: {
+    'classes:tojoin:fetch': 'classesToJoinFetch',
     'custom:entities': 'getCustomEntities',
     'logged:destroy': 'purge',
     'classe:entity': 'getClasse',
@@ -19,6 +20,37 @@ const Controller = MnObject.extend({
   stored_data:{},
   stored_time:{},
 
+  fetch(url) {
+    const token = localStorage.getItem('jwt');
+    return $.ajax(url, {
+      method:'GET',
+      dataType:'json',
+      headers: token ? { Authorization: 'Bearer ' + token } : {}
+    });
+  },
+
+  classesToJoinFetch() {
+    const defer = $.Deferred();
+    if (
+      typeof this.stored_data.classestojoin !== "undefined" &&
+      typeof this.stored_time.classestojoin !== "undefined" &&
+      (Date.now() - this.stored_time.classestojoin < this.timeout)
+    ) {
+      defer.resolve(this.stored_data.classestojoin);
+      return defer.promise();
+    }
+    const fetching = this.fetch("api/classestojoin");
+    fetching.done( (data) => {
+      const Classes = require("./classes/entity.js").Collection;
+      this.stored_time.classestojoin = Date.now();
+      this.stored_data.classestojoin = new Classes(data, { parse:true });
+      defer.resolve(this.stored_data.classestojoin);
+    }).fail( (response) => {
+      defer.reject(response);
+    });
+    return defer.promise();
+  },
+
   getCustomEntities(ask) {
     const defer = $.Deferred();
     const toFetch = _.filter(ask, (item) => (typeof this.stored_data[item] === "undefined") || (typeof this.stored_time[item] === "undefined") || (Date.now() - this.stored_time[item] > this.timeout));
@@ -26,13 +58,7 @@ const Controller = MnObject.extend({
       // Pas de fetch requis => on renvoie les résultats
       defer.resolve.apply(null,_.map(ask, (item) => this.stored_data[item]));
     } else {
-      const token = localStorage.getItem('jwt');
-      const request = $.ajax("api/customData/"+toFetch.join("&"),{
-        method:'GET',
-        dataType:'json',
-        headers: token ? { Authorization: 'Bearer ' + token } : {}
-      });
-
+      const request = this.fetch("api/customData/"+toFetch.join("&"));
       request.done( (data) => {
         for (const colName of ask) {
           if (!data[colName]) continue;

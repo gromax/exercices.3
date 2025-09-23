@@ -22,6 +22,7 @@ $router->addRule('api/users/:id/init', 'users', 'forgottenWithId', 'POST');
 // classes
 $router->addRule('api/classes/:id', 'classes', 'fetch', 'GET');
 $router->addRule('api/classes', 'classes', 'fetch', 'GET');
+$router->addRule('api/classestojoin', 'classes', 'fetchToJoin', 'GET');
 $router->addRule('api/classes/:id', 'classes', 'delete', 'DELETE');
 $router->addRule('api/classes/:id', 'classes', 'update', 'PUT');
 $router->addRule('api/classes', 'classes', 'insert', 'POST');

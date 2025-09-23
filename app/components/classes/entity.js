@@ -8,6 +8,7 @@ const Item = Backbone.Model.extend ({
     ouverte: false,
     pwd:""
   },
+  
   parse(data) {
     if (typeof data.ouverte === "string") {
       data.ouverte = (Number(data.ouverte) === 1);
@@ -15,6 +16,7 @@ const Item = Backbone.Model.extend ({
     data.idOwner = Number(data.idOwner);
     return data;
   },
+
   fill(liste) {
     console.log(liste);
     const promise = $.ajax(`api/classe/${this.get('id')}/fill`, {
@@ -30,10 +32,9 @@ const Item = Backbone.Model.extend ({
     if (!attrs.nom) {
       errors.nom = "Ne doit pas être vide";
     } else {
-      console.log(attrs.nom.length);
-      if (attrs.nom.length < 3) {
+      /*if (attrs.nom.length < 3) {
         errors.nom = "Trop court";
-      }
+      }*/
     }
     if (!_.isEmpty(errors)) {
       return errors;
@@ -54,7 +55,6 @@ const Item = Backbone.Model.extend ({
   sync(method, model, options) {
     options = options || {};
     const token = localStorage.getItem('jwt');
-    console.log("Token dans classes.js :", token);
     options.beforeSend = function (xhr) {
       if (token) {
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);
@@ -72,7 +72,6 @@ const Collection = Backbone.Collection.extend({
   sync(method, model, options) {
     options = options || {};
     const token = localStorage.getItem('jwt');
-    console.log("Token dans classes.js :", token);
     options.beforeSend = function (xhr) {
       if (token) {
         xhr.setRequestHeader('Authorization', `Bearer ${token}`);

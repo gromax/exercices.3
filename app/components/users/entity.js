@@ -49,11 +49,12 @@ const Item = Backbone.Model.extend ({
       }
       if (!attrs.nom) {
         errors.nom = "Ne doit pas être vide";
-      } else {
-        if (attrs.nom.length < 2) {
-          errors.nom = "Trop court";
-        }
+      } else if (attrs.nom.length < 2) {
+        errors.nom = "Trop court";
       }
+    }
+    if (attrs.pwd && attrs.pwdConfirm && (attrs.pwd != attrs.pwdConfirm)) {
+      errors.pwdConfirm = "Les mots de passe sont différents.";
     }
     if (!_.isEmpty(errors)) {
       return errors;

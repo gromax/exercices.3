@@ -8,8 +8,7 @@ const Controller = MnObject.extend ({
     "classe:show": "onClasseShow",
     "classe:edit": "onClasseEdit",
     "classes:prof": "onClassesProf",
-    "classes:tojoin": "onClassesToJoinShow",
-    "classe:motdepasse:verify": "onClasseMotdepasseVerify"
+    "classes:tojoin": "onClassesToJoinShow"
   },
 
   radioRequests: {
@@ -39,11 +38,6 @@ const Controller = MnObject.extend ({
   onClassesToJoinShow() {
     Backbone.history.navigate("classes/tojoin", {});
     this.classesToJoinShow();
-  },
-
-  onClasseMotdepasseVerify(idClasse) {
-    Backbone.history.navigate(`classe:${idClasse}/motdepasse`, {});
-    this.classeMotdepasseVerify(idClasse);
   },
 
   onNewClasseViewModal(model) {
@@ -178,8 +172,7 @@ const Controller = MnObject.extend ({
       channel.trigger("not:found");
       return;
     }
-
-    const fetchingClasses = channel.request("classes:entities");
+    const fetchingClasses = channel.request("classes:tojoin:fetch");
     channel.trigger("loading:up");
     $.when(fetchingClasses).done( (classes) => {
       require("./signin/controller.js").controller.showSigninClasses(classes);
@@ -189,29 +182,6 @@ const Controller = MnObject.extend ({
       channel.trigger("loading:down");
     });
   },
-
-  classeMotdepasseVerify(idClasse) {
-    const channel = this.getChannel();
-    const logged = channel.request("logged:get"); 
-    if (logged.isAdmin() || logged.isProf() ) {
-      channel.trigger("not:found");
-      return;
-    }
-    const fetchingClasses = channel.request("classes:entities");
-    channel.trigger("loading:up");
-    $.when(fetchingClasses).done( (classes) => {
-      const classe = classes.get(idClasse);
-      if (!classe) {
-        channel.trigger("not:found");
-        return;
-      }
-      require("./signin/controller.js").controller.showMotdepasseVerify(idClasse, classe);
-    }).fail( (response) => {
-      channel.trigger("data:fetch:fail", response);
-    }).always( () => {
-      channel.trigger("loading:down");
-    });
-  }
 });
 
 const controller = new Controller();
@@ -222,8 +192,7 @@ const Router = Backbone.Router.extend({
     "classes": "classesList",
     "classe::id": "classeShow",
     "classe::id/edit": "classeEdit",
-    "classes/tojoin": "classesToJoinShow",
-    "classe::id/motdepasse": "classeMotdepasseVerify"
+    "classes/signin": "classesToJoinShow"
   },
 
   classesProf(id) {
@@ -244,10 +213,6 @@ const Router = Backbone.Router.extend({
 
   classesToJoinShow() {
     controller.classesToJoinShow();
-  },
-
-  classeMotdepasseVerify(id) {
-    controller.classeMotdepasseVerify(id);
   }
 });
 
