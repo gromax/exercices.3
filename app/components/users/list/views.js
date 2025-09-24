@@ -22,7 +22,7 @@ const UsersPanel = View.extend ({
   showAddButton: false,
   behaviors: [FilterPanel],
   triggers: {
-    "click button.js-new": "user:new"
+    "click button.js-new": "user:new",
   },
   templateContext() {
     return {
