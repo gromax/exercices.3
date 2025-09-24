@@ -132,7 +132,6 @@ const SubmitClicked = Behavior.extend({
     this.clearForm();
   },
   onFormDataInvalid(errors) {
-    console.log("Données invalides :", errors);
     let $view = this.view.$el;
     this.clearForm();
     if (Array.isArray(errors)) {
