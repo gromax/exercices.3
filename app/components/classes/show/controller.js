@@ -18,22 +18,6 @@ const Controller = MnObject.extend({
       channel.trigger("classe:edit", item.get("id"));
     });
     new Region({ el: '#main-region' }).show(view);
-  },
-
-  showSigninClasses(classes) {
-    const channel = this.getChannel();
-    const logged = channel.request("logged:get");
-    if (logged.isEleve()) {
-      const idClasseEleve = logged.get("idClasse");
-      classes = classes.filter( (c) => c.get("id") !== idClasseEleve );
-    }
-    const listClassesView = new SigninClassesCollectionView({
-      collection: classes
-    });
-    listClassesView.on("item:join", (childView) => {
-      channel.trigger("classe:motdepasse:verify", childView.model.get("id"));
-    });
-    new Region({ el: "#main-region" }).show(listClassesView);
   }
 });
 
