@@ -79,9 +79,6 @@ const ClassesPanel = View.extend({
       showAddButton: this.getOption("showAddButton"),
       addToProf: this.getOption("addToProf")
     };
-  },
-  triggers: {
-    "click button.js-new": "classe:new"
   }
 });
 
