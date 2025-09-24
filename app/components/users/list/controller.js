@@ -19,8 +19,8 @@ const Controller = MnObject.extend ({
     usersListView.trigger("set:filter:criterion", criterion, { preventRender: false });
     usersListPanel.on("items:filter", (filterCriterion) => {
       usersListView.trigger("set:filter:criterion", filterCriterion, { preventRender: false });
+      Backbone.history.navigate(`users/filter/criterion:${filterCriterion}`, {});
     });
-    channel.trigger("users:filter", criterion);
 
     usersListLayout.on("render", () => {
       usersListLayout.getRegion('panelRegion').show(usersListPanel);
