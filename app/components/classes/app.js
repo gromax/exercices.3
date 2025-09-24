@@ -11,10 +11,6 @@ const Controller = MnObject.extend ({
     "classes:tojoin": "onClassesToJoinShow"
   },
 
-  radioRequests: {
-    "new:classe:modal": "onNewClasseViewModal"
-  },
-
   onClassesList() {
     Backbone.history.navigate("classes", {});
     this.classesList();
@@ -38,23 +34,6 @@ const Controller = MnObject.extend ({
   onClassesToJoinShow() {
     Backbone.history.navigate("classes/tojoin", {});
     this.classesToJoinShow();
-  },
-
-  onNewClasseViewModal(model) {
-    const channel = this.getChannel();
-    const logged = channel.request("logged:get");
-    if (!logged.isProf() && !logged.isAdmin()) {
-      channel.trigger("popup:alert", {
-        title: "Création de classe",
-        message: "Vous n'avez pas les droits pour créer une classe."
-      });
-      return;
-    }
-    const Classe = require("./entity.js").Item;
-    const classe = new Classe();
-    classe.set("idOwner", logged.get("id"));
-    const view = require("./edit/controller.js").controller.newClasseView(classe);
-    return view;
   },
 
   classesList() {
@@ -182,6 +161,16 @@ const Controller = MnObject.extend ({
       channel.trigger("loading:down");
     });
   },
+
+  classeNew() {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    if (!logged.isProf()) {
+      channel.trigger("not:found");
+      return;
+    }
+    require("./edit/controller.js").controller.newClasse(logged);
+  }
 });
 
 const controller = new Controller();
@@ -192,7 +181,8 @@ const Router = Backbone.Router.extend({
     "classes": "classesList",
     "classe::id": "classeShow",
     "classe::id/edit": "classeEdit",
-    "classes/signin": "classesToJoinShow"
+    "classes/signin": "classesToJoinShow",
+    "classe/new": "classeNew"
   },
 
   classesProf(id) {
@@ -213,6 +203,10 @@ const Router = Backbone.Router.extend({
 
   classesToJoinShow() {
     controller.classesToJoinShow();
+  },
+
+  classeNew() {
+    controller.classeNew();
   }
 });
 
