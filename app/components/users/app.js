@@ -180,7 +180,6 @@ const Router = Backbone.Router.extend({
   },
 
   showUser(id) {
-    console.log("Router showUser", id);
     controller.showUser(id);
   },
 
