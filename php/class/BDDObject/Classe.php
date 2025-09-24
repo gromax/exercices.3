@@ -207,7 +207,7 @@ final class Classe
         ':description' => $this->description,
         ':pwd' => $this->pwd,
         ':idOwner' => $this->getOwnerId(),
-        ':ouverte' => $this->ouverte,
+        ':ouverte' => (int)$this->ouverte,
         ':date' => $this->date
       ));
     } catch(PDOException $e) {
