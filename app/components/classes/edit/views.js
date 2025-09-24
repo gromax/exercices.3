@@ -1,5 +1,4 @@
 import { View } from 'backbone.marionette'
-import { Modal } from 'bootstrap'
 import { SubmitClicked, EditItem } from '../../behaviors.js'
 import edit_tpl from '@templates/classes/edit/classe-form-edit.jst'
 import fill_tpl from '@templates/classes/list/classe-fill-form.jst'
@@ -13,12 +12,6 @@ const EditClasseView = View.extend({
       title: this.getOption('title')
     }
   }
-});
-
-const NewClasseView = View.extend({
-  template: edit_tpl,
-  isModal: true,
-  behaviors: [SubmitClicked, EditItem],
 });
 
 const FillClasseView = View.extend({
@@ -36,4 +29,4 @@ const FillClasseView = View.extend({
 
 });
 
-export { EditClasseView, NewClasseView, FillClasseView }
+export { EditClasseView, FillClasseView }
