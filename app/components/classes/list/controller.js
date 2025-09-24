@@ -52,29 +52,12 @@ const Controller = MnObject.extend({
       channel.trigger("classes:prof", childView.model.get("idOwner"));
     });
 
-    listItemsView.on("item:fill", (childView) => {
-      channel.trigger("popup:info", {
-        title:"Remplissage d'une classe",
-        message: "Le remplissage d'une classe n'est pas encore implémenté."
-      });
-      /*
-      const model = childView.model;
-      const view = new FillClasseView({
-        nomProf: model.get("nomOwner"),
-        itemView: childView,
-        errorCode: "003"
-      });
-      */
-    });
-
     listItemsView.on("item:edit", (childView) => {
       channel.trigger("classe:edit", childView.model.get("id"));
     });
 
     new Region({ el: "#main-region" }).show(listItemsLayout);
   }
-
-
 });
 
 export const controller = new Controller()
