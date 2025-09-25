@@ -1,5 +1,5 @@
 import { MnObject } from 'backbone.marionette';
-import { Session } from './session.js';
+import { Session } from './entity.js';
 
 
 const SessionApp = MnObject.extend({
