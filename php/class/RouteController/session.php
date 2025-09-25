@@ -64,18 +64,19 @@ class session
 
         if ($logged == null)
         {
-            return false;
+            return array("errors" => array(
+                "pwd" => array("Identifiant ou mot de passe incorrect"),
+                "identifiant" => array("Identifiant ou mot de passe incorrect")
+            ) );
         }
-        else
-        {
-            $data = $logged->toArray();
-            $jwt = SC::make_token($data['id'], $data['email'], $data['rank']);
-            return array(
-                "logged" => $logged->toArray(),
-                "unread" => Message::unReadNumber($logged->getId()),
-                "token" => $jwt
-            );
-        }
+
+        $data = $logged->toArray();
+        $jwt = SC::make_token($data['id'], $data['email'], $data['rank']);
+        return array(
+            "logged" => $logged->toArray(),
+            "unread" => Message::unReadNumber($logged->getId()),
+            "token" => $jwt
+        );
     }
 
     public function sudo()
