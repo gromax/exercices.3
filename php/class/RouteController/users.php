@@ -223,11 +223,6 @@ class users
 
     $data = json_decode(file_get_contents("php://input"),true);
 
-    // cas ne peut être modifié que par un admin
-    if (isset($data['cas']) && !$uLog->isAdmin()) {
-      unset($data['cas']);
-    }
-
     $validation = $userToMod->update_validation($data);
     if ($validation === true)
     {
