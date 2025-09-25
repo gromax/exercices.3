@@ -1,11 +1,11 @@
 import { View } from 'backbone.marionette'
-import { SubmitClicked, EditItem } from '../../behaviors.js'
+import { Form } from '../../behaviors.js'
 import edit_tpl from '@templates/classes/edit/classe-form-edit.jst'
 import fill_tpl from '@templates/classes/list/classe-fill-form.jst'
 
 const EditClasseView = View.extend({
   template: edit_tpl,
-  behaviors: [SubmitClicked, EditItem],
+  behaviors: [Form],
   title: "Modification de la classe",
   templateContext() {
     return {
@@ -14,19 +14,13 @@ const EditClasseView = View.extend({
   }
 });
 
-const FillClasseView = View.extend({
+/*const FillClasseView = View.extend({
   template: fill_tpl,
-  behaviors: [
-    SubmitClicked,
-    {
-      behaviorClass: EditItem,
-      updatingFunctionName: "fill"
-    }
-  ],
+  behaviors: [Form],
   initialize: function() {
     this.title = "Nouvelle classe pour " + this.getOption('nomProf');
   }
 
-});
+});*/
 
-export { EditClasseView, FillClasseView }
+export { EditClasseView } //, FillClasseView }

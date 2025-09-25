@@ -1,5 +1,5 @@
 import { View, CollectionView } from 'backbone.marionette'
-import { SubmitClicked, EditItem, ToggleItemValue, DestroyWarn, FlashItem, SortList, FilterList, FilterPanel } from 'apps/common/behaviors.coffee'
+import { Form, ToggleItemValue, DestroyWarn, FlashItem, SortList, FilterList, FilterPanel } from 'apps/common/behaviors.coffee'
 import layout_tpl from '@templates/fiches/edit/edit-fiche-layout.jst'
 import edit_fiche_description_tpl from '@templates/fiches/edit/fiche-description-edit.jst'
 import show_fiche_description_tpl from '@templates/fiches/edit/fiche-description-show.jst'
@@ -29,12 +29,12 @@ const FicheLayout = View.extend({
 const NewFicheView = View.extend({
   title: "Nouvelle fiche",
   template: edit_fiche_tpl,
-  behaviors: [ SubmitClicked, EditItem ]
+  behaviors: [Form]
 });
 
 const EditFicheDescriptionView = View.extend({
   template: edit_fiche_description_tpl,
-  behaviors: [SubmitClicked, EditItem],
+  behaviors: [Form],
   title: "Modifier le fiche",
   generateTitle: false,
   onRender() {
@@ -229,7 +229,7 @@ const ExamsCollectionView = CollectionView.extend({
 
 const ExamEditView = View.extend({
   title: "Modification",
-  behaviors: [SubmitClicked, EditItem],
+  behaviors: [Form],
   template: exam_edit_tpl
 });
 

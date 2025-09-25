@@ -85,7 +85,7 @@ const DestroyWarn = Behavior.extend({
   }
 });
 
-const SubmitClicked = Behavior.extend({
+const Form = Behavior.extend({
   ui: {
     submit: 'button.js-submit'
   },
@@ -170,6 +170,50 @@ const SubmitClicked = Behavior.extend({
       $inp.removeClass("is-valid");
       $inp.addClass("is-invalid");
     });
+  },
+  onFormSubmit(data) {
+    let fct = this.view.getOption("onFormSubmit");
+    if (typeof fct === "function") {
+      fct(data);
+    } else {
+      this.view.trigger("edit:submit", data);
+    }
+  },
+  onEditSubmit(data) {
+    let model = this.view.model
+    let updatingItem = model.save(data);
+    if (updatingItem) {
+      radioApp.trigger("loading:up");
+      let view = this.view;
+      $.when(updatingItem).done( function(){
+        view.trigger("dialog:close");
+        view.trigger("success", model, data);
+      }).fail( function(response){
+        switch (response.status) {
+          case 422:
+            view.trigger("form:data:invalid", response.responseJSON.errors);
+            break;
+          case 401:
+            radioApp.trigger("popup:alert", "Vous devez vous (re)connecter !");
+            view.trigger("dialog:close");
+            radioApp.trigger("home:logout");
+            break;
+          default:
+            let errorCode= view.getOption("errorCode");
+            if (errorCode) {
+              errorCode = `/${errorCode}`;
+            } else {
+              errorCode = "";
+            }
+            radioApp.trigger("popup:alert", `Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}${errorCode}]`);
+        }
+      }).always( function() {
+        radioApp.trigger("loading:down");
+      });
+    } else {
+      console.log("Validation errors :", model.validationError);
+      this.view.trigger("form:data:invalid",model.validationError);
+    }
   }
 });
 
@@ -228,54 +272,7 @@ const ToggleItemValue = Behavior.extend({
   }
 });
 
-const EditItem = Behavior.extend({
-  updatingFunctionName: "save",
-  onFormSubmit(data) {
-    let fct = this.view.getOption("onFormSubmit");
-    if (typeof fct === "function") {
-      fct(data);
-    } else {
-      this.view.trigger("edit:submit", data);
-    }
-  },
-  onEditSubmit(data) {
-    let model = this.view.model
-    let updatingFunctionName = this.getOption("updatingFunctionName");
-    let updatingItem = model[updatingFunctionName](data);
-    if (updatingItem) {
-      radioApp.trigger("loading:up");
-      let view = this.view;
-      $.when(updatingItem).done( function(){
-        view.trigger("dialog:close");
-        view.trigger("success", model, data);
-      }).fail( function(response){
-        switch (response.status) {
-          case 422:
-            view.trigger("form:data:invalid", response.responseJSON.errors);
-            break;
-          case 401:
-            radioApp.trigger("popup:alert", "Vous devez vous (re)connecter !");
-            view.trigger("dialog:close");
-            radioApp.trigger("home:logout");
-            break;
-          default:
-            let errorCode= view.getOption("errorCode");
-            if (errorCode) {
-              errorCode = `/${errorCode}`;
-            } else {
-              errorCode = "";
-            }
-            radioApp.trigger("popup:alert", `Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}${errorCode}]`);
-        }
-      }).always( function() {
-        radioApp.trigger("loading:down");
-      });
-    } else {
-      console.log("Validation errors :", model.validationError);
-      this.view.trigger("form:data:invalid",model.validationError);
-    }
-  }
-});
+
 
 const FilterPanel = Behavior.extend({
   ui: {
@@ -296,4 +293,4 @@ const FilterPanel = Behavior.extend({
   }
 });
 
-export { SortList, FilterList, DestroyWarn, SubmitClicked, FlashItem, EditItem, ToggleItemValue, FilterPanel }
+export { SortList, FilterList, DestroyWarn, Form, FlashItem, ToggleItemValue, FilterPanel }

@@ -1,5 +1,5 @@
 import { View } from 'backbone.marionette';
-import { SubmitClicked, EditItem } from '../../behaviors.js';
+import { Form } from '../../behaviors.js';
 import edit_user_tpl from '@templates/users/edit/user-form.jst'
 import edit_pwd_user_tpl from '@templates/users/edit/userpwd-form.jst'
 
@@ -9,7 +9,7 @@ const EditUserView = View.extend ({
   ranks: false,
   editorIsAdmin: false,
   template: edit_user_tpl,
-  behaviors: [SubmitClicked, EditItem],
+  behaviors: [Form],
   initialize () {
     this.title = `Modifier ${this.model.get('prenom')} ${this.model.get('nom')}`;
   },
@@ -25,7 +25,7 @@ const EditUserView = View.extend ({
 });
 
 const EditPwdUserView = View.extend ({
-  behaviors: [SubmitClicked, EditItem],
+  behaviors: [Form],
   title: "Modifier le mot de passe",
   templateContext() {
     return {

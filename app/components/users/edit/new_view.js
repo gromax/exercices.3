@@ -1,5 +1,5 @@
 import { View } from 'backbone.marionette';
-import { SubmitClicked, EditItem } from '../../behaviors.js';
+import { Form } from '../../behaviors.js';
 
 import edit_user_tpl from '@templates/users/edit/user-form.jst'
 import signin_classe_tpl from '@templates/users/edit/user-classe-signin.jst'
@@ -12,7 +12,7 @@ const NewUserView = View.extend ({
   ranks: 1,
   editorIsAdmin: true,
   template: edit_user_tpl,
-  behaviors: [SubmitClicked, EditItem],
+  behaviors: [Form],
   templateContext() {
     return {
       showPWD: this.getOption("showPWD"),
@@ -26,7 +26,7 @@ const NewUserView = View.extend ({
 
 const ClasseSignin = View.extend ({
   template: signin_classe_tpl,
-  behaviors: [SubmitClicked, EditItem],
+  behaviors: [Form],
   templateContext() {
     const classe = this.getOption("classe");
     if (classe) {
@@ -43,7 +43,7 @@ const ClasseSignin = View.extend ({
 
 const ClasseChange = View.extend ({
   template: change_classe_tpl,
-  behaviors: [SubmitClicked, EditItem],
+  behaviors: [Form],
   templateContext() {
     const classe = this.getOption("classe");
     if (classe) {
