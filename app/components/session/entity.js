@@ -23,12 +23,12 @@ const Session = Backbone.Model.extend({
     },
 
     validate(attrs, options) {
-        const errors = [];
+        const errors = {};
         if (!attrs.identifiant) {
-            errors.push({ success:false, message:"L'email ne doit pas être vide" });
+            errors["identifiant"] = "L'email ne doit pas être vide";
         }
         if (!attrs.pwd) {
-            errors.push({ success:false, message:"Le mot de passe ne doit pas être vide" });
+            errors["pwd"] = "Le mot de passe ne doit pas être vide";
         }
         if (!_.isEmpty(errors)){
             return errors;
