@@ -40,6 +40,17 @@
 			else return self::$_messages;
 		}
 
+		public static function errorMessages()
+		{
+			$errors = array();
+			if (self::$_messages !== null) {
+				foreach(self::$_messages as $m) {
+					if ($m['success'] === false) $errors[] = $m['message'];
+				}
+			}
+			return $errors;
+		}
+
 		public static function set_error_code($code)
 		{
 			if ($code == null)
