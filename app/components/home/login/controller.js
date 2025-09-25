@@ -5,22 +5,12 @@ const Controller = MnObject.extend({
   channelName: "app",
   showLogin() {
     const channel = this.getChannel();
-    const view = new LoginView({ generateTitle: true, showForgotten:true });
-    view.on("form:submit", (data) => {
-      let logged = channel.request("logged:get");
-      let openingSession = logged.save(data);
-      if (openingSession){
-        channel.trigger("loading:up");
-        $.when(openingSession).done( function(response){
-          channel.trigger("home:show");
-        }).fail((xhr) => {
-          channel.trigger("data:fetch:fail", xhr, "025");
-        }).always(() => {
-          channel.trigger("loading:down");
-        });
-      } else {
-        view.triggerMethod("form:data:invalid", logged.validationError);
-      }
+    const view = new LoginView({
+      model: channel.request("logged:get"),
+      showForgotten:true
+    });
+    view.on("success", (data) => {
+      channel.trigger("home:show");
     });
 
     view.on("login:forgotten", (email) => {
