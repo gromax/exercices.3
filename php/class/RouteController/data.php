@@ -110,14 +110,14 @@ class data
                 }
             }
 
-            if (in_array("devoirs", $asks)){
+            if (in_array("userfiches", $asks)){
                 $answer = AssoUF::getList(array("idUser"=> $uLog->getId() ));
                 if (isset($answer["error"]) && $answer["error"]) {
                     EC::addError($answer["message"]);
                     EC::set_error_code(501);
                     return false;
                 } else {
-                    $output["devoirs"] = $answer;
+                    $output["userfiches"] = $answer;
                 }
             }
 
