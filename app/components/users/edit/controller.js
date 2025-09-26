@@ -66,16 +66,24 @@ const Controller = MnObject.extend ({
     new Region({ el: '#main-region' }).show(view);
   },
 
-  NewUserView(model) {
-    // modal
-    const isRoot = this.getChannel().request("logged:get").isRoot();
-    const newUserView = new NewUserView({
+  NewUserView() {
+    const channel = this.getChannel();
+    channel.trigger("ariane:reset", [
+      { text:"Utilisateurs", link:"users" },
+      { text:"Nouvel utilisateur", e:"user:new", link:"user/new" }
+    ]);
+    const isRoot = channel.request("logged:get").isRoot();
+    const User = require('../entity.js').Item;
+    const model = new User();
+    const view = new NewUserView({
       model: model,
       ranks: isRoot ? 2 : 1,
       errorCode: "030"
     });
-    new Region({ el: "#dialog-region" }).show(newUserView);
-    return newUserView;
+    view.on("success", (model, data) => {
+      channel.trigger("user:show", model.get("id"));
+    });
+    new Region({ el: "#main-region" }).show(view);
   },
 
   classeSignin(idClasse, classe) {
