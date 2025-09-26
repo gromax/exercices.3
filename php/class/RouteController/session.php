@@ -84,6 +84,7 @@ class session
         $uLog = Logged::getConnectedUser();
         if (!$uLog->isAdmin())
         {
+            EC::addError("Vous n'avez pas les droits pour exécuter un sudo.");
             EC::set_error_code(404);
             return false;
         }
@@ -91,18 +92,23 @@ class session
         $userToConnect = User::getObject($id);
         if ($userToConnect==null)
         {
+            EC::addError("L'utilisateur #$id n'existe pas.");
             EC::set_error_code(404);
             return false;
         }
         if (!$uLog->isStronger($userToConnect))
         {
+            EC::addError("L'utilisateur $id a un rang trop élevé.");
             EC::set_error_code(403);
             return false;
         }
-        $logged = Logged::setUser($userToConnect);
-        return array_merge(
-            $logged->toArray(),
-            array("unread"=>Message::unReadNumber($logged->getId()) )
+
+        return array(
+            "logged"=> array_merge(
+                $userToConnect->toArray(),
+                array("unread"=>Message::unReadNumber($userToConnect->getId())),
+            ),
+            "token"=>SC::make_token($userToConnect->getId(), $userToConnect->getEmail(), $userToConnect->getRank())
         );
     }
 
