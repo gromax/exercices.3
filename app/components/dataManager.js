@@ -7,6 +7,7 @@ const Controller = MnObject.extend({
     'classes:tojoin:fetch': 'classesToJoinFetch',
     'custom:entities': 'getCustomEntities',
     'logged:destroy': 'purge',
+    'data:purge': 'purge',
     'classe:entity': 'getClasse',
     'user:entity': 'getUser',
     'exercice:entity': 'getExercice',
