@@ -50,7 +50,8 @@ final class ExoFiche
 			if ($returnObject) {
 				return new ExoFiche($bdd_result);
 			}
-				else return $exoFicheObject->toArray();
+			else {
+				return $exoFicheObject->toArray();
 			}
 			return $bdd_result;
 		} catch(PDOException $e) {
