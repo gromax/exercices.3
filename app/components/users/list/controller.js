@@ -5,6 +5,7 @@ const Controller = MnObject.extend ({
   channelName: 'app',
   listUsers(users, rank, criterion) {
     const channel = this.getChannel();
+    const that = this;
     criterion = criterion || "";
     const usersListLayout = new ListLayout();
     const usersListPanel = new UsersPanel({
@@ -58,10 +59,33 @@ const Controller = MnObject.extend ({
 
     usersListView.on("item:sudo", (childView, e) => {
       const model = childView.model;
-      channel.trigger("user:sudo", model.get("id"));
+      that.sudo(model.get("id"));
     });
 
     new Region({ el: "#main-region" }).show(usersListLayout);
+  },
+
+  sudo(id) {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    channel.trigger("loading:up");
+    const connecting = logged && logged.sudo(id);
+    $.when(connecting).done( (data) => {
+      channel.trigger("home:show");
+    }).fail( (response) => {
+      switch (response.status) {
+        case 404:
+          channel.trigger("popup:alert", "Page inconnue !");
+          break;
+        case 403:
+          channel.trigger("popup:alert", "Non autorisé !");
+          break;
+        default:
+          channel.trigger("popup:alert", `Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}/035]`);
+      }
+    }).always( () => {
+      channel.trigger("loading:down");
+    });
   },
 });
 

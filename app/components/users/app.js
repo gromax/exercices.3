@@ -5,8 +5,7 @@ const Controller = MnObject.extend ({
   radioEvents: {
     "users:filter": "onUsersFilter",
     "user:show": "onShowUser",
-    "user:classe:signin":"onUserClasseSignin",
-    "user:sudo":"onUserSudo",
+    "user:classe:signin":"onUserClasseSignin"
   },
 
   onUsersFilter(criterion) {
@@ -31,29 +30,6 @@ const Controller = MnObject.extend ({
   onUserClasseSignin(id) {
     Backbone.history.navigate(`user/classe:${id}/signin`, {});
     this.classeSignin(id);
-  },
-
-  onUserSudo(id) {
-    const channel = this.getChannel();
-    const logged = channel.request("logged:get");
-    channel.trigger("loading:up");
-    const connecting = logged && logged.sudo(id);
-    $.when(connecting).done( (data) => {
-      channel.trigger("home:show");
-    }).fail( (response) => {
-      switch (response.status) {
-        case 404:
-          channel.trigger("popup:alert", "Page inconnue !");
-          break;
-        case 403:
-          channel.trigger("popup:alert", "Non autorisé !");
-          break;
-        default:
-          channel.trigger("popup:alert", `Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}/035]`);
-      }
-    }).always( () => {
-      channel.trigger("loading:down");
-    });
   },
 
   classeSignin(idClasse) {
@@ -83,7 +59,7 @@ const Controller = MnObject.extend ({
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
     const forProf = () => {
-      channel.trigger("ariane:reset", [{ text:"Utilisateurs", e:"users:list", data:criterion, link:"users"}]);
+      channel.trigger("ariane:reset", [{ text:"Utilisateurs", link:"users"}]);
       channel.trigger("loading:up");
       const fetchingUsers = channel.request("custom:entities", ["users"]);
       $.when(fetchingUsers).done((users) => {
@@ -140,7 +116,7 @@ const Controller = MnObject.extend ({
     if (isMe) {
       channel.trigger("ariane:reset", []);
     } else {
-      channel.trigger("ariane:reset", [{ text:"Utilisateurs", e:"users:list", link:"users"}]);
+      channel.trigger("ariane:reset", [{ text:"Utilisateurs", link:"users"}]);
     }
     channel.trigger("loading:up");
     const fetchingUser = isMe ? channel.request("user:me") : channel.request("user:entity", id);
@@ -161,6 +137,16 @@ const Controller = MnObject.extend ({
     this.editUser(id, true);
   },
 
+  newUser() {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+
+    if (!(logged.isAdmin())) {
+      channel.trigger("not:found");
+      return;
+    }
+    require("./edit/controller.js").controller.NewUserView();
+  }
 
 });
 
@@ -173,6 +159,7 @@ const Router = Backbone.Router.extend({
     "user::id/edit": "editUser",
     "user::id/password": "editUserPwd",
     "user/classe::id/signin": "classeSignin",
+    "user/new": "NewUserView",
   },
 
   listUsers(criterion) {
@@ -193,6 +180,10 @@ const Router = Backbone.Router.extend({
 
   classeSignin(id) {
     controller.classeSignin(id);
+  },
+
+  NewUserView() {
+    controller.newUser();
   }
 });
 
