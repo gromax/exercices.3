@@ -38,7 +38,7 @@ const Controller = MnObject.extend({
     //require('entities/dataManager.coffee');
     let fetchingData = channel.request("custom:entities", ["userfiches", "exofiches", "faits"]);
     $.when(fetchingData).done( (userfiches, exofiches, faits) => {
-      listEleveView = new EleveListeDevoirs({
+      const listEleveView = new EleveListeDevoirs({
         collection: userfiches,
         exofiches: exofiches,
         faits: faits
