@@ -1,7 +1,7 @@
 import Backbone from 'backbone'
 import Radio from 'backbone.radio'
 
-const sessionChannel = Radio.channel('session');
+const channel = Radio.channel('app');
 
 const Session = Backbone.Model.extend({
     urlRoot: "api/session",
@@ -81,7 +81,10 @@ const Session = Backbone.Model.extend({
                 if (callBack) callBack();
             },
             error: function(model, xhr, options) {
-                sessionChannel.trigger("load:error", {status:xhr.status, response:xhr.responseText});
+                channel.trigger("popup:error", {
+                    message: "Erreur au chargment de la session."
+                })
+                console.warn(`session error : ${xhr.status}, response:${xhr.responseText}`);
             }
         });
     },
@@ -101,6 +104,11 @@ const Session = Backbone.Model.extend({
         return defer.promise();
     },*/
     
+    isRoot() {
+        /* Renvoie true si l'utilisateur est root */
+        return (this.get("rank") === "root");
+    },
+
     isAdmin() {
         /* Renvoie true si l'utilisateur est admin (ou root) */
         let rank = this.get("rank");
@@ -122,26 +130,30 @@ const Session = Backbone.Model.extend({
         return this.get("isOff");
     },
 
-    /*sudo(id) {
+    sudo(id) {
         let that = this;
         let defer = $.Deferred();
         if (!this.isAdmin()){
             defer.reject({status:403});
-        } else {
-            let request = $.ajax(`api/session/sudo/${id}`, {
-                method:"POST",
-                dataType:"json"
-            });
-            request.done( function(response) {
-                that.refresh(response);
-                Radio.channel('entities').request("data:purge");
-                defer.resolve();
-            }).fail( function(response){
-                defer.reject(response);
-            });
+            return defer.promise();
         }
+        let request = $.ajax(`api/session/sudo/${id}`, {
+            method:"POST",
+            dataType:"json",
+            headers: localStorage.getItem('jwt') ? { Authorization: 'Bearer ' + localStorage.getItem('jwt') } : {}
+        });
+        request.done( function(response) {
+            // le token
+            channel.request("data:purge");
+            const logged = channel.request("logged:get");
+            localStorage.setItem('jwt', response.token);
+            logged.set(logged.parse(response));
+            defer.resolve();
+        }).fail( function(response){
+            defer.reject(response);
+        });
         return defer.promise();
-    },*/
+    },
 
     mapItem(itemsList){
         /* Renvoie l'item de la liste correspondant au rang de l'utilisateur
