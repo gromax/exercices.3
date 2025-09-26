@@ -5,7 +5,8 @@ const Item = Backbone.Model.extend ({
     nom: "",
     email: "",
     nomClasse: "N/A",
-    rank: "Off"
+    rank: "Off",
+    pref: { mathquill: true }
   },
   
   toJSON() {
@@ -31,7 +32,7 @@ const Item = Backbone.Model.extend ({
     if (typeof data.pref === "string" && data.pref !== "") {
       data.pref = JSON.parse(data.pref);
     } else {
-      data.pref = false;
+      data.pref = { mathquill: true };
     }
     return data;
   },
