@@ -5,9 +5,7 @@
 <td><%= date %></td> <!-- à parser -->
 <td align="right">
 	<div class="btn-group" role="group">
-		<% if (showFillClassButton) {%><!-- Bouton de chargement élève -->
-		<a href="#classe:<%= id %>/fill" class="btn btn-outline-secondary btn-sm js-fill" role="button"><i class="fa fa-file-text-o" title="Charger les élèves"></i></a>
-		<% } %><!-- Bouton suppression -->
+		<!-- Bouton suppression -->
 		<button type="button" class="btn btn-outline-danger btn-sm js-delete"><i class="fa fa-trash" aria-hidden="true" title="Supprimer"></i></button>
 	</div>
 </td>
