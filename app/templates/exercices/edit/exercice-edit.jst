@@ -1,0 +1,33 @@
+<h1>Exercice <i class="fa-solid fa-hashtag"></i> <%= id %></h1>
+<% if (idOwner !== undefined) { %>
+<p class="text-muted">Propriétaire <%= idOwner %></p>
+<% } %>
+<form class="row g-3 needs-validation" novalidate>
+    <div class="col-md-6">
+        <label for="exercice-title" class="form-label">Titre</label>
+        <input type="text" class="form-control" id="exercice-title" name="title" value="<%- title %>" placeholder="Titre" required>
+        <div class="invalid-feedback">
+            Le titre est requis.
+        </div>
+    </div>
+    <div class="col-md-6">
+        <label for="exercice-keywords" class="form-label">Mots-clés</label>
+        <input type="text" class="form-control" id="exercice-keywords" name="keywords" value="<%- keywords %>" placeholder="Mots-clés">
+    </div>
+    <div class="col-md-12">
+        <label for="exercice-description" class="form-label">Description</label>
+        <textarea class="form-control" id="exercice-description" name="description" placeholder="Description" rows=3 required><%- description %></textarea>
+        <div class="invalid-feedback">
+            Une description valide est requise.
+        </div>
+    </div>
+    <div class="col-md-12">
+        <label for="exercice-options" class="form-label">Options</label>
+        <textarea class="form-control" id="exercice-options" name="options" placeholder="Options" rows=1><%- options %></textarea>
+    </div>
+    <div class="col-md-12">
+        <label for="exercice-code" class="form-label">Code</label>
+        <textarea class="form-control" id="exercice-code" name="code" placeholder="Code" rows=10><%- code %></textarea>
+    </div>
+    <button class="btn btn-success js-submit">Enregistrer</button>
+</form>
