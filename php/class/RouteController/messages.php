@@ -110,7 +110,7 @@ class messages
         }
 
         $message = new Message($data);
-        $idMessage = $message->insertion();
+        $idMessage = $message->insert();
         if ($idMessage!==null) {
             if ($uLog->isEleve()) {
                 $destName = 'Prof';
