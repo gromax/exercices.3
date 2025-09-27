@@ -11,8 +11,8 @@ const Controller = MnObject.extend ({
     const isAdmin = channel.request("logged:get").isAdmin();
 
     channel.trigger("ariane:add", [
-      { text:"Mon compte", e:"user:show", data:id, link:`user:${id}` },
-      { text:textLink, e:trigger, data:id, link:`user:${id}/edit` }
+      { text:"Mon compte", link:`user:${id}` },
+      { text:textLink, link:`user:${id}/edit` }
     ]);
 
     if (user === undefined) {
@@ -43,8 +43,8 @@ const Controller = MnObject.extend ({
     const isAdmin = channel.request("logged:get").isAdmin();
 
     channel.trigger("ariane:add", [
-      { text:user ? user.get("nomComplet") : "Utilisateur inconnu", e:"user:show", data:id, link:`user:${id}` },
-      { text:textLink, e:trigger, data:id, link:`user:${id}/edit` }
+      { text:user ? user.get("nomComplet") : "Utilisateur inconnu", link:`user:${id}` },
+      { text:textLink, link:`user:${id}/edit` }
     ]);
 
     if (user === undefined) {
@@ -70,7 +70,7 @@ const Controller = MnObject.extend ({
     const channel = this.getChannel();
     channel.trigger("ariane:reset", [
       { text:"Utilisateurs", link:"users" },
-      { text:"Nouvel utilisateur", e:"user:new", link:"user/new" }
+      { text:"Nouvel utilisateur", link:"user/new" }
     ]);
     const isRoot = channel.request("logged:get").isRoot();
     const User = require('../entity.js').Item;
