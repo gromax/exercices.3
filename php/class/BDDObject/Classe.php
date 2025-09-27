@@ -231,6 +231,9 @@ final class Classe
 
     $keys = ['nom', 'description', 'pwd', 'ouverte']; // les clés à garder
     $modifs = array_intersect_key($params, array_flip($keys));
+    if (isset($modifs['ouverte'])) {
+      $modifs['ouverte'] = (int)$modifs['ouverte'];
+    }
 
     if (count($modifs) === 0) {
       EC::add("Aucune modification.");
@@ -249,7 +252,6 @@ final class Classe
       $stmt = $pdo->prepare("UPDATE ".PREFIX_BDD."classes SET $modifications WHERE id = :id");
       foreach ($modifs as $k => $v) {
         $stmt->bindValue(":$k", $v);
-        $modifs[$k] = ($k=='ouverte') ? (boolean)$v : $v;
       }
       $stmt->bindValue(':id', $this->id);
       $stmt->execute();
