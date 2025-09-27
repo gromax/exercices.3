@@ -48,6 +48,23 @@ const Controller = MnObject.extend({
     }).always(() => {
       channel.trigger("loading:down");
     });
+  },
+  exerciceEdit(id) {  
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    if (!logged.isAdmin() && !logged.isProf()) {
+      channel.trigger("not:found");
+      return;
+    }
+    channel.trigger("loading:up");
+    const fetching = channel.request("exercice:entity", id);
+    $.when(fetching).done((exercice) => {
+      require("./edit/controller.js").controller.edit(id, exercice);
+    }).fail((response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always(() => {
+      channel.trigger("loading:down");
+    });
   }
 });
 
@@ -56,7 +73,8 @@ const controller = new Controller();
 const Router = Backbone.Router.extend({
   routes: {
     "exercices(/filter/criterion::criterion)": "exercicesList",
-    "exercice::id": "exerciceShow"
+    "exercice::id": "exerciceShow",
+    "exercice::id/edit": "exerciceEdit"
   },
 
   exercicesList(criterion) {
@@ -64,6 +82,9 @@ const Router = Backbone.Router.extend({
   },
   exerciceShow(id) {
     controller.exerciceShow(id);
+  },
+  exerciceEdit(id) {
+    controller.exerciceEdit(id);
   }
 });
 
