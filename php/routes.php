@@ -37,6 +37,9 @@ $router->addRule('api/fiches', 'fiches', 'insert', 'POST');
 // exercices
 $router->addRule('api/exercices/:id', 'exercices', 'fetch', 'GET');
 $router->addRule('api/exercices', 'exercices', 'fetchList', 'GET');
+$router->addRule('api/exercices', 'exercices', 'insert', 'POST');
+$router->addRule('api/exercices/:id', 'exercices', 'update', 'PUT');
+$router->addRule('api/exercices/:id', 'exercices', 'delete', 'DELETE');
 
 // exosfiche
 $router->addRule('api/exosfiche/:id', 'exosfiche', 'delete', 'DELETE');
