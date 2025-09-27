@@ -21,12 +21,6 @@ const Controller = MnObject.extend ({
     this.showUser(id);
   },
 
-  /*onNewUser() {
-    const User = require("./entity.js").Item;
-    const newUser = new User();
-    return require("./edit/controller.js").controller.NewUserView(newUser);
-  },*/
-
   onUserClasseSignin(id) {
     Backbone.history.navigate(`user/classe:${id}/signin`, {});
     this.classeSignin(id);
