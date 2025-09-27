@@ -3,7 +3,7 @@ const Item = Backbone.Model.extend({
   defaults: {
     title: "Titre de l'exercice",
     description: "Description de l'exercice",
-    keywords: [],
+    keywords: "",
     options: {},
     code: {}
   },
@@ -12,11 +12,8 @@ const Item = Backbone.Model.extend({
     if (data.id) {
       data.id = Number(data.id);
     }
-    if (data.keywords) {
-      data.keywords = data.keywords.split(',').map(kw => kw.trim());
-    }
-    data.options = JSON.parse(data.options || '{}');
-    data.code = JSON.parse(data.code || '{}');
+    data.options = data.options;
+    data.code = data.code;
     return data;
   },
 });
