@@ -1,5 +1,5 @@
 import { Base } from "./base";
-
+import Decimal from "decimal.js";
 
 class Power extends Base {
     /** @type {Base} */
@@ -73,6 +73,17 @@ class Power extends Base {
         let texBase = this.#base.priority <= this.priority? `\\left(${this.#base.tex()}\\right)`:this.#base.tex();
         let texExposant = this.#exposant.tex();
         return `${texBase}^{${texExposant}}`;
+    }
+
+    /**
+     * evaluation numérique en decimal
+     * @param {object|undefined} values
+     * @returns {Decimal}
+     */
+    toDecimal(values) {
+        let base = this.#base.toDecimal(values);
+        let exposant = this.#exposant.toDecimal(values);
+        return base.pow(exposant);
     }
 }
 

@@ -1,7 +1,5 @@
 import { Base } from "./base";
-import { Scalar } from "./scalar";
-import { Power } from "./power";
-import { E } from "./constant";
+import Decimal from "decimal.js";
 
 class Function extends Base {
     /** @type {Base} */
@@ -10,10 +8,6 @@ class Function extends Base {
     #name;
     /** @type {string|null} représentation texte */
     #string = null;
-    /** @type {Scalar|null} scalaire factorisable */
-    #scalar = null;
-    /** @type {Base|null} nœud sans ses scalaires factorisables */
-    #noScalar = null;
 
     static NAMES = ['sqrt', '(-)', '(+)', 'cos', 'sin', 'ln', 'exp', 'inverse'];
 
@@ -82,36 +76,6 @@ class Function extends Base {
     }
 
     /**
-     * scalaire pouvant être factorisé
-     * @returns {Scalar}
-     */
-    scalar(){
-        if (this.#scalar != null) {
-            return this.#scalar;
-        }
-        this.#scalar = this.#name == "(+)" ? this.#child.scalar()
-                     : this.#name == "(-)" ? Scalar.MINUS_ONE.multiply(this.#child.scalar())
-                     : this.#name == "inverse" ? Scalar.ONE.divide(this.#child.scalar())
-                     : Scalar.ONE;
-        return this.#scalar;
-    }
-    
-    /**
-     * renvoie la partie du noeud sans les scalaires pouvant être factorisés
-     * @returns {Base}
-     */
-    noScalar() {
-        if (this.#noScalar != null) {
-            return this.#noScalar;
-        }
-        this.#noScalar = ((this.#name == "(-)") || (this.#name == "(+)")) ? this.#child.noScalar()
-                       : (this.#name == "inverse") ? new Power(this.#child.noScalar(), Scalar.MINUS_ONE)
-                       : (this.#name == "exp") ? new Power(E, this.#child)
-                       : this;
-        return this.#noScalar;
-    }
-
-    /**
      * si un nom est précisé, renvoie true si le nœud dépend de la variable,
      * sinon renvoie la liste des variables dont dépend le noeud
      * @param {string|undefined} name 
@@ -144,6 +108,25 @@ class Function extends Base {
             return `- ${texChild}`;
         }
         return `\\${this.#name}${texChild}`;
+    }
+
+    /**
+     * evaluation numérique en decimal
+     * @param {object|undefined} values
+     * @returns {Decimal}
+     */
+    toDecimal(values) {
+        let child = this.#child.toDecimal(values);
+        switch (this.#name) {
+            case 'sqrt': return Decimal.sqrt(child);
+            case 'ln': return Decimal.ln(child);
+            case 'exp': return Decimal.exp(child);
+            case 'cos': return Decimal.cos(child);
+            case 'sin': return Decimal.sin(child);
+            case '(-)': return child.negated();
+            case '(+)': return child;
+            default: return Decimal.NAN;
+        }
     }
 
 }

@@ -1,4 +1,5 @@
 import { Base } from "./base";
+import Decimal from "decimal.js";
 
 class Constant extends Base {
     static NAMES = ['e', 'i', 'pi', '∞', 'infini', 'π']
@@ -69,6 +70,21 @@ class Constant extends Base {
      */
     tex() {
         return Constant.TEX[this.#name];
+    }
+
+    /**
+     * evaluation numérique en decimal
+     * @param {object|undefined} values
+     * @returns {Decimal}
+     */
+    toDecimal(values) {
+        switch (this.#name) {
+            case 'e': return Decimal.exp(1);
+            case 'π': return Decimal.PI;
+            case 'i': return Decimal.I;
+            case '∞': return Decimal.INFINITY;
+            default: return Decimal.NAN;
+        }
     }
 }
 

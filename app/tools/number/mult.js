@@ -1,5 +1,6 @@
 import { Base } from "./base";
 import { Scalar } from "./scalar";
+import Decimal from "decimal.js";
 
 class Mult extends Base {
     #left;
@@ -7,10 +8,6 @@ class Mult extends Base {
     #items;
     /** @type {string|null} représentation texte */
     #string = null;
-    /** @type {Base|null} noeud sans les scalaires factorisables */
-    #noScalar = null;
-    /** @type {Scalar|nulll} scalaire factorisable */
-    #scalar = null;
 
     /**
      * constructeur
@@ -39,7 +36,7 @@ class Mult extends Base {
         } else {
             items.push(right);
         }
-        this.#items = _.sortBy(items, function(item){ return item.noScalarString(); });
+        this.#items = items;
     }
 
     /**
@@ -49,7 +46,7 @@ class Mult extends Base {
      */
     static fromList(operandes) {
         if (operandes.length == 0){
-            return new Scalar(1);
+            return Scalar.ONE;
         }
         if (operandes.length == 1) {
             return operandes[0];
@@ -66,6 +63,10 @@ class Mult extends Base {
         return [...this.#items];
     }
 
+    /**
+     * transtypage -> string
+     * @returns {string}
+     */
     toString() {
         if (this.#string == null) {
             let left = this.#left.priority < this.priority? `(${String(this.#left)})`:String(this.#left);
@@ -85,45 +86,6 @@ class Mult extends Base {
 
     get right() {
         return this.#right;
-    }
-
-    /**
-     * calcule le poduit des scalaires
-     * @returns {Scalar}
-     */
-    scalar() {
-        if (this.#scalar) {
-            return this.#scalar;
-        }
-        let scalars = _.filter(this.#items, function(item){ return item instanceof Scalar; });
-        if (scalars.length == 0) {
-            return Scalar.ONE;
-        }
-        let s = scalars.pop();
-        for (let item of scalars) {
-            s = s.multiply(item);
-        }
-        this.#scalar = s;
-        return s;
-    }
-
-    /**
-     * renvoie le noeud composé des éléments nons scalaires
-     * @returns {Base}
-     */
-    noScalar() {
-        if (this.#noScalar == null) {
-            this.#noScalar = Mult.fromList(_.filter(this.#items, function(item){ return !(item instanceof Scalar); }));
-        }
-        return this.#noScalar;
-    }
-
-    /**
-     * renvoie la chaîne dépourvue de scalaires pour identifier un groupe dans une somme
-     * @returns {Base}
-     */
-    noScalarString() {
-        return String(this.noScalar());
     }
 
     /**
@@ -148,6 +110,19 @@ class Mult extends Base {
         let texRight = this.#right.priority < this.priority? `\\left(${this.#right.tex()}\\right)`:this.#right.tex();
         return `${texLeft} \\cdot ${texRight}`;
     }
+
+    /**
+     * evaluation numérique en decimal
+     * @param {object|undefined} values
+     * @returns {Decimal}
+     */
+    toDecimal(values) {
+        let v = new Decimal(1);
+        for (let item of this.#items) {
+            v = v.mul(item.toDecimal(values));
+        }
+        return v;
+    }
 }
 
 
@@ -160,6 +135,10 @@ class Div extends Base {
         this.#right = right;
     }
 
+    /**
+     * transtypage -> string
+     * @returns {string}
+     */
     toString() {
         let left = String(this.#left);
         let right = this.#right.priority <= this.priority? `(${String(this.#right)})`:String(this.#right);
@@ -199,6 +178,17 @@ class Div extends Base {
         let texLeft = this.#left.tex();
         let texRight = this.#right.tex();
         return `\\frac{${texLeft}}{${texRight}}`;
+    }
+
+    /**
+     * evaluation numérique en decimal
+     * @param {object|undefined} values
+     * @returns {Decimal}
+     */
+    toDecimal(values) {
+        let left = this.#left.toDecimal(values);
+        let right = this.#right.toDecimal(values);
+        return left.dividedBy(right);
     }
 
 }

@@ -1,6 +1,6 @@
 import { Base } from "./base";
 import { Scalar } from "./scalar";
-
+import Decimal from "decimal.js";
 
 class Add extends Base {
     #left;
@@ -35,7 +35,7 @@ class Add extends Base {
         } else {
             items.push(right);
         }
-        this.#items = _.sortBy(items, function(item){return item.noScalarString()});
+        this.#items = items;
         this.#str = `${String(this.#left)} + ${String(this.#right)}`;
     }
 
@@ -47,7 +47,7 @@ class Add extends Base {
     static fromList(operandes) {
         operandes = _.filter(operandes, function(item){return (!(item instanceof Scalar) || !item.isZero())})
         if (operandes.length == 0){
-            return new Scalar(0);
+            return Scalar.ZERO;
         }
         if (operandes.length == 1) {
             return operandes[0];
@@ -105,6 +105,19 @@ class Add extends Base {
         let texLeft = this.#left.tex();
         let texRight = this.#right.tex();
         return `${texLeft} + ${texRight}`;
+    }
+
+    /**
+     * evaluation numérique en decimal
+     * @param {object|undefined} values
+     * @returns {Decimal}
+     */
+    toDecimal(values) {
+        let v = new Decimal(0);
+        for (let item of this.#items) {
+            v = v.plus(item.toDecimal(values));
+        }
+        return v;
     }
 }
 
@@ -165,6 +178,16 @@ class Minus extends Base {
         return `${texLeft} - ${texRight}`;
     }
 
+    /**
+     * evaluation numérique en decimal
+     * @param {object|undefined} values
+     * @returns {Decimal}
+     */
+    toDecimal(values) {
+        let left = this.#left.toDecimal(values);
+        let right = this.#right.toDecimal(values);
+        return left.minus(right);
+    }
 }
 
 export { Add, Minus};

@@ -1,0 +1,50 @@
+import Decimal from 'decimal.js';
+
+class Base {
+    /**
+     * transtypage vers string
+     * @returns {string}
+     */
+    toString() {
+        return "(?)";
+    }
+
+    /**
+     * priorité
+     */
+    get priority() {
+        return 0;
+    }
+
+    /**
+     * si un nom est précisé, renvoie true si le nœud dépend de la variable,
+     * sinon renvoie la liste des variables dont dépend le noeud
+     * @param {string|undefined} name 
+     * @returns {boolean|Array}
+     */
+    isFunctionOf(name){
+        if (typeof name == 'undefined') {
+            return [];
+        }
+        return false;
+    }
+
+    /**
+     * renvoie une représentation tex
+     * @returns {string}
+     */
+    tex() {
+        return "(?)"
+    }
+
+    /**
+     * evaluation numérique en decimal
+     * @param {object|undefined} values
+     * @returns {Decimal}
+     */
+    toDecimal(values) {
+        return Decimal(NaN);
+    }
+}
+
+export { Base };
