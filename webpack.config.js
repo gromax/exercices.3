@@ -69,6 +69,7 @@ const webpackCommon = {
       '@apps': path.resolve(__dirname, 'app/components/apps'),
       '@styles': path.resolve(__dirname, 'app/styles'),
       '@templates': path.resolve(__dirname, 'app/templates'),
+      '@tools': path.resolve(__dirname, 'app/tools'),
       // Ajoute d'autres alias si besoin
     }
   },
