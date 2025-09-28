@@ -5,7 +5,8 @@ const Item = Backbone.Model.extend({
     description: "Description de l'exercice",
     keywords: "",
     options: {},
-    code: {}
+    code: {},
+    init: ""
   },
 
   parse(data) {
