@@ -21,6 +21,7 @@ final class Exercice extends Item
             'keywords' => array( 'def' => "", 'type'=> 'string'),   // mots-clés de l'exercice
             'description' => array( 'def' => "", 'type'=> 'string'), // descriptif de l'exercice
             'options' => array( 'def' => "", 'type'=> 'string'),   // options de l'exercice (json)
+            'init' => array( 'def' => "", 'type'=> 'string'),      // code d'initialisation (json)
             'code' => array( 'def' => "", 'type'=> 'string'),      // code de l'exercice (json)
             );
     }
