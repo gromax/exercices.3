@@ -1,7 +1,6 @@
 import { View } from 'backbone.marionette';
 import { Form } from '../../behaviors.js';
 import UseBootstrapTag from 'use-bootstrap-tag'
-import CodeMirror from 'codemirror';
 import exercice_edit_tpl from '@templates/exercices/edit/exercice-edit.jst'
 
 const EditExerciceView = View.extend({
@@ -10,9 +9,6 @@ const EditExerciceView = View.extend({
   onRender() {
     // Initialisation du composant de gestion des tags pour les mots-clés
     UseBootstrapTag(this.el.querySelector('#exercice-keywords'));
-   CodeMirror.fromTextArea(this.el.querySelector('#exercice-code'), {
-     lineNumbers: true,
-   });
   }
 });
 
