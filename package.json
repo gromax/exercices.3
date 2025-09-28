@@ -16,10 +16,11 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.0.1",
+    "algebrite": "^1.4.0",
     "backbone": "^1.4.1",
     "backbone.marionette": "^4.1.3",
     "bootstrap": "^5.3.8",
-    "codemirror": "^5.65.20",
+    "decimal.js": "^10.6.0",
     "jquery": "^3.7.1",
     "katex": "^0.16.22",
     "underscore": "^1.13.6",
