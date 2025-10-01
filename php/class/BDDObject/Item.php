@@ -35,9 +35,13 @@ abstract class Item
 
   public function __construct($options=array())
   {
-    $values = $this->parse($options);
+    $this->values = $this->parse($options);
     $arr = static::champs();
-    $this->values = array_combine($values, array_column($arr,"def"));
+    foreach ($arr as $key => $val) {
+      if (!array_key_exists($key,$this->values)) {
+        $this->values[$key] = $val["def"];
+      }
+    }
     if (isset($options["id"])) {
       $this->id = (integer) $options["id"];
       $this->values["id"] = $this->id;
@@ -56,8 +60,9 @@ abstract class Item
     try {
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $stmt = $pdo->prepare("SELECT ".join(self::keys(),",")." FROM ".PREFIX_BDD.static::$BDDName." WHERE id = :id");
-      $stmt->execute(array(':id' => $id));
+      $stmt = $pdo->prepare("SELECT ".join(",",self::keys())." FROM ".PREFIX_BDD.static::$BDDName." WHERE id = :id");
+      $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+      $stmt->execute();
       $bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
       if ($bdd_result === null) return null;
 
@@ -227,8 +232,6 @@ abstract class Item
       }
       $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
       $stmt->execute();
-      $stmt = $pdo->prepare("UPDATE ".PREFIX_BDD.static::$BDDName." SET ".join("=?,", array_keys($this->toArray()))."=? WHERE id=?");
-      $stmt->execute(array_values($this->toArray()));
     } catch(PDOException $e) {
       EC::addBDDError($e->getMessage(), static::$BDDName."/update");
       return false;
