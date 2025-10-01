@@ -76,18 +76,19 @@ function testConditions(conditions, params) {
 }
 
 /**
- * Fonction qui analyse une ligne de la forme @label = expression
+ * Fonction qui analyse une ligne de la forme @label = expression ou @label := expression
  * et qui renvoie un objet { label: string, expression: string } ou null si la ligne n'est pas une affectation
  * @param {string} line la ligne à analyser
  * @returns {object|null}
  */
 function parseAssignment(line) {
-    const regex = /^\s*@(\w+)\s*=\s*(.*?)\s*$/;
+    const regex = /^\s*@(\w+)\s*(:?=)\s*(.*?)\s*$/;
     const match = line.match(regex);
     if (match) {
         return {
             label: match[1],
-            expression: match[2]
+            operator: match[2],
+            expression: match[3]
         };
     }
     return null;
@@ -153,8 +154,12 @@ function initExoParamsOneTry(text, options) {
         if (!assignment) {
             throw new Error(`La ligne suivante n'est pas une affectation valide : ${line}`);
         }
-        if (assignment.label in params) {
-            throw new Error(`Le paramètre ${assignment.label} est déjà défini.`);
+        if ((assignment.label in params) && (assignment.operator === ':=')) {
+            i++;
+            continue;
+        }
+        if (!(assignment.label in params) && (assignment.operator === '=')) {
+            throw new Error(`Vous devez utiliser = pour un paramètre déjà défini : ${line}`);
         }
         if (assignment.label in options) {
             throw new Error(`Le paramètre ${assignment.label} est protégé et ne peut pas être redéfini.`);
@@ -163,7 +168,10 @@ function initExoParamsOneTry(text, options) {
         params[assignment.label] = MyMath.evaluate(substituted);
         i++;
     }
-    return params;
+    // Filtrage des noms en _nom
+    return Object.fromEntries(
+      Object.entries(params).filter(([key]) => !key.startsWith('_'))
+    );
 }
 
 const Tools = {
