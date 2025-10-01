@@ -4,8 +4,8 @@ const Item = Backbone.Model.extend({
     title: "Titre de l'exercice",
     description: "Description de l'exercice",
     keywords: "",
-    options: {},
-    code: {},
+    options: "",
+    code: "",
     init: ""
   },
 
@@ -17,6 +17,17 @@ const Item = Backbone.Model.extend({
     data.code = data.code;
     return data;
   },
+
+  sync(method, model, options) {
+    options = options || {};
+    const token = localStorage.getItem('jwt');
+    options.beforeSend = function (xhr) {
+      if (token) {
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      }
+    };
+    return Backbone.sync(method, model, options);
+  }
 });
 
 
