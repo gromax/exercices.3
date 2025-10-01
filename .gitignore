@@ -28,6 +28,7 @@ composer.lock
 public/
 vendor/
 php/class/PHPMailer/
+debug/
 
 # dev files
 curl.md
