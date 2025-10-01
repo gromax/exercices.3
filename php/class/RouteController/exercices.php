@@ -3,6 +3,7 @@
 namespace RouteController;
 use ErrorController as EC;
 use BDDObject\Exercice;
+use BDDObject\Logged;
 
 class exercices
 {
@@ -71,9 +72,10 @@ class exercices
       EC::set_error_code(404);
       return false;
     }
-    if (!$uLog->isAdmin() && $exercice->getKey("idOwner") !== $uLog->getId())
+    if (!$uLog->isAdmin() && ($exercice->get("idOwner") !== $uLog->getId()))
     {
       // Interdit, pas propriétaire ni admin
+      EC::addError("Tentative de mise à jour d'un exercice sans autorisation.");
       EC::set_error_code(403);
       return false;
     }
