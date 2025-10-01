@@ -32,7 +32,7 @@ final class Exercice extends Item
         try {
             $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $stmt = $pdo->prepare("SELECT id, idOwner,  title, `description`, keywords, options, code FROM ".PREFIX_BDD."exercices");
+            $stmt = $pdo->prepare("SELECT id, idOwner,  title, `description`, keywords, options, `init`, code FROM ".PREFIX_BDD."exercices");
             $stmt->execute();
             $bdd_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch(PDOException $e) {
