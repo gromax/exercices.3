@@ -76,8 +76,14 @@ const Controller = MnObject.extend({
             //case "exams": colObj = require("@entities/exams.js"); break;
           }
           if (colObj !== false) {
-            this.stored_data[colName] = new colObj.Collection(data[colName], { parse:true });
-            this.stored_time[colName] = Date.now();
+            try {
+              this.stored_data[colName] = new colObj.Collection(data[colName], { parse:true });
+              this.stored_time[colName] = Date.now();
+            } catch(e) {
+              this.stored_data[colName] = new colObj.Collection([]);
+              this.stored_time[colName] = Date.now();
+              console.warn("Erreur lors du parse de la collection "+colName);
+            }
           }
         }
         defer.resolve.apply(null,_.map(ask, (item) => { return this.stored_data[item]; } ));
