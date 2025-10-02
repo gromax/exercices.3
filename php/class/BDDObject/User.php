@@ -243,7 +243,7 @@ class User
       EC::add("L'utilisateur a bien été supprimée.");
 
       return true;
-    } catch(MeekroDBException $e) {
+    } catch(PDOException $e) {
       EC::addBDDError($e->getMessage(), "User/Suppression");
     }
     return false;
@@ -529,7 +529,7 @@ class User
     if ($this->isEleve()) {
       $classe = $this->getClasse();
       if ($classe !== null) {
-        return $classe.getOwner();
+        return $classe->getOwner();
       }
     }
     return null;
