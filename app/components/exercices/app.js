@@ -38,11 +38,7 @@ const Controller = MnObject.extend({
     channel.trigger("loading:up");
     const fetching = channel.request("exercice:entity", id);
     $.when(fetching).done((exercice) => {
-      channel.trigger("ariane:reset", [
-        { text:"Exercices", e:"exercices:list", link:"exercices"},
-        { text:exercice.get("titre"), e:"exercice:show", link:`exercice:${id}`}
-      ]);
-      channel.trigger("popup:info", { title: `Show ${exercice.get("titre")}`, message: "Fonction non implémentée." });
+      require("./show/controller.js").controller.show(id, exercice);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {
