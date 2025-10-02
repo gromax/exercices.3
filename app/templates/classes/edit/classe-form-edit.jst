@@ -10,6 +10,11 @@
     <input class="form-control" id="classe-description" name="description" type="text" value="<%= description %>" placeHolder="Description"/>
   </div>
 
+  <div class="col-md-12">
+    <label for="classe-expiration" class="form-label">Date d'expiration :</label>
+    <input class="form-control" id="classe-expiration" name="expiration" type="text" value="<%= expiration %>" placeHolder="Date d'expiration"/>
+  </div>
+
   <div class="checkbox">
     <label>
       <input type="checkbox" name="ouverte" <% if (ouverte) { %> checked <% } %> > Classe ouverte
