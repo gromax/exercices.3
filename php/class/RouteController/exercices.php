@@ -136,7 +136,7 @@ class exercices
       EC::set_error_code(404);
       return false;
     }
-    if (!$uLog->isAdmin() && $exercice->getKey("idOwner") !== $uLog->getId())
+    if (!$uLog->isAdmin() && $exercice->get("idOwner") !== $uLog->getId())
     {
       // Interdit, pas propriétaire ni admin
       EC::set_error_code(403);
@@ -147,7 +147,7 @@ class exercices
         EC::set_error_code(501);
         return false;
     }
-    EC::add_message("Model successfully destroyed!");
+    EC::add("Model successfully destroyed!");
     return true;
   }
 }
