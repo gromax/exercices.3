@@ -25,7 +25,7 @@ final class Message extends Item
       );
   }
 
-  public static function getList($idUser)
+  public static function getListUser($idUser)
   {
     require_once BDD_CONFIG;
     try {
@@ -116,7 +116,7 @@ final class Message extends Item
         return "?";
       }
     } catch(PDOException $e) {
-      if (BDD_DEBUG_ON) return array('error'=>true, 'message'=>"#User/getList : ".$e->getMessage());
+      if (EC::BDD_DEBUG) return array('error'=>true, 'message'=>"#User/getList : ".$e->getMessage());
       return "?";
     }
   }
