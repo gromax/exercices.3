@@ -47,7 +47,7 @@ class data
                 "aEFs" => ExoFiche::getList(array("idUser"=>$uLog->getId())),
                 "devoirs" => AssoUF::getList(array("idUser"=> $uLog->getId() )),
                 "aUEs" => Note::getList(array("idUser"=>$uLog->getId())),
-                "messages" => Message::getList($uLog->getId()),
+                "messages" => Message::getListUser($uLog->getId()),
             );
         } else {
             EC::set_error_code(403);
@@ -133,7 +133,7 @@ class data
             }
 
             if (in_array("messages", $asks)){
-                $answer =  Message::getList($uLog->getId());
+                $answer =  Message::getListUser($uLog->getId());
 
                 if (isset($answer["error"]) && $answer["error"]) {
                     EC::addError($answer["message"]);
@@ -156,7 +156,7 @@ class data
             }
 
             if (in_array("classes", $asks)){
-                $answer =  Classe::getList(array('forEleve'=> $uLog->getId() ));
+                $answer =  Classe::getClassesList(['forEleve'=> $uLog->getId() ]);
                 if (isset($answer["error"]) && $answer["error"]) {
                     EC::addError($answer["message"]);
                     EC::set_error_code(501);
@@ -220,7 +220,7 @@ class data
             }
 
             if (in_array("messages", $asks)){
-                $answer = Message::getList($uLog->getId());
+                $answer = Message::getListUser($uLog->getId());
                 if (isset($answer["error"]) && $answer["error"]) {
                     EC::addError($answer["message"]);
                     EC::set_error_code(501);
@@ -231,7 +231,9 @@ class data
             }
 
             if (in_array("classes", $asks)){
-                $answer = Classe::getList(array('ownerIs'=> $uLog->getId() ));
+                $answer = Classe::getList([
+                    'wheres' => ['idOwner'=> $uLog->getId() ]
+                ]);
                 if (isset($answer["error"]) && $answer["error"]) {
                     EC::addError($answer["message"]);
                     EC::set_error_code(501);
@@ -304,7 +306,7 @@ class data
             }
 
             if (in_array("messages", $asks)){
-                $answer = Message::getList($uLog->getId());
+                $answer = Message::getListUser($uLog->getId());
                 if (isset($answer["error"]) && $answer["error"]) {
                     EC::addError($answer["message"]);
                     EC::set_error_code(501);
