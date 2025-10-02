@@ -27,7 +27,6 @@ $router->addRule('api/classes/:id', 'classes', 'delete', 'DELETE');
 $router->addRule('api/classes/:id', 'classes', 'update', 'PUT');
 $router->addRule('api/classes', 'classes', 'insert', 'POST');
 $router->addRule('api/classes/:id/test', 'classes', 'testMDP', 'GET');
-$router->addRule('api/classe/:id/fill', 'classes', 'fill', 'POST');
 
 // fiches
 $router->addRule('api/fiches/:id', 'fiches', 'delete', 'DELETE');
