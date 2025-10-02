@@ -5,51 +5,37 @@ namespace BDDObject;
 use ErrorController as EC;
 use PDO;
 use PDOException;
-use SessionController as SC;
 
-final class Classe
+final class Classe extends Item
 {
-  private $id='';
-  private $nom='';
-  private $description='';
-  private $pwd='';       // Mot de passe servant à entrer dans la classe. En clair
-  private $ouverte=false;    // Indique si la classe est déjà active
-  private $date=null;      // Date de création
-
-  private $_idOwner=null;   // id du propriétaire
-  private $_owner=null;    // Objet user du propriétaire
-  private $_fiches=null;    // Tableau des fiches
-  private $_nomOwner=null;  // Nom du propriétaire
+  protected static $BDDName = "classes";
 
   ##################################### METHODES STATIQUES #####################################
 
-  public function __construct($params=array())
+  protected static function champs()
   {
-    if(isset($params['id'])) $this->id = (integer) $params['id'];
-    if(isset($params['nom'])) $this->nom = $params['nom'];
-    if(isset($params['description'])) $this->description = $params['description'];
-    if(isset($params['pwd'])) $this->pwd = $params['pwd'];
-    if(isset($params['ouverte'])) $this->ouverte = (boolean)$params['ouverte'];
-
-    if(isset($params['date'])) $this->date=$params['date'];
-    else $this->date=date('Y-m-d');
-
-    if(isset($params['idOwner'])) $this->_idOwner = (integer) $params['idOwner'];
-    if(isset($params['nomOwner'])) $this->_nomOwner = $params['nomOwner'];
-
-    if(isset($params['owner']))
-    {
-      $_owner = $params['owner'];
-      if ($_owner instanceof User)
-      {
-        $this->_owner = $_owner;
-        $this->_idOwner = $_owner->getId();
-        $this->_nomOwner = $_owner->getName();
-      }
-    }
+    return array(
+      'nom' => array( 'def' => "", 'type'=> 'string'),         // nom de la classe
+      'idOwner' => array( 'def' => 0, 'type'=> 'int'),         // id du propriétaire de la classe
+      'nomOwner' => array( 'def' => "", 'type'=> 'string',
+        'join'=>array('table'=>'users', 'col'=>'nom', 'strangerId'=>'idOwner')
+      ), // nom du propriétaire de la classe
+      'description' => array( 'def' => "", 'type'=> 'string'), // descriptif de la classe
+      'pwd' => array( 'def' => "", 'type'=> 'string'),         // mot de passe pour entrer dans la classe
+      'date' => array( 'def' => date('Y-m-d'), 'type'=> 'date'), // date de création
+      'expiration' => array( 'def' => date('Y-m-d', strtotime('+1 year')), 'type'=> 'date'), // date d'expiration
+      'ouverte' => array( 'def' => false, 'type'=> 'boolean'),   // indique si la classe est ouverte aux inscriptions
+    );
   }
 
-  public static function getList($params = array())
+  protected static function children()
+  {
+    return array(
+      'users'=> array('strangerId'=>'idClasse', 'allowDelete'=>false)
+    );
+  }
+
+  public static function getClassesList($params = array())
   {
     if(isset($params['forJoin'])) $forJoin = $params['forJoin']; else $forJoin = false;
     if(isset($params['onlyOpen'])) $onlyOpen = $params['onlyOpen']; else $onlyOpen = false;
@@ -105,42 +91,6 @@ final class Classe
     } else return $bdd_result;
   }
 
-  public static function getObject($id)
-  {
-    return self::get($id, true);
-  }
-
-  public static function get($id,$returnObject=false)
-  {
-    if ($id===null) return null;
-    if ($id instanceof Classe) {
-      // On a transmis directement un objet classe
-      if ($returnObject) return $id;
-      return $id->toArray;
-    } elseif (is_numeric($id)) $id = (integer) $id;
-
-    require_once BDD_CONFIG;
-    try {
-      $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $stmt = $pdo->prepare("SELECT c.id id, c.nom nom, c.description, c.idOwner idOwner, c.pwd pwd, c.date date, c.ouverte ouverte, u.nom nomOwner, u.prenom prenomOwner, u.rank rankOwner, u.email emailOwner FROM ".PREFIX_BDD."classes c INNER JOIN ".PREFIX_BDD."users u ON c.idOwner = u.id WHERE c.id = :id");
-      $stmt->execute(array(':id' => $id));
-      $bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
-      if ($bdd_result==null) return null;
-
-      // Construction de l'objet pour sauvegarde en session
-      if ($returnObject) {
-        $bdd_result['owner']=new User(array('id'=>$bdd_result['idOwner'], 'nom'=>$bdd_result['nomOwner'], 'prenom'=>$bdd_result['prenomOwner'], 'rank'=>$bdd_result['rankOwner'], 'email'=>$bdd_result['emailOwner']));
-        return new Classe($bdd_result);
-      }
-      return $bdd_result;
-
-    } catch(PDOException $e) {
-      EC::addBDDError($e->getMessage(), 'Classe/get');
-      return null;
-    }
-  }
-
   public static function checkNomClasse($nom)
   {
     return (is_string($nom) && (strlen($nom)>=NOMCLASSE_MIN_SIZE) && (strlen($nom)<=NOMCLASSE_MAX_SIZE));
@@ -156,7 +106,7 @@ final class Classe
       $stmt->execute(array(':id' => $id, ':pwd' => $pwd));
       $bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
     } catch(PDOException $e) {
-      EC::addBDDError($e->getMessage(), 'Logged/tryConnexion');
+      EC::addBDDError($e->getMessage(), 'Classe/testMDP');
       return null;
     }
 
@@ -171,20 +121,15 @@ final class Classe
 
   ##################################### METHODES #####################################
 
-  public function __toString()
-  {
-    return '[#'.$this->id.'] '.$this->nom;
-  }
-
-  public function insertion_update_validation()
+  protected function insertionValidation($params)
   {
     // vérifie si l'utilisateur peut-être inséré
     $errors = array();
-    if (strlen($this->nom)>NOMCLASSE_MAX_SIZE)
+    if (strlen($params['nom'])>NOMCLASSE_MAX_SIZE)
     {
       $errors["nom"] = "Nom trop long";
     }
-    elseif (strlen($this->nom)<NOMCLASSE_MIN_SIZE)
+    elseif (strlen($params['nom'])<NOMCLASSE_MIN_SIZE)
     {
       $errors["nom"] = "Nom trop court";
     }
@@ -194,95 +139,9 @@ final class Classe
       return true;
   }
 
-  public function insertion()
+  protected function updateValidation($params)
   {
-    require_once BDD_CONFIG;
-    try {
-      // Ajout de la classe
-      $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $stmt = $pdo->prepare("INSERT INTO ".PREFIX_BDD."classes (nom, description, pwd, idOwner, ouverte, date) VALUES (:nom, :description, :pwd, :idOwner, :ouverte, :date)");
-      $stmt->execute(array(
-        ':nom' => $this->nom,
-        ':description' => $this->description,
-        ':pwd' => $this->pwd,
-        ':idOwner' => $this->getOwnerId(),
-        ':ouverte' => (int)$this->ouverte,
-        ':date' => $this->date
-      ));
-    } catch(PDOException $e) {
-      EC::addBDDError($e->getMessage(),'Classe/insertion');
-      return null;
-    }
-    $this->id=$pdo->lastInsertId();
-
-    EC::add("La classe a bien été ajoutée.");
-    return $this->id;
-  }
-
-  public function update($params=array(),$updateBDD=true)
-  {
-    if(isset($params['nom'])) { $this->nom = $params['nom']; }
-    if(isset($params['description'])) { $this->description = $params['description']; }
-    if(isset($params['pwd'])) { $this->pwd = $params['pwd']; }
-    if(isset($params['ouverte'])) {
-      $this->ouverte = (boolean)$params['ouverte'];
-    }
-
-    $keys = ['nom', 'description', 'pwd', 'ouverte']; // les clés à garder
-    $modifs = array_intersect_key($params, array_flip($keys));
-    if (isset($modifs['ouverte'])) {
-      $modifs['ouverte'] = (int)$modifs['ouverte'];
-    }
-
-    if (count($modifs) === 0) {
-      EC::add("Aucune modification.");
-      return true;
-    }
-    if (!$updateBDD) {
-      EC::add("La classe a bien été modifiée.");
-      return true;
-    }
-
-    require_once BDD_CONFIG;
-    try{
-      $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $modifications = implode(", ", array_map(function($k){ return "$k=:$k"; }, array_keys($modifs)));
-      $stmt = $pdo->prepare("UPDATE ".PREFIX_BDD."classes SET $modifications WHERE id = :id");
-      foreach ($modifs as $k => $v) {
-        $stmt->bindValue(":$k", $v);
-      }
-      $stmt->bindValue(':id', $this->id);
-      $stmt->execute();
-    } catch(PDOException $e) {
-      EC::addBDDError($e->getMessage(), 'Classe/update');
-      return false;
-    }
-    EC::add("La classe a bien été modifiée.");
-    return true;
-  }
-
-  public function delete()
-  {
-    // On autorise que la suppressio d'une classe vide
-    $liste = User::getList(array("classe"=>$this->id));
-    if (count($liste)>0) {
-      EC::addError("La classe contient encore des élèves. Supprimez-les d'abord.", "Classe/Suppression");
-      return false;
-    }
-    require_once BDD_CONFIG;
-    try {
-      $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD."classes WHERE id = :id");
-      $stmt->execute(array(':id' => $this->id));
-      EC::add("La classe a bien été supprimée.");
-      return true;
-    } catch(PDOException $e) {
-      EC::addBDDError($e->getMessage(), "Classe/Suppression");
-    }
-    return false;
+    return $this->insertionValidation($params);
   }
 
   public function hasUser($user)
@@ -292,93 +151,15 @@ final class Classe
     else return isset($eleves[$user->getId()]);        // objet $user
   }
 
-  public function toArray()
-  {
-    $answer=array(
-      'id'=>$this->id,
-      'nom'=>$this->nom,
-      'description'=>$this->description,
-      'pwd'=>$this->pwd,
-      'idOwner'=>$this->getOwnerId(),
-      'nomOwner'=>$this->getOwnerName(),
-      'ouverte'=>$this->ouverte,
-      'date'=>$this->date
-    );
-    return $answer;
-  }
-
-  private function toBDDArray()
-  {
-    $out = array(
-      'nom'=>$this->nom,
-      'description'=>$this->description,
-      'pwd'=>$this->pwd,
-      'idOwner'=>$this->getOwnerId(),
-      'ouverte'=>$this->ouverte,
-      'date'=>$this->date
-    );
-    if ($this->id !== '') {
-      $out['id'] = $this->id;
-    }
-    return $out;
-  }
-
-  public function getId()
-  {
-    return $this->id;
-  }
-
-  public function isOpen()
-  {
-    return $this->ouverte;
-  }
-
-  public function getNom()
-  {
-    return $this->nom;
-  }
-
   public function testPwd($pwd)
   {
-    return ($this->pwd == $pwd);
-  }
-
-  public function isOwnedBy($user)
-  {
-    if ( is_integer($user) ) return ($user === $this->getOwnerId());
-    if ( $user instanceof User ) return ($user->getId() === $this->getOwnerId());
-    return false;
+    return ($this->get('pwd') == $pwd);
   }
 
   public function eleves()
   {
     return User::getList(array('classe' => $this->id));
   }
-
-  public function getOwner()
-  {
-    if ($this->_owner !== null) return $this->_owner;
-    elseif ($this->idOwner !== null ) {
-      $bdd_search = User::getObject($this->idOwner);
-      if (($bdd_search !== null) && ($bdd_search instanceof User)) $this->_owner = $bdd_search;
-    }
-    return null;
-  }
-
-  private function getOwnerId()
-  {
-    if ($this->_owner !== null) return ($this->_idOwner = $this->_owner->getId());
-    if ($this->_idOwner !== null) return $this->_idOwner;
-    return null;
-  }
-
-  private function getOwnerName()
-  {
-    if ($this->_owner !== null) return $this->_owner->getName();
-    if ($this->_nomOwner !== null) return $this->_nomOwner;
-    return null;
-  }
-
 }
 
 ?>
