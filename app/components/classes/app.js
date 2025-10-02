@@ -6,7 +6,6 @@ const Controller = MnObject.extend ({
   radioEvents: {
     "classes:list": "onClassesList",
     "classe:show": "onClasseShow",
-    "classe:edit": "onClasseEdit",
     "classes:prof": "onClassesProf",
     "classes:tojoin": "onClassesToJoinShow"
   },
@@ -19,11 +18,6 @@ const Controller = MnObject.extend ({
   onClasseShow(id) {
     Backbone.history.navigate(`classe:${id}`, {});
     this.classeShow(id);
-  },
-
-  onClasseEdit(id) {
-    Backbone.history.navigate(`classe:${id}/edit`, {});
-    this.classeEdit(id);
   },
 
   onClassesProf(id) {
@@ -67,7 +61,6 @@ const Controller = MnObject.extend ({
     const logged = channel.request("logged:get");
 
     const forProf = () => {
-      channel.trigger("ariane:reset", [{ text:"Classes", e:"classes:list", link:"classes"}]);
       channel.trigger("loading:up");
       const fetching = channel.request("classe:entity", id);
       $.when(fetching).done( (classe) => {
@@ -76,7 +69,7 @@ const Controller = MnObject.extend ({
         channel.trigger("data:fetch:fail", response);
       }).always( () => {
         channel.trigger("loading:down");
-      });      
+      });
     };
 
     const todo = logged.mapItem({
