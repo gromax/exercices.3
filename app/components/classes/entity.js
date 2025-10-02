@@ -6,7 +6,9 @@ const Item = Backbone.Model.extend ({
     nom: "",
     description: "",
     ouverte: false,
-    pwd:""
+    pwd:"",
+    expiration:"",
+    date: ""
   },
   
   parse(data) {
@@ -15,16 +17,6 @@ const Item = Backbone.Model.extend ({
     }
     data.idOwner = Number(data.idOwner);
     return data;
-  },
-
-  fill(liste) {
-    console.log(liste);
-    const promise = $.ajax(`api/classe/${this.get('id')}/fill`, {
-      data: { liste: liste },
-      dataType: "json",
-      method: "POST"
-    });
-    return promise;
   },
 
   validate(attrs, options) {
