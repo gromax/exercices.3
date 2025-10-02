@@ -4,7 +4,6 @@ namespace BDDObject;
 use PDO;
 use PDOException;
 use ErrorController as EC;
-use SessionController as SC;
 
 abstract class Item
 {
@@ -30,8 +29,100 @@ abstract class Item
 
   protected static function champs()
   {
+    /*
+      items de la forme
+      'key' => array(
+        'def' => "",       // valeur par défaut
+        'type'=> 'string', // type de donnée (string, integer, boolean, dateHeure, date)
+        'join'=> array(    // optionnel, si jointure
+            'table'=>'users',       // table jointe
+            'col'=>'nom',           // colonne à récupérer
+            'strangerId'=>'idOwner' // colonne de la table courante qui référence l'id de la table jointe
+        )
+      )
+    */
     return array();
   }
+
+  protected static function children()
+  {
+    /*
+      Renvoie les classes des objets enfants (pour la suppression en cascade)
+      "table" => array(
+        "strangerId" => "colonne de référence de l'objet dans la table enfant",
+        "allowDelete" => true // si false, empêche la suppression de l'objet s'il a des enfants
+      )
+    */
+    return array();
+  }
+
+  protected static function sqlGetSELECT($hideCols = array())
+  {
+    $champs = static::champs();
+    $joinedTables = array();
+    $joined = "";
+    $keys = array();
+    foreach ($champs as $key => $val) {
+      if (in_array($key,$hideCols)) continue;
+      if (isset($val['join'])) {
+        extract($val['join']);
+        // fournit : $table, $col, $strangerId
+        if (!in_array($table,$joinedTables)) {
+          $joinedTables[$table] = chr(98 + count($joinedTables)); // b, c, d, ...
+        }
+        $prefix = $joinedTables[$table];
+        $joined = $joined." JOIN ".PREFIX_BDD.$table." AS $prefix ON $prefix.id=a.$strangerId";
+        $keys[] = "$prefix.`$col` AS `$key`";
+      } else {
+        $keys[] = "a.`$key`";
+      }
+    }
+    return "SELECT a.id, ".implode(", ",$keys)." FROM (".PREFIX_BDD.static::$BDDName." AS a $joined)";
+  }
+
+  public static function getList($filter = [])
+  {
+    $args = ["wheres", "hideCols"];
+    foreach ($filter as $key => $value) {
+      if (!$key) {
+        EC::addError("getList : clé vide dans le filtre.");
+        return array("error"=>true, "message"=>"getList : clé vide dans le filtre");
+      }
+      if (!in_array($key, $args)) {
+        EC::addError("getList : argument de filtre inconnu : $key.");
+        return array("error"=>true, "message"=>"getList : argument de filtre inconnu : $key");
+      }
+    }
+    if (isset($filter['wheres'])) $wheres = $filter['wheres']; else $wheres = array();
+    if (isset($filter['hideCols'])) $hideCols = $filter['hideCols']; else $hideCols = array();
+    $whereStrings = array_map(
+      function($key) {
+        return "a.`".$key."`=:".$key;
+      }, array_keys($wheres)
+    );
+    if (count($wheres) > 0) {
+      $where = " WHERE ".implode(" AND ",$whereStrings);
+    } else {
+      $where = "";
+    }
+    require_once BDD_CONFIG;
+    try {
+      $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+      $select = static::sqlGetSELECT($hideCols);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $stmt = $pdo->prepare($select.$where);
+      foreach ($wheres as $k => $v) {
+        $stmt->bindValue(":$k", $v, static::$TYPES[static::champs()[$k]['type']] ?? PDO::PARAM_STR);
+      }
+      $stmt->execute();
+      $bdd_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      } catch(PDOException $e) {
+          EC::addBDDError($e->getMessage(), static::$BDDName."/getList");
+          return array("error"=>true, "message"=>$e->getMessage());
+      }
+      return $bdd_result;
+  }
+
 
   public function __construct($options=array())
   {
@@ -46,26 +137,24 @@ abstract class Item
       $this->id = (integer) $options["id"];
       $this->values["id"] = $this->id;
     }
-    if (method_exists($this,"reformat")) $this->reformat();
   }
 
   public static function getObject($idInput)
   {
-    if (is_numeric($idInput)) {
-      $id = (integer) $idInput;
-    } else return null;
-
-    // Pas trouvé dans la session, il faut chercher en bdd
+    if (!is_numeric($idInput)) {
+      return null;
+    }
     require_once BDD_CONFIG;
     try {
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $stmt = $pdo->prepare("SELECT ".join(",",self::keys())." FROM ".PREFIX_BDD.static::$BDDName." WHERE id = :id");
-      $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+      $select = static::sqlGetSELECT();
+      $stmt = $pdo->prepare("$select WHERE a.id = :id");
+      $stmt->bindValue(':id', $idInput, PDO::PARAM_INT);
+
       $stmt->execute();
       $bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
       if ($bdd_result === null) return null;
-
       $item = new static($bdd_result);
       return $item;
     } catch(PDOException $e) {
@@ -73,7 +162,7 @@ abstract class Item
     }
     return null;
   }
-
+  
   ##################################### METHODES #####################################
 
   public function parse($params=array())
@@ -114,52 +203,110 @@ abstract class Item
     }
   }
 
+  protected function okToDelete()
+  {
+    // Vérifie si l'objet peut être supprimé (enfants, etc.)
+    $children = static::children();
+    foreach ($children as $table => $child) {
+      $strangerId = $child['strangerId'];
+      $allowDelete = $child['allowDelete'] ?? true;
+      require_once BDD_CONFIG;
+      try {
+        $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $stmt = $pdo->prepare("SELECT id FROM ".PREFIX_BDD.$table." WHERE $strangerId = :id");
+        $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
+        $stmt->execute();
+        if (($stmt->rowCount() > 0) && !$allowDelete) {
+          EC::addError(static::$BDDName."/delete : Impossible de supprimer l'objet car il a des enfants dans la table $table.");
+          return false;
+        }
+      } catch(PDOException $e) {
+        EC::addBDDError($e->getMessage(), static::$BDDName."/okToDelete");
+        return false;
+      }
+    }
+    return true;
+  }
+
+  protected function customDelete() {
+      // Méthode vide, à surcharger dans les enfants si besoin
+  }
+
+  protected function deleteChildren()
+  {
+    $children = static::children();
+    foreach ($children as $table => $child) {
+      $strangerId = $child['strangerId'];
+      require_once BDD_CONFIG;
+      try {
+        $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD.$table." WHERE $strangerId = :id");
+        $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
+        $stmt->execute();
+      } catch(PDOException $e) {
+        EC::addError($e->getMessage(), static::$BDDName."/deleteChildren");
+        return false;
+      }
+    }
+    return true;
+  }
+
   public function delete()
   {
-    if ((method_exists($this, "okToDelete"))&&(!$this->okToDelete())) {
+    if (!$this->okToDelete()) {
+      EC::addError(static::$BDDName."/delete : L'objet a des enfants impossibles à supprimer.");
+      return false;
+    }
+
+    if (!$this->deleteChildren()) {
+      EC::addError(static::$BDDName."/delete : Impossible de supprimer les enfants.");
       return false;
     }
 
     require_once BDD_CONFIG;
-    if (method_exists($this, "customDelete")) {
-      $this->customDelete();
-    }
+    $this->customDelete();
     try {
       // Suppression des assoc liées
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $message = $this." supprimé avec succès.";
-      if (method_exists(get_called_class(),"getAssocs")) {
-        $arr = static::getAssocs();
-        foreach ($arr as $table => $col) {
-          $stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD.$table." WHERE ".$col." = :id");
-          $stmt->execute(array(':id' => $this->id));
-        }
-      }
       $stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD.static::$BDDName." WHERE id = :id");
       $stmt->execute(array(':id' => $this->id));
-      EC::add($message);
+      EC::add("Item supprimé avec succès.");
       return true;
     } catch(PDOException $e) {
-      EC::addBDDError($e->getMessage(), static::$BDDName."/delete");
+      EC::addError($e->getMessage(), static::$BDDName."/delete");
+      return false;
     }
-    return false;
+  }
+
+  protected function filterInsert()
+  {
+    $champs = static::champs();
+    $toInsert = array_intersect_key($this->values, $champs);
+    unset($toInsert['id']);
+    foreach ($champs as $key => $value) {
+      if ($value['join'] ?? false) {
+        // champ de jointure, on ne l'insère pas
+        unset($toInsert[$key]);
+      }
+    }
+    return $toInsert;
+  }
+
+  protected function insertValidation($params)
+  {
+    return true;
   }
 
   public function insert()
   {
-    if (method_exists($this, "filterInsert")) {
-      $toInsert = $this->filterInsert();
-    } else {
-      $toInsert = $this->values;
-      unset($toInsert['id']);
-    }
+    $toInsert = $this->filterInsert();
 
-    if (method_exists($this,"insert_validation")) {
-      $valid = $this->insert_validation($toInsert);
-      if ($valid !== true) {
-        return array("errors" => $valid);
-      }
+    $valid = $this->insertValidation($toInsert);
+    if ($valid !== true) {
+      return array("errors" => $valid);
     }
 
     if (count($toInsert) === 0) {
@@ -188,6 +335,26 @@ abstract class Item
     return $this->id;
   }
 
+  protected function updateValidation($params)
+  {
+    return true;
+  }
+
+  protected function filterUpdate($params)
+  {
+
+    $toUpdate = array_intersect_key($params, static::champs());
+    unset($toUpdate['id']);
+    $champs = static::champs();
+    foreach ($champs as $key => $value) {
+      if ($value['join'] ?? false) {
+        // champ de jointure, on ne l'insère pas
+        unset($toUpdate[$key]);
+      }
+    }
+    return $toUpdate;
+  }
+
   public function update($params=array(),$updateBDD=true)
   {
     if ($this->id===null) {
@@ -198,19 +365,13 @@ abstract class Item
     $params = $this->parse($params);
 
     // vérifie que les valeurs proposées sont valides
-    if (method_exists($this,"update_validation")) {
-      $valid = $this->update_validation($params);
-      if ($valid !== true) {
-        return array("errors" => $valid);
-      }
+    $valid = $this->updateValidation($params);
+    if ($valid !== true) {
+      return array("errors" => $valid);
     }
 
     // filtre les modifications
-    if (method_exists($this,"filterUpdate")) {
-      $params = $this->filterUpdate($params);
-    } else {
-      $params = array_intersect_key($params, static::champs());
-    }
+    $params = $this->filterUpdate($params);
     if (count($params) === 0) {
       EC::add(static::$BDDName."/update : Aucune modification.");
       return false;
