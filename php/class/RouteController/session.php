@@ -3,9 +3,6 @@
 namespace RouteController;
 use ErrorController as EC;
 use SessionController as SC;
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
-use BDDObject\Classe;
 use BDDObject\User;
 use BDDObject\Logged;
 use BDDObject\Message;
@@ -41,7 +38,6 @@ class session
 
     public function delete()
     {
-        SC::get()->destroy();
         return $this->getData(null);
     }
 
