@@ -124,7 +124,7 @@ class users
         EC::set_error_code(404);
         return false;
       }
-      if (!$classe->isOpen())
+      if (!$classe->get('ouverte'))
       {
         EC::addError("Classe fermée.");
         EC::set_error_code(403);
