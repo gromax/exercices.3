@@ -156,7 +156,9 @@ class data
             }
 
             if (in_array("classes", $asks)){
-                $answer =  Classe::getClassesList(['forEleve'=> $uLog->getId() ]);
+                $answer =  Classe::getList([
+                    'wheres' => ['id'=> $uLog->get('idClasse') ]
+                ]);
                 if (isset($answer["error"]) && $answer["error"]) {
                     EC::addError($answer["message"]);
                     EC::set_error_code(501);

@@ -43,7 +43,10 @@ class classes
     if ($uLog->isProf()) return Classe::getList([
         'wheres' => ['idOwner'=> $uLog->getId()]
     ]);
-    if ($uLog->isEleve()) return Classe::getClassesList(['forEleve'=> $uLog->getId()]);
+    if ($uLog->isEleve()) return Classe::getList([
+      'wheres' => ['id' => $uLog->getId()],
+      'hideCols' => ['pwd']
+    ]);
     EC::set_error_code(403);
     return false;
   }
