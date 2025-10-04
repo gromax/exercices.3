@@ -19,11 +19,13 @@ const EditExerciceView = View.extend({
     UseBootstrapTag(this.el.querySelector('#exercice-keywords'));
   },
   onFormTempo() {
-    this.el.querySelector("form").addEventListener("submit", (e) => {
-      const com = this.el.querySelector("#exercice-init").value;
+    const com = this.el.querySelector("#exercice-init").value;
+    try {
       const obj = Tools.initExoParams(com);
       console.log(obj);
-    });
+    } catch (error) {
+      console.error(error);
+    } 
   }
 });
 
