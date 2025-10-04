@@ -57,7 +57,7 @@ function evaluate(expression) {
     let expr = expression.trim();
     if (/^\[.*\]$/.test(expr)) {
       // expression commence par [ et finit par ]
-      let pile = expr.slice(1, -1).trim().split(',').map(
+      let pile = expr.slice(1, -1).trim().split(/\s+/).map(
         s => s.trim()
       );
       return String(executePile(pile));
