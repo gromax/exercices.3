@@ -34,12 +34,24 @@ abstract class Item
       'key' => array(
         'def' => "",       // valeur par défaut
         'type'=> 'string', // type de donnée (string, integer, boolean, dateHeure, date)
-        'join'=> array(    // optionnel, si jointure
-            'table'=>'users',       // table jointe
-            'col'=>'nom',           // colonne à récupérer
-            'strangerId'=>'idOwner' // colonne de la table courante qui référence l'id de la table jointe
+        'foreign'=> 'table.key' // clé étrangère (optionnel)
         )
       )
+    */
+    return array();
+  }
+
+  protected static function joinedTables()
+  {
+    /*
+      Permet aux classes enfants de définir des tables jointes.
+      [
+        "inner" => [         // pour les inner join
+          "table1.key" => "table2.key"
+        ],
+        "left" => [          // pour les left join
+          "table1.key" => "table2.key"
+      ]
     */
     return array();
   }
@@ -56,28 +68,75 @@ abstract class Item
     return array();
   }
 
-  protected static function sqlGetSELECT($hideCols = array())
+  protected static function sqlGetFieldsNames($hideCols = array())
   {
     $champs = static::champs();
-    $joinedTables = array();
-    $joined = "";
     $keys = array();
     foreach ($champs as $key => $val) {
       if (in_array($key,$hideCols)) continue;
-      if (isset($val['join'])) {
-        extract($val['join']);
-        // fournit : $table, $col, $strangerId
-        if (!in_array($table,$joinedTables)) {
-          $joinedTables[$table] = chr(98 + count($joinedTables)); // b, c, d, ...
-        }
-        $prefix = $joinedTables[$table];
-        $joined = $joined." JOIN ".PREFIX_BDD.$table." AS $prefix ON $prefix.id=a.$strangerId";
-        $keys[] = "$prefix.`$col` AS `$key`";
+      if (isset($val['foreign'])) {
+        [$table, $col] = explode(".",$val['foreign']);
+        $keys[] = "$table.`$col` AS `$key`";
       } else {
-        $keys[] = "a.`$key`";
+        $keys[] = "s.`$key`";
       }
     }
-    return "SELECT a.id, ".implode(", ",$keys)." FROM (".PREFIX_BDD.static::$BDDName." AS a $joined)";
+    return implode(", ",$keys);
+  }
+
+  protected static function sqlGetJoin($type, $hideCols)
+  {
+    // type = inner | left
+    if ($type !== "inner" && $type !== "left")
+    {
+      EC::addError("sqlGetJoin : type de jointure inconnu : $type");
+      return "";
+    }
+    $join = "";
+    $joined = static::joinedTables();
+    if (!isset($joined[$type])) {
+      return "";
+    }
+    foreach ($joined[$type] as $k1 => $k2) {
+      if (in_array($k2,$hideCols)) continue;
+      if (strpos($k1,".")===false) {
+        $t1 = "s";
+        $c1 = $k1;
+      } else {
+        [$t1, $c1] = explode(".",$k1);
+      }
+      [$t2, $c2] = explode(".",$k2);
+      $join .= strtoupper($type)." JOIN ".PREFIX_BDD.$t2." AS $t2 ON $t1.`$c1` = $t2.`$c2` ";
+    }
+    return $join;
+  }
+
+  protected static function sqlGetWhere($wheres)
+  {
+    $whereStrings = array_map(
+      function($key) {
+        if (strpos($key,".")===false) {
+          $t1 = "s";
+          $c1 = $key;
+        } else {
+          [$t1, $c1] = explode(".",$key);
+        }
+        return "$t1.`$c1`=:".str_replace(".","_",$key);
+      }, array_keys($wheres)
+    );
+    if (count($wheres) > 0) {
+      return "WHERE ".implode(" AND ",$whereStrings);
+    } else {
+      return "";
+    }
+  }
+
+  protected static function sqlGetSELECT($hideCols = array())
+  {
+    $fields = static::sqlGetFieldsNames($hideCols);
+    $innerJoined = static::sqlGetJoin("inner", $hideCols);
+    $leftJoined = static::sqlGetJoin("left", $hideCols);
+    return "SELECT s.id, $fields FROM (".PREFIX_BDD.static::$BDDName." AS s $innerJoined $leftJoined)";
   }
 
   public static function getList($filter = [])
@@ -95,29 +154,24 @@ abstract class Item
     }
     if (isset($filter['wheres'])) $wheres = $filter['wheres']; else $wheres = array();
     if (isset($filter['hideCols'])) $hideCols = $filter['hideCols']; else $hideCols = array();
-    $whereStrings = array_map(
-      function($key) {
-        return "a.`".$key."`=:".$key;
-      }, array_keys($wheres)
-    );
-    if (count($wheres) > 0) {
-      $where = " WHERE ".implode(" AND ",$whereStrings);
-    } else {
-      $where = "";
-    }
+    $where = static::sqlGetWhere($wheres);
     require_once BDD_CONFIG;
     try {
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
       $select = static::sqlGetSELECT($hideCols);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $stmt = $pdo->prepare($select.$where);
+      $stmt = $pdo->prepare("$select $where");
       foreach ($wheres as $k => $v) {
-        $stmt->bindValue(":$k", $v, static::$TYPES[static::champs()[$k]['type']] ?? PDO::PARAM_STR);
+        $stmt->bindValue(
+          ":".str_replace(".", "_", $k),
+          (string) $v
+        );
       }
       $stmt->execute();
       $bdd_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
       } catch(PDOException $e) {
           EC::addBDDError($e->getMessage(), static::$BDDName."/getList");
+          EC::addBDDError($stmt->queryString, static::$BDDName."/getList");
           return array("error"=>true, "message"=>$e->getMessage());
       }
       return $bdd_result;
@@ -149,7 +203,7 @@ abstract class Item
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       $select = static::sqlGetSELECT();
-      $stmt = $pdo->prepare("$select WHERE a.id = :id");
+      $stmt = $pdo->prepare("$select WHERE s.id = :id");
       $stmt->bindValue(':id', $idInput, PDO::PARAM_INT);
 
       $stmt->execute();
@@ -287,7 +341,7 @@ abstract class Item
     $toInsert = array_intersect_key($this->values, $champs);
     unset($toInsert['id']);
     foreach ($champs as $key => $value) {
-      if ($value['join'] ?? false) {
+      if ($value['foreign'] ?? false) {
         // champ de jointure, on ne l'insère pas
         unset($toInsert[$key]);
       }
@@ -347,7 +401,7 @@ abstract class Item
     unset($toUpdate['id']);
     $champs = static::champs();
     foreach ($champs as $key => $value) {
-      if ($value['join'] ?? false) {
+      if ($value['foreign'] ?? false) {
         // champ de jointure, on ne l'insère pas
         unset($toUpdate[$key]);
       }
