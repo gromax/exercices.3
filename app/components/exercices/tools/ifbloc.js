@@ -195,11 +195,11 @@ class IfBloc extends BlocParent {
         this.elseChildren.push(elseCondition);
     }
 
-    evaluate(params) {
+    evaluate(params, options) {
         if (!this.expression) {
             return true;
         }
-        return this.expression.evaluate(params);
+        return this.expression.evaluate({...params, ...options});
     }
 
     toString() {

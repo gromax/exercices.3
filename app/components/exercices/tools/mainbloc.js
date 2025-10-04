@@ -106,7 +106,7 @@ class MainBloc extends BlocParent {
         while (i<program.length) {
           let item = program[i];
           if (item instanceof IfBloc) {
-            const result = item.evaluate({ ...params, ...options });
+            const result = item.evaluate(params, options);
             if (item.type === 'needed') {
               if (!result) {
                 return null;
@@ -115,7 +115,7 @@ class MainBloc extends BlocParent {
                 continue;
               }
             }
-            const ifChildren = item.evaluate({ ...params, ...options }) ? item.children : item.elseChildren;
+            const ifChildren = item.evaluate(params, options) ? item.children : item.elseChildren;
             program.splice(i + 1, 0, ...ifChildren);
             i++;
             continue;
