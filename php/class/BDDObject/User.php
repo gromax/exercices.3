@@ -441,7 +441,7 @@ class User
     if ($this->id !== null) $answer['id']=$this->id;
     if ($this->idClasse !== null) $answer['idClasse'] = $this->idClasse;
     $classe = $this->getClasse();
-    if ($classe !== null) $answer['nomClasse'] = $classe->getNom();
+    if ($classe !== null) $answer['nomClasse'] = $classe->get("nom");
     return $answer;
   }
 
@@ -520,7 +520,7 @@ class User
     if (!$this->isEleve()) return false; // Pas réussi à mettre les deux tests en un seul
     if (!$account->isProf()) return false;
     $classe = $this->getClasse();
-    if (($classe !== null) && $classe->isOwnedBy($account)) return true;
+    if (($classe !== null) && $classe->get("idOwner") === $account->getId()) return true;
     return false;
   }
 
@@ -529,12 +529,16 @@ class User
     if ($this->isEleve()) {
       $classe = $this->getClasse();
       if ($classe !== null) {
-        return $classe->getOwner();
+        return static::getObject($classe->get("idOwner"));
       }
     }
     return null;
   }
 
+  public function get($field)
+  {
+    return $this->$field ?? null;
+  }
 
   public function classe()
   {
