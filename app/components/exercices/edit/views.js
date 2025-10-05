@@ -19,9 +19,12 @@ const EditExerciceView = View.extend({
     UseBootstrapTag(this.el.querySelector('#exercice-keywords'));
   },
   onFormTempo() {
+    const optionsText = this.el.querySelector("#exercice-options").value;
     const com = this.el.querySelector("#exercice-init").value;
     try {
-      const obj = Tools.initExoParams(com);
+      const options = Tools.parseOptions(optionsText);
+      console.log(options);
+      const obj = Tools.initExoParams(com, options.defaults);
       console.log(obj);
     } catch (error) {
       console.error(error);
