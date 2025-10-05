@@ -14,7 +14,18 @@ class BlocParent {
         });
     }
 
+    close() {
+        this._closed = true;
+    }
+
+    get closed() {
+        return this._closed;
+    }
+
     push(child) {
+        if (this.closed) {
+            throw new Error("Impossible d'ajouter un enfant à un bloc fermé");
+        }
         if (child instanceof BlocParent) {
             this.children.push(child);
             return;
@@ -30,8 +41,16 @@ class BlocParent {
         this.children.push(child);
     }
 
-    constructor() {
+    constructor(closed) {
         this.children = [];
+        this._closed = closed || false;
+    }
+
+    setParam(label, value) {
+        if (this.params === undefined) {
+            this.params = {};
+        }
+        this.params[label] = value;
     }
 
     toString() {
