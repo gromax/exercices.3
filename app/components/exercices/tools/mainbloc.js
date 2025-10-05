@@ -1,9 +1,8 @@
-import BlocParent from "./blocparent";
 import IfBloc from "./ifbloc.js";
 import Affectation from "./affectation.js";
 import Bloc from "./bloc.js";
 
-class MainBloc extends BlocParent {
+class MainBloc extends Bloc {
     /**
      * Fonction qui analyse le contenu d'un exercice et renvoie un objet représentant sa structure
      * @param {string} content le contenu à analyser
@@ -93,14 +92,15 @@ class MainBloc extends BlocParent {
         if (stack.length !== 1) {
             throw new Error("Erreur de syntaxe : blocs non fermés");
         }
+        mainBlock.close();
         return mainBlock;
     }
 
     constructor() {
-        super();
+        super('main', '', false);
     }
 
-    evaluate(params, options) {
+    getInit(params, options) {
         let i = 0;
         let program = [...this.children];
         while (i<program.length) {
@@ -131,6 +131,24 @@ class MainBloc extends BlocParent {
         return Object.fromEntries(
           Object.entries(params).filter(([key]) => !key.startsWith('_'))
         );
+    }
+
+    /**
+     * Produit l'objet décrivant les options possibles
+     */
+    parseOptions() {
+        const options = {};
+        const defaults = {};
+        for (const child of this.children) {
+            if (!(child instanceof Bloc) || child.label !== 'option') {
+                throw new Error("Le contenu des options ne peut contenir que des blocs <option>.");
+            }
+            const [key, defaultValue,values] = child.parseOption();
+            options[key] = values;
+            defaults[key] = defaultValue;
+        }
+        options.defaults = defaults;
+        return options;
     }
 }
 
