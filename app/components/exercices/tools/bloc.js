@@ -8,31 +8,24 @@ import Affectation from './affectation.js';
 import IfBloc from './ifbloc.js';
 
 class Bloc extends BlocParent {
-    closed = false;
-
     static parse(line) {
-        const regex = /^<(\w+)\s*(\s[^>]+)?>$/;
+        const regex = /^<(\w+)\s*(:\s+[^>]+)?(\/)?>$/;
         const m = line.match(regex);
         if (m=== null) {
             return null;
         }
         const label = m[1];
-        let paramsString = m[2] ? m[2] : '';
-        let ended = false;
-        if (paramsString.endsWith('/')) {
-            ended = true;
-            paramsString = paramsString.slice(0, -1);
-        }
-        paramsString = paramsString.trim();
-        return new Bloc(line, label, paramsString, ended);
+        const closed = (m[3] !== undefined);
+        const paramsString = m[2] ? m[2].slice(1,0).trim() : '';
+        return new Bloc(label, paramsString, closed);
     }
 
     constructor(label, paramsString, closed) {
-        super();
+        super(closed);
         this.label = label;
-        this.params = paramsString;
-        this.closed = closed;
-        this.evaluationResult = null;
+        this._paramsString = paramsString;
+        this._isParameter = (closed === true) && (paramsString !== "");
+        this._evaluationResult = null;
     }
 
     /**
@@ -57,31 +50,72 @@ class Bloc extends BlocParent {
                 program.splice(i, 1);
                 continue;
             }
+            if ((item instanceof IfBloc) && (item.type === 'needed')) {
+                const result = item.evaluate(params, options);
+                if (!result) {
+                    throw Error("Condition 'needed' non satisfaite");
+                }
+                program.splice(i, 1);
+                continue;
+            }
             if (item instanceof IfBloc) {
                 const result = item.evaluate(params, options);
-                if (item.type === 'needed') {
-                    if (!result) {
-                        throw Error("Condition 'needed' non satisfaite");
-                    }
-                    program.splice(i, 1);
-                    continue;
-                }
                 const ifChildren = result ? item.children : item.elseChildren;
                 program.splice(i + 1, 0, ...ifChildren);
                 program.splice(i, 1);
                 continue;
             }
-            if (item instanceof Bloc) {
-                item.evaluate(params, options);
-                i++;
+
+            if (!(item instanceof Bloc)) {
+                throw new Error("Instruction inconnue dans un bloc : " + item);
+            }
+
+            if (item.isParameter) {
+                this.setParam(item.label, item.params);
+                program.splice(i, 1);
                 continue;
             }
-            throw new Error("Instruction inconnue dans un bloc : " + item);
+            item.evaluate(params, options);
+            i++;
         }
-        this.evaluationResult = program;
+        this._evaluationResult = program;
     }
 
-
+    parseOption() {
+        if (this.label !== 'option') {
+            throw new Error("Seul un bloc <option> peut être analysé par cette méthode");
+        }
+        if (this._paramsString !== '') {
+            throw new Error("Un bloc <option> ne doit pas avoir de paramètres");
+        }
+        if (this._paramsString === 'defaults') {
+            throw new Error("Une option ne peut avoir l'étiquette 'defaults'");
+        }
+        if (this.children.length === 0) {
+            throw new Error("Un bloc <option> doit contenir au moins une ligne");
+        }
+        let defaultValue = null;
+        const values = {};
+        for (const line of this.children) {
+            if (typeof line !== 'string') {
+                throw new Error("Un bloc <option> ne peut contenir que du texte");
+            }
+            const m = line.match(/^([0-9]+)\s*=>\s*(.*)/);
+            if (!m) {
+                throw new Error("Format de ligne invalide dans un bloc <option>");
+            }
+            const key = m[1];
+            if (defaultValue === null) {
+                defaultValue = key;
+            }
+            const value = m[2];
+            if (values.hasOwnProperty(key)) {
+                throw new Error("Clé dupliquée dans un bloc <option> : " + key);
+            }
+            values[key] = value;
+        }
+        return [this._paramsString, defaultValue, values];
+    }
 }
 
 export default Bloc;
