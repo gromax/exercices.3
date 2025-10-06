@@ -52,9 +52,9 @@ class Tools {
      * @param {*} content 
      * @returns 
      */
-    parseOptions(content) {
+    static parseOptions(content) {
         const main = MainBloc.parse(content, true);
-        return main.getOptions();
+        return main.parseOptions();
     }
 
 }
