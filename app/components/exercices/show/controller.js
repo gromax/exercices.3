@@ -15,7 +15,7 @@ const Controller = MnObject.extend({
     }
     channel.trigger("ariane:reset", [
       { text: "Exercices", link: "exercices" },
-      { text: exercice.get("nom"), link: `exercice:${id}` }
+      { text: exercice.get("title"), link: `exercice:${id}` }
     ]);
     const view = new ShowExerciceView({
       model: exercice
