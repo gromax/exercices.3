@@ -9,14 +9,14 @@ import IfBloc from './ifbloc.js';
 
 class Bloc extends BlocParent {
     static parse(line) {
-        const regex = /^<(\w+)\s*(:\s+[^>]+)?(\/)?>$/;
+        const regex = /^<(\w+)\s*(:\s*[^>]+)?(\/)?>$/;
         const m = line.match(regex);
         if (m=== null) {
             return null;
         }
         const label = m[1];
         const closed = (m[3] !== undefined);
-        const paramsString = m[2] ? m[2].slice(1,0).trim() : '';
+        const paramsString = m[2] ? m[2].slice(1).trim() : '';
         return new Bloc(label, paramsString, closed);
     }
 
@@ -85,11 +85,8 @@ class Bloc extends BlocParent {
         if (this.label !== 'option') {
             throw new Error("Seul un bloc <option> peut être analysé par cette méthode");
         }
-        if (this._paramsString !== '') {
-            throw new Error("Un bloc <option> ne doit pas avoir de paramètres");
-        }
-        if (this._paramsString === 'defaults') {
-            throw new Error("Une option ne peut avoir l'étiquette 'defaults'");
+        if (this._paramsString === '') {
+            throw new Error("Un bloc <option> doit pas avoir une étiquette <option:étiquette>");
         }
         if (this.children.length === 0) {
             throw new Error("Un bloc <option> doit contenir au moins une ligne");
@@ -99,6 +96,9 @@ class Bloc extends BlocParent {
         for (const line of this.children) {
             if (typeof line !== 'string') {
                 throw new Error("Un bloc <option> ne peut contenir que du texte");
+            }
+            if (line === '') {
+                continue;
             }
             const m = line.match(/^([0-9]+)\s*=>\s*(.*)/);
             if (!m) {
