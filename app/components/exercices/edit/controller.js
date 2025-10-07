@@ -1,5 +1,6 @@
 import { MnObject, Region } from 'backbone.marionette'
 import { EditExerciceView, ParamsView } from './views.js'
+import { OptionsView } from '../run/views.js';
 import Tools from '../tools.js';
 
 const Controller = MnObject.extend ({
@@ -22,7 +23,7 @@ const Controller = MnObject.extend ({
     });
 
     view.on("success", function (model, data) {
-      channel.trigger("exercice:show", id);
+      //channel.trigger("exercice:show", id);
     });
 
     view.on("form:apercu", function() {
@@ -33,17 +34,34 @@ const Controller = MnObject.extend ({
     }.bind(this));
 
     new Region({el: "#main-region"}).show(view);
+    view.triggerMethod("form:apercu");
   },
 
   showApercu(optionsText, initCode, code) {
     const channel = this.getChannel();
     try {
-      const options = Tools.parseOptions(optionsText);
-      const initParams = Tools.initExoParams(initCode, options.defaults);
-      console.log("Params initiaux : ", initParams);
-      const view = new ParamsView({ params: initParams });
-      console.log(initParams);
-      new Region({ el: '#apercu' }).show(view);
+      const {options, defaultsOptions} = Tools.parseOptions(optionsText);
+      const optionsView = new OptionsView({ options: options, selected: defaultsOptions });
+      optionsView.on("change", (data) => {
+        this.refreshExercice(data, initCode, code);
+      });
+      new Region({ el: '#apercu-options' }).show(optionsView);
+      this.refreshExercice(defaultsOptions, initCode, code);
+    } catch (error) {
+      console.error(error);
+      channel.trigger("popup:error", {
+        title: "Erreur de compilation",
+        message: error.message
+      });
+    }
+  },
+
+  refreshExercice(selectedOptions, initCode, code) {
+    const channel = this.getChannel();
+    try {
+      const initParams = Tools.initExoParams(initCode, selectedOptions);
+      const paramsView = new ParamsView({ params: initParams });
+      new Region({ el: '#apercu-initparams' }).show(paramsView);
     } catch (error) {
       console.error(error);
       channel.trigger("popup:error", {
