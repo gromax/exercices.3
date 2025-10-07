@@ -74,9 +74,10 @@ class MainBloc extends Bloc {
                    throw new Error("Erreur de syntaxe : fin de bloc sans début");
                 }
                 if (item.label !== label) {
+                    console.log(item);
                     throw new Error(`Erreur de syntaxe : fin de bloc ${label} mais on attendait </${item.label}>`);
                 }
-                item.closed = true;
+                item.close();
                 stack[stack.length-1].push(item);
                 continue;
             }
@@ -138,17 +139,16 @@ class MainBloc extends Bloc {
      */
     parseOptions() {
         const options = {};
-        const defaults = {};
+        const defaultsOptions = {};
         for (const child of this.children) {
             if (!(child instanceof Bloc) || child.label !== 'option') {
                 throw new Error("Le contenu des options ne peut contenir que des blocs <option>.");
             }
             const [key, defaultValue,values] = child.parseOption();
             options[key] = values;
-            defaults[key] = defaultValue;
+            defaultsOptions[key] = defaultValue;
         }
-        options.defaults = defaults;
-        return options;
+        return { options, defaultsOptions };
     }
 }
 
