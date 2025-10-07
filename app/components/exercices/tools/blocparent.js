@@ -26,18 +26,6 @@ class BlocParent {
         if (this.closed) {
             throw new Error("Impossible d'ajouter un enfant à un bloc fermé");
         }
-        if (child instanceof BlocParent) {
-            this.children.push(child);
-            return;
-        }
-        if (typeof child !== 'string') {
-            throw new Error("Un bloc ne peut contenir que des blocs ou du texte");
-        }
-        let lastChild = this.children[this.children.length - 1];
-        if (typeof lastChild === 'string') {
-            this.children[this.children.length - 1] = lastChild + '\n' + child;
-            return;
-        }
         this.children.push(child);
     }
 
