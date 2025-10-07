@@ -3,7 +3,7 @@ import { Form } from '../../behaviors.js';
 import UseBootstrapTag from 'use-bootstrap-tag'
 import exercice_edit_tpl from '@templates/exercices/edit/exercice-edit.jst'
 import params_tpl from '@templates/exercices/edit/exercice-apercu-params.jst' // pour l'aperçu des paramètres
-import { template } from 'underscore';
+
 
 const EditExerciceView = View.extend({
   template: exercice_edit_tpl,
