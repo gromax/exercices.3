@@ -53,7 +53,7 @@ class Tools {
      * @returns 
      */
     static parseOptions(content) {
-        const main = MainBloc.parse(content, true);
+        const main = MainBloc.parse(content, false);
         return main.parseOptions();
     }
 
