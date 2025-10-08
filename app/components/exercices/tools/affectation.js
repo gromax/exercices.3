@@ -36,6 +36,11 @@ class Affectation extends BlocParent {
     toString() {
         return `@${this.label} ${this.operator} ${this.value}`;
     }
+
+    run(params, options) {
+        this.doAffectation(params, options);
+        return null;
+    }
 }
 
 export default Affectation;
