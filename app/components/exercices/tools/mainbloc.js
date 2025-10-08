@@ -1,6 +1,7 @@
 import IfBloc from "./ifbloc.js";
 import Affectation from "./affectation.js";
 import Bloc from "./bloc.js";
+import TextNode from "./textnode.js";
 
 class MainBloc extends Bloc {
     /**
@@ -74,7 +75,6 @@ class MainBloc extends Bloc {
                    throw new Error("Erreur de syntaxe : fin de bloc sans début");
                 }
                 if (item.label !== label) {
-                    console.log(item);
                     throw new Error(`Erreur de syntaxe : fin de bloc ${label} mais on attendait </${item.label}>`);
                 }
                 item.close();
@@ -88,7 +88,7 @@ class MainBloc extends Bloc {
                 }
                 continue;
             }
-            stack[stack.length-1].push(trimmed);
+            stack[stack.length-1].push(new TextNode(trimmed));
         }
         if (stack.length !== 1) {
             throw new Error("Erreur de syntaxe : blocs non fermés");
@@ -99,6 +99,7 @@ class MainBloc extends Bloc {
 
     constructor() {
         super('main', '', false);
+        this._run = null;
     }
 
     getInit(params, options) {
@@ -107,7 +108,7 @@ class MainBloc extends Bloc {
         while (i<program.length) {
           let item = program[i];
           if (item instanceof IfBloc) {
-            const result = item.evaluate(params, options);
+            const result = item.evaluateCondition(params, options);
             if (item.type === 'needed') {
               if (!result) {
                 return null;
@@ -116,7 +117,7 @@ class MainBloc extends Bloc {
                 continue;
               }
             }
-            const ifChildren = item.evaluate(params, options) ? item.children : item.elseChildren;
+            const ifChildren = result ? item.children : item.elseChildren;
             program.splice(i + 1, 0, ...ifChildren);
             i++;
             continue;
@@ -149,6 +150,53 @@ class MainBloc extends Bloc {
             defaultsOptions[key] = defaultValue;
         }
         return { options, defaultsOptions };
+    }
+
+    /**
+     * initialise une exécution du bloc
+     * @param {*} params 
+     * @param {*} options 
+     */
+    initRun(params, options) {
+        this._run = {
+            line: 0,
+            params,
+            options,
+            brutProgram: [...this.children]
+        };
+    }
+
+    run() {
+        if (!this._run) {
+            throw new Error("Le bloc n'a pas été initialisé pour une exécution.");
+        }
+        const currentProgram = []
+        let i = this._run.line;
+        const params = this._run.params;
+        const options = this._run.options;
+        while (i<this._run.brutProgram.length) {
+            let item = this._run.brutProgram[i];
+            if ((item instanceof Bloc) && item.isParameter) {
+                // ignoré
+                i++;
+                continue;
+            }
+            const runned = item.run(params, options);
+            if (runned === null) {
+                i++;
+            } else if (Array.isArray(runned)) {
+                this._run.brutProgram.splice(i, 1, ...runned);
+            } else {
+                currentProgram.push(runned);
+                i++;
+            }
+            // s'arrête quand tombe sur un formulaire
+            if (item instanceof Bloc && item.label === 'form') {
+                break;
+            }
+        }
+        this._run.line = i;
+        return currentProgram;
     }
 }
 
