@@ -34,13 +34,6 @@ class BlocParent {
         this._closed = closed || false;
     }
 
-    setParam(label, value) {
-        if (this.params === undefined) {
-            this.params = {};
-        }
-        this.params[label] = value;
-    }
-
     toString() {
         let out = `<BlocParent>`;
         for (const child of this.children) {
@@ -48,6 +41,17 @@ class BlocParent {
         }
         out += `\n</BlocParent>`;
         return out;
+    }
+
+    /**
+     * Exécute le bloc avec les paramètres et options donnés
+     * et retourne le programme final (tableau de chaînes et de blocs)
+     * @param {object} params 
+     * @param {object} options 
+     * @returns {object|null}
+     */
+    run (params, options) {
+        return null;
     }
 }
 
