@@ -195,7 +195,7 @@ class IfBloc extends BlocParent {
         this.elseChildren.push(elseCondition);
     }
 
-    evaluate(params, options) {
+    evaluateCondition(params, options) {
         if (!this.expression) {
             return true;
         }
@@ -215,6 +215,15 @@ class IfBloc extends BlocParent {
         }
         out += `\n${IfBloc.END}`;
         return out;
+    }
+
+    run(params, options) {
+        const result = this.evaluateCondition(params, options);
+        if (this.type == 'needed' && !result) {
+            throw Error("Condition 'needed' non satisfaite");
+        }
+        const ifChildren = result ? this.children : this.elseChildren;
+        return ifChildren;
     }
 }
 
