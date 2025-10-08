@@ -5,7 +5,8 @@ const Controller = MnObject.extend({
   channelName: "app",
   radioEvents: {
     "exercices:list": "onExercicesList",
-    "exercice:show": "onExerciceShow"
+    "exercice:show": "onExerciceShow",
+    "exercice:apercu": "onExerciceApercu"
   },
 
   onExercicesList() {
@@ -17,6 +18,10 @@ const Controller = MnObject.extend({
   onExerciceShow(id) {
     Backbone.history.navigate(`exercice:${id}`, {});
     this.exerciceShow(id);
+  },
+
+  onExerciceApercu(exercice) {
+    require("./run/controller.js").controller.showApercu(exercice);
   },
 
   exercicesList(criterion) {
