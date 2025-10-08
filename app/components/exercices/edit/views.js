@@ -2,7 +2,7 @@ import { View } from 'backbone.marionette';
 import { Form } from '../../behaviors.js';
 import UseBootstrapTag from 'use-bootstrap-tag'
 import exercice_edit_tpl from '@templates/exercices/edit/exercice-edit.jst'
-import params_tpl from '@templates/exercices/edit/exercice-apercu-params.jst' // pour l'aperçu des paramètres
+
 
 
 const EditExerciceView = View.extend({
@@ -17,14 +17,4 @@ const EditExerciceView = View.extend({
   },
 });
 
-const ParamsView = View.extend({
-  template: params_tpl,
-  templateContext() {
-    return {
-      params: this.getOption("params")
-    };
-  }
-});
-
-
-export { EditExerciceView, ParamsView };
+export { EditExerciceView };
