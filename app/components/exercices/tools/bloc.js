@@ -4,12 +4,11 @@
  */
 
 import BlocParent from './blocparent.js';
-import Affectation from './affectation.js';
-import IfBloc from './ifbloc.js';
+import TextNode from './textnode.js';
 
 class Bloc extends BlocParent {
     static parse(line) {
-        const regex = /^<(\w+)\s*(:\s*[^>]+)?(\/)?>$/;
+        const regex = /^<(\w+)\s*(:\s*[^>/]+)?(\/)?>$/;
         const m = line.match(regex);
         if (m=== null) {
             return null;
@@ -25,7 +24,19 @@ class Bloc extends BlocParent {
         this.label = label;
         this._paramsString = paramsString;
         this._isParameter = (closed === true) && (paramsString !== "");
-        this._evaluationResult = null;
+        this._params = { header:paramsString };
+    }
+
+    setParam(label, value) {
+        this._params[label] = value;
+    }
+
+    get params() {
+        return this._params;
+    }
+
+    get isParameter() {
+        return this._isParameter;
     }
 
     /**
@@ -35,50 +46,32 @@ class Bloc extends BlocParent {
      * être rendu.
      * @param {Object} params 
      */
-    evaluate(params, options) {
+    run(params, options) {
         let program = [...this.children];
         let i = 0;
         while (i<program.length) {
             let item = program[i];
-            if (typeof item === 'string') {
-                program[i] = BlocParent.substituteLabels(item, {...params, ...options});
-                i++;
-                continue;
-            }
-            if (item instanceof Affectation) {
-                item.doAffectation(params, ...options);
-                program.splice(i, 1);
-                continue;
-            }
-            if ((item instanceof IfBloc) && (item.type === 'needed')) {
-                const result = item.evaluate(params, options);
-                if (!result) {
-                    throw Error("Condition 'needed' non satisfaite");
-                }
-                program.splice(i, 1);
-                continue;
-            }
-            if (item instanceof IfBloc) {
-                const result = item.evaluate(params, options);
-                const ifChildren = result ? item.children : item.elseChildren;
-                program.splice(i + 1, 0, ...ifChildren);
-                program.splice(i, 1);
-                continue;
-            }
-
-            if (!(item instanceof Bloc)) {
-                throw new Error("Instruction inconnue dans un bloc : " + item);
-            }
-
-            if (item.isParameter) {
+            if ((item instanceof Bloc) && item.isParameter) {
                 this.setParam(item.label, item.params);
                 program.splice(i, 1);
                 continue;
             }
-            item.evaluate(params, options);
-            i++;
+            const runned = item.run(params, options);
+            if (runned === null) {
+                program.splice(i, 1);
+            } else if (Array.isArray(runned)) {
+                program.splice(i, 1, ...runned);
+                continue
+            } else {
+                program[i] = runned;
+                i++;
+            }
         }
-        this._evaluationResult = program;
+        return {
+            label: this.label,
+            params: this.params,
+            content: program
+        }
     }
 
     parseOption() {
@@ -94,13 +87,14 @@ class Bloc extends BlocParent {
         let defaultValue = null;
         const values = {};
         for (const line of this.children) {
-            if (typeof line !== 'string') {
+            if (!(line instanceof TextNode)) {
                 throw new Error("Un bloc <option> ne peut contenir que du texte");
             }
-            if (line === '') {
+            const text = line.text;
+            if (text === '') {
                 continue;
             }
-            const m = line.match(/^([0-9]+)\s*=>\s*(.*)/);
+            const m = text.match(/^([0-9]+)\s*=>\s*(.*)/);
             if (!m) {
                 throw new Error("Format de ligne invalide dans un bloc <option>");
             }
