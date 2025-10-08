@@ -57,6 +57,10 @@ class Tools {
         return main.parseOptions();
     }
 
+    static parseCode(content) {
+        return MainBloc.parse(content, false);
+    }
+
 }
 
 
