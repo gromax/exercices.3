@@ -7,7 +7,7 @@
         <% } else { %>
             <% _.each(params, function(value, key) { %>
                 <span class="badge bg-light text-dark m-1">
-                    <b><%= key %>:</b> <%= value %>
+                    <b><%- key %>:</b> <%- value %>
                 </span>
             <% }); %>
         <% } %>
