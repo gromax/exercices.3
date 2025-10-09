@@ -1,0 +1,9 @@
+<div class="card border-primary mb-3">
+  <div class="card-header bg-primary">
+    <button class="btn btn-primary js-collapse" type="button">Aide</button>
+  </div>
+  <div class="card-body collapse">
+    <% if(subtitle) {%><h5 class="card-title"><%- subtitle %></h5><% } %>
+    <% _.each(paragraphs.join('\n').split('\n\n'), function(p) { %><p class="card-text"><%- p %></p><% }); %>
+  </div>
+</div>

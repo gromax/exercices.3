@@ -3,6 +3,7 @@ import options_tpl from '@templates/exercices/run/exercice-options.jst'
 import text_tpl from '@templates/exercices/run/exercice-text.jst'
 import params_tpl from '@templates/exercices/run/exercice-apercu-params.jst' // pour l'aperçu des paramètres
 import unknown_tpl from '@templates/exercices/run/exercice-unknown.jst'
+import help_tpl from '@templates/exercices/run/exercice-help.jst'
 
 const OptionsView = View.extend({
   template: options_tpl,
@@ -57,4 +58,30 @@ const TextView = View.extend({
   }
 });
 
-export { OptionsView, ParamsView, TextView, UnknownView };
+const HelpView = View.extend({
+  template: help_tpl,
+  triggers: {
+    'click .js-collapse': 'toggleCollapse'
+  },
+  templateContext() {
+    return {
+      subtitle: this.getOption("subtitle"),
+      paragraphs: this.getOption("paragraphs"),
+    };
+  },
+
+  onToggleCollapse() {
+    const target = this.el.querySelector('div .card-body');
+    if (target) {
+      target.classList.toggle('show');
+    }
+  }
+});
+
+export {
+  OptionsView,
+  ParamsView,
+  TextView,
+  UnknownView,
+  HelpView
+};
