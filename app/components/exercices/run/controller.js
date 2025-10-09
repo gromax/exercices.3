@@ -34,6 +34,8 @@ const Controller = MnObject.extend ({
         const paramsView = new ParamsView({ params: initParams });
         new Region({ el: '#exercice-initparams' }).show(paramsView);
       }
+      const region = document.querySelector('#exercice-run');
+      region.innerHTML = "";
       const main = Tools.parseCode(exercice.get("code"));
       main.initRun(initParams, selectedOptions);
       this.runExercice(main);
