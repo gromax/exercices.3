@@ -1,6 +1,8 @@
 import { MnObject, Region } from 'backbone.marionette'
+import { View } from 'backbone.marionette';
 import { OptionsView, ParamsView, TextView } from './views.js'
 import Tools from '../tools.js';
+import renderMathInElement from "katex/contrib/auto-render";
 
 const Controller = MnObject.extend ({
   channelName: "app",
@@ -45,14 +47,23 @@ const Controller = MnObject.extend ({
   },
 
   runExercice(main) {
-    const region = new Region({ el: '#exercice-run' });
-    const items = main.run();
+    const region = document.querySelector('#exercice-run');
+    const items = main.views();
     for (const item of items) {
-      if (item.label === 'text') {
-        const textView = new TextView(item);
-        region.show(textView);
+      if (!(item instanceof View)) {
+        throw new Error("Le bloc principal doit uniquement produire des vues.");
       }
+      region.appendChild(item.el);
+      item.render();
     }
+    // Rendu de KaTeX dans la zone d'exercice
+    renderMathInElement(region, {
+      delimiters: [
+        {left: "$", right: "$", display: false},
+        {left: "$$", right: "$$", display: true}
+      ],
+      throwOnError: false
+    });
   }
 });
 
