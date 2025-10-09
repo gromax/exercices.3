@@ -1,6 +1,5 @@
 import MainBloc from './tools/mainbloc.js';
 
-
 class Tools {
     /**
      * Fonction d'initialisation des paramètres d'un exercice
