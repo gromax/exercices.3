@@ -2,6 +2,7 @@ import { View } from 'backbone.marionette';
 import options_tpl from '@templates/exercices/run/exercice-options.jst'
 import text_tpl from '@templates/exercices/run/exercice-text.jst'
 import params_tpl from '@templates/exercices/run/exercice-apercu-params.jst' // pour l'aperçu des paramètres
+import unknown_tpl from '@templates/exercices/run/exercice-unknown.jst'
 
 const OptionsView = View.extend({
   template: options_tpl,
@@ -32,19 +33,28 @@ const ParamsView = View.extend({
   }
 });
 
+const UnknownView = View.extend({
+  template: unknown_tpl,
+  templateContext() {
+    return {
+      name: this.getOption("name"),
+      code: this.getOption("code")
+    };
+  }
+});
 
 const TextView = View.extend({
   template: text_tpl,
   templateContext() {
     return {
-      header: this.getOption("params")?.header||false,
-      subtitle: this.getOption("params")?.subtitle||false,
-      paragraphs: this.getOption("content"),
-      footer: this.getOption("footer")||false,
-      info: this.getOption("params")?.info||false,
-      warning: this.getOption("params")?.warning||false
+      header: this.getOption("header"),
+      subtitle: this.getOption("subtitle"),
+      paragraphs: this.getOption("paragraphs"),
+      footer: this.getOption("footer"),
+      info: this.getOption("info"),
+      warning: this.getOption("warning")
     };
   }
 });
 
-export { OptionsView, ParamsView, TextView };
+export { OptionsView, ParamsView, TextView, UnknownView };
