@@ -3,25 +3,14 @@
  * de rendu identifiés par une balise de type <label param1 param2 ...>
  */
 
-import BlocParent from './blocparent.js';
+import Parent from './parent.js';
 import TextNode from './textnode.js';
+import { UnknownView } from '../run/views.js';
 
-class Bloc extends BlocParent {
-    static parse(line) {
-        const regex = /^<(\w+)\s*(:\s*[^>/]+)?(\/)?>$/;
-        const m = line.match(regex);
-        if (m=== null) {
-            return null;
-        }
-        const label = m[1];
-        const closed = (m[3] !== undefined);
-        const paramsString = m[2] ? m[2].slice(1).trim() : '';
-        return new Bloc(label, paramsString, closed);
-    }
-
+class Bloc extends Parent {
     constructor(label, paramsString, closed) {
         super(closed);
-        this.label = label;
+        this._label = label;
         this._paramsString = paramsString;
         this._isParameter = (closed === true) && (paramsString !== "");
         this._params = { header:paramsString };
@@ -39,6 +28,10 @@ class Bloc extends BlocParent {
         return this._isParameter;
     }
 
+    get label() {
+        return this._label;
+    }
+
     /**
      * Exécute les morceaux de code du bloc
      * et effectue les substitutions de texte nécessaire
@@ -47,6 +40,9 @@ class Bloc extends BlocParent {
      * @param {Object} params 
      */
     run(params, options) {
+        if (this.isParameter) {
+            return null;
+        }
         let program = [...this.children];
         let i = 0;
         while (i<program.length) {
@@ -72,6 +68,13 @@ class Bloc extends BlocParent {
             params: this.params,
             content: program
         }
+    }
+
+    toView(params, options) {
+        if (this.isParameter) {
+            throw new Error("Un bloc de paramètre ne peut pas être converti en vue");
+        }
+        return new UnknownView({ name:this.label, code: this.toString() });
     }
 
     parseOption() {
@@ -110,6 +113,16 @@ class Bloc extends BlocParent {
         }
         return [this._paramsString, defaultValue, values];
     }
+
+    toString() {
+        let out = `<${this.label}>`;
+        for (const child of this.children) {
+            out += `\n  ${child.toString().replace(/\n/g, '\n  ')}`;
+        }
+        out += `\n</${this.label}>`;
+        return out;
+    }
+
 }
 
 export default Bloc;
