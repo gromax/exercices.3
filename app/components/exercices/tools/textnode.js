@@ -1,4 +1,4 @@
-import BlocParent from './blocparent.js';
+import Parent from './parent.js';
 
 class TextNode {
   constructor(text) {
@@ -6,11 +6,11 @@ class TextNode {
   }
 
   toString() {
-    return `<TextNode>${this._text}</TextNode>`;
+    return this._text;
   }
 
   run(params, options) {
-    return BlocParent.substituteLabels(this._text, {...params, ...options});
+    return Parent.substituteLabels(this._text, {...params, ...options});
   }
 
   get text() {
