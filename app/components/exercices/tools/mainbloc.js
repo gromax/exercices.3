@@ -2,6 +2,7 @@ import IfBloc from "./ifbloc.js";
 import Affectation from "./affectation.js";
 import Bloc from "./bloc.js";
 import TextNode from "./textnode.js";
+import TextBloc from "./textbloc.js";
 
 class MainBloc extends Bloc {
     /**
@@ -53,7 +54,7 @@ class MainBloc extends Bloc {
                 stack[stack.length-1].push(prevItem);
                 continue;
             }
-            const bloc = Bloc.parse(trimmed);
+            const bloc = MainBloc.parseBloc(trimmed);
             if (bloc) {
                 if (notext) {
                     throw new Error(`Les blocs de texte ne sont pas autorisés ici : ${trimmed}`);
@@ -95,6 +96,21 @@ class MainBloc extends Bloc {
         }
         mainBlock.close();
         return mainBlock;
+    }
+
+    static parseBloc(line) {
+        const regex = /^<(\w+)\s*(:\s*[^>/]+)?(\/)?>$/;
+        const m = line.match(regex);
+        if (m=== null) {
+            return null;
+        }
+        const label = m[1];
+        const closed = (m[3] !== undefined);
+        const paramsString = m[2] ? m[2].slice(1).trim() : '';
+        if (TextBloc.LABELS.includes(label)) {
+            return new TextBloc(label, paramsString, closed);
+        }
+        return new Bloc(label, paramsString, closed);
     }
 
     constructor() {
@@ -167,6 +183,19 @@ class MainBloc extends Bloc {
     }
 
     run() {
+        return this._execRun(false);
+    }
+
+    views() {
+        return this._execRun(true);
+    }
+
+    /**
+     * Exécute le bloc principal et renvoie les vues ou les contenus bruts
+     * @param {boolean} getViews 
+     * @returns {array}
+     */
+    _execRun(getViews) {
         if (!this._run) {
             throw new Error("Le bloc n'a pas été initialisé pour une exécution.");
         }
@@ -176,12 +205,12 @@ class MainBloc extends Bloc {
         const options = this._run.options;
         while (i<this._run.brutProgram.length) {
             let item = this._run.brutProgram[i];
-            if ((item instanceof Bloc) && item.isParameter) {
-                // ignoré
-                i++;
-                continue;
+            let runned;
+            if (getViews && (item instanceof Bloc) && !item.isParameter) {
+                runned = item.toView(params, options);
+            } else {
+                runned = item.run(params, options);
             }
-            const runned = item.run(params, options);
             if (runned === null) {
                 i++;
             } else if (Array.isArray(runned)) {
