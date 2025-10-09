@@ -1,7 +1,7 @@
-import BlocParent from './blocparent.js';
+import Parent from './parent.js';
 import MyMath from '@tools/mymath.js';
 
-class Affectation extends BlocParent {
+class Affectation extends Parent {
     static parse(line) {
         const regex = /^@([a-zA-Z_][a-zA-Z0-9_]*)\s*(:?=)\s*(.+)$/;
         const m = line.match(regex);
@@ -29,7 +29,7 @@ class Affectation extends BlocParent {
         if ((this.label in params) && (this.operator === ':=')) {
             return; // ne fait rien si le paramètre existe déjà
         }
-        const substituted = BlocParent.substituteLabels(this.value, { ...params, ...protectedParams });
+        const substituted = Parent.substituteLabels(this.value, { ...params, ...protectedParams });
         params[this.label] = MyMath.evaluate(substituted);
     }
 

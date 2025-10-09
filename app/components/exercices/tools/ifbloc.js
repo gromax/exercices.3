@@ -1,4 +1,4 @@
-import BlocParent from './blocparent.js';
+import Parent from './parent.js';
 import MyMath from '@tools/mymath.js';
 
 class Operator {
@@ -60,8 +60,8 @@ class SimpleCondition {
     }
 
     evaluate(params) {
-        const left = MyMath.evaluate(BlocParent.substituteLabels(this.left, params));
-        const right = MyMath.evaluate(BlocParent.substituteLabels(this.right, params));
+        const left = MyMath.evaluate(Parent.substituteLabels(this.left, params));
+        const right = MyMath.evaluate(Parent.substituteLabels(this.right, params));
         return (left === right) === (this.operator === '==');
     }
 
@@ -70,7 +70,7 @@ class SimpleCondition {
     }
 }
 
-class IfBloc extends BlocParent {
+class IfBloc extends Parent {
     static END = '<endif>'
     closed = false;
 
@@ -150,8 +150,8 @@ class IfBloc extends BlocParent {
      * @returns {boolean}
      */
     static testSingleCondition(condition, params) {
-        const left = MyMath.evaluate(BlocParent.substituteLabels(condition.left, params));
-        const right = MyMath.evaluate(BlocParent.substituteLabels(condition.right, params));
+        const left = MyMath.evaluate(Parent.substituteLabels(condition.left, params));
+        const right = MyMath.evaluate(Parent.substituteLabels(condition.right, params));
         return (left === right) === (condition.operator === '==');
     }
 

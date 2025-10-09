@@ -1,4 +1,4 @@
-class BlocParent {
+class Parent {
     /**
      * remplace les labels @label dans une expression par leur valeur
      * @param {string} expr une expression
@@ -35,11 +35,11 @@ class BlocParent {
     }
 
     toString() {
-        let out = `<BlocParent>`;
+        let out = `<Parent>`;
         for (const child of this.children) {
             out += `\n  ${child.toString().replace(/\n/g, '\n  ')}`;
         }
-        out += `\n</BlocParent>`;
+        out += `\n</Parent>`;
         return out;
     }
 
@@ -55,4 +55,4 @@ class BlocParent {
     }
 }
 
-export default BlocParent;
+export default Parent;
