@@ -3,17 +3,28 @@
  * de rendu identifiés par une balise de type <label param1 param2 ...>
  */
 
-import Parent from './parent.js';
 import TextNode from './textnode.js';
 import { UnknownView } from '../run/views.js';
 
-class Bloc extends Parent {
+class Bloc {
     constructor(label, paramsString, closed) {
-        super(closed);
+        this._children = [];
+        this._closed = closed || false;
         this._label = label;
         this._paramsString = paramsString;
         this._isParameter = (closed === true) && (paramsString !== "");
         this._params = { header:paramsString };
+        this._executionChildren = null;
+        this._parent = null;
+    }
+
+    reset() {
+        this._executionChildren = null;
+        this._params = { header:this._paramsString };
+    }
+
+    setParent(parent) {
+        this._parent = parent;
     }
 
     setParam(label, value) {
@@ -32,6 +43,32 @@ class Bloc extends Parent {
         return this._label;
     }
 
+    get children() {
+        return this._children;
+    }
+
+    close() {
+        this._closed = true;
+    }
+
+    get closed() {
+        return this._closed;
+    }
+
+    push(child) {
+        if (this.closed) {
+            throw new Error("Impossible d'ajouter un enfant à un bloc fermé");
+        }
+        if (child instanceof Bloc) {
+            child.setParent(this);
+        }
+        this._children.push(child);
+    }
+
+    stopRun() {
+        return false;
+    }
+
     /**
      * Exécute les morceaux de code du bloc
      * et effectue les substitutions de texte nécessaire
@@ -39,40 +76,37 @@ class Bloc extends Parent {
      * être rendu.
      * @param {Object} params 
      */
-    run(params, options) {
+    run(params) {
+        if (this._executionChildren) {
+            // déjà exécuté
+            return this;
+        }
         if (this.isParameter) {
+            if (this._parent) {
+                this._parent.setParam(this.label, this._paramsString);
+            }
             return null;
         }
-        let program = [...this.children];
-        let i = 0;
-        while (i<program.length) {
-            let item = program[i];
-            if ((item instanceof Bloc) && item.isParameter) {
-                this.setParam(item.label, item.params);
-                program.splice(i, 1);
+        const pile = [...this._children].reverse();
+        this._executionChildren = [];
+        while (pile.length > 0) {
+            let item = pile.pop();
+            const runned = item.run(params);
+            if (runned === null) {
                 continue;
             }
-            const runned = item.run(params, options);
-            if (runned === null) {
-                program.splice(i, 1);
-            } else if (Array.isArray(runned)) {
-                program.splice(i, 1, ...runned);
-                continue
+            if (Array.isArray(runned)) {
+                pile.push(...runned.reverse());
             } else {
-                program[i] = runned;
-                i++;
+                this._executionChildren.push(runned);
             }
         }
-        return {
-            label: this.label,
-            params: this.params,
-            content: program
-        }
+        return this;
     }
 
-    toView(params, options) {
+    toView(params) {
         if (this.isParameter) {
-            throw new Error("Un bloc de paramètre ne peut pas être converti en vue");
+            return this.run(params);
         }
         return new UnknownView({ name:this.label, code: this.toString() });
     }
@@ -84,12 +118,12 @@ class Bloc extends Parent {
         if (this._paramsString === '') {
             throw new Error("Un bloc <option> doit pas avoir une étiquette <option:étiquette>");
         }
-        if (this.children.length === 0) {
+        if (this._children.length === 0) {
             throw new Error("Un bloc <option> doit contenir au moins une ligne");
         }
         let defaultValue = null;
         const values = {};
-        for (const line of this.children) {
+        for (const line of this._children) {
             if (!(line instanceof TextNode)) {
                 throw new Error("Un bloc <option> ne peut contenir que du texte");
             }
@@ -116,7 +150,7 @@ class Bloc extends Parent {
 
     toString() {
         let out = `<${this.label}>`;
-        for (const child of this.children) {
+        for (const child of this._children) {
             out += `\n  ${child.toString().replace(/\n/g, '\n  ')}`;
         }
         out += `\n</${this.label}>`;
