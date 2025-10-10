@@ -2,7 +2,7 @@
   <% if(header) {%><h5 class="card-header"><%- header %></h5><% } %>
   <div class="card-body">
     <% if(subtitle) {%><h5 class="card-title"><%- subtitle %></h5><% } %>
-    <% _.each(paragraphs.join('\n').split('\n\n'), function(p) { %><p class="card-text"><%- p %></p><% }); %>
+    <% _.each(paragraphs, function(p) { %><p class="card-text"><%- p %></p><% }); %>
   </div>
   <% if(footer) {%><div class="card-footer text-muted"><%- footer %></div><% } %>
 </div>

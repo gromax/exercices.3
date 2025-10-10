@@ -4,6 +4,6 @@
   </div>
   <div class="card-body collapse">
     <% if(subtitle) {%><h5 class="card-title"><%- subtitle %></h5><% } %>
-    <% _.each(paragraphs.join('\n').split('\n\n'), function(p) { %><p class="card-text"><%- p %></p><% }); %>
+    <% _.each(paragraphs, function(p) { %><p class="card-text"><%- p %></p><% }); %>
   </div>
 </div>
