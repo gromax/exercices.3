@@ -11,8 +11,10 @@ class Tools {
      * @returns {object}
      */
     static initExoParams(text, options) {
+        text = text || "";
+        const main = MainBloc.parse(text, true);
         for (let attempt = 1; attempt <= 50; attempt++) {
-            const result = Tools.initExoParamsOneTry(text, options);
+            const result = Tools._initExoParamsOneTry(main, options);
             if (result !== null) {
                 return result;
             }
@@ -23,18 +25,16 @@ class Tools {
     /**
      * Fonction d'initialisation des paramètres d'un exercice
      * Fait un essain unique de résolution des paramètres
-     * @param {string} text 
+     * @param {MainBloc} main 
      * @param {object|null} options 
      * @param {object} params paramètres déjà connus
      */
-    static initExoParamsOneTry(text, options, params) {
+    static _initExoParamsOneTry(main, options, params) {
         params = params || {};
         options = options || {};
         if (typeof options === 'string') {
             options = JSON.parse(options);
         }
-        text = text || "";
-        const main = MainBloc.parse(text, true);
         return main.getInit(params, options);
     }
 
@@ -52,8 +52,7 @@ class Tools {
      * @returns 
      */
     static parseOptions(content) {
-        const main = MainBloc.parse(content, false);
-        return main.parseOptions();
+        return MainBloc.parseOptions(content);
     }
 
     static parseCode(content) {
