@@ -1,7 +1,7 @@
-import Parent from './parent.js';
+import { substituteLabels } from './misc.js';
 import MyMath from '@tools/mymath.js';
 
-class Affectation extends Parent {
+class Affectation {
     static parse(line) {
         const regex = /^@([a-zA-Z_][a-zA-Z0-9_]*)\s*(:?=)\s*(.+)$/;
         const m = line.match(regex);
@@ -13,7 +13,6 @@ class Affectation extends Parent {
     }
 
     constructor(label, operator, value) {
-        super();
         this.label = label;
         this.operator = operator;
         this.value = value;
@@ -29,7 +28,7 @@ class Affectation extends Parent {
         if ((this.label in params) && (this.operator === ':=')) {
             return; // ne fait rien si le paramètre existe déjà
         }
-        const substituted = Parent.substituteLabels(this.value, { ...params, ...protectedParams });
+        const substituted = substituteLabels(this.value, { ...params, ...protectedParams });
         params[this.label] = MyMath.evaluate(substituted);
     }
 
@@ -37,8 +36,8 @@ class Affectation extends Parent {
         return `@${this.label} ${this.operator} ${this.value}`;
     }
 
-    run(params, options) {
-        this.doAffectation(params, options);
+    run(params) {
+        this.doAffectation(params, {});
         return null;
     }
 }
