@@ -8,32 +8,32 @@ class Affectation {
         if (!m) {
             return null;
         }
-        const [, label, operator, value] = m;
-        return new Affectation(label, operator, value);
+        const [, tag, operator, value] = m;
+        return new Affectation(tag, operator, value);
     }
 
-    constructor(label, operator, value) {
-        this.label = label;
-        this.operator = operator;
-        this.value = value;
+    constructor(tag, operator, value) {
+        this._tag = tag;
+        this._operator = operator;
+        this._value = value;
     }
 
     doAffectation(params, protectedParams) {
-        if (!(this.label in params) && (this.operator === '=')) {
-            throw new Error(`Vous devez utiliser = pour un paramètre déjà défini : ${this.label}`);
+        if (!(this._tag in params) && (this._operator === '=')) {
+            throw new Error(`Vous devez utiliser = pour un paramètre déjà défini : ${this._tag}`);
         }
-        if (this.label in protectedParams) {
-            throw new Error(`Le paramètre ${this.label} est protégé et ne peut pas être redéfini.`);
+        if (this._tag in protectedParams) {
+            throw new Error(`Le paramètre ${this._tag} est protégé et ne peut pas être redéfini.`);
         }
-        if ((this.label in params) && (this.operator === ':=')) {
+        if ((this._tag in params) && (this._operator === ':=')) {
             return; // ne fait rien si le paramètre existe déjà
         }
-        const substituted = substituteLabels(this.value, { ...params, ...protectedParams });
-        params[this.label] = MyMath.evaluate(substituted);
+        const substituted = substituteLabels(this._value, { ...params, ...protectedParams });
+        params[this._tag] = MyMath.evaluate(substituted);
     }
 
     toString() {
-        return `@${this.label} ${this.operator} ${this.value}`;
+        return `@${this._tag} ${this._operator} ${this._value}`;
     }
 
     run(params) {
