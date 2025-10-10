@@ -1,4 +1,4 @@
-import Parent from './parent.js';
+import { substituteLabels } from './misc.js';
 
 class TextNode {
   constructor(text) {
@@ -10,7 +10,8 @@ class TextNode {
   }
 
   run(params, options) {
-    return Parent.substituteLabels(this._text, {...params, ...options});
+    this._text = substituteLabels(this._text, {...params, ...options});
+    return this;
   }
 
   get text() {
