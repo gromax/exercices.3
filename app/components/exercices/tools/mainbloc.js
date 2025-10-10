@@ -3,10 +3,12 @@ import Affectation from "./affectation.js";
 import Bloc from "./bloc.js";
 import TextNode from "./textnode.js";
 import TextBloc from "./textbloc.js";
+import Parameter from "./parameter.js";
+import Option from "./option.js";
 
 class MainBloc extends Bloc {
     static parseOptions(content) {
-        const mainBlock = MainBloc.parse(content, false);
+        const mainBlock = MainBloc.parse(content, true);
         return mainBlock._parseOptions();
     }
     
@@ -31,7 +33,7 @@ class MainBloc extends Bloc {
             }
             const condition = IfBloc.parse(trimmed);
             if (condition) {
-                if (condition.isNeeded()) {
+                if (condition.tag === IfBloc.NEEDED) {
                    stack[stack.length-1].push(condition);
                 } else {
                     stack.push(condition);
@@ -50,15 +52,28 @@ class MainBloc extends Bloc {
                     if (!(item instanceof IfBloc) || item.closed) {
                         throw new Error("Erreur de syntaxe : fin de condition sans début");
                     }
-                    if (prevItem !== null && item.isElse()) {
+                    if (prevItem !== null && item.tag === IfBloc.ELSE) {
                         throw new Error("Erreur de syntaxe : else doit être en dernier");
                     }
                     item.pushElse(prevItem);
                     prevItem = item;
-                } while (prevItem.isElif() || prevItem.isElse());
+                } while (prevItem.tag === IfBloc.ELIF || prevItem.tag === IfBloc.ELSE);
                 stack[stack.length-1].push(prevItem);
                 continue;
             }
+
+            const parameter = Parameter.parse(trimmed);
+            if (parameter) {
+                stack[stack.length-1].push(parameter);
+                continue;
+            }
+
+            const option = Option.parse(trimmed);
+            if (option) {
+                stack[stack.length-1].push(option);
+                continue;
+            }
+
             const bloc = MainBloc.parseBloc(trimmed);
             if (bloc) {
                 if (notext) {
@@ -106,18 +121,17 @@ class MainBloc extends Bloc {
     }
 
     static parseBloc(line) {
-        const regex = /^<(\w+)\s*(:\s*[^>/]+)?(\/)?>$/;
+        const regex = /^<(\w+)\s*(:\s*[^>/]+)?>$/;
         const m = line.match(regex);
         if (m=== null) {
             return null;
         }
         const label = m[1];
-        const closed = (m[3] !== undefined);
         const paramsString = m[2] ? m[2].slice(1).trim() : '';
         if (TextBloc.LABELS.includes(label)) {
-            return new TextBloc(label, paramsString, closed);
+            return new TextBloc(label, paramsString, false);
         }
-        return new Bloc(label, paramsString, closed);
+        return new Bloc(label, paramsString, false);
     }
 
     constructor() {
