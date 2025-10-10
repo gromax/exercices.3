@@ -73,6 +73,10 @@ class SimpleCondition {
 
 class IfBloc extends Bloc {
     static END = '<endif>'
+    static ENDIF = 'endif'
+    static ELSE = 'else'
+    static ELIF = 'elif'
+    static NEEDED = 'needed'
 
     static parse(line) {
         const regex = /^<(if|elif|else|needed)\s*(\s[^>]+)?>$/;
@@ -80,8 +84,8 @@ class IfBloc extends Bloc {
         if (!m) {
             return null;
         }
-        const [, label, paramsString] = m;
-        return new IfBloc(label, paramsString);
+        const [, tag, paramsString] = m;
+        return new IfBloc(tag, paramsString);
     }
 
     static parseExpression(expr) {
@@ -155,9 +159,9 @@ class IfBloc extends Bloc {
         return (left === right) === (condition.operator === '==');
     }
 
-    constructor(label, paramsString) {
-        super(label, paramsString, false);
-        if (this.isElse() && paramsString) {
+    constructor(tag, paramsString) {
+        super(tag, paramsString, false);
+        if (this.tag === IfBloc.ELSE && paramsString) {
             throw new Error("Erreur de syntaxe : else ne doit pas avoir de condition");
         }
         if (this.isNeeded()) {
@@ -171,48 +175,37 @@ class IfBloc extends Bloc {
         return this._elseChildren;
     }
 
-    isNeeded() {
-        return this.label === 'needed';
-    }
-
-    isElse() {
-        return this.label === 'else';
-    }
-
-    isElif() {
-        return this.label === 'elif';
-    }
-
-    muteElifToIf() {
-        if (this.isElif()) {
-            this._label = 'if';
+    elifToIf() {
+        if (this.tag !== IfBloc.ELIF) {
+            throw new Error("Seul un bloc elif peut être converti en if");
         }
+        this._tag = IfBloc.IF;
     }
 
     /**
      * ajoute un bloc elif ou else en tant que else d'un bloc parent
-     * @param {IfBloc|null} elseCondition 
+     * @param {IfBloc|null} elseCondition
      */
     pushElse(elseCondition) {
         if (elseCondition === null) {
             return;
         }
-        if ((elseCondition.isElif()) && (elseCondition.isElse())) {
+        if ((elseCondition.tag !== IfBloc.ELIF) && (elseCondition.tag !== IfBloc.ELSE)) {
             throw new Error("Erreur de syntaxe : doit être else ou elif");
         }
         if (this.closed) {
             throw new Error("Erreur de syntaxe : une condition fermée ne peut pas avoir de else");
         }
         this.close();
-        if (this.isElse()) {
+        if (this.tag === IfBloc.ELSE) {
             throw new Error("Erreur de syntaxe : else ne peut pas avoir de else");
         }
-        if (elseCondition.isElse()) {
-            this._elseChildren = elseCondition._children;
+        if (elseCondition.tag === IfBloc.ELSE) {
+            this._elseChildren = elseCondition.children;
             return;
         }
         // c'était un elif
-        elseCondition.muteElifToIf();
+        elseCondition.elifToIf();
         this._elseChildren.push(elseCondition);
     }
 
@@ -224,7 +217,7 @@ class IfBloc extends Bloc {
     }
 
     toString() {
-        let out = `<${this.label} ${this._expression?this._expression.toString():''} ${this.closed ? '' : '*'}>`;
+        let out = `<${this.tag} ${this._expression?this._expression.toString():''} ${this.closed ? '' : '*'}>`;
         for (const child of this._children) {
             out += `\n  ${child.toString().replace(/\n/g, '\n  ')}`;
         }
