@@ -4,9 +4,9 @@ import { TextView, HelpView } from '../run/views.js';
 
 class TextBloc extends Bloc {
     static LABELS = ['text', 'texte', 'warning', 'aide', 'info', 'help'];
-    constructor(label, paramsString, closed) {
-        super(label, paramsString, closed);
-        this.setParam('type', label);
+    constructor(tag, paramsString, closed) {
+        super(tag, paramsString, closed);
+        this._category = 'text';
     }
 
     run(params) {
@@ -24,7 +24,7 @@ class TextBloc extends Bloc {
         this.run(params);
         const content = this._executionChildren.map(item => item.text).join('\n').split('\n\n');
 
-        if (this.label == 'help' || this.label == 'aide') {
+        if (this.tag == 'help' || this.tag == 'aide') {
             return new HelpView({
                 subtitle: this._params["header"] || this._params["subtitle"] || false,
                 paragraphs: content,
@@ -35,8 +35,8 @@ class TextBloc extends Bloc {
             subtitle: this._params["subtitle"] || false,
             paragraphs: content,
             footer: this._params["footer"] || false,
-            info: this.label == "info",
-            warning: this.label == 'warning',
+            info: this.tag == "info",
+            warning: this.tag == 'warning',
         });
     }
 }
