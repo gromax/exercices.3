@@ -1,4 +1,5 @@
-import Parent from './parent.js';
+import { substituteLabels } from './misc.js';
+import Bloc from './bloc.js';
 import MyMath from '@tools/mymath.js';
 
 class Operator {
@@ -60,8 +61,8 @@ class SimpleCondition {
     }
 
     evaluate(params) {
-        const left = MyMath.evaluate(Parent.substituteLabels(this.left, params));
-        const right = MyMath.evaluate(Parent.substituteLabels(this.right, params));
+        const left = MyMath.evaluate(substituteLabels(this.left, params));
+        const right = MyMath.evaluate(substituteLabels(this.right, params));
         return (left === right) === (this.operator === '==');
     }
 
@@ -70,9 +71,8 @@ class SimpleCondition {
     }
 }
 
-class IfBloc extends Parent {
+class IfBloc extends Bloc {
     static END = '<endif>'
-    closed = false;
 
     static parse(line) {
         const regex = /^<(if|elif|else|needed)\s*(\s[^>]+)?>$/;
@@ -80,8 +80,8 @@ class IfBloc extends Parent {
         if (!m) {
             return null;
         }
-        const [, type, paramsString] = m;
-        return new IfBloc(type, paramsString);
+        const [, label, paramsString] = m;
+        return new IfBloc(label, paramsString);
     }
 
     static parseExpression(expr) {
@@ -150,22 +150,43 @@ class IfBloc extends Parent {
      * @returns {boolean}
      */
     static testSingleCondition(condition, params) {
-        const left = MyMath.evaluate(Parent.substituteLabels(condition.left, params));
-        const right = MyMath.evaluate(Parent.substituteLabels(condition.right, params));
+        const left = MyMath.evaluate(substituteLabels(condition.left, params));
+        const right = MyMath.evaluate(substituteLabels(condition.right, params));
         return (left === right) === (condition.operator === '==');
     }
 
-    constructor(type, paramsString) {
-        super();
-        this.type = type;
-        if (this.type === 'else' && paramsString) {
+    constructor(label, paramsString) {
+        super(label, paramsString, false);
+        if (this.isElse() && paramsString) {
             throw new Error("Erreur de syntaxe : else ne doit pas avoir de condition");
         }
-        if (this.type == 'needed') {
-            this.closed = true;
+        if (this.isNeeded()) {
+            this.close();
         }
-        this.expression = paramsString?IfBloc.parseExpression(paramsString):null;
-        this.elseChildren = [];
+        this._expression = paramsString?IfBloc.parseExpression(paramsString):null;
+        this._elseChildren = [];
+    }
+
+    get elseChildren() {
+        return this._elseChildren;
+    }
+
+    isNeeded() {
+        return this.label === 'needed';
+    }
+
+    isElse() {
+        return this.label === 'else';
+    }
+
+    isElif() {
+        return this.label === 'elif';
+    }
+
+    muteElifToIf() {
+        if (this.isElif()) {
+            this._label = 'if';
+        }
     }
 
     /**
@@ -176,40 +197,40 @@ class IfBloc extends Parent {
         if (elseCondition === null) {
             return;
         }
-        if ((elseCondition.type !== 'elif') && (elseCondition.type !== 'else')) {
+        if ((elseCondition.isElif()) && (elseCondition.isElse())) {
             throw new Error("Erreur de syntaxe : doit être else ou elif");
         }
         if (this.closed) {
             throw new Error("Erreur de syntaxe : une condition fermée ne peut pas avoir de else");
         }
-        this.closed = true;
-        if (this.type === 'else') {
+        this.close();
+        if (this.isElse()) {
             throw new Error("Erreur de syntaxe : else ne peut pas avoir de else");
         }
-        if (elseCondition.type === 'else') {
-            this.elseChildren = elseCondition.children;
+        if (elseCondition.isElse()) {
+            this._elseChildren = elseCondition._children;
             return;
         }
         // c'était un elif
-        elseCondition.type = 'if';
-        this.elseChildren.push(elseCondition);
+        elseCondition.muteElifToIf();
+        this._elseChildren.push(elseCondition);
     }
 
-    evaluateCondition(params, options) {
-        if (!this.expression) {
+    _evaluateCondition(params) {
+        if (!this._expression) {
             return true;
         }
-        return this.expression.evaluate({...params, ...options});
+        return this._expression.evaluate(params);
     }
 
     toString() {
-        let out = `<${this.type} ${this.expression?this.expression.toString():''} ${this.closed ? '' : '*'}>`;
-        for (const child of this.children) {
+        let out = `<${this.label} ${this._expression?this._expression.toString():''} ${this.closed ? '' : '*'}>`;
+        for (const child of this._children) {
             out += `\n  ${child.toString().replace(/\n/g, '\n  ')}`;
         }
-        if (this.elseChildren.length > 0) {
+        if (this._elseChildren.length > 0) {
             out += `\n<else>`;
-            for (const child of this.elseChildren) {
+            for (const child of this._elseChildren) {
                 out += `\n  ${child.toString().replace(/\n/g, '\n  ')}`;
             }
         }
@@ -217,12 +238,12 @@ class IfBloc extends Parent {
         return out;
     }
 
-    run(params, options) {
-        const result = this.evaluateCondition(params, options);
-        if (this.type == 'needed' && !result) {
-            throw Error("Condition 'needed' non satisfaite");
+    run(params) {
+        const result = this._evaluateCondition(params);
+        if (this.isNeeded() && !result) {
+            return null;
         }
-        const ifChildren = result ? this.children : this.elseChildren;
+        const ifChildren = result ? this._children : this._elseChildren;
         return ifChildren;
     }
 }
