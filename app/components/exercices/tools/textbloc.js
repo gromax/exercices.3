@@ -1,29 +1,39 @@
 import Bloc from './bloc.js';
+import TextNode from './textnode.js';
 import { TextView, HelpView } from '../run/views.js';
 
 class TextBloc extends Bloc {
     static LABELS = ['text', 'texte', 'warning', 'aide', 'info', 'help'];
     constructor(label, paramsString, closed) {
-        super('text', paramsString, closed);
+        super(label, paramsString, closed);
         this.setParam('type', label);
     }
 
-    get label() {
-        return this._params["type"];
+    run(params) {
+        if (this._executionChildren) {
+            // déjà exécuté
+            return this;
+        }
+        super.run(params);
+        // pour un bloc de texte ne conserve que le texte
+        this._executionChildren = this._executionChildren.filter(item => item instanceof TextNode);
+        return this;
     }
 
-    toView(params, options) {
-        const result = this.run(params, options);
+    toView(params) {
+        this.run(params);
+        const content = this._executionChildren.map(item => item.text).join('\n').split('\n\n');
+
         if (this.label == 'help' || this.label == 'aide') {
             return new HelpView({
                 subtitle: this._params["header"] || this._params["subtitle"] || false,
-                paragraphs: result.content,
+                paragraphs: content,
             });
         }
         return new TextView({
             header: this._params["header"] || false,
             subtitle: this._params["subtitle"] || false,
-            paragraphs: result.content,
+            paragraphs: content,
             footer: this._params["footer"] || false,
             info: this.label == "info",
             warning: this.label == 'warning',
