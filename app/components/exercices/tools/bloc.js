@@ -14,14 +14,24 @@ class Bloc {
         this._paramsString = paramsString;
         this._params = { header:paramsString };
         this._executionChildren = null;
+        this._runned = false;
         this._parent = null;
         this._tag = tag;
         this._category = tag;
     }
 
     reset() {
+        if (!this._runned) {
+            return;
+        }
         this._executionChildren = null;
+        this._runned = false;
         this._params = { header:this._paramsString };
+        for (const child of this._children) {
+            if (typeof child.reset === 'function') {
+                child.reset();
+            }
+        }
     }
 
     setParent(parent) {
@@ -30,6 +40,10 @@ class Bloc {
 
     setParam(key, value) {
         this._params[key] = value;
+    }
+
+    get header() {
+        return this._paramsString || '';
     }
 
     get params() {
@@ -78,10 +92,10 @@ class Bloc {
      * @param {Object} params 
      */
     run(params) {
-        if (this._executionChildren) {
-            // déjà exécuté
+        if (this._runned) {
             return this;
         }
+        this._runned = true;
         const pile = [...this._children].reverse();
         this._executionChildren = [];
         while (pile.length > 0) {
@@ -99,7 +113,13 @@ class Bloc {
         return this;
     }
 
-    toView(params) {
+    view() {
+        if (!this._runned) {
+            throw new Error("Le bloc doit être exécuté avant de pouvoir générer des vues.");
+        }
+        if (typeof this._customView === 'function') {
+            return this._customView();
+        }
         return new UnknownView({ name:this.tag, code: this.toString() });
     }
 
@@ -108,27 +128,20 @@ class Bloc {
             throw new Error("Seul un bloc <option> peut être analysé par cette méthode");
         }
         if (this._paramsString === '') {
-            throw new Error("Un bloc <option> doit pas avoir une étiquette <option:étiquette>");
+            throw new Error("Un bloc <option> doit avoir une étiquette <option:étiquette>");
         }
-        
-        let defaultValue = null;
-        const values = {};
-        const items = this._children.filter(item => item instanceof Option);
-        if (items.length === 0) {
-            throw new Error("Un bloc <option> doit contenir au moins une ligne key => value");
+        this.run({});
+        return [this._paramsString, this._defaultOption, this._options];
+    }
+
+    setOption(key, value) {
+        if (this._defaultOption === undefined) {
+            this._defaultOption = key;
         }
-        for (const item of items) {
-            const key = item.key;
-            if (defaultValue === null) {
-                defaultValue = key;
-            }
-            const value = item.value;
-            if (values.hasOwnProperty(key)) {
-                throw new Error("Clé dupliquée dans un bloc <option> : " + key);
-            }
-            values[key] = value;
+        if (this._options === undefined) {
+            this._options = {};
         }
-        return [this._paramsString, defaultValue, values];
+        this._options[key] = value;
     }
 
     toString() {
