@@ -65,9 +65,14 @@ function evaluate(expression) {
     return String(Algebrite.simplify(expr));
 }
 
+function latex(expression) {
+    return `$${String(parse(expression).tex())}$`;
+}
+
 const MyMath = {
     parse,
-    evaluate
+    evaluate,
+    latex
 };
 
 export default MyMath
