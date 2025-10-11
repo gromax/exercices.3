@@ -11,11 +11,11 @@
     <% } %>
     <strong class="me-auto"><%= title %></strong>
     <% if (time) { %>
-      <small class="text-muted ms-2"><i class="fa fa-clock"></i> <%= time %></small>
+      <small class="text-muted ms-2"><i class="fa fa-clock"></i> <%- time %></small>
     <% } %>
     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
 </div>
 <div class="toast-body">
-    <%= message %>
+    <%- message %>
 </div>
 </div>
