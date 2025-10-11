@@ -17,12 +17,12 @@ class TextBloc extends Bloc {
         super.run(params);
         // pour un bloc de texte ne conserve que le texte
         this._executionChildren = this._executionChildren.filter(item => typeof item === 'string');
+        this._executionChildren = this._executionChildren.join('\n').split('\n\n');
         return this;
     }
 
     _customView() {
-        const content = this._executionChildren.map(item => item.text).join('\n').split('\n\n');
-
+        const content = this._executionChildren;
         if (this.tag == 'help' || this.tag == 'aide') {
             return new HelpView({
                 subtitle: this._params["header"] || this._params["subtitle"] || false,
