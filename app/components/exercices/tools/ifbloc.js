@@ -164,7 +164,7 @@ class IfBloc extends Bloc {
         if (this.tag === IfBloc.ELSE && paramsString) {
             throw new Error("Erreur de syntaxe : else ne doit pas avoir de condition");
         }
-        if (this.isNeeded()) {
+        if (this.tag == IfBloc.NEEDED) {
             this.close();
         }
         this._expression = paramsString?IfBloc.parseExpression(paramsString):null;
@@ -233,7 +233,7 @@ class IfBloc extends Bloc {
 
     run(params) {
         const result = this._evaluateCondition(params);
-        if (this.isNeeded() && !result) {
+        if (this.tag === IfBloc.NEEDED && !result) {
             return null;
         }
         const ifChildren = result ? this._children : this._elseChildren;
