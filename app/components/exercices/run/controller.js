@@ -50,13 +50,14 @@ const Controller = MnObject.extend ({
 
   runExercice(main) {
     const region = document.querySelector('#exercice-run');
-    const items = main.views();
+    const items = main.run();
     for (const item of items) {
-      if (!(item instanceof View)) {
+      if (typeof item.view !== 'function') {
         throw new Error("Le bloc principal doit uniquement produire des vues.");
       }
-      region.appendChild(item.el);
-      item.render();
+      const itemView = item.view();
+      region.appendChild(itemView.el);
+      itemView.render();
     }
     // Rendu de KaTeX dans la zone d'exercice
     renderMathInElement(region, {
