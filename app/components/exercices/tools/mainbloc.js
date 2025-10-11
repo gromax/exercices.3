@@ -3,6 +3,8 @@ import Affectation from "./affectation.js";
 import Bloc from "./bloc.js";
 import TextNode from "./textnode.js";
 import TextBloc from "./textbloc.js";
+import InputBloc from "./inputbloc.js";
+import FormBloc from "./FormBloc.js";
 import Parameter from "./parameter.js";
 import Option from "./option.js";
 
@@ -15,10 +17,9 @@ class MainBloc extends Bloc {
     /**
      * Fonction qui analyse le contenu d'un exercice et renvoie un objet représentant sa structure
      * @param {string} content le contenu à analyser
-     * @param {boolean} notext si vrai, le texte brut n'est pas autorisé
      * @returns {object} l'objet représentant la structure de l'exercice
      */
-    static parse(content, notext=false) {
+    static parse(content) {
         const lines = content.split('\n');
         const mainBlock = new MainBloc();
         const stack = [mainBlock];
@@ -76,9 +77,6 @@ class MainBloc extends Bloc {
 
             const bloc = MainBloc.parseBloc(trimmed);
             if (bloc) {
-                if (notext) {
-                    throw new Error(`Les blocs de texte ne sont pas autorisés ici : ${trimmed}`);
-                }
                 if (!bloc.closed) {
                     stack.push(bloc);
                     continue;
@@ -90,23 +88,16 @@ class MainBloc extends Bloc {
             const m = trimmed.match(/^<\/(\w+)>$/);
             if (m) {
                 // fin de bloc
-                const label = m[1];
+                const tag = m[1];
                 const item = stack.pop();
                 if (!(item instanceof Bloc)) {
                    throw new Error("Erreur de syntaxe : fin de bloc sans début");
                 }
-                if (item.label !== label) {
-                    throw new Error(`Erreur de syntaxe : fin de bloc ${label} mais on attendait </${item.label}>`);
+                if (item.tag !== tag) {
+                    throw new Error(`Erreur de syntaxe : fin de bloc ${tag} mais on attendait </${item.tag}>`);
                 }
                 item.close();
                 stack[stack.length-1].push(item);
-                continue;
-            }
-            // texte simple
-            if (notext) {
-                if (trimmed !== '') {
-                    throw new Error("Le texte brut n'est pas autorisé ici.");
-                }
                 continue;
             }
             stack[stack.length-1].push(new TextNode(trimmed));
@@ -129,7 +120,13 @@ class MainBloc extends Bloc {
         const label = m[1];
         const paramsString = m[2] ? m[2].slice(1).trim() : '';
         if (TextBloc.LABELS.includes(label)) {
-            return new TextBloc(label, paramsString, false);
+            return new TextBloc(label, paramsString);
+        }
+        if (InputBloc.LABELS.includes(label)) {
+            return new InputBloc(label, paramsString);
+        }
+        if (FormBloc.LABELS.includes(label)) {
+            return new FormBloc(label, paramsString);
         }
         return new Bloc(label, paramsString, false);
     }
@@ -170,7 +167,7 @@ class MainBloc extends Bloc {
         const options = {};
         const defaultsOptions = {};
         for (const child of this.children) {
-            if (!(child instanceof Bloc) || child.label !== 'option') {
+            if (!(child instanceof Bloc) || child.tag !== 'option') {
                 throw new Error("Le contenu des options ne peut contenir que des blocs <option>.");
             }
             const [key, defaultValue,values] = child.parseOption();
@@ -186,6 +183,7 @@ class MainBloc extends Bloc {
      * @param {*} options 
      */
     initRun(params, options) {
+        this.reset();
         params = {...params, ...options};
         this._run = {
             params,
@@ -193,20 +191,12 @@ class MainBloc extends Bloc {
         };
     }
 
-    run() {
-        return this._execRun(false);
-    }
-
-    views() {
-        return this._execRun(true);
-    }
-
     /**
-     * Exécute le bloc principal et renvoie les vues ou les contenus bruts
+     * Exécute le bloc principal et renvoie les contenus bruts
      * @param {boolean} getViews 
      * @returns {array}
      */
-    _execRun(getViews) {
+    run() {
         if (!this._run) {
             throw new Error("Le bloc n'a pas été initialisé pour une exécution.");
         }
@@ -215,12 +205,7 @@ class MainBloc extends Bloc {
         const pile = this._run.pile;
         while (pile.length > 0) {
             let item = pile.pop();
-            let runned;
-            if (getViews && (typeof item.toView === "function")) {
-                runned = item.toView(params);
-            } else {
-                runned = item.run(params);
-            }
+            const runned = item.run(params);
             if (runned === null) {
                 continue;
             }
