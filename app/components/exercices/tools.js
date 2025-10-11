@@ -12,7 +12,7 @@ class Tools {
      */
     static initExoParams(text, options) {
         text = text || "";
-        const main = MainBloc.parse(text, true);
+        const main = MainBloc.parse(text);
         for (let attempt = 1; attempt <= 50; attempt++) {
             const result = Tools._initExoParamsOneTry(main, options);
             if (result !== null) {
@@ -56,7 +56,7 @@ class Tools {
     }
 
     static parseCode(content) {
-        return MainBloc.parse(content, false);
+        return MainBloc.parse(content);
     }
 
 }
