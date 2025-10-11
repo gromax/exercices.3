@@ -1,3 +1,5 @@
+import { substituteLabels } from "./misc";
+
 class Option {
     static REGEX = /^([\w]+)\s*=>(.*)/;
     static parse(line) {
@@ -29,8 +31,9 @@ class Option {
     }
 
     run(params) {
+        const value = substituteLabels(this._value, params);
         if (this._parent) {
-            this._parent.setParam(this._key, this._value);
+            this._parent.setOption(this._key, value);
         }
         return null;
     }
