@@ -4,6 +4,8 @@ import text_tpl from '@templates/exercices/run/exercice-text.jst'
 import params_tpl from '@templates/exercices/run/exercice-apercu-params.jst' // pour l'aperçu des paramètres
 import unknown_tpl from '@templates/exercices/run/exercice-unknown.jst'
 import help_tpl from '@templates/exercices/run/exercice-help.jst'
+import radio_tpl from '@templates/exercices/run/exercice-radio.jst'
+import form_tpl from '@templates/exercices/run/exercice.form.jst'
 
 const OptionsView = View.extend({
   template: options_tpl,
@@ -78,10 +80,39 @@ const HelpView = View.extend({
   }
 });
 
+const RadioView = View.extend({
+  template: radio_tpl,
+  templateContext() {
+    return {
+      name: this.getOption("name"),
+      items: this.getOption("items")
+    };
+  }
+});
+
+const FormView = View.extend({
+  template: form_tpl,
+  templateContext() {
+    return {
+      header: this.getOption("header")
+    };
+  },
+  onRender() {
+    const container = this.el.querySelector('.js-content');
+    const subViews = this.getOption("subViews") || [];
+    for (const subView of subViews) {
+      container.appendChild(subView.el);
+      subView.render();
+    }
+  }
+});
+
 export {
   OptionsView,
   ParamsView,
   TextView,
   UnknownView,
-  HelpView
+  HelpView,
+  RadioView,
+  FormView
 };
