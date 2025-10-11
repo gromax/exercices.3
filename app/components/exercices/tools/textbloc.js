@@ -4,24 +4,23 @@ import { TextView, HelpView } from '../run/views.js';
 
 class TextBloc extends Bloc {
     static LABELS = ['text', 'texte', 'warning', 'aide', 'info', 'help'];
-    constructor(tag, paramsString, closed) {
-        super(tag, paramsString, closed);
+    constructor(tag, paramsString) {
+        super(tag, paramsString, false);
         this._category = 'text';
     }
 
     run(params) {
-        if (this._executionChildren) {
+        if (this._runned) {
             // déjà exécuté
             return this;
         }
         super.run(params);
         // pour un bloc de texte ne conserve que le texte
-        this._executionChildren = this._executionChildren.filter(item => item instanceof TextNode);
+        this._executionChildren = this._executionChildren.filter(item => typeof item === 'string');
         return this;
     }
 
-    toView(params) {
-        this.run(params);
+    _customView() {
         const content = this._executionChildren.map(item => item.text).join('\n').split('\n\n');
 
         if (this.tag == 'help' || this.tag == 'aide') {
