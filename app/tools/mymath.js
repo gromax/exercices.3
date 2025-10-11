@@ -66,7 +66,7 @@ function evaluate(expression) {
 }
 
 function latex(expression) {
-    return `$${String(parse(expression).tex())}$`;
+    return String(parse(expression).tex());
 }
 
 const MyMath = {
