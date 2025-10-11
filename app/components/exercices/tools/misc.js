@@ -1,3 +1,5 @@
+import MyMath from '@tools/mymath.js';
+
 /**
  * remplace les labels @label dans une expression par leur valeur
  * @param {string} expr une expression
@@ -13,4 +15,10 @@ function substituteLabels(expr, params) {
     });
 }
 
-export { substituteLabels };
+function substituteLatex(string) {
+    return string.replace(/<\$:([^:]+):>/g, (match, texte) => {
+        return MyMath.latex(texte);
+    });
+}
+
+export { substituteLabels, substituteLatex };
