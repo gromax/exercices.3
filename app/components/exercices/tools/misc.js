@@ -17,7 +17,7 @@ function substituteLabels(expr, params) {
 
 function substituteLatex(string) {
     return string.replace(/<\$:([^:]+):>/g, (match, texte) => {
-        return MyMath.latex(texte);
+        return `$${MyMath.latex(texte)}$`;
     });
 }
 
