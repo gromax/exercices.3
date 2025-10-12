@@ -5,7 +5,7 @@ import { RadioView, UnknownView } from "../run/views";
  * Bloc représentant un champ de saisie (input, radio...)
  * Exemple :
  * <radio:name>
- *  <answer:0>
+ *  <expected:0>
  *  0=>'y=m*x+p'
  *  1=> 'x=k'
  * </radio>
@@ -14,7 +14,7 @@ import { RadioView, UnknownView } from "../run/views";
  * <input:xM>
  *  <tag:x_M>
  *  <type:nombre>
- *  <good:(@xA+@xB)/2>
+ *  <expected:(@xA+@xB)/2>
  * </input>
  */
 
@@ -23,6 +23,9 @@ class InputBloc extends Bloc {
     static LABELS = ['input', 'radio']
     constructor(label, paramsString) {
         super(label, paramsString, false);
+        if (!paramsString) {
+            throw new Error(`<${label}> doit avoir un nom (ex: <${label}:le_nom>)`);
+        }
         this._category = 'input';
     }
 
@@ -39,6 +42,19 @@ class InputBloc extends Bloc {
                 items: items
             });
         }
+    }
+
+    /**
+     * renvoie la valeur associée à une étiquette
+     * en particulier dans un cas radio
+     * @param {string} key 
+     * @return {string|undefined} la valeur ou undefined si pas trouvée
+     */
+    getValueTag(key) {
+        if (this.tag === 'radio') {
+            return this._options ? this._options[key] : undefined;
+        }
+        return key;
     }
 }
 
