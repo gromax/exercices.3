@@ -24,16 +24,10 @@ class Option {
         return this._value;
     }
 
-    setParent(node) {
-        if (node) {
-            this._parent = node;
-        }
-    }
-
-    run(params) {
+    run(params, caller) {
         const value = substituteLabels(this._value, params);
-        if (this._parent) {
-            this._parent.setOption(this._key, value);
+        if (caller && typeof caller.setOption === 'function') {
+            caller.setOption(this._key, value);
         }
         return null;
     }

@@ -36,7 +36,7 @@ class Affectation {
         return `@${this._tag} ${this._operator} ${this._value}`;
     }
 
-    run(params) {
+    run(params, caller) {
         this.doAffectation(params, {});
         return null;
     }

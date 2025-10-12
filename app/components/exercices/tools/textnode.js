@@ -9,8 +9,8 @@ class TextNode {
     return this._text;
   }
 
-  run(params, options) {
-    const text = substituteLabels(this._text, {...params, ...options});
+  run(params, caller) {
+    const text = substituteLabels(this._text, params);
     return substituteLatex(text);
   }
 

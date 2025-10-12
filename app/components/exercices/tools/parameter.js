@@ -15,15 +15,9 @@ class Parameter {
         this._parent = null;
     }
 
-    setParent(node) {
-        if (node) {
-            this._parent = node;
-        }
-    }
-
-    run(params) {
-        if (this._parent) {
-            this._parent.setParam(this._tag, this._param);
+    run(params, caller) {
+        if (caller && typeof caller.setParam === 'function') {
+            caller.setParam(this._tag, this._param);
         }
         return null;
     }

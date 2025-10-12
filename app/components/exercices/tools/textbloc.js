@@ -9,12 +9,12 @@ class TextBloc extends Bloc {
         this._category = 'text';
     }
 
-    run(params) {
+    run(params, caller) {
         if (this._runned) {
             // déjà exécuté
             return this;
         }
-        super.run(params);
+        super.run(params, caller);
         // pour un bloc de texte ne conserve que le texte
         this._executionChildren = this._executionChildren.filter(item => typeof item === 'string');
         this._executionChildren = this._executionChildren.join('\n').split('\n\n');

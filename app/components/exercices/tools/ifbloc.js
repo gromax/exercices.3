@@ -231,7 +231,7 @@ class IfBloc extends Bloc {
         return out;
     }
 
-    run(params) {
+    run(params, caller) {
         const result = this._evaluateCondition(params);
         if (this.tag === IfBloc.NEEDED && !result) {
             return null;
