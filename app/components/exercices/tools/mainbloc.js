@@ -51,7 +51,7 @@ class MainBloc extends Bloc {
                 do {
                     const item = stack.pop();
                     if (!(item instanceof IfBloc) || item.closed) {
-                        throw new Error("Erreur de syntaxe : fin de condition sans début");
+                        throw new Error(`Erreur de syntaxe : fin de condition referme <${item.tag}>`);
                     }
                     if (prevItem !== null && item.tag === IfBloc.ELSE) {
                         throw new Error("Erreur de syntaxe : else doit être en dernier");
@@ -143,7 +143,7 @@ class MainBloc extends Bloc {
           if (item instanceof IfBloc) {
             const ifChildren = item.run({...params, ...options});
             if (ifChildren === null) {
-              return null;
+                return null;
             }
             program.push(...ifChildren.reverse());
             continue;
@@ -205,7 +205,7 @@ class MainBloc extends Bloc {
         const pile = this._run.pile;
         while (pile.length > 0) {
             let item = pile.pop();
-            const runned = item.run(params);
+            const runned = item.run(params, this);
             if (runned === null) {
                 continue;
             }
