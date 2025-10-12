@@ -92,6 +92,9 @@ const RadioView = View.extend({
 
 const FormView = View.extend({
   template: form_tpl,
+  triggers: {
+    'submit form': 'submit'
+  },
   templateContext() {
     return {
       header: this.getOption("header")
@@ -104,7 +107,15 @@ const FormView = View.extend({
       container.appendChild(subView.el);
       subView.render();
     }
+  },
+
+  onSubmit() {
+    const form = this.el.querySelector('form');
+    const fdata = new FormData(form);
+    const data = Object.fromEntries(fdata.entries());
+    this.trigger('validation', data);
   }
+
 });
 
 export {
