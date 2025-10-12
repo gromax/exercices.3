@@ -3,8 +3,6 @@
  * de rendu identifiés par une balise de type <tag param1 param2 ...>
  */
 
-import TextNode from './textnode.js';
-import Option from './option.js';
 import { UnknownView } from '../run/views.js';
 
 class Bloc {
@@ -15,7 +13,6 @@ class Bloc {
         this._params = { header:paramsString };
         this._executionChildren = null;
         this._runned = false;
-        this._parent = null;
         this._tag = tag;
         this._category = tag;
     }
@@ -25,6 +22,8 @@ class Bloc {
             return;
         }
         this._executionChildren = null;
+        this._options = undefined;
+        this._defaultOption = undefined;
         this._runned = false;
         this._params = { header:this._paramsString };
         for (const child of this._children) {
@@ -32,10 +31,6 @@ class Bloc {
                 child.reset();
             }
         }
-    }
-
-    setParent(parent) {
-        this._parent = parent;
     }
 
     setParam(key, value) {
@@ -74,14 +69,11 @@ class Bloc {
         if (this.closed) {
             throw new Error("Impossible d'ajouter un enfant à un bloc fermé");
         }
-        if (typeof child.setParent === 'function') {
-            child.setParent(this);
-        }
         this._children.push(child);
     }
 
     stopRun() {
-        return false;
+        return this._stop === true;
     }
 
     /**
@@ -89,9 +81,10 @@ class Bloc {
      * et effectue les substitutions de texte nécessaire
      * de façon à obtenir un bloc de texte final qui pourra
      * être rendu.
-     * @param {Object} params 
+     * @param {Object} params
+     * @param {Bloc|null} caller le bloc appelant
      */
-    run(params) {
+    run(params, caller) {
         if (this._runned) {
             return this;
         }
@@ -100,7 +93,7 @@ class Bloc {
         this._executionChildren = [];
         while (pile.length > 0) {
             let item = pile.pop();
-            const runned = item.run(params);
+            const runned = item.run(params, this);
             if (runned === null) {
                 continue;
             }
