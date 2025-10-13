@@ -1,24 +1,24 @@
 import { MnObject, Region } from 'backbone.marionette'
 import { EditExerciceView, ParamsView } from './views.js'
-import { Item as Exercice } from '../entity.js';
+import { Item as SujetExercice } from '../sujetexo.js';
 
 const Controller = MnObject.extend ({
   channelName: "app",
-  edit(id, exercice) {
+  edit(id, sujetExercice) {
     const channel = this.getChannel();
     channel.trigger("ariane:reset", [
       { text:"Exercices", link:"exercices" },
-      { text:exercice ? exercice.get("title") : "Exercice inconnu", link:`exercice:${id}` },
+      { text:sujetExercice ? sujetExercice.get("title") : "Exercice inconnu", link:`exercice:${id}` },
       { text:"Modification", link:`exercice:${id}/edit` }
     ]);
 
-    if (exercice === undefined) {
+    if (sujetExercice === undefined) {
       channel.trigger("missing:item");
       return;
     }
 
     const view = new EditExerciceView({
-        model: exercice
+        model: sujetExercice
     });
 
     view.on("success", function (model, data) {
@@ -30,7 +30,7 @@ const Controller = MnObject.extend ({
       view.$('input, select, textarea').each(function() {
         values[this.name] = this.value;
       });
-      const exoApercu = new Exercice(values);
+      const exoApercu = new SujetExercice(values);
       channel.trigger("exercice:apercu", exoApercu);
     });
 

@@ -5,7 +5,7 @@ const Controller = MnObject.extend({
   channelName: "app",
   radioEvents: {
     "exercices:list": "onExercicesList",
-    "exercice:show": "onExerciceShow",
+    "sujet:exercice:show": "onSujetExerciceShow",
     "exercice:apercu": "onExerciceApercu"
   },
 
@@ -15,22 +15,24 @@ const Controller = MnObject.extend({
     this.exercicesList();
   },
 
-  onExerciceShow(id) {
-    Backbone.history.navigate(`exercice:${id}`, {});
-    this.exerciceShow(id);
+  onSujetExerciceShow(id) {
+    Backbone.history.navigate(`sujet-exercice:${id}`, {});
+    this.sujetExerciceShow(id);
   },
 
-  onExerciceApercu(exercice) {
-    require("./run/controller.js").controller.showApercu(exercice);
+  onExerciceApercu(sujetExo) {
+    require("./run/controller.js").controller.showApercu(sujetExo);
   },
 
   exercicesList(criterion) {
     const channel = this.getChannel();
-    channel.trigger("ariane:reset", [{ text:"Exercices", e:"exercices:list", data:criterion, link:"exercices"}]);
+    channel.trigger("ariane:reset", [
+      { text:"Exercices", link:"exercices"}
+    ]);
     channel.trigger("loading:up");
-    const fetching = channel.request("custom:entities", ["exercices"]);
-    $.when(fetching).done((exercices) => {
-      require("./list/controller.js").controller.list(exercices, criterion);
+    const fetching = channel.request("custom:entities", ["sujets_exercices"]);
+    $.when(fetching).done((sujetsExos) => {
+      require("./list/controller.js").controller.list(sujetsExos, criterion);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {
@@ -38,19 +40,19 @@ const Controller = MnObject.extend({
     });
   },
 
-  exerciceShow(id) {
+  sujetExerciceShow(id) {
     const channel = this.getChannel();
     channel.trigger("loading:up");
-    const fetching = channel.request("exercice:entity", id);
-    $.when(fetching).done((exercice) => {
-      require("./show/controller.js").controller.show(id, exercice);
+    const fetching = channel.request("sujetexo:entity", id);
+    $.when(fetching).done((sujetExo) => {
+      require("./show/controller.js").controller.show(id, sujetExo);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {
       channel.trigger("loading:down");
     });
   },
-  exerciceEdit(id) {  
+  sujetExerciceEdit(id) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
     if (!logged.isAdmin() && !logged.isProf()) {
@@ -58,9 +60,9 @@ const Controller = MnObject.extend({
       return;
     }
     channel.trigger("loading:up");
-    const fetching = channel.request("exercice:entity", id);
-    $.when(fetching).done((exercice) => {
-      require("./edit/controller.js").controller.edit(id, exercice);
+    const fetching = channel.request("sujetexo:entity", id);
+    $.when(fetching).done((sujetExo) => {
+      require("./edit/controller.js").controller.edit(id, sujetExo);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {
@@ -74,18 +76,18 @@ const controller = new Controller();
 const Router = Backbone.Router.extend({
   routes: {
     "exercices(/filter/criterion::criterion)": "exercicesList",
-    "exercice::id": "exerciceShow",
-    "exercice::id/edit": "exerciceEdit"
+    "sujet-exercice::id": "sujetExerciceShow",
+    "sujet-exercice::id/edit": "sujetExerciceEdit"
   },
 
   exercicesList(criterion) {
     controller.exercicesList(criterion);
   },
-  exerciceShow(id) {
-    controller.exerciceShow(id);
+  sujetExerciceShow(id) {
+    controller.sujetExerciceShow(id);
   },
-  exerciceEdit(id) {
-    controller.exerciceEdit(id);
+  sujetExerciceEdit(id) {
+    controller.sujetExerciceEdit(id);
   }
 });
 

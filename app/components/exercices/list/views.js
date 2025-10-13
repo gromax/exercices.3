@@ -35,7 +35,7 @@ const ExerciceItemView = View.extend({
   className: "list-group-item",
   template: exercice_item_view_tpl,
   triggers: {
-    "click": "exercice:show"
+    "click": "sujet:exercice:show"
   },
   onRender() {
     // MathJax.Hub.Queue(["Typeset",MathJax.Hub,this.$el[0]])
