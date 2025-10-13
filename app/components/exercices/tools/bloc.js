@@ -89,12 +89,12 @@ class Bloc {
         return this;
     }
 
-    view() {
+    view(entity) {
         if (!this._runned) {
             throw new Error("Le bloc doit être exécuté avant de pouvoir générer des vues.");
         }
         if (typeof this._customView === 'function') {
-            return this._customView();
+            return this._customView(entity);
         }
         return new UnknownView({ name:this.tag, code: this.toString() });
     }
