@@ -1,21 +1,25 @@
 import { MnObject, Region } from 'backbone.marionette'
 import { OptionsView, ParamsView, TextView } from './views.js'
-import Tools from '../tools.js';
+import { Item as ExerciceTry } from '../exotry.js'
+import MainBloc from '../tools/mainbloc.js';
+
 import renderMathInElement from "katex/contrib/auto-render";
 
 const Controller = MnObject.extend ({
   channelName: "app",
 
-  showApercu(exercice) {
+  showApercu(sujetExercice) {
     const channel = this.getChannel();
     try {
-      const {options, defaultsOptions} = Tools.parseOptions(exercice.get("options"));
+      const {options, defaultsOptions} = MainBloc.parseOptions(sujetExercice.get("options"));
       const optionsView = new OptionsView({ options: options, selected: defaultsOptions });
       optionsView.on("change", (data) => {
-        this.refreshExercice(exercice, data, true);
+        const exerciceTry = this.refreshExerciceTry(sujetExercice, data);
+        this.showExerciceTry(sujetExercice, exerciceTry);
       });
+      const exerciceTry = this.newExerciceTry(sujetExercice, defaultsOptions);
       new Region({ el: '#exercice-options-set' }).show(optionsView);
-      this.refreshExercice(exercice, defaultsOptions, true);
+      this.showExerciceTry(sujetExercice, exerciceTry);
     } catch (error) {
       console.error(error);
       channel.trigger("popup:error", {
@@ -25,17 +29,41 @@ const Controller = MnObject.extend ({
     }
   },
 
-  refreshExercice(exercice, selectedOptions, showParams) {
+  newExerciceTry(sujetExercice, options, idDevoir=null) {
     const channel = this.getChannel();
     try {
-      const initParams = Tools.initExoParams(exercice.get("init"), selectedOptions);
+      const initParams = MainBloc.parseParams(sujetExercice.get("init"), options);
+      return exoTry = new ExerciceTry({
+        idExercice: sujetExercice.id,
+        options: options,
+        init: initParams,
+        idUser: channel.request("logged:get").id || null,
+        idDevoir: idDevoir
+      });
+    } catch (error) {
+      console.error(error);
+      this.getChannel().trigger("popup:error", {
+        title: "Initialisation des paramètres",
+        message: error.message
+      });
+    }
+  },
+
+  showExerciceTry(sujetExercice, exerciceTry) {
+    const selectedOptions = exerciceTry.get("options");
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    const showParams = (logged.id === sujetExercice.get("idOwner") || logged.isAdmin());
+    try {
+      const initParams = exerciceTry.get("init");
       if (showParams) {
         const paramsView = new ParamsView({ params: initParams });
         new Region({ el: '#exercice-initparams' }).show(paramsView);
       }
       const region = document.querySelector('#exercice-run');
       region.innerHTML = "";
-      const main = Tools.parseCode(exercice.get("code"));
+      const main = Tools.parseCode(sujetExercice.get("code"));
+
       main.initRun(initParams, selectedOptions);
       this.runExercice(main);
     } catch (error) {
@@ -82,3 +110,11 @@ const Controller = MnObject.extend ({
 });
 
 export const controller = new Controller();
+
+/*
+  Je réalise ici que je fais une confusion entre l'exercice en tant qu'il
+  porte les informations relatives à la fabrication d'un exercice
+  et la réalisation d'un exercice par l'utilisateur, avec les réponses,
+  un score, un choix d'options, des paramètres.
+  Le second ne devrait être initialisé lors de l'aperçu.
+ */
