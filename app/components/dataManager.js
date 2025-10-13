@@ -10,7 +10,7 @@ const Controller = MnObject.extend({
     'data:purge': 'purge',
     'classe:entity': 'getClasse',
     'user:entity': 'getUser',
-    'exercice:entity': 'getExercice',
+    'sujetexo:entity': 'getSujetExo',
     'user:me': 'getMe',
     'user:destroy:update': 'userDestroyUpdate',
     'fiche:destroy:update': 'ficheDestroyUpdate',
@@ -70,7 +70,7 @@ const Controller = MnObject.extend({
             //case "userfiches": colObj = require("@entities/userfiches.js"); break;
             case "users": colObj = require("./users/entity.js"); break;
             case "classes": colObj = require("./classes/entity.js"); break;
-            case "exercices": colObj = require("./exercices/entity.js"); break;
+            case "sujets_exercices": colObj = require("./exercices/sujetexo.js"); break;
             //case "exofiches": colObj = require("@entities/exofiches.js"); break;
             //case "faits": colObj = require("@entities/faits.js"); break;
             //case "exams": colObj = require("@entities/exams.js"); break;
@@ -114,8 +114,8 @@ const Controller = MnObject.extend({
   getClasse(id) {
     return this.getItem("classes", id);
   },
-  getExercice(id) {
-    return this.getItem("exercices", id);
+  getSujetExo(id) {
+    return this.getItem("sujets_exercices", id);
   },
   getMe() {
     const defer = $.Deferred();
