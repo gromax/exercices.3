@@ -225,8 +225,8 @@ class MainBloc extends Bloc {
 
     /**
      * initialise une exécution du bloc
-     * @param {*} params 
-     * @param {*} options 
+     * @param {object} params 
+     * @param {object} options 
      */
     initRun(params, options) {
         if (!this._runInitialized) {
