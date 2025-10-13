@@ -11,26 +11,9 @@ class Bloc {
         this._closed = closed || false;
         this._paramsString = paramsString;
         this._params = { header:paramsString };
-        this._executionChildren = null;
         this._runned = false;
         this._tag = tag;
         this._category = tag;
-    }
-
-    reset() {
-        if (!this._runned) {
-            return;
-        }
-        this._executionChildren = null;
-        this._options = undefined;
-        this._defaultOption = undefined;
-        this._runned = false;
-        this._params = { header:this._paramsString };
-        for (const child of this._children) {
-            if (typeof child.reset === 'function') {
-                child.reset();
-            }
-        }
     }
 
     setParam(key, value) {
@@ -90,7 +73,7 @@ class Bloc {
         }
         this._runned = true;
         const pile = [...this._children].reverse();
-        this._executionChildren = [];
+        this._children = [];
         while (pile.length > 0) {
             let item = pile.pop();
             const runned = item.run(params, this);
@@ -100,7 +83,7 @@ class Bloc {
             if (Array.isArray(runned)) {
                 pile.push(...runned.reverse());
             } else {
-                this._executionChildren.push(runned);
+                this._children.push(runned);
             }
         }
         return this;
