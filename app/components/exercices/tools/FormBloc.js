@@ -1,20 +1,25 @@
 import Bloc from "./bloc";
 import { FormView } from "../run/views";
 import InputBloc from "./inputbloc";
-import { error } from "jquery";
+
+
+
+/* Il faut vérifier les answers dans entity et choisir si on affiche
+   le formulaire ou pas. */
 
 class FormBloc extends Bloc {
     static LABELS = ['form', 'formulaire'];
     _stop = true;
-    _customView() {
+    _customView(entity) {
         const subViews = [];
         for (const child of this._executionChildren) {
             if (typeof child.view === "function") {
-                const subView = child.view();
+                const subView = child.view(entity);
                 subViews.push(subView);
             }
         }
         const formView = new FormView({
+            model: entity,
             name: this.header,
             subViews: subViews
         });
@@ -99,3 +104,17 @@ class FormBloc extends Bloc {
 }
 
 export default FormBloc;
+
+
+/*
+ * Je dois mieux réfléchir au fonctionnement des formulaires
+ * - L'affichage du formulaire ne pose pas de problème
+ * - il faut encore que le formulaire détecte que la question a déjà reçu une réponse
+ * - dans ce cas, le FormBloc doit afficher les résultats et non pas le formulaire.
+ * - toujours dans ce cas, le FormBloc ne doit pas être bloquant
+ * - Ainsi, il serait intéressant que le FormBloc soit remis dans la pile d'exécution
+ *   de sorte que le prochain run le déclenche... ou pas, ce n'est pas indispensable
+ *   puisque le FormBloc pourrait se rerender de lui même après validation
+ * - ne pas oublier qu'il faut aussi porter le modèle exercice afin de permettre la sauvegarde
+ *   et la restauration des réponses.
+ */
