@@ -78,6 +78,10 @@ class IfBloc extends Bloc {
     static ELIF = 'elif'
     static NEEDED = 'needed'
 
+    _ifClosed = false;
+    _elseChildren = [];
+    _expression = null;
+
     static parse(line) {
         const regex = /^<(if|elif|else|needed)\s*(\s[^>]+)?>$/;
         const m = line.match(regex);
@@ -168,45 +172,13 @@ class IfBloc extends Bloc {
             this.close();
         }
         this._expression = paramsString?IfBloc.parseExpression(paramsString):null;
-        this._elseChildren = [];
     }
 
-    get elseChildren() {
-        return this._elseChildren;
-    }
-
-    elifToIf() {
-        if (this.tag !== IfBloc.ELIF) {
-            throw new Error("Seul un bloc elif peut être converti en if");
+    closeIfBranch() {
+        if (this._ifClosed) {
+            throw new Error("La branche if est déjà fermée. Vérifiez l'enchaînement de vos if, elif, else.");
         }
-        this._tag = IfBloc.IF;
-    }
-
-    /**
-     * ajoute un bloc elif ou else en tant que else d'un bloc parent
-     * @param {IfBloc|null} elseCondition
-     */
-    pushElse(elseCondition) {
-        if (elseCondition === null) {
-            return;
-        }
-        if ((elseCondition.tag !== IfBloc.ELIF) && (elseCondition.tag !== IfBloc.ELSE)) {
-            throw new Error("Erreur de syntaxe : doit être else ou elif");
-        }
-        if (this.closed) {
-            throw new Error("Erreur de syntaxe : une condition fermée ne peut pas avoir de else");
-        }
-        this.close();
-        if (this.tag === IfBloc.ELSE) {
-            throw new Error("Erreur de syntaxe : else ne peut pas avoir de else");
-        }
-        if (elseCondition.tag === IfBloc.ELSE) {
-            this._elseChildren = elseCondition.children;
-            return;
-        }
-        // c'était un elif
-        elseCondition.elifToIf();
-        this._elseChildren.push(elseCondition);
+        this._ifClosed = true;
     }
 
     _evaluateCondition(params) {
@@ -214,6 +186,17 @@ class IfBloc extends Bloc {
             return true;
         }
         return this._expression.evaluate(params);
+    }
+
+    push(child) {
+        if (this.closed) {
+            throw new Error("Impossible d'ajouter un enfant à un bloc fermé");
+        }
+        if (this._ifClosed) {
+            this._elseChildren.push(child);
+        } else {
+            this._children.push(child);
+        }
     }
 
     toString() {

@@ -66,9 +66,19 @@ class MainBloc extends Bloc {
             if (condition) {
                 if (condition.tag === IfBloc.NEEDED) {
                    stack[stack.length-1].push(condition);
-                } else {
-                    stack.push(condition);
+                   continue;
                 }
+                if ((condition.tag !== IfBloc.IF)&&(!(stack[stack.length-1] instanceof IfBloc))) {
+                    throw new Error(`Erreur de syntaxe : ${condition.tag} sans if ou elif préalable`);
+                }
+                if (condition.tag === IfBloc.ELSE) {
+                    stack[stack.length-1].closeIfBranch();
+                    continue;
+                }
+                if (condition.tag === IfBloc.ELIF) {
+                    stack[stack.length-1].closeIfBranch();
+                }
+                stack.push(condition);
                 continue;
             }
             const affectation = Affectation.parse(trimmed);
@@ -77,19 +87,15 @@ class MainBloc extends Bloc {
                 continue;
             }
             if (trimmed === IfBloc.END) {
-                let prevItem = null;
+                // ferme tous les blocs elif jusqu'au if.
                 do {
                     const item = stack.pop();
-                    if (!(item instanceof IfBloc) || item.closed) {
+                    if (!(item instanceof IfBloc)) {
                         throw new Error(`Erreur de syntaxe : fin de condition referme <${item.tag}>`);
                     }
-                    if (prevItem !== null && item.tag === IfBloc.ELSE) {
-                        throw new Error("Erreur de syntaxe : else doit être en dernier");
-                    }
-                    item.pushElse(prevItem);
-                    prevItem = item;
-                } while (prevItem.tag === IfBloc.ELIF || prevItem.tag === IfBloc.ELSE);
-                stack[stack.length-1].push(prevItem);
+                    item.close();
+                    stack[stack.length-1].push(item);
+                } while (item.tag !== IfBloc.IF); // s'arrêtera forcément au pire sur le bloc MainBloc
                 continue;
             }
 
