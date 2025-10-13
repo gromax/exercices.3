@@ -9,11 +9,41 @@ import Parameter from "./parameter.js";
 import Option from "./option.js";
 
 class MainBloc extends Bloc {
+    /*
+     * Propriétés
+     */
+    _runInitialized = false;
+    _executionParams = {};
+    _executionPile = [];
+
+    /*
+     * Méthodes statiques 
+     */
     static parseOptions(content) {
         const mainBlock = MainBloc.parse(content, true);
         return mainBlock._parseOptions();
     }
-    
+
+    static parseParams(code, options, params) {
+        code = code || "";
+        options = options || {};
+        if (typeof options === 'string') {
+            options = JSON.parse(options);
+        }
+        params = params || {};
+        if (typeof params === 'string') {
+            params = JSON.parse(params);
+        }
+        const main = MainBloc.parse(code);
+        for (let attempt = 1; attempt <= 50; attempt++) {
+            const result = main._getInit(params, options);
+            if (result !== null) {
+                return result;
+            }
+        }
+        throw new Error("Impossible d'initialiser les paramètres de l'exercice après 50 essais.");
+    }
+
     /**
      * Fonction qui analyse le contenu d'un exercice et renvoie un objet représentant sa structure
      * @param {string} content le contenu à analyser
@@ -131,17 +161,27 @@ class MainBloc extends Bloc {
         return new Bloc(label, paramsString, false);
     }
 
+    /**
+     * Constructeur
+     */
     constructor() {
         super('main', '', false);
         this._run = null;
     }
 
-    getInit(params, options) {
+    /**
+     * Tentative d'initialisation des paramètres tenant compte des options
+     * et des paramètres déjà initialisés
+     * @param {object} params 
+     * @param {object} options 
+     * @returns {object|null} un objet de paramètres ou null si échec
+     */
+    _getInit(params, options) {
         let program = [...this.children].reverse();
         while (program.length > 0) {
           let item = program.pop();
           if (item instanceof IfBloc) {
-            const ifChildren = item.run({...params, ...options});
+            const ifChildren = item.run({ ...params, ...options });
             if (ifChildren === null) {
                 return null;
             }
@@ -183,12 +223,12 @@ class MainBloc extends Bloc {
      * @param {*} options 
      */
     initRun(params, options) {
-        this.reset();
-        params = {...params, ...options};
-        this._run = {
-            params,
-            pile: [...this.children].reverse()
-        };
+        if (!this._runInitialized) {
+            throw new Error("Le bloc principal a déjà été intialisé.");
+        }
+        this._runInitialized = true;
+        this._executionParams = { ...params, ...options };
+        this._executionPile = [...this.children].reverse()
     }
 
     /**
@@ -197,12 +237,12 @@ class MainBloc extends Bloc {
      * @returns {array}
      */
     run() {
-        if (!this._run) {
+        if (!this._runInitialized) {
             throw new Error("Le bloc n'a pas été initialisé pour une exécution.");
         }
-        const currentRun = []
-        const params = this._run.params;
-        const pile = this._run.pile;
+        const currentRun = [];
+        const params = this._executionParams;
+        const pile = this._executionPile;
         while (pile.length > 0) {
             let item = pile.pop();
             const runned = item.run(params, this);
@@ -220,6 +260,10 @@ class MainBloc extends Bloc {
             }
         }
         return currentRun;
+    }
+
+    get finished() {
+        return this._executionPile.length === 0;
     }
 }
 
