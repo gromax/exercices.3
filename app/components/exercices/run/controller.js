@@ -50,22 +50,24 @@ const Controller = MnObject.extend ({
   },
 
   showExerciceTry(sujetExercice, exerciceTry) {
-    const selectedOptions = exerciceTry.get("options");
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
     const showParams = (logged.id === sujetExercice.get("idOwner") || logged.isAdmin());
     try {
-      const initParams = exerciceTry.get("init");
       if (showParams) {
-        const paramsView = new ParamsView({ params: initParams });
+        const paramsView = new ParamsView({
+          params: exerciceTry.get("init")
+        });
         new Region({ el: '#exercice-initparams' }).show(paramsView);
       }
       const region = document.querySelector('#exercice-run');
       region.innerHTML = "";
       const main = Tools.parseCode(sujetExercice.get("code"));
-
-      main.initRun(initParams, selectedOptions);
-      this.runExercice(main);
+      main.initRun(
+        exerciceTry.get("init"),
+        exerciceTry.get("options")
+      );
+      this.runExercice(main, exerciceTry);
     } catch (error) {
       console.error(error);
       channel.trigger("popup:error", {
@@ -75,14 +77,14 @@ const Controller = MnObject.extend ({
     }
   },
 
-  runExercice(main) {
+  runExercice(main, exerciceTry) {
     const region = document.querySelector('#exercice-run');
     const items = main.run();
     for (const item of items) {
       if (typeof item.view !== 'function') {
         throw new Error("Le bloc principal doit uniquement produire des vues.");
       }
-      const itemView = item.view();
+      const itemView = item.view(exerciceTry);
       if (typeof item.validation === 'function') {
         itemView.on("validation", (data) => {
           const {validation,verification} = item.validation(data);
