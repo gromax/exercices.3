@@ -9,16 +9,16 @@ import InputBloc from "./inputbloc";
 
 class FormBloc extends Bloc {
     static LABELS = ['form', 'formulaire'];
-    _stop = true;
     _customView(entity) {
         const subViews = [];
-        for (const child of this._executionChildren) {
+        for (const child of this._children) {
             if (typeof child.view === "function") {
                 const subView = child.view(entity);
                 subViews.push(subView);
             }
         }
         const formView = new FormView({
+            blocParent: this,
             model: entity,
             name: this.header,
             subViews: subViews
@@ -33,7 +33,7 @@ class FormBloc extends Bloc {
      */
     validation(data) {
         const errors = {};
-        for (const child of this._executionChildren) {
+        for (const child of this._children) {
             if (!(child instanceof InputBloc)) {
                 continue;
             }
@@ -58,7 +58,7 @@ class FormBloc extends Bloc {
      */
     _verification(data) {
         const results = {};
-        for (const child of this._executionChildren) {
+        for (const child of this._children) {
             if (!(child instanceof InputBloc)) {
                 continue;
             }
@@ -100,7 +100,20 @@ class FormBloc extends Bloc {
         return results;
     }
 
-    
+    needSubmit(entity) {
+        // Si une des questions n'a pas de réponse, il faut soumettre
+        const answers = entity.get("answers") || {};
+        for (const child of this._children) {
+            if (!(child instanceof InputBloc)) {
+                continue;
+            }
+            const name = child.header;
+            if (!answers[name]) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 export default FormBloc;
