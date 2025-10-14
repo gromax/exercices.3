@@ -14,7 +14,7 @@ const Controller = MnObject.extend ({
       const {options, defaultsOptions} = MainBloc.parseOptions(sujetExercice.get("options"));
       const optionsView = new OptionsView({ options: options, selected: defaultsOptions });
       optionsView.on("change", (data) => {
-        const exerciceTry = this.refreshExerciceTry(sujetExercice, data);
+        const exerciceTry = this.newExerciceTry(sujetExercice, data);
         this.showExerciceTry(sujetExercice, exerciceTry);
       });
       const exerciceTry = this.newExerciceTry(sujetExercice, defaultsOptions);
@@ -33,7 +33,7 @@ const Controller = MnObject.extend ({
     const channel = this.getChannel();
     try {
       const initParams = MainBloc.parseParams(sujetExercice.get("init"), options);
-      return exoTry = new ExerciceTry({
+      return new ExerciceTry({
         idExercice: sujetExercice.id,
         options: options,
         init: initParams,
@@ -62,12 +62,12 @@ const Controller = MnObject.extend ({
       }
       const region = document.querySelector('#exercice-run');
       region.innerHTML = "";
-      const main = Tools.parseCode(sujetExercice.get("code"));
-      main.initRun(
+      const mainPile = MainBloc.runCode(
+        sujetExercice.get("code"),
         exerciceTry.get("init"),
         exerciceTry.get("options")
       );
-      this.runExercice(main, exerciceTry);
+      this.runExercice(mainPile, exerciceTry);
     } catch (error) {
       console.error(error);
       channel.trigger("popup:error", {
@@ -77,28 +77,25 @@ const Controller = MnObject.extend ({
     }
   },
 
-  runExercice(main, exerciceTry) {
+  runExercice(mainPile, exerciceTry) {
     const region = document.querySelector('#exercice-run');
-    const items = main.run();
-    for (const item of items) {
+    while (mainPile.length > 0) {
+      const item = mainPile.pop();
       if (typeof item.view !== 'function') {
         throw new Error("Le bloc principal doit uniquement produire des vues.");
       }
       const itemView = item.view(exerciceTry);
-      if (typeof item.validation === 'function') {
-        itemView.on("validation", (data) => {
-          const {validation,verification} = item.validation(data);
-          if (validation) {
-            itemView.trigger("validation:error", validation);
-            return;
-          }
-          console.log("Vérification des réponses...", verification);
+      if (typeof itemView.onSubmit === 'function') {
+        itemView.on("verification:success", (data) => {
+          console.log("Vérification des réponses...", data);
         });
       }
       region.appendChild(itemView.el);
       
       itemView.render();
-
+      if (typeof itemView.onSubmit === 'function') {
+        break;
+      }
     }
     // Rendu de KaTeX dans la zone d'exercice
     renderMathInElement(region, {
