@@ -10,17 +10,10 @@ import Option from "./option.js";
 
 class MainBloc extends Bloc {
     /*
-     * Propriétés
-     */
-    _runInitialized = false;
-    _executionParams = {};
-    _executionPile = [];
-
-    /*
      * Méthodes statiques 
      */
     static parseOptions(content) {
-        const mainBlock = MainBloc.parse(content, true);
+        const mainBlock = MainBloc._parse(content, true);
         return mainBlock._parseOptions();
     }
 
@@ -34,7 +27,7 @@ class MainBloc extends Bloc {
         if (typeof params === 'string') {
             params = JSON.parse(params);
         }
-        const main = MainBloc.parse(code);
+        const main = MainBloc._parse(code);
         for (let attempt = 1; attempt <= 50; attempt++) {
             const result = main._getInit(params, options);
             if (result !== null) {
@@ -44,12 +37,17 @@ class MainBloc extends Bloc {
         throw new Error("Impossible d'initialiser les paramètres de l'exercice après 50 essais.");
     }
 
+    static runCode(code, params, options) {
+        const main = MainBloc._parse(code);
+        return main.run(params, options);
+    }
+        
     /**
      * Fonction qui analyse le contenu d'un exercice et renvoie un objet représentant sa structure
      * @param {string} content le contenu à analyser
      * @returns {object} l'objet représentant la structure de l'exercice
      */
-    static parse(content) {
+    static _parse(content) {
         const lines = content.split('\n');
         const mainBlock = new MainBloc();
         const stack = [mainBlock];
@@ -88,8 +86,9 @@ class MainBloc extends Bloc {
             }
             if (trimmed === IfBloc.END) {
                 // ferme tous les blocs elif jusqu'au if.
+                let item;
                 do {
-                    const item = stack.pop();
+                    item = stack.pop();
                     if (!(item instanceof IfBloc)) {
                         throw new Error(`Erreur de syntaxe : fin de condition referme <${item.tag}>`);
                     }
@@ -224,34 +223,22 @@ class MainBloc extends Bloc {
     }
 
     /**
-     * initialise une exécution du bloc
-     * @param {object} params 
-     * @param {object} options 
-     */
-    initRun(params, options) {
-        if (!this._runInitialized) {
-            throw new Error("Le bloc principal a déjà été intialisé.");
-        }
-        this._runInitialized = true;
-        this._executionParams = { ...params, ...options };
-        this._executionPile = [...this.children].reverse()
-    }
-
-    /**
      * Exécute le bloc principal et renvoie les contenus bruts
      * @param {boolean} getViews 
      * @returns {array}
      */
-    run() {
-        if (!this._runInitialized) {
-            throw new Error("Le bloc n'a pas été initialisé pour une exécution.");
+    run(params, options) {
+        if (this._runned) {
+            // déjà exécuté
+            throw new Error("Le bloc principal ne peut être exécuté qu'une seule fois.");
         }
+        this._runned = true;
         const currentRun = [];
-        const params = this._executionParams;
-        const pile = this._executionPile;
+        const parameters = { ...params, ...options };
+        const pile = [...this.children].reverse();
         while (pile.length > 0) {
             let item = pile.pop();
-            const runned = item.run(params, this);
+            const runned = item.run(parameters, this);
             if (runned === null) {
                 continue;
             }
@@ -260,16 +247,8 @@ class MainBloc extends Bloc {
             } else {
                 currentRun.push(runned);
             }
-            // s'arrête quand tombe sur un formulaire
-            if (item instanceof Bloc && item.stopRun()) {
-                break;
-            }
         }
-        return currentRun;
-    }
-
-    get finished() {
-        return this._executionPile.length === 0;
+        return currentRun.reverse();
     }
 }
 
