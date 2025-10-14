@@ -16,13 +16,13 @@ class TextBloc extends Bloc {
         }
         super.run(params, caller);
         // pour un bloc de texte ne conserve que le texte
-        this._executionChildren = this._executionChildren.filter(item => typeof item === 'string');
-        this._executionChildren = this._executionChildren.join('\n').split('\n\n');
+        this._children = this._children.filter(item => typeof item === 'string');
+        this._children = this._children.join('\n').split('\n\n');
         return this;
     }
 
     _customView(entity) {
-        const content = this._executionChildren;
+        const content = this._children;
         if (this.tag == 'help' || this.tag == 'aide') {
             return new HelpView({
                 subtitle: this._params["header"] || this._params["subtitle"] || false,

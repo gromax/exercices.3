@@ -55,10 +55,6 @@ class Bloc {
         this._children.push(child);
     }
 
-    stopRun() {
-        return this._stop === true;
-    }
-
     /**
      * Exécute les morceaux de code du bloc
      * et effectue les substitutions de texte nécessaire
@@ -69,7 +65,7 @@ class Bloc {
      */
     run(params, caller) {
         if (this._runned) {
-            return this;
+            throw new Error(`Le bloc <${this.tag}> a déjà été exécuté.`);
         }
         this._runned = true;
         const pile = [...this._children].reverse();
