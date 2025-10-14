@@ -36,11 +36,6 @@ class session
         return $data;
     }
 
-    public function delete()
-    {
-        return $this->getData(null);
-    }
-
     public function insert()
     {
         $data = json_decode(file_get_contents("php://input"),true);

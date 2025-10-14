@@ -58,19 +58,10 @@ const HomeApp = MnObject.extend({
   },
 
   logout() {
-    let self = this;
+    const channel = this.getChannel();
     let logged = this.getChannel().request("logged:get");
     if(logged.get("logged_in")) {
-      let closingSession = logged.destroy();
-      $.when(closingSession).done( function(response) {
-        // En cas d'échec de connexion, l'api server renvoie une erreur
-        // Le delete n'occasione pas de raffraichissement des données
-        // Il faut donc le faire manuellement
-        logged.refresh(response.logged);
-        self.showHome();
-      }).fail( function(response) {
-        console.error(`Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}/024]`);
-      });
+      channel.trigger("session:logout");
     }
   },
 

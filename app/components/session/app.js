@@ -6,7 +6,8 @@ const SessionApp = MnObject.extend({
   channelName: "app",
   radioEvents: {
     'forgotten:password':'onSendForgottenEmail',
-    'load:error':'onLoadError'
+    'load:error':'onLoadError',
+    'session:logout':'logout'
   },
 
   radioRequests: {
@@ -18,11 +19,6 @@ const SessionApp = MnObject.extend({
     const channel = this.getChannel();
     this.logged = new Session();
     this.logged.load(this.getOption("callBack"));
-    this.logged.on("destroy", function() {
-        this.unset("id");
-        localStorage.removeItem('jwt');
-        channel.trigger("logged:destroy");
-    });
     this.logged.on("change", function(){
         channel.trigger("logged:changed");
     });
@@ -49,6 +45,16 @@ const SessionApp = MnObject.extend({
 
   onLoadError(data) {
     console.error("Load logged :" + data.status);
+  },
+
+  logout() {
+    const channel = this.getChannel();
+    channel.request("data:purge");
+    this.logged.kill();
+    channel.trigger("logged:destroy");
+    this.logged.load(function(){
+      channel.trigger("home:show");
+    });
   }
 });
 

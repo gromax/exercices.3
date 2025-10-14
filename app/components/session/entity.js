@@ -197,6 +197,11 @@ const Session = Backbone.Model.extend({
                     return itemsList.def;
                 }
         }
+    },
+
+    kill() {
+        this.unset("id");
+        localStorage.removeItem('jwt');
     }
 });
 
