@@ -86,14 +86,14 @@ class data
         $output = array();
 
         // Les exercices sont publics et accessibles à tous les rangs
-        if (in_array("exercices", $asks)){
+        if (in_array("sujetsexercices", $asks)){
             $answer =  Exercice::getList();
             if (isset($answer["error"]) && $answer["error"]) {
                 EC::addError($answer["message"]);
                 EC::set_error_code(501);
                 return false;
             } else {
-                $output["exercices"] = $answer;
+                $output["sujetsexercices"] = $answer;
             }
         }
 

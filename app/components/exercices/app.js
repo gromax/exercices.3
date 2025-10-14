@@ -30,7 +30,7 @@ const Controller = MnObject.extend({
       { text:"Exercices", link:"exercices"}
     ]);
     channel.trigger("loading:up");
-    const fetching = channel.request("custom:entities", ["sujets_exercices"]);
+    const fetching = channel.request("custom:entities", ["sujetsexercices"]);
     $.when(fetching).done((sujetsExos) => {
       require("./list/controller.js").controller.list(sujetsExos, criterion);
     }).fail((response) => {
@@ -43,7 +43,7 @@ const Controller = MnObject.extend({
   sujetExerciceShow(id) {
     const channel = this.getChannel();
     channel.trigger("loading:up");
-    const fetching = channel.request("sujetexo:entity", id);
+    const fetching = channel.request("sujetexercice:entity", id);
     $.when(fetching).done((sujetExo) => {
       require("./show/controller.js").controller.show(id, sujetExo);
     }).fail((response) => {
@@ -60,7 +60,7 @@ const Controller = MnObject.extend({
       return;
     }
     channel.trigger("loading:up");
-    const fetching = channel.request("sujetexo:entity", id);
+    const fetching = channel.request("sujetexercice:entity", id);
     $.when(fetching).done((sujetExo) => {
       require("./edit/controller.js").controller.edit(id, sujetExo);
     }).fail((response) => {
