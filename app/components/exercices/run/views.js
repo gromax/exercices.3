@@ -113,7 +113,21 @@ const FormView = View.extend({
     const form = this.el.querySelector('form');
     const fdata = new FormData(form);
     const data = Object.fromEntries(fdata.entries());
-    this.trigger('validation', data);
+    this.dataSubmit(data);
+  },
+
+  dataSubmit(data) {
+    const blocParent = this.getOption("blocParent");
+    if (!blocParent || typeof blocParent.validation !== 'function') {
+      console.warn("Pas de validation possible, bloc parent manquant ou invalide");
+      return;
+    }
+    const {validation,verification} = blocParent.validation(data);
+    if (validation) {
+      this.trigger("validation:error", validation);
+      return;
+    }
+    this.trigger("verification:success", verification);
   }
 
 });
