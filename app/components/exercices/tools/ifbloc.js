@@ -74,6 +74,7 @@ class SimpleCondition {
 class IfBloc extends Bloc {
     static END = '<endif>'
     static ENDIF = 'endif'
+    static IF = 'if'
     static ELSE = 'else'
     static ELIF = 'elif'
     static NEEDED = 'needed'
