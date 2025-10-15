@@ -82,12 +82,32 @@ const Controller = MnObject.extend ({
     while (mainPile.length > 0) {
       const item = mainPile.pop();
       if (typeof item.view !== 'function') {
-        throw new Error("Le bloc principal doit uniquement produire des vues.");
+        console.warn(`<${item.tag}> le bloc principal doit uniquement produire des vues.`);
+        continue;
       }
       const itemView = item.view(exerciceTry);
       if (typeof itemView.onSubmit === 'function') {
-        itemView.on("verification:success", (data) => {
-          console.log("Vérification des réponses...", data);
+        itemView.on("validation:success", (data) => {
+          // il faut :
+          // 1. ajouter dans exerciceTry les réponses
+          // 2. détruire la vue du formulaire
+          // 3. relancer la vue pour le même item.
+          //    IMPORTANT : cela m'ennuie que item.view reçoive exerciceTry
+          //    je pourrais ne lui envoyer que les réponses
+          //       maintenant que la réponse est connu,
+          //    le formulaire doit afficher les résultats avec
+          //    tous les commentaies nécessaires
+          //    Attention : ce cas doit amener la modification du score
+          //    de l'exerciceTry et c'est seulement dans ce cas !
+          //    QUESTION : comment gérer le retour du score ?
+          //    Je crois aussi que je placerais deux valeur :
+          //     le score partiel et le score total
+          // 4. poursuivre l'exécution de la pile jusqu'au prochain stop
+          //    ce qui pourra amener à modifier l'état "finished" de l'exercice
+          // 5. sauvegarder l'état de l'exerciceTry
+
+
+          console.log("Vérification des réponses...", item.verification(data));
         });
       }
       region.appendChild(itemView.el);
