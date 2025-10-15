@@ -45,10 +45,9 @@ class FormBloc extends Bloc {
             // Il faudrait vérifier le type ici
         }
         if (Object.keys(errors).length > 0) {
-            return { validation:errors, verification:false };
+            return errors;
         }
-        const verifs = this._verification(data);
-        return { validation:null, verification:verifs };
+        return null;
     }
 
     /**
@@ -56,45 +55,16 @@ class FormBloc extends Bloc {
      * @param {object} data 
      * @returns {object} un objet de résultats
      */
-    _verification(data) {
-        const results = {};
+    verification(data) {
+        const results = [];
         for (const child of this._children) {
             if (!(child instanceof InputBloc)) {
                 continue;
             }
-            const name = child.header;
-            const userValue = data[name]; // existe toujours car validé avant
-            const userValueTag = child.getValueTag(userValue);
-            const expectedValue = child.params.expected;
-            const tag = child.params.tag;
-            const entete = tag?`${tag} : `:'';
-            if (!expectedValue) {
-                results[name] = {
-                    success: false,
-                    message: entete + `Aucune réponse attendue.`,
-                    user:userValue,
-                    score:0
-                };
-                continue;
-            }
-            // C'est là qu'il faudra prévoir les divers vérifications
-            if (userValue == expectedValue) {
-                const message = `${userValueTag} est une bonne réponse.`;
-                results[name] = {
-                    success: true,
-                    message: entete + message,
-                    user:userValue,
-                    score:1
-                };
-            } else {
-                const message = `${userValueTag} est une Mauvaise réponse.`;
-                const complement = `La réponse attendue était : ${expectedValue}.`;
-                results[name] = {
-                    success: false,
-                    message: entete + message + '\n' + complement,
-                    user:userValue,
-                    score:0
-                };
+            results.push(child.verification(data));
+            const nbPoints = this.__nombrePts || 1;
+            for (const item of results) {
+                item.score = 100*item.score/nbPoints;
             }
         }
         return results;
@@ -113,6 +83,10 @@ class FormBloc extends Bloc {
             }
         }
         return false;
+    }
+
+    setNombrePts(count) {
+        this.__nombrePts = count;
     }
 }
 
