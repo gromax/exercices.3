@@ -125,6 +125,16 @@ class Bloc {
         return out;
     }
 
+    nombrePts() {
+        let count = 0;
+        for (const item of this._children){
+            if (typeof item.nombrePts === 'function') {
+                count += item.nombrePts();
+            }
+        }
+        return count;
+    }
+
 }
 
 export default Bloc;
