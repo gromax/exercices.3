@@ -120,14 +120,15 @@ const FormView = View.extend({
     const blocParent = this.getOption("blocParent");
     if (!blocParent || typeof blocParent.validation !== 'function') {
       console.warn("Pas de validation possible, bloc parent manquant ou invalide");
+      this.trigger("validation:success", data);
       return;
     }
-    const {validation,verification} = blocParent.validation(data);
-    if (validation) {
-      this.trigger("validation:error", validation);
+    const errors = blocParent.validation(data);
+    if (errors) {
+      this.trigger("validation:error", errors);
       return;
     }
-    this.trigger("verification:success", verification);
+    this.trigger("validation:success", data);
   }
 
 });
