@@ -53,10 +53,11 @@ class MainBloc extends Bloc {
         const stack = [mainBlock];
 
         for (const line of lines) {
-            const trimmed = line.trim();
-            if (trimmed.startsWith('#')) {
+            if (line.startsWith('#')) {
                 continue;
             }
+            const beforeHash = line.split('#')[0];
+            const trimmed = beforeHash.trim();
             if (trimmed === '</main>') {
                 throw new Error("Erreur de syntaxe : fin de bloc main interdite");
             }
@@ -233,9 +234,9 @@ class MainBloc extends Bloc {
             throw new Error("Le bloc principal ne peut être exécuté qu'une seule fois.");
         }
         this._runned = true;
-        const currentRun = [];
         const parameters = { ...params, ...options };
         const pile = [...this.children].reverse();
+        this._children = [];
         while (pile.length > 0) {
             let item = pile.pop();
             const runned = item.run(parameters, this);
@@ -245,10 +246,16 @@ class MainBloc extends Bloc {
             if (Array.isArray(runned)) {
                 pile.push(...runned.reverse());
             } else {
-                currentRun.push(runned);
+                this._children.push(runned);
             }
         }
-        return currentRun.reverse();
+        const nbPoints = this.nombrePts();
+        for (const child of this._children) {
+            if (typeof child.setNombrePts === 'function') {
+                child.setNombrePts(nbPoints);
+            }
+        }
+        return this._children.reverse();
     }
 }
 
