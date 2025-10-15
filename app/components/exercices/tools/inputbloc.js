@@ -56,6 +56,49 @@ class InputBloc extends Bloc {
         }
         return key;
     }
+
+    nombrePts() {
+        return 1;
+    }
+
+    verification(data) {
+        const name = this.header;
+        const userValue = data[name] || '';
+        const userValueTag = this.getValueTag(userValue);
+        const expectedValue = this.params.expected;
+        const tag = this.params.tag;
+        const entete = tag?`${tag} : `:'';
+        if (!expectedValue) {
+            return {
+                name: name,
+                success: false,
+                message: entete + `Aucune réponse attendue.`,
+                user: userValue,
+                score: 0
+            };
+        }
+        // C'est là qu'il faudra prévoir les divers vérifications
+        if (userValue == expectedValue) {
+            const message = `${userValueTag} est une bonne réponse.`;
+            return {
+                name: name,
+                success: true,
+                message: entete + message,
+                user: userValue,
+                score: 1
+            };
+        } else {
+            const message = `${userValueTag} est une Mauvaise réponse.`;
+            const complement = `La réponse attendue était : ${expectedValue}.`;
+            results[name] = {
+                success: false,
+                message: entete + message + '\n' + complement,
+                user: userValue,
+                score: 0
+            };
+        }
+    }
+
 }
 
 export default InputBloc;
