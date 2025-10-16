@@ -249,12 +249,6 @@ class MainBloc extends Bloc {
                 this._children.push(runned);
             }
         }
-        const nbPoints = this.nombrePts();
-        for (const child of this._children) {
-            if (typeof child.setNombrePts === 'function') {
-                child.setNombrePts(nbPoints);
-            }
-        }
         return this._children.reverse();
     }
 }
