@@ -67,6 +67,7 @@ class InputBloc extends Bloc {
         const userValue = data[name] || '';
         const userValueTag = this.getValueTag(userValue);
         const expectedValue = this.params.expected;
+        const expectedValueTag = this.getValueTag(expectedValue);
         const tag = this.params.tag;
         const entete = tag?`${tag} : `:'';
         if (!expectedValue) {
@@ -74,7 +75,6 @@ class InputBloc extends Bloc {
                 name: name,
                 success: false,
                 message: entete + `Aucune réponse attendue.`,
-                user: userValue,
                 score: 0
             };
         }
@@ -85,16 +85,15 @@ class InputBloc extends Bloc {
                 name: name,
                 success: true,
                 message: entete + message,
-                user: userValue,
                 score: 1
             };
         } else {
             const message = `${userValueTag} est une Mauvaise réponse.`;
-            const complement = `La réponse attendue était : ${expectedValue}.`;
-            results[name] = {
+            const complement = `La réponse attendue était : ${expectedValueTag}.`;
+            return {
+                name: name,
                 success: false,
                 message: entete + message + '\n' + complement,
-                user: userValue,
                 score: 0
             };
         }
