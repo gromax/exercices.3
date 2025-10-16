@@ -1,5 +1,6 @@
 import Bloc from "./bloc";
 import { RadioView, InputView, UnknownView } from "../run/views";
+import MyMath from '@tools/mymath.js';
 
 /**
  * Bloc représentant un champ de saisie (input, radio...)
@@ -57,7 +58,7 @@ class InputBloc extends Bloc {
         if (this.tag === 'radio') {
             return this._options ? this._options[key] : undefined;
         }
-        return key;
+        return `$${MyMath.latex(key)}$`;
     }
 
     nombrePts() {
@@ -81,7 +82,7 @@ class InputBloc extends Bloc {
             };
         }
         // C'est là qu'il faudra prévoir les divers vérifications
-        if (userValue == expectedValue) {
+        if (MyMath.areEqual(userValue, expectedValue)) {
             const message = `${userValueTag} est une bonne réponse.`;
             return {
                 name: name,
