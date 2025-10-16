@@ -21,4 +21,7 @@ function substituteLatex(string) {
     });
 }
 
-export { substituteLabels, substituteLatex };
+export {
+    substituteLabels,
+    substituteLatex
+};
