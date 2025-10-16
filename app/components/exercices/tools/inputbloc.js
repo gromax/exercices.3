@@ -29,7 +29,7 @@ class InputBloc extends Bloc {
         this._category = 'input';
     }
 
-    _customView() {
+    _customView(answers) {
         if (this.tag === 'input') {
             return new UnknownView('input', {
                 result: this._result
@@ -39,7 +39,8 @@ class InputBloc extends Bloc {
             const items = _.shuffle(Object.entries(this._options || {}));
             return new RadioView({
                 name: this.header,
-                items: items
+                items: items,
+                answer: answers[this.header] || null
             });
         }
     }

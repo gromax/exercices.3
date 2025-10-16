@@ -21,7 +21,7 @@ class TextBloc extends Bloc {
         return this;
     }
 
-    _customView(entity) {
+    _customView(answers) {
         const content = this._children;
         if (this.tag == 'help' || this.tag == 'aide') {
             return new HelpView({
