@@ -69,10 +69,18 @@ function latex(expression) {
     return String(parse(expression).tex());
 }
 
+function areEqual(expr1, expr2) {
+    const e1 = MyMath.parse(expr1).toString();
+    const e2 = MyMath.parse(expr2).toString();
+    const res = Algebrite.simplify(`(${e1}) - (${e2})`);
+    return String(res) === '0';
+}
+
 const MyMath = {
     parse,
     evaluate,
-    latex
+    latex,
+    areEqual
 };
 
 export default MyMath
