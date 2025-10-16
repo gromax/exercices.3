@@ -84,6 +84,7 @@ const Controller = MnObject.extend ({
   },
 
   runExercice(mainPile, exerciceTry) {
+    let questionLeft = false;
     const region = document.querySelector('#exercice-run');
     const answers = exerciceTry.get("answers") || {};
     while (mainPile.length > 0) {
@@ -126,10 +127,11 @@ const Controller = MnObject.extend ({
       
       itemView.render();
       if (typeof itemView.onSubmit === 'function') {
+        questionLeft = true;
         break;
       }
     }
-    if (mainPile.length === 0) {
+    if (!questionLeft) {
       exerciceTry.set("finished", true);
       const finishedView = new Finished_View({
         score: exerciceTry.get("score")
