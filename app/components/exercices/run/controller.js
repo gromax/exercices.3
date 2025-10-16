@@ -1,5 +1,5 @@
 import { MnObject, Region } from 'backbone.marionette'
-import { OptionsView, ParamsView, TextView } from './views.js'
+import { OptionsView, ParamsView, Finished_View } from './views.js'
 import { Item as ExerciceTry } from '../exotry.js'
 import MainBloc from '../tools/mainbloc.js';
 
@@ -72,6 +72,7 @@ const Controller = MnObject.extend ({
         0
       );
       exerciceTry.set("scoreMax", scoreMax);
+      exerciceTry.set("intScore", 0);
       this.runExercice(mainPile, exerciceTry);
     } catch (error) {
       console.error(error);
@@ -87,11 +88,15 @@ const Controller = MnObject.extend ({
     const answers = exerciceTry.get("answers") || {};
     while (mainPile.length > 0) {
       const item = mainPile.pop();
+      const itemScore = item.score;
+      if (itemScore) {
+        exerciceTry.set("intScore", exerciceTry.get("intScore") + itemScore);
+      }
       if (typeof item.view !== 'function') {
         console.warn(`<${item.tag}> le bloc principal doit uniquement produire des vues.`);
         continue;
       }
-      const itemView = item.view(exerciceTry);
+      const itemView = item.view(answers);
       if (typeof itemView.onSubmit === 'function') {
         itemView.on("validation:success", (data) => {
           // 1. ajouter dans exerciceTry les réponses
@@ -99,12 +104,12 @@ const Controller = MnObject.extend ({
           // 2. détruire la vue du formulaire
           itemView.el.remove();
           // 3. relancer la vue pour le même item.
-          const newItemView = item.view(answers);
+          const newItemView = item.view(exerciceTry.get("answers"));
           region.appendChild(newItemView.el);
           newItemView.render();
           //    le formulaire doit afficher les résultats avec
           //    tous les commentaies nécessaires
-          exerciceTry.set("score", exerciceTry.get("score") + item.score);
+          exerciceTry.set("intScore", exerciceTry.get("intScore") + item.score);
           // 4. poursuivre l'exécution de la pile jusqu'au prochain stop
           //    ce qui pourra amener à modifier l'état "finished" de l'exercice
           this.runExercice(mainPile, exerciceTry);
@@ -123,6 +128,14 @@ const Controller = MnObject.extend ({
       if (typeof itemView.onSubmit === 'function') {
         break;
       }
+    }
+    if (mainPile.length === 0) {
+      exerciceTry.set("finished", true);
+      const finishedView = new Finished_View({
+        score: exerciceTry.get("score")
+      });
+      region.appendChild(finishedView.el);
+      finishedView.render();
     }
     // Rendu de KaTeX dans la zone d'exercice
     renderMathInElement(region, {
