@@ -9,17 +9,16 @@ import InputBloc from "./inputbloc";
 
 class FormBloc extends Bloc {
     static LABELS = ['form', 'formulaire'];
-    _customView(entity) {
+    _customView(answers) {
         const subViews = [];
         for (const child of this._children) {
             if (typeof child.view === "function") {
-                const subView = child.view(entity);
+                const subView = child.view(answers);
                 subViews.push(subView);
             }
         }
         const formView = new FormView({
             blocParent: this,
-            model: entity,
             name: this.header,
             subViews: subViews
         });
@@ -62,12 +61,17 @@ class FormBloc extends Bloc {
                 continue;
             }
             results.push(child.verification(data));
-            const nbPoints = this.__nombrePts || 1;
-            for (const item of results) {
-                item.score = 100*item.score/nbPoints;
-            }
         }
+        const nbPoints = results.reduce(
+            (sum, obj) => sum + (obj.score || 0),
+            0
+        );
+        this._score = nbPoints;
         return results;
+    }
+
+    get score() {
+        return this._score || 0;
     }
 
     needSubmit(entity) {
@@ -85,9 +89,6 @@ class FormBloc extends Bloc {
         return false;
     }
 
-    setNombrePts(count) {
-        this.__nombrePts = count;
-    }
 }
 
 export default FormBloc;
