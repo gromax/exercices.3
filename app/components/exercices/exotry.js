@@ -2,6 +2,7 @@
  * Modèle décrivant un essai de réalisation d'un exercice
  */
 
+
 const Item = Backbone.Model.extend({
   urlRoot: "api/tryexos",
   defaults: {
@@ -13,6 +14,10 @@ const Item = Backbone.Model.extend({
     idDevoir: null,
     score: 0,
     finished: false
+  },
+
+  initialize() {
+    this.on('change:intScore', this.onUpdateIntScore, this);
   },
 
   parse(data) {
@@ -33,6 +38,15 @@ const Item = Backbone.Model.extend({
     this.set("answers", updatedAnswers);
   },
 
+  onUpdateIntScore() {
+    const intScore = this.get("intScore") || 0;
+    const scoreMax = this.get("scoreMax") || 0;
+    if (scoreMax > 0) {
+      const scorePercent = Math.round((intScore / scoreMax) * 100);
+      this.set("score", scorePercent);
+    }
+  },
+
   isEleveTry() {
     return this.get("idDevoir") !== null
   },
@@ -47,6 +61,8 @@ const Item = Backbone.Model.extend({
     };
     return Backbone.sync(method, model, options);
   }
+
+
 });
 
 export { Item }
