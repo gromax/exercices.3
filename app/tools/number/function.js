@@ -56,6 +56,9 @@ class Function extends Base {
         }
         if (this.#name == '(+)') {
             this.#string = String(this.#child);
+        } else if (this.#name == '(-)') {
+            let child = this.#child.priority <= this.priority? `(${String(this.#child)})`:` ${String(this.#child)}`;
+            this.#string = `-${child}`;
         } else {
             let child = this.#child.priority <= this.priority? `(${String(this.#child)})`:` ${String(this.#child)}`;
             this.#string = `${this.#name}${child}`;
