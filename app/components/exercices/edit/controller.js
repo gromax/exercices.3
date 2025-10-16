@@ -30,7 +30,11 @@ const Controller = MnObject.extend ({
       view.$('input, select, textarea').each(function() {
         values[this.name] = this.value;
       });
-      const exoApercu = new SujetExercice(values);
+      // il faudrait que l'aperçu sauvegarde
+      const exoApercu = new SujetExercice(sujetExercice.attributes);
+      for (const key in values) {
+        exoApercu.set(key, values[key]);
+      }
       channel.trigger("exercice:apercu", exoApercu);
     });
 
