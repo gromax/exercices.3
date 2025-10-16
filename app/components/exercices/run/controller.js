@@ -67,6 +67,11 @@ const Controller = MnObject.extend ({
         exerciceTry.get("init"),
         exerciceTry.get("options")
       );
+      const scoreMax = mainPile.reduce(
+        (sum, item) => typeof item.nombrePts === 'function' ? sum + item.nombrePts() || 0 : sum,
+        0
+      );
+      exerciceTry.set("scoreMax", scoreMax);
       this.runExercice(mainPile, exerciceTry);
     } catch (error) {
       console.error(error);
@@ -79,6 +84,7 @@ const Controller = MnObject.extend ({
 
   runExercice(mainPile, exerciceTry) {
     const region = document.querySelector('#exercice-run');
+    const answers = exerciceTry.get("answers") || {};
     while (mainPile.length > 0) {
       const item = mainPile.pop();
       if (typeof item.view !== 'function') {
@@ -88,26 +94,27 @@ const Controller = MnObject.extend ({
       const itemView = item.view(exerciceTry);
       if (typeof itemView.onSubmit === 'function') {
         itemView.on("validation:success", (data) => {
-          // il faut :
           // 1. ajouter dans exerciceTry les réponses
+          exerciceTry.addAnswers(data);
           // 2. détruire la vue du formulaire
+          itemView.el.remove();
           // 3. relancer la vue pour le même item.
-          //    IMPORTANT : cela m'ennuie que item.view reçoive exerciceTry
-          //    je pourrais ne lui envoyer que les réponses
-          //       maintenant que la réponse est connu,
+          const newItemView = item.view(answers);
+          region.appendChild(newItemView.el);
+          newItemView.render();
           //    le formulaire doit afficher les résultats avec
           //    tous les commentaies nécessaires
-          //    Attention : ce cas doit amener la modification du score
-          //    de l'exerciceTry et c'est seulement dans ce cas !
-          //    QUESTION : comment gérer le retour du score ?
-          //    Je crois aussi que je placerais deux valeur :
-          //     le score partiel et le score total
+          exerciceTry.set("score", exerciceTry.get("score") + item.score);
           // 4. poursuivre l'exécution de la pile jusqu'au prochain stop
           //    ce qui pourra amener à modifier l'état "finished" de l'exercice
+          this.runExercice(mainPile, exerciceTry);
+          if (mainPile.length === 0) {
+            exerciceTry.set("finished", true);
+          }
           // 5. sauvegarder l'état de l'exerciceTry
-
-
-          console.log("Vérification des réponses...", item.verification(data));
+          if (exerciceTry.isEleveTry()) {
+            exerciceTry.save();
+          }
         });
       }
       region.appendChild(itemView.el);
