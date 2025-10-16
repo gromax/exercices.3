@@ -1,5 +1,5 @@
 import Bloc from "./bloc";
-import { RadioView, UnknownView } from "../run/views";
+import { RadioView, InputView, UnknownView } from "../run/views";
 
 /**
  * Bloc représentant un champ de saisie (input, radio...)
@@ -31,8 +31,10 @@ class InputBloc extends Bloc {
 
     _customView(answers) {
         if (this.tag === 'input') {
-            return new UnknownView('input', {
-                result: this._result
+            return new InputView({
+                name: this.header,
+                tag: this.params.tag || this.header,
+                answer: answers[this.header] || null
             });
         }
         if (this.tag === 'radio') {
