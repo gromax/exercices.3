@@ -8,6 +8,7 @@ import radio_tpl from '@templates/exercices/run/exercice-radio.jst'
 import form_tpl from '@templates/exercices/run/exercice.form.jst'
 import exercice_finished_tpl from '@templates/exercices/run/exercice-finished.jst'
 import exercice_results_tpl from '@templates/exercices/run/exercice-results.jst'
+import exercice_input_tpl from '@templates/exercices/run/exercice-input.jst'
 
 const OptionsView = View.extend({
   template: options_tpl,
@@ -93,6 +94,17 @@ const RadioView = View.extend({
   }
 });
 
+const InputView = View.extend({
+  template: exercice_input_tpl,
+  templateContext() {
+    return {
+      name: this.getOption("name"),
+      tag: this.getOption("tag"),
+      answer: this.getOption("answer")
+    };
+  }
+});
+
 const FormView = View.extend({
   template: form_tpl,
   triggers: {
@@ -162,5 +174,6 @@ export {
   HelpView,
   RadioView,
   FormView,
-  ResultsView
+  ResultsView,
+  InputView
 };
