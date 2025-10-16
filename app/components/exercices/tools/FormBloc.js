@@ -1,5 +1,5 @@
 import Bloc from "./bloc";
-import { FormView } from "../run/views";
+import { FormView, ResultsView } from "../run/views";
 import InputBloc from "./inputbloc";
 
 
@@ -10,6 +10,18 @@ import InputBloc from "./inputbloc";
 class FormBloc extends Bloc {
     static LABELS = ['form', 'formulaire'];
     _customView(answers) {
+        if (this._needSubmit(answers)) {
+            // Il faut afficher le formulaire
+            return this._viewFormCase(answers);
+        }
+        // Sinon, on affiche les résultats
+        const verifs = this.verification(answers);
+        return new ResultsView({
+            items: verifs
+        })
+    }
+
+    _viewFormCase(answers) {
         const subViews = [];
         for (const child of this._children) {
             if (typeof child.view === "function") {
@@ -24,6 +36,7 @@ class FormBloc extends Bloc {
         });
         return formView;
     }
+
 
     /**
      * Validation des données du formulaire
@@ -74,9 +87,8 @@ class FormBloc extends Bloc {
         return this._score || 0;
     }
 
-    needSubmit(entity) {
+    _needSubmit(answers) {
         // Si une des questions n'a pas de réponse, il faut soumettre
-        const answers = entity.get("answers") || {};
         for (const child of this._children) {
             if (!(child instanceof InputBloc)) {
                 continue;
