@@ -27,6 +27,16 @@ const Item = Backbone.Model.extend({
     return data;
   },
 
+  addAnswers(newAnswers) {
+    const currentAnswers = this.get("answers") || {};
+    const updatedAnswers = { ...currentAnswers, ...newAnswers };
+    this.set("answers", updatedAnswers);
+  },
+
+  isEleveTry() {
+    return this.get("idDevoir") !== null
+  },
+
   sync(method, model, options) {
     options = options || {};
     const token = localStorage.getItem('jwt');
