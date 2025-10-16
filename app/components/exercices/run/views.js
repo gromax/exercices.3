@@ -6,6 +6,8 @@ import unknown_tpl from '@templates/exercices/run/exercice-unknown.jst'
 import help_tpl from '@templates/exercices/run/exercice-help.jst'
 import radio_tpl from '@templates/exercices/run/exercice-radio.jst'
 import form_tpl from '@templates/exercices/run/exercice.form.jst'
+import exercice_finished_tpl from '@templates/exercices/run/exercice-finished.jst'
+import exercice_results_tpl from '@templates/exercices/run/exercice-results.jst'
 
 const OptionsView = View.extend({
   template: options_tpl,
@@ -85,7 +87,8 @@ const RadioView = View.extend({
   templateContext() {
     return {
       name: this.getOption("name"),
-      items: this.getOption("items")
+      items: this.getOption("items"),
+      answer: this.getOption("answer")
     };
   }
 });
@@ -130,15 +133,34 @@ const FormView = View.extend({
     }
     this.trigger("validation:success", data);
   }
+});
 
+const ResultsView = View.extend({
+  template: exercice_results_tpl,
+  templateContext() {
+    return {
+      items: this.getOption("items")
+    };
+  }
+});
+
+const Finished_View = View.extend({
+  template: exercice_finished_tpl,
+  templateContext() {
+    return {
+      score: this.getOption("score")
+    };
+  }
 });
 
 export {
   OptionsView,
   ParamsView,
   TextView,
+  Finished_View,
   UnknownView,
   HelpView,
   RadioView,
-  FormView
+  FormView,
+  ResultsView
 };
