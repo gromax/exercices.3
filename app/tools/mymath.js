@@ -53,16 +53,41 @@ function executePile(pile) {
   return operandes[0];
 }
 
-function evaluate(expression) {
+function evaluate(expression, format=null) {
     let expr = expression.trim();
     if (/^\[.*\]$/.test(expr)) {
       // expression commence par [ et finit par ]
       let pile = expr.slice(1, -1).trim().split(/\s+/).map(
         s => s.trim()
       );
-      return String(executePile(pile));
+      return toFormat(executePile(pile), format||'');
     }
-    return String(Algebrite.simplify(expr));
+    return toFormat(Algebrite.simplify(expr), format||'');
+}
+
+function toFormat(value, format) {
+    format = (format || '').trim();
+    if (format === '$') {
+        if (typeof value.tex === 'function') {
+            return value.tex();
+        }
+        return latex(String(value));
+    }
+    if (format === 'f') {
+        if (typeof value.toDecimal === 'function') {
+            return String(value.toDecimal());
+        }
+        return Algebrite.run(`float(${String(value)})`).toString();
+    }
+    const m = format.match(/^([1-9][0-9]*)f$/);
+    if (m) {
+        const n = parseInt(m[1], 10);
+        if (typeof value.toDecimal === 'function') {
+            return value.toDecimal().toFixed(n);
+        }
+        return parseFloat(Algebrite.run(`float(${String(value)})`)).toFixed(n);
+    }
+    return String(value);
 }
 
 function latex(expression) {
