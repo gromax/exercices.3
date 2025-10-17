@@ -18,6 +18,9 @@ const Controller = MnObject.extend ({
         this.showExerciceTry(sujetExercice, exerciceTry);
       });
       const exerciceTry = this.newExerciceTry(sujetExercice, defaultsOptions);
+      if (!exerciceTry) {
+        return;
+      }
       new Region({ el: '#exercice-options-set' }).show(optionsView);
       this.showExerciceTry(sujetExercice, exerciceTry);
     } catch (error) {
@@ -46,6 +49,7 @@ const Controller = MnObject.extend ({
         title: "Initialisation des paramètres",
         message: error.message
       });
+      return null;
     }
   },
 
