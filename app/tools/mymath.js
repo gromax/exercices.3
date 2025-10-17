@@ -1,7 +1,8 @@
 import Parser from './parser/parser.js';
 import { build } from './parser/rpnbuilder.js';
 import Alea from './misc/alea.js';
-import Algebrite from 'algebrite';
+import nerdamer from 'nerdamer';
+import 'nerdamer/all';
 
 const MODULES = [Alea];
 
@@ -62,42 +63,52 @@ function evaluate(expression, format=null) {
       );
       return toFormat(executePile(pile), format||'');
     }
-    return toFormat(Algebrite.simplify(expr), format||'');
+    return toFormat(nerdamer(expr).simplify().toString(), format||'');
 }
 
 function toFormat(value, format) {
     format = (format || '').trim();
     if (format === '$') {
-        if (typeof value.tex === 'function') {
-            return value.tex();
+        if (typeof value.toTex === 'function') {
+            return value.toTex();
         }
         return latex(String(value));
     }
     if (format === 'f') {
         if (typeof value.toDecimal === 'function') {
-            return String(value.toDecimal());
+            return String(value.toDecimal()).replace('.', ',');
         }
-        return Algebrite.run(`float(${String(value)})`).toString();
+        return nerdamer(String(value)).text('decimals').replace('.', ',');
     }
     const m = format.match(/^([1-9][0-9]*)f$/);
     if (m) {
         const n = parseInt(m[1], 10);
         if (typeof value.toDecimal === 'function') {
-            return value.toDecimal().toFixed(n);
+            return value.toDecimal().toFixed(n).replace('.', ',');
         }
-        return parseFloat(Algebrite.run(`float(${String(value)})`)).toFixed(n);
+        return nerdamer(String(value)).text('decimals', n).replace('.', ',');
     }
     return String(value);
 }
 
 function latex(expression) {
-    return String(parse(expression).tex());
+    //return String(parse(expression).toTex());
+    console.log('latex', expression);
+    console.log('nerdamer', nerdamer(expression).toString());
+    console.log('toTeX', nerdamer(expression).toTeX());
+    return nerdamer(expression).toTeX();
+}
+
+function parseUser(expr) {
+    // Le but est ici de gérer des expressions utilisateurs
+    // qui ne sont pas forcément valides en Algebrite
+    // Par exemple : 5 + 3% -> 5 + (3 / 100)
+    //return MyMath.parse(expr).toString();
+    return expr.replace(',', '.');
 }
 
 function areEqual(expr1, expr2) {
-    const e1 = MyMath.parse(expr1).toString();
-    const e2 = MyMath.parse(expr2).toString();
-    const res = Algebrite.simplify(`(${e1}) - (${e2})`);
+    const res = nerdamer(`(${expr1}) - (${expr2})`).simplify().toString();
     return String(res) === '0';
 }
 
@@ -105,7 +116,8 @@ const MyMath = {
     parse,
     evaluate,
     latex,
-    areEqual
+    areEqual,
+    parseUser
 };
 
 export default MyMath
