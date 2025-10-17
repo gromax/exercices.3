@@ -159,7 +159,7 @@ class MainBloc extends Bloc {
             return new TextBloc(label, paramsString);
         }
         if (InputBloc.LABELS.includes(label)) {
-            return new InputBloc(label, paramsString);
+            return InputBloc.make(label, paramsString);
         }
         if (FormBloc.LABELS.includes(label)) {
             return new FormBloc(label, paramsString);
@@ -186,6 +186,9 @@ class MainBloc extends Bloc {
         let program = [...this.children].reverse();
         while (program.length > 0) {
           let item = program.pop();
+          if (item instanceof TextNode) {
+            continue;
+          }
           if (item instanceof IfBloc) {
             const ifChildren = item.run({ ...params, ...options });
             if (ifChildren === null) {
