@@ -20,8 +20,18 @@ import MyMath from '@tools/mymath.js';
  */
 
 
+
 class InputBloc extends Bloc {
     static LABELS = ['input', 'radio']
+    static make(label, paramsString) {
+        if (label === 'input') {
+            return new InputTextBloc(label, paramsString);
+        }
+        if (label === 'radio') {
+            return new RadioBloc(label, paramsString);
+        }
+    }
+    
     constructor(label, paramsString) {
         super(label, paramsString, false);
         if (!paramsString) {
@@ -30,47 +40,26 @@ class InputBloc extends Bloc {
         this._category = 'input';
     }
 
-    _customView(answers) {
-        if (this.tag === 'input') {
-            return new InputView({
-                name: this.header,
-                tag: this.params.tag || this.header,
-                answer: answers[this.header] || null
-            });
-        }
-        if (this.tag === 'radio') {
-            const items = _.shuffle(Object.entries(this._options || {}));
-            return new RadioView({
-                name: this.header,
-                items: items,
-                answer: answers[this.header] || null
-            });
-        }
-    }
-
-    /**
-     * renvoie la valeur associée à une étiquette
-     * en particulier dans un cas radio
-     * @param {string} key 
-     * @return {string|undefined} la valeur ou undefined si pas trouvée
-     */
-    getValueTag(key) {
-        if (this.tag === 'radio') {
-            return this._options ? this._options[key] : undefined;
-        }
-        return `$${MyMath.latex(key)}$`;
-    }
-
     nombrePts() {
         return 1;
+    }
+}
+
+class InputTextBloc extends InputBloc {
+    _customView(answers) {
+        return new InputView({
+            name: this.header,
+            tag: this.params.tag || this.header,
+            answer: answers[this.header] || null
+        });
     }
 
     verification(data) {
         const name = this.header;
         const userValue = data[name] || '';
-        const userValueTag = this.getValueTag(userValue);
+        const userValueParsed = MyMath.parseUser(userValue);
+        const userValueTag = userValue.includes('\\') ? `$${userValue}$` : userValue;
         const expectedValue = this.params.expected;
-        const expectedValueTag = this.getValueTag(expectedValue);
         const tag = this.params.tag;
         const entete = tag?`${tag} : `:'';
         if (!expectedValue) {
@@ -82,7 +71,7 @@ class InputBloc extends Bloc {
             };
         }
         // C'est là qu'il faudra prévoir les divers vérifications
-        if (MyMath.areEqual(userValue, expectedValue)) {
+        if (MyMath.areEqual(userValueParsed, expectedValue)) {
             const message = `${userValueTag} est une bonne réponse.`;
             return {
                 name: name,
@@ -92,7 +81,7 @@ class InputBloc extends Bloc {
             };
         } else {
             const message = `${userValueTag} est une Mauvaise réponse.`;
-            const complement = `La réponse attendue était : ${expectedValueTag}.`;
+            const complement = `La réponse attendue était : $${MyMath.latex(expectedValue)}$.`;
             return {
                 name: name,
                 success: false,
@@ -101,6 +90,59 @@ class InputBloc extends Bloc {
             };
         }
     }
+}
+
+class RadioBloc extends InputBloc {
+    constructor(label, paramsString) {
+        super(label, paramsString);
+        this._options = {};
+    }
+
+    _customView(answers) {
+        const items = _.shuffle(Object.entries(this._options || {}));
+        return new RadioView({
+            name: this.header,
+            items: items,
+            answer: answers[this.header] || null
+        });
+    }
+
+    verification(data) {
+        const name = this.header;
+        const userValue = data[name] || '';
+        const userValueTag = this._options[userValue];
+        const expectedValue = this.params.expected;
+        const expectedValueTag = this._options[expectedValue];
+        const tag = this.params.tag;
+        const entete = tag?`${tag} : `:'';
+        if (!expectedValue) {
+            return {
+                name: name,
+                success: false,
+                message: entete + `Aucune réponse attendue.`,
+                score: 0
+            };
+        }
+        // C'est là qu'il faudra prévoir les divers vérifications
+        if (expectedValue == userValue) {
+            return {
+                name: name,
+                success: true,
+                message: `${entete}${userValueTag} est une bonne réponse.`,
+                score: 1
+            };
+        }
+        const message = `${userValueTag} est une Mauvaise réponse.`;
+        const complement = `La réponse attendue était : ${expectedValueTag}.`;
+        return {
+            name: name,
+            success: false,
+            message: entete + message + '\n' + complement,
+            score: 0
+        };
+    }
+
+
 
 }
 
