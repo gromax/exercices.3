@@ -1,4 +1,4 @@
-import { substituteLabels, substituteLatex } from './misc.js';
+import { substituteExpressions, substituteLabels } from './misc.js';
 
 class TextNode {
   constructor(text) {
@@ -10,8 +10,8 @@ class TextNode {
   }
 
   run(params, caller) {
-    const text = substituteLabels(this._text, params);
-    return substituteLatex(text);
+    const text = substituteExpressions(this._text, params);
+    return substituteLabels(text, params);
   }
 
   get text() {
