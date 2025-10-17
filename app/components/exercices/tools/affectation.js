@@ -28,7 +28,7 @@ class Affectation {
         if ((this._tag in params) && (this._operator === ':=')) {
             return; // ne fait rien si le paramètre existe déjà
         }
-        const substituted = substituteLabels(this._value, { ...params, ...protectedParams });
+        const substituted = substituteLabels(this._value, { ...params, ...protectedParams }, true);
         params[this._tag] = MyMath.evaluate(substituted);
     }
 
