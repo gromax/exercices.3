@@ -13,7 +13,7 @@ class MainBloc extends Bloc {
      * Méthodes statiques 
      */
     static parseOptions(content) {
-        const mainBlock = MainBloc._parse(content, true);
+        const mainBlock = MainBloc._parse(content);
         return mainBlock._parseOptions();
     }
 
@@ -213,6 +213,9 @@ class MainBloc extends Bloc {
         const options = {};
         const defaultsOptions = {};
         for (const child of this.children) {
+            if (child instanceof TextNode){
+                continue;
+            }
             if (!(child instanceof Bloc) || child.tag !== 'option') {
                 throw new Error("Le contenu des options ne peut contenir que des blocs <option>.");
             }
