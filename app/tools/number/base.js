@@ -1,4 +1,5 @@
 import Decimal from 'decimal.js';
+Decimal.set({ precision: 50, rounding: Decimal.ROUND_HALF_UP });
 
 class Base {
     /**
