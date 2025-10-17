@@ -6,12 +6,22 @@ import MyMath from '@tools/mymath.js';
  * @param {object} params les paramètres connus
  * @returns {string} une chaîne où les paramètres connus ont été remplacés par leur valeur
  */
-function substituteLabels(expr, params) {
+function substituteLabels(expr, params, forceParenthesis=false) {
     return expr.replace(/@(\w+)/g, (match, label) => {
         if (!params.hasOwnProperty(label)) {
             return `@${label}`; // ne remplace pas si le paramètre n'existe pas
         }
+        if (forceParenthesis) {
+            return `(${String(params[label])})`;
+        }
         return String(params[label]);
+    });
+}
+
+function substituteExpressions(str, params) {
+    return str.replace(/\{([^:]+):\s*([\w]*|\$)?\}/g, (match, expr, format) => {
+        const sexpr = substituteLabels(expr, params, true);
+        return MyMath.evaluate(sexpr, format);
     });
 }
 
@@ -23,5 +33,6 @@ function substituteLatex(string) {
 
 export {
     substituteLabels,
-    substituteLatex
+    substituteLatex,
+    substituteExpressions
 };
