@@ -91,7 +91,7 @@ class Scalar extends Base {
      * @return {string}
      */
     toString() {
-        return this.#chaine;
+        return this.#value.toString();
     }
 
     get priority() {
