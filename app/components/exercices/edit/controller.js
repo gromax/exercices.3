@@ -8,7 +8,7 @@ const Controller = MnObject.extend ({
     const channel = this.getChannel();
     channel.trigger("ariane:reset", [
       { text:"Exercices", link:"exercices" },
-      { text:sujetExercice ? sujetExercice.get("title") : "Exercice inconnu", link:`exercice:${id}` },
+      { text:sujetExercice ? sujetExercice.get("title") : "Exercice inconnu", link:`sujet-exercice:${id}` },
       { text:"Modification", link:`exercice:${id}/edit` }
     ]);
 
