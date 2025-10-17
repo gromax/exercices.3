@@ -69,9 +69,9 @@ class Power extends Base {
      * renvoie une représentation tex
      * @returns {string}
      */
-    tex() {
-        let texBase = this.#base.priority <= this.priority? `\\left(${this.#base.tex()}\\right)`:this.#base.tex();
-        let texExposant = this.#exposant.tex();
+    toTex() {
+        let texBase = this.#base.priority <= this.priority? `\\left(${this.#base.toTex()}\\right)`:this.#base.toTex();
+        let texExposant = this.#exposant.toTex();
         return `${texBase}^{${texExposant}}`;
     }
 

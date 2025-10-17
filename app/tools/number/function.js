@@ -95,18 +95,18 @@ class Function extends Base {
      * renvoie une représentation tex
      * @returns {string}
      */
-    tex() {
+    toTex() {
         if (this.#name == 'inverse') {
-            return `\\frac{1}{${this.#child.tex()}}`;
+            return `\\frac{1}{${this.#child.toTex()}}`;
         }
         if (this.#name == 'sqrt') {
-            return `\\sqrt{${this.#child.tex()}}`;
+            return `\\sqrt{${this.#child.toTex()}}`;
         }
         if (this.#name == '(+)') {
-            return this.#child.tex();
+            return this.#child.toTex();
         }
 
-        let texChild = this.#child.priority <= this.priority? `\\left(${this.#child.tex()}\\right)`:` ${this.#child.tex()}`;
+        let texChild = this.#child.priority <= this.priority? `\\left(${this.#child.toTex()}\\right)`:` ${this.#child.toTex()}`;
         if (this.#name == '(-)') {
             return `- ${texChild}`;
         }

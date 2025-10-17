@@ -152,7 +152,7 @@ class Scalar extends Base {
      * renvoie une représentation tex
      * @returns {string}
      */
-    tex() {
+    toTex() {
         return this.#chaine.replace('%', '\\%');
     }
 

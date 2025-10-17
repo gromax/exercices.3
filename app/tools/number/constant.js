@@ -68,7 +68,7 @@ class Constant extends Base {
      * renvoie une représentation tex
      * @returns {string}
      */
-    tex() {
+    toTex() {
         return Constant.TEX[this.#name];
     }
 

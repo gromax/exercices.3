@@ -101,9 +101,9 @@ class Add extends Base {
      * renvoie une représentation tex
      * @returns {string}
      */
-    tex() {
-        let texLeft = this.#left.tex();
-        let texRight = this.#right.tex();
+    toTex() {
+        let texLeft = this.#left.toTex();
+        let texRight = this.#right.toTex();
         return `${texLeft} + ${texRight}`;
     }
 
@@ -172,9 +172,9 @@ class Minus extends Base {
      * renvoie une représentation tex
      * @returns {string}
      */
-    tex() {
-        let texLeft = this.#left.tex();
-        let texRight = this.#right.priority <= this.priority? `\\left(${this.#right.tex()})`:this.#right.tex();
+    toTex() {
+        let texLeft = this.#left.toTex();
+        let texRight = this.#right.priority <= this.priority? `\\left(${this.#right.toTex()})`:this.#right.toTex();
         return `${texLeft} - ${texRight}`;
     }
 

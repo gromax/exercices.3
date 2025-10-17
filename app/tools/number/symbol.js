@@ -113,7 +113,7 @@ class Symbol extends Base {
      * renvoie une représentation tex
      * @returns {string}
      */
-    tex() {
+    toTex() {
         if (this.#name in GREEK_TO_TEX) {
             return GREEK_TO_TEX[this.#name];
         }

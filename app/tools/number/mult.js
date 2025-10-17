@@ -105,9 +105,9 @@ class Mult extends Base {
      * renvoie une représentation tex
      * @returns {string}
      */
-    tex() {
-        let texLeft = this.#left.priority < this.priority? `\\left(${this.#left.tex()}\\right)`:this.#left.tex();
-        let texRight = this.#right.priority < this.priority? `\\left(${this.#right.tex()}\\right)`:this.#right.tex();
+    toTex() {
+        let texLeft = this.#left.priority < this.priority? `\\left(${this.#left.toTex()}\\right)`:this.#left.toTex();
+        let texRight = this.#right.priority < this.priority? `\\left(${this.#right.toTex()}\\right)`:this.#right.toTex();
         return `${texLeft} \\cdot ${texRight}`;
     }
 
@@ -174,9 +174,9 @@ class Div extends Base {
      * renvoie une représentation tex
      * @returns {string}
      */
-    tex() {
-        let texLeft = this.#left.tex();
-        let texRight = this.#right.tex();
+    toTex() {
+        let texLeft = this.#left.toTex();
+        let texRight = this.#right.toTex();
         return `\\frac{${texLeft}}{${texRight}}`;
     }
 
