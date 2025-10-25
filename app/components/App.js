@@ -58,6 +58,7 @@ const Manager = Application.extend({
       require('./users/app.js');
       require('./exercices/app.js');
       require('./classes/app.js');
+      require('./devoirs/app.js');
       
       console.log("token", Radio.channel("app").request("jwt:get"));
     
