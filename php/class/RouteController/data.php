@@ -6,7 +6,7 @@ use BDDObject\Logged;
 use BDDObject\AssoUF;
 use BDDObject\ExoFiche;
 use BDDObject\Note;
-use BDDObject\Fiche;
+use BDDObject\Devoir;
 use BDDObject\User;
 use BDDObject\Message;
 use BDDObject\Classe;
@@ -172,19 +172,17 @@ class data
 
         if ($uLog->isProf())
         {
-            if (in_array("fiches", $asks)){
-                $answer = Fiche::getList(array("owner"=> $uLog->getId() ));
+            if (in_array("devoirs", $asks)){
+                $answer = Devoir::getList([
+                    'wheres' => ['idOwner'=> $uLog->get('id') ]
+                ]);
                 if (isset($answer["error"]) && $answer["error"]) {
                     EC::addError($answer["message"]);
                     EC::set_error_code(501);
                     return false;
                 } else {
-                    $output["fiches"] = Fiche::getList(array("owner"=> $uLog->getId() ));
+                    $output["devoirs"] = $answer;
                 }
-            }
-
-            if (in_array("devoirs", $asks)){
-                $output["devoirs"] = AssoUF::getList(array("idOwner"=> $uLog->getId() ));
             }
 
             if (in_array("exofiches", $asks)){
