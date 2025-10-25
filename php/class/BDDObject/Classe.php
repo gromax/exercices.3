@@ -36,7 +36,8 @@ final class Classe extends Item
   protected static function children()
   {
     return [
-      'users'=> ['strangerId'=>'idClasse', 'allowDelete'=>false]
+      'users'=> ['strangerId'=>'idClasse', 'allowDelete'=>false],
+      'devoirs'=> ['strangerId'=>'idClasse', 'allowDelete'=>true]
     ];
   }
 
