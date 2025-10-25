@@ -16,4 +16,40 @@ This is a modern JS skeleton with MarionetteJS for [Webpack](https://webpack.git
 ## Problèmes à régler
 
 * La coche préférence ne fonctionne pas pour les utilisateurs
-* Je ne sais que faire pour l'évaluation de l'égalité : l'utilisateur pourrait écrit des coeffs décimaux. mais ils ne le seraient pas forcément dans la solution. Donc si on compare 1.5 et 3/2 ça ne passe pas. Comment éviter le probème ? Une solution serait d'implémenter une simplification avec mes fonctions. Cela permettrait de régler les cas les plus simples. Mais pour les cas avec x ? Il faut prendre des décisions !
+* J'ai réglé le problème des calculs à virgule avec nerdamer. Toutefois, si le concepteur de l'exo écrit par ex 0,5, nerdamer va peut être butter sur la virgule et il va mettre 1/2. Il faudrait donc trouver moyen de dire à nerdamer de ne pas faire cela, ou bien trouver un autre moteur de rendu tex. copilot m'a proposé une fonction pour conserver les décimaux.
+* pour un bloc jsxgraph il faudrait pouvoir mettre des paramètres `<courbe:formule et détails>` et du coup il faudrait modifier le setParam de ce bloc afin que l'on puisse cumuler des courbes.
+* pour un bloc de mises en correspondances d'items, les enfant pourraient être comme dans un bloc radio du genre 0=>a:b et ensuite ce n'est qu'un problème de rendu. 
+
+## à faire
+
+* les cas de réponse attendue dans le cas input
+  * possibilité d'ajouter plusieurs expected dans un cas un dans une liste
+  * cas ensemble
+  * développé
+  * approx...
+* cas d'interface
+  * jsxgraph : dans ce cas le setparam pourrait devoir être adapté
+  * tableau
+  * association avec couleurs
+  * boutons de clavier
+  * zonee d'édit intelligente
+  * sauvegarde sur aperçu
+* chargement d'une classe à la algoPython ?
+* interface devoir pour prof
+  * modif d'un devoir
+  * sélection des exercices
+  * ajustement des options
+  * visualisation de l'exercice
+  * clonage de devoir
+  * voir notes élèves
+* admin : interface de nettoyage
+* élève
+  * tableau de bord
+  * voir un devoir
+  * faire un exo
+
+Important : désormais, on crée une asso exercice-devoir pour une répétition de l'exo dans le devoir. Si on veut que l'élève le fasse 5x alors il faut entrer 5 assoc.
+
+La note de l'élève pour cette assoc est la meilleure réalisation.
+
+Pour une assoc, on reprend toujours le dernier essai enregistré tant qu'il n'est pas terminé.
