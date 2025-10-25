@@ -112,6 +112,29 @@ function areEqual(expr1, expr2) {
     return String(res) === '0';
 }
 
+// solution à étudier pour conserver les décimaux dans le TeX
+function toTeXKeepDecimals(expr) {
+  // map des tokens -> littéral décimal
+  const map = {};
+  let i = 0;
+  // capture décimaux (ex. 0.1, .5, 12.34)
+  const tokenized = expr.replace(/(?<![\w.])(-?\d*[.,]\d+)(?![\w.])/g, (m) => {
+    const token = `__DEC_${i++}__`;
+    map[token] = m;
+    return token;
+  });
+
+  // passer à nerdamer (les tokens sont des identifiants valides)
+  const tex = nerdamer(tokenized).toTeX();
+
+  // remplacer les tokens par les littéraux décimaux d'origine dans le TeX
+  let out = tex;
+  for (const token in map) {
+    out = out.split(token).join(map[token]);
+  }
+  return out;
+}
+
 const MyMath = {
     parse,
     evaluate,
