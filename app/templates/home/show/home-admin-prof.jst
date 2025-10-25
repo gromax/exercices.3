@@ -1,9 +1,9 @@
 <h1>Bienvenue !</h1>
 <% if (adminMode) { %><p>Vous êtes administrateur du site. Vous pouvez exécuter une des commandes suivantes :</p><% } else { %><p>Vous êtes <b>professeur</b>. Vous pouvez exécuter une des commandes suivantes :</p><% } %>
 <div class="list-group">
-  <a type="button" class="list-group-item list-group-item-action" cible="messages" href="#messages"><i class="fa fa-comment"></i>&nbsp; Messages<% if (unread>0){%>&emsp;<span class="badge badge-danger"><%-unread%> message(s) non lu(s)<% } %></span></a>
-  <a type="button" class="list-group-item list-group-item-action" cible="users" href="#users"><i class="fa fa-users"></i>&nbsp; <% if (adminMode) { %>Utilisateurs<% } else { %>Vos élèves<% } %></a>
-  <a type="button" class="list-group-item list-group-item-action" cible="classes" href="#classes"><i class="fa fa-graduation-cap"></i>&nbsp; <% if (adminMode) { %>Classes<% } else { %>Vos classes<% } %></a>
-  <a type="button" class="list-group-item list-group-item-action" cible="exercices" href="#exercices"><i class="fa-solid fa-dumbbell"></i>&nbsp; Exercices</a>
-  <a type="button" class="list-group-item list-group-item-action" cible="fiches" href="#fiches"><i class="fa-solid fa-paperclip"></i>&nbsp;  <% if (adminMode) { %>Fiches<% } else { %>Vos fiches<% } %></a>
+  <a type="button" class="list-group-item list-group-item-action" href="#messages"><i class="fa fa-comment"></i>&nbsp; Messages<% if (unread>0){%>&emsp;<span class="badge badge-danger"><%-unread%> message(s) non lu(s)<% } %></span></a>
+  <a type="button" class="list-group-item list-group-item-action" href="#users"><i class="fa fa-users"></i>&nbsp; <% if (adminMode) { %>Utilisateurs<% } else { %>Vos élèves<% } %></a>
+  <a type="button" class="list-group-item list-group-item-action" href="#classes"><i class="fa fa-graduation-cap"></i>&nbsp; <% if (adminMode) { %>Classes<% } else { %>Vos classes<% } %></a>
+  <a type="button" class="list-group-item list-group-item-action" href="#exercices"><i class="fa-solid fa-dumbbell"></i>&nbsp; Exercices</a>
+  <a type="button" class="list-group-item list-group-item-action" href="#devoirs"><i class="fa-solid fa-paperclip"></i>&nbsp;  <% if (adminMode) { %>Devoirs<% } else { %>Vos devoirs<% } %></a>
 </div>
