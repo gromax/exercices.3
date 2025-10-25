@@ -122,11 +122,13 @@ class classes
     $uLog=Logged::getConnectedUser();
     if (!$uLog->connexionOk())
     {
+      EC::addError("Utilisateur non connecté.");
       EC::set_error_code(401);
       return false;
     }
     if ($uLog->isEleve()) {
       // interdit pour élève
+      EC::addError("Interdit aux élèves.");
       EC::set_error_code(403);
       return false;
     }
@@ -168,11 +170,13 @@ class classes
     $uLog=Logged::getConnectedUser();
     if (!$uLog->connexionOk())
     {
+      EC::addError("Utilisateur non connecté.");
       EC::set_error_code(401);
       return false;
     }
     if ($uLog->isEleve()) {
       // Interdit pour élève
+      EC::addError("Interdit aux élèves.");
       EC::set_error_code(403);
       return false;
     }
