@@ -6,13 +6,13 @@ const Controller = MnObject.extend({
   edit(id, classe) {
     const channel = this.getChannel();
     if (classe === undefined) {
-      channel.trigger("ariane:add", { text: "Classe inconnue", e: "classe:edit", data: id, link: `classe:${id}/edit` });
+      channel.trigger("ariane:add", { text: "Classe inconnue", link: `classe:${id}/edit` });
       channel.trigger("missing:item");
       return;
     }
     channel.trigger("ariane:add", [
-      { text: classe.get("nom"), e: "classe:show", data: id, link: `classe:${id}` },
-      { text: "Modification", e: "classe:edit", data: id, link: `classe:${id}/edit` },
+      { text: classe.get("nom"), link: `classe:${id}` },
+      { text: "Modification", link: `classe:${id}/edit` },
     ]);
 
     const view = new EditClasseView({
@@ -34,9 +34,10 @@ const Controller = MnObject.extend({
       return;
     }
     const Classe = require('../entity.js').Item;
+
     const newClasse = new Classe({
-      idProf: prof.get("id"),
-      nomProf: prof.get("nom")
+      idOwner: prof.get("id"),
+      nomOwner: prof.get("nom"),
     });
     const view = new EditClasseView({
       model: newClasse,
