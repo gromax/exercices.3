@@ -27,10 +27,10 @@ $router->addRule('api/classes/:id', 'classes', 'update', 'PUT');
 $router->addRule('api/classes', 'classes', 'insert', 'POST');
 $router->addRule('api/classes/:id/test', 'classes', 'testMDP', 'GET');
 
-// fiches
-$router->addRule('api/fiches/:id', 'fiches', 'delete', 'DELETE');
-$router->addRule('api/fiches/:id', 'fiches', 'update', 'PUT');
-$router->addRule('api/fiches', 'fiches', 'insert', 'POST');
+// devoirs
+$router->addRule('api/devoirs/:id', 'devoirs', 'delete', 'DELETE');
+$router->addRule('api/devoirs/:id', 'devoirs', 'update', 'PUT');
+$router->addRule('api/devoirs', 'devoirs', 'insert', 'POST');
 
 // exercices
 $router->addRule('api/exercices/:id', 'exercices', 'fetch', 'GET');
