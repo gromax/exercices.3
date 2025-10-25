@@ -32,14 +32,6 @@ const Controller = MnObject.extend({
       listItemsLayout.getRegion('itemsRegion').show(listItemsView);
     });
 
-    listItemsPanel.on("classe:new", () => {
-        const view = channel.request("new:classe:modal");
-        view.on("success", (model, resp) => {
-          listItemsView.collection.add(model);
-          listItemsView.children.findByModel(model)?.trigger("flash:success");
-        });
-    });
-
     if (!prof) {
       // en mode classe/prof, je ne permet pas la navigation qui serait de toute façon déroutante
       listItemsView.on("item:show", (childView) => {
