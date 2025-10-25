@@ -1,0 +1,10 @@
+<td><span class="badge rounded-pill bg-primary"><%- id %></span></td>
+<td><%- nom %></td>
+<% if (showNomOwner) { %><td><%- nomOwner %></td>
+<% } %><td><%- dateDebut %></td><td><%- dateFin %></td>
+<td align="right">
+  <div class="btn-group" role="group">
+    <!-- Bouton suppression -->
+    <button type="button" class="btn btn-outline-danger btn-sm js-delete"><i class="fa fa-trash" aria-hidden="true" title="Supprimer"></i></button>
+  </div>
+</td>
