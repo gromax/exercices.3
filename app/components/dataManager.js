@@ -1,5 +1,4 @@
 import { MnObject } from 'backbone.marionette';
-import { get } from 'jquery';
 
 const Controller = MnObject.extend({
   channelName: 'app',
@@ -10,6 +9,7 @@ const Controller = MnObject.extend({
     'data:purge': 'purge',
     'classe:entity': 'getClasse',
     'user:entity': 'getUser',
+    'devoir:entity': 'getDevoir',
     'sujetexercice:entity': 'getSujetExercice',
     'user:me': 'getMe',
     'user:destroy:update': 'userDestroyUpdate',
@@ -65,8 +65,7 @@ const Controller = MnObject.extend({
           if (!data[colName]) continue;
           let colObj = false;
           switch (colName) {
-            //case "fiches": colObj = require("@entities/fiches.js"); break;
-            //case "devoirs": colObj = require("@entities/devoirs.js"); break;
+            case "devoirs": colObj = require("./devoirs/entity.js"); break;
             //case "userfiches": colObj = require("@entities/userfiches.js"); break;
             case "users": colObj = require("./users/entity.js"); break;
             case "classes": colObj = require("./classes/entity.js"); break;
@@ -116,6 +115,9 @@ const Controller = MnObject.extend({
   },
   getSujetExercice(id) {
     return this.getItem("sujetsexercices", id);
+  },
+  getDevoir(id) {
+    return this.getItem("devoirs", id);
   },
   getMe() {
     const defer = $.Deferred();
