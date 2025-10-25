@@ -1,3 +1,6 @@
+const d = new Date();
+const today = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
 const Item = Backbone.Model.extend ({
   urlRoot: "api/classes",
   defaults: {
@@ -7,8 +10,8 @@ const Item = Backbone.Model.extend ({
     description: "",
     ouverte: false,
     pwd:"",
-    expiration:"",
-    date: ""
+    expiration: today,
+    date: today
   },
   
   parse(data) {
@@ -27,6 +30,9 @@ const Item = Backbone.Model.extend ({
       /*if (attrs.nom.length < 3) {
         errors.nom = "Trop court";
       }*/
+    }
+    if (!attrs.expiration) {
+      errors.expiration = "Ne doit pas être vide";
     }
     if (!_.isEmpty(errors)) {
       return errors;
