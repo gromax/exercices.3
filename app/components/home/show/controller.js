@@ -5,8 +5,6 @@ import { OffView } from './off_view';
 import { ForgottenKeyView } from './forgotten_key_view';
 import { AdminProfPanel } from './admin_prof_panel';
 
-// import { AlertView } from 'apps/common/common_views.coffee'
-
 const Controller = MnObject.extend({
   channelName: "app",
   notFound() {
