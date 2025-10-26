@@ -109,6 +109,10 @@ abstract class Item
     return $join;
   }
 
+  /**
+   * Génère la clause WHERE SQL à partir d'un tableau de conditions
+   * $wheres : tableau associatif key => value ou key est de la forme table.col ou col
+   */
   protected static function sqlGetWhere($wheres)
   {
     $whereStrings = array_map(
