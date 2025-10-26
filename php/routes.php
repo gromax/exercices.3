@@ -39,10 +39,10 @@ $router->addRule('api/exercices', 'exercices', 'insert', 'POST');
 $router->addRule('api/exercices/:id', 'exercices', 'update', 'PUT');
 $router->addRule('api/exercices/:id', 'exercices', 'delete', 'DELETE');
 
-// exosfiche
-$router->addRule('api/exosfiche/:id', 'exosfiche', 'delete', 'DELETE');
-$router->addRule('api/exosfiche/:id', 'exosfiche', 'update', 'PUT');
-$router->addRule('api/exosfiche', 'exosfiche', 'insert', 'POST');
+// assosExoDevoir
+$router->addRule('api/assosExoDevoir/:id', 'assosExoDevoir', 'delete', 'DELETE');
+$router->addRule('api/assosExoDevoir/:id', 'assosExoDevoir', 'update', 'PUT');
+$router->addRule('api/assosExoDevoir', 'assosExoDevoir', 'insert', 'POST');
 
 // assosUF
 $router->addRule('api/assosUF/:id', 'assosUF', 'delete', 'DELETE');
