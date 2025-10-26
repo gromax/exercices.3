@@ -33,11 +33,14 @@ final class Classe extends Item
     ];
   }
 
-  protected static function children()
+  /**
+   * Définit les enfants protégés de cet objet BDD
+   * ne peut supprimer que si pas d'enfants protégés
+   */
+  protected static function protectedChildren()
   {
     return [
-      'users'=> ['strangerId'=>'idClasse', 'allowDelete'=>false],
-      'devoirs'=> ['strangerId'=>'idClasse', 'allowDelete'=>true]
+      'users'=> 'idClasse'
     ];
   }
 
