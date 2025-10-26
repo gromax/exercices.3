@@ -20,10 +20,7 @@ class classes
   {
     $this->params = $params;
   }
-  /**
-   * renvoie les infos sur l'objet d'identifiant id
-   * @return array
-   */
+
   public function fetch()
   {
     $uLog =Logged::getConnectedUser();

@@ -21,10 +21,6 @@ class messages
     {
         $this->params = $params;
     }
-    /**
-     * renvoie les infos sur l'objet d'identifiant id
-     * @return array
-     */
 
     public function delete()
     {
