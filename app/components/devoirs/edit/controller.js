@@ -3,7 +3,7 @@ import { EditDevoirView } from './views.js';
 
 const Controller = MnObject.extend({
   channelName: "app",
-  edit(id, devoir) {
+  edit(id, devoir, classes) {
     const channel = this.getChannel();
     if (devoir === undefined) {
       channel.trigger("ariane:add", { text: "Devoir inconnu", link: `devoir:${id}/edit` });
@@ -17,6 +17,7 @@ const Controller = MnObject.extend({
 
     const view = new EditDevoirView({
       model: devoir,
+      classes: classes,
       errorCode: "001",
       title: `Modification du devoir ${devoir.get("nom")}`
     });
