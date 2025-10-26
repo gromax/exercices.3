@@ -76,12 +76,13 @@ const Controller = MnObject.extend({
       channel.trigger("popup:error", "Pas encore implémenté.");
       return;
     }
-    this.devoirShowForProf(Number(id));
+    this.devoirShowForProf(id);
   },
 
   devoirShowForProf(id) {
     const channel = this.getChannel();
     const fetching = channel.request("custom:entities", ["devoirs", "exodevoirs"]);
+    id = Number(id);
     $.when(fetching).done((devoirs, exodevoirs) => {
       // récupérer le bon devoir
       const devoir = devoirs.find(d => d.id === id);
@@ -93,6 +94,30 @@ const Controller = MnObject.extend({
     }).always(() => {
       channel.trigger("loading:down");
     });
+  },
+
+  devoirAddExo(id) {
+    const channel = this.getChannel();
+    id = Number(id);
+    const logged = channel.request("logged:get");
+    if (!logged.isProf() && !logged.isAdmin()) {
+      channel.trigger("not:found");
+      return;
+    }
+    const fetching = channel.request("custom:entities", ["devoirs", "exodevoirs", "sujetsexercices"]);
+
+    $.when(fetching).done((devoirs, exodevoirs, sujetsexercices) => {
+      // récupérer le bon devoir
+      const devoir = devoirs.find(d => d.id === id);
+      const assocs = exodevoirs.filter(a => a.idDevoir === id);
+      const collecAssocs = new exodevoirs.constructor(assocs);
+      require("./showProf/controller.js").controller.showAddExo(id, devoir, collecAssocs, sujetsexercices, "");
+    }).fail((response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always(() => {
+      channel.trigger("loading:down");
+    });
+
   },
 
   devoirNew() {
@@ -147,6 +172,7 @@ const Router = Backbone.Router.extend({
     "devoirs": "devoirsList",
     "devoir::id": "devoirShow",
     "devoir::id/edit": "devoirEdit",
+    "devoir::id/addexo": "devoirAddExo",
     "devoirs/nouveau": "devoirNew",
     //"fiches/fiche-eleve::id": "aUfShow",
     //"devoir::id/exercices": "devoirShowExercices",
@@ -171,6 +197,10 @@ const Router = Backbone.Router.extend({
 
   devoirNew() {
     controller.devoirNew();
+  },
+
+  devoirAddExo(id) {
+    controller.devoirAddExo(id);
   },
 
 
