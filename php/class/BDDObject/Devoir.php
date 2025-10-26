@@ -2,10 +2,6 @@
 
 namespace BDDObject;
 
-use PDO;
-use PDOException;
-use ErrorController as EC;
-
 final class Devoir extends Item
 {
   protected static $BDDName = "devoirs";
@@ -28,13 +24,6 @@ final class Devoir extends Item
   {
     return [
       'inner' => ['idOwner' => 'users.id']
-    ];
-  }
-
-  protected static function children()
-  {
-    return [
-      'assoc_exo_devoir'=> ['strangerId'=>'idDevoir', 'allowDelete'=>false]
     ];
   }
 
