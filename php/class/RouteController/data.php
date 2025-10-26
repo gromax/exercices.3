@@ -3,9 +3,7 @@
 namespace RouteController;
 use ErrorController as EC;
 use BDDObject\Logged;
-use BDDObject\AssoUF;
-use BDDObject\ExoFiche;
-use BDDObject\Note;
+use BDDObject\ExoDevoir;
 use BDDObject\Devoir;
 use BDDObject\User;
 use BDDObject\Message;
@@ -25,37 +23,6 @@ class data
     public function __construct($params)
     {
         $this->params = $params;
-    }
-    /**
-     * renvoie les infos sur l'objet d'identifiant id
-     * @return array
-     */
-
-    public function eleveFetch()
-    {
-        // Renvoie l'ensemble des données pour un élève
-        $uLog =Logged::getConnectedUser();
-        if (!$uLog->connexionOk())
-        {
-            EC::set_error_code(401);
-            return false;
-        }
-
-        if ($uLog->isEleve())
-        {
-            return array(
-                "aEFs" => ExoFiche::getList(array("idUser"=>$uLog->getId())),
-                "devoirs" => AssoUF::getList(array("idUser"=> $uLog->getId() )),
-                "aUEs" => Note::getList(array("idUser"=>$uLog->getId())),
-                "messages" => Message::getListUser($uLog->getId()),
-            );
-        } else {
-            EC::set_error_code(403);
-            return false;
-        }
-
-        EC::set_error_code(501);
-        return false;
     }
 
     public function fetchMe()
@@ -83,258 +50,175 @@ class data
             return false;
         }
         $asks = explode("&",$this->params['asks']);
-        $output = array();
 
         // Les exercices sont publics et accessibles à tous les rangs
-        if (in_array("sujetsexercices", $asks)){
-            $answer =  Exercice::getList();
-            if (isset($answer["error"]) && $answer["error"]) {
-                EC::addError($answer["message"]);
-                EC::set_error_code(501);
-                return false;
-            } else {
-                $output["sujetsexercices"] = $answer;
-            }
-        }
+
 
         if ($uLog->isEleve())
         {
-            if (in_array("exofiches", $asks)){
-                $answer = ExoFiche::getList(array("idUser"=>$uLog->getId()));
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["exofiches"] = $answer;
-                }
-            }
-
-            if (in_array("userfiches", $asks)){
-                $answer = AssoUF::getList(array("idUser"=> $uLog->getId() ));
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["userfiches"] = $answer;
-                }
-            }
-
-            if (in_array("faits", $asks)){
-                $answer =  Note::getList(array("idUser"=>$uLog->getId()));
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["faits"] = $answer;
-                }
-            }
-
-            if (in_array("messages", $asks)){
-                $answer =  Message::getListUser($uLog->getId());
-
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    // On filtre les noms de sorte que quand dest ou owner n'est pas l'utilisateur, on écrit prof
-
-                    $filtreNomProf = function ($item)
-                    {
-                        // Pour masquer le nom prof
-                        if ($item["ownerName"] == "Moi") { $item["destName"] = "Prof"; }
-                        elseif ($item["destName"] == "Moi") { $item["ownerName"] = "Prof"; }
-                        return $item;
-                    };
-
-                    $filteredAnswer = array_map($filtreNomProf, $answer);
-                    $output["messages"] = $filteredAnswer;
-                }
-            }
-
-            if (in_array("classes", $asks)){
-                $answer =  Classe::getList([
-                    'wheres' => ['id'=> $uLog->get('idClasse') ]
-                ]);
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["classes"] = $answer;
-                }
-            }
-            return $output;
+            return $this->eleveCustomFetch($asks, $uLog);
         }
 
         if ($uLog->isProf())
         {
-            if (in_array("devoirs", $asks)){
-                $answer = Devoir::getList([
-                    'wheres' => ['idOwner'=> $uLog->get('id') ]
-                ]);
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["devoirs"] = $answer;
-                }
-            }
-
-            if (in_array("exofiches", $asks)){
-                $answer = ExoFiche::getList(array("idOwner"=>$uLog->getId()));
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["exofiches"] = $answer;
-                }
-            }
-
-            if (in_array("faits", $asks)){
-                $answer = Note::getList(array("idOwner"=>$uLog->getId()));
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["faits"] = $answer;
-                }
-
-            }
-
-            if (in_array("users", $asks)){
-                $answer = User::getList(array('classes'=>array_keys( $uLog->ownerOf() )));
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["users"] = $answer;
-                }
-            }
-
-            if (in_array("messages", $asks)){
-                $answer = Message::getListUser($uLog->getId());
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["messages"] = $answer;
-                }
-            }
-
-            if (in_array("classes", $asks)){
-                $answer = Classe::getList([
-                    'wheres' => ['idOwner'=> $uLog->getId() ]
-                ]);
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["classes"] = $answer;
-                }
-            }
-
-            return $output;
-
+            return $this->profCustomFetch($asks, $uLog);
         }
 
         if ($uLog->isAdmin()) {
-            if (in_array("fiches", $asks)){
-                $answer = Fiche::getList();
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["fiches"] = $answer;
-                }
-            }
-
-            if (in_array("devoirs", $asks)){
-                $answer = AssoUF::getList();
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["devoirs"] = $answer;
-                }
-            }
-
-            if (in_array("exofiches", $asks)){
-                $answer = ExoFiche::getList();
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["exofiches"] = $answer;
-                }
-            }
-
-            if (in_array("faits", $asks)){
-                $answer = Note::getList();
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["faits"] = $answer;
-                }
-            }
-
-            if (in_array("users", $asks)){
-                if ($uLog->isRoot()) $answer = User::getList(array('ranks'=>array(User::RANK_ADMIN, User::RANK_ELEVE, User::RANK_PROF)));
-                else $answer = User::getList(array('ranks'=>array(User::RANK_ELEVE, User::RANK_PROF)));
-
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["users"] = $answer;
-                }
-            }
-
-            if (in_array("messages", $asks)){
-                $answer = Message::getListUser($uLog->getId());
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["messages"] = $answer;
-                }
-            }
-
-            if (in_array("classes", $asks)){
-                $answer = Classe::getList();
-                if (isset($answer["error"]) && $answer["error"]) {
-                    EC::addError($answer["message"]);
-                    EC::set_error_code(501);
-                    return false;
-                } else {
-                    $output["classes"] = $answer;
-                }
-            }
-
-            return $output;
-
+            return $this->adminCustomFetch($asks, $uLog);
         }
 
         EC::set_error_code(403);
         return false;
     }
 
+    protected function customFetchHelper($toLoad, $asks)
+    {
+        $objects = [
+            'sujetsexercices' => Exercice::class,
+            'messages' => Message::class,
+            'classes' => Classe::class,
+            'devoirs' => Devoir::class,
+            'users' => User::class,
+            'exodevoirs' => ExoDevoir::class
+        ];
+
+        $output = [];
+        foreach ($toLoad as $key => $params)
+        {
+            if (!in_array($key, $asks)) continue;
+            $class = $objects[$key] ?? null;
+            if ($class === null) continue;
+            $answer = $class::getList($params);
+            if (isset($answer["error"]) && $answer["error"])
+            {
+                EC::addError($answer["message"]);
+                EC::set_error_code(501);
+                return false;
+            }
+            else
+            {
+                $output[$key] = $answer;
+            }
+        }
+
+        return $output;
+    }
+
+    protected function eleveCustomFetch($asks, Logged $uLog)
+    {
+        $toLoad = [
+            "sujetsexercices"=>[],
+            "exodevoirs" => [
+                'wheres' => ['devoirs.idClasse' => $uLog->getClasseId('idClasse') ],
+            ],
+            "classes" => [
+                'wheres' => ['id'=> $uLog->getClasseId('idClasse') ]
+            ]
+        ];
+        $output = $this->customFetchHelper($toLoad, $asks);
+        if ($output === false) return false;
+
+        if (in_array("messages", $asks))
+        {
+            $answer =  Message::getListUser($uLog->getId());
+            if (isset($answer["error"]) && $answer["error"])
+            {
+                EC::addError($answer["message"]);
+                EC::set_error_code(501);
+                return false;
+            }
+            else
+            {
+                // On filtre les noms de sorte que quand dest ou owner n'est pas l'utilisateur, on écrit prof
+                $filtreNomProf = function ($item)
+                {
+                    // Pour masquer le nom prof
+                    if ($item["ownerName"] == "Moi") { $item["destName"] = "Prof"; }
+                    elseif ($item["destName"] == "Moi") { $item["ownerName"] = "Prof"; }
+                    return $item;
+                };
+
+                $filteredAnswer = array_map($filtreNomProf, $answer);
+                $output["messages"] = $filteredAnswer;
+            }
+        }
+
+        return $output;
+    }
+
+    protected function profCustomFetch($asks, Logged $uLog)
+    {
+        $toLoad = [
+            "sujetsexercices"=>[],
+            "devoirs" => [
+                'wheres' => ['idOwner'=> $uLog->get('id') ]
+            ],
+            "exodevoirs" => [
+                'wheres' => ['devoirs.idOwner'=> $uLog->get('id') ],
+            ],
+            "users" => [
+                'classes'=>array_keys( $uLog->ownerOf() )
+            ],
+            "classes" => [
+                'wheres' => ['idOwner'=> $uLog->get('id') ]
+            ],
+        ];
+        $output = $this->customFetchHelper($toLoad, $asks);
+        if ($output === false) return false;
+
+        if (in_array("messages", $asks))
+        {
+            $answer = Message::getListUser($uLog->getId());
+            if (isset($answer["error"]) && $answer["error"])
+            {
+                EC::addError($answer["message"]);
+                EC::set_error_code(501);
+                return false;
+            }
+            else
+            {
+                $output["messages"] = $answer;
+            }
+        }
+
+
+        return $output;
+    }
+
+    protected function adminCustomFetch($asks, Logged $uLog)
+    {
+        // Renvoie les données demandées pour un admin
+        $ranks = array(User::RANK_ELEVE, User::RANK_PROF);
+        if ($uLog->isRoot()) {
+            $ranks[] = User::RANK_ADMIN;
+        }
+        
+        $toLoad = [
+            "sujetsexercices"=>[],
+            "devoirs"=>[],
+            "exodevoirs"=>[],
+            "users"=>array("ranks"=>$ranks),
+            "classes"=>[]
+        ];
+        $output = $this->customFetchHelper($toLoad, $asks);
+        if ($output === false) return false;
+
+        if (in_array("messages", $asks))
+        {
+            $answer = Message::getListUser($uLog->getId());
+            if (isset($answer["error"]) && $answer["error"]) {
+                EC::addError($answer["message"]);
+                EC::set_error_code(501);
+                return false;
+            }
+            else
+            {
+                $output["messages"] = $answer;
+            }
+        }
+        return $output;
+    }   
 
 
 }
