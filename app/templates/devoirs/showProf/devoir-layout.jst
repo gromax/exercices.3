@@ -1,2 +1,21 @@
-<div class="js-devoir"></div>
-<div class="js-assocs"></div>
+<div class="container">
+  <div class = "row mb-3">
+    <div class="col-md-6">
+      <div class="mb-3 js-devoir"></div>
+
+      <div class="mb-3">
+        <a href="#devoir:<%- id %>/edit" class="btn btn-success w-100" role="button"><i class="fa-solid fa-pen-to-square"></i> Modifier</a>
+      </div>
+
+      <div class="mb-3 js-assocs"></div>
+    </div>
+    <div class="col-md-6">
+      <div class="mb-3 js-exercices">
+        <a href="#devoir:<%- id %>/addexo" class="btn btn-success w-100" role="button"><i class="fa-solid fa-pen-to-square"></i> Ajouter un exercice</a>
+      </div>
+      <div id="exercice-options-set"></div>
+      <div id="exercice-initparams"></div>
+      <div id="exercice-run"></div>
+    </div>
+  </div>
+</div>

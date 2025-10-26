@@ -29,6 +29,9 @@ const AssosExoDevoirCollectionView = CollectionView.extend({
 
 const LayoutView = View.extend({
   template: layout_tpl,
+  templateContext() {
+      return { id: this.getOption('id') };
+  },
   regions: {
     devoirRegion: ".js-devoir",
     assocsRegion: ".js-assocs",
