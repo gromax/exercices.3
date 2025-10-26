@@ -488,7 +488,7 @@ class User
     return array();
   }
 
-  public function getId()
+  public function getId():int
   {
     return $this->id;
   }
@@ -535,7 +535,7 @@ class User
     return null;
   }
 
-  public function get($field)
+  public function get($field): mixed
   {
     return $this->$field ?? null;
   }
@@ -546,28 +546,15 @@ class User
     else return null;
   }
 
-  public function notes()
-  {
-    return UserNotes::getObject($this);
-  }
 
-  public function insertNote($params)
+  public function isMemberOf($idClasse): bool
   {
-    if (($notes = $this->notes()) !== null) $notes->insertion($params);
-  }
-
-  public function updateNote($params)
-  {
-    if (($notes = $this->notes()) !== null) $notes->update($params);
-  }
-
-  public function isMemberOf($idClasse){
     if (is_numeric($idClasse)) $idClasse = (integer) $idClasse;
     // test si l'utilisateur est membre d'une classe
     return ($idClasse === $this->idClasse);
   }
 
-  public function initKey()
+  public function initKey(): string|null
   {
     $key = md5(rand());
     require_once BDD_CONFIG;
