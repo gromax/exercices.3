@@ -86,7 +86,7 @@ const Controller = MnObject.extend({
     $.when(fetching).done((devoirs, exodevoirs) => {
       // récupérer le bon devoir
       const devoir = devoirs.find(d => d.id === id);
-      const assocs = exodevoirs.filter(a => a.idDevoir === id);
+      const assocs = exodevoirs.filter(a => a.get('idDevoir') === id);
       const collecAssocs = new exodevoirs.constructor(assocs);
       require("./showProf/controller.js").controller.show(id, devoir, collecAssocs);
     }).fail((response) => {
@@ -109,7 +109,7 @@ const Controller = MnObject.extend({
     $.when(fetching).done((devoirs, exodevoirs, sujetsexercices) => {
       // récupérer le bon devoir
       const devoir = devoirs.find(d => d.id === id);
-      const assocs = exodevoirs.filter(a => a.idDevoir === id);
+      const assocs = exodevoirs.filter(a => a.get('idDevoir') === id);
       const collecAssocs = new exodevoirs.constructor(assocs);
       require("./showProf/controller.js").controller.showAddExo(id, devoir, collecAssocs, sujetsexercices, "");
     }).fail((response) => {
