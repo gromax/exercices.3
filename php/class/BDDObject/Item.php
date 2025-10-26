@@ -56,14 +56,12 @@ abstract class Item
     return array();
   }
 
-  protected static function children()
+  protected static function protectedChildren()
   {
     /*
-      Renvoie les classes des objets enfants (pour la suppression en cascade)
-      "table" => array(
-        "strangerId" => "colonne de référence de l'objet dans la table enfant",
-        "allowDelete" => true // si false, empêche la suppression de l'objet s'il a des enfants
-      )
+      Renvoie les classes des objets enfants protégés (pour la suppression en cascade)
+      ne permet la suppresssion que si pas d'enfants protégés
+      "table" => "strangerId" // colonne de référence de l'objet dans la table enfant
     */
     return array();
   }
@@ -260,10 +258,8 @@ abstract class Item
   protected function okToDelete()
   {
     // Vérifie si l'objet peut être supprimé (enfants, etc.)
-    $children = static::children();
-    foreach ($children as $table => $child) {
-      $strangerId = $child['strangerId'];
-      $allowDelete = $child['allowDelete'] ?? true;
+    $children = static::protectedChildren();
+    foreach ($children as $table => $strangerId) {
       require_once BDD_CONFIG;
       try {
         $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
@@ -271,7 +267,7 @@ abstract class Item
         $stmt = $pdo->prepare("SELECT id FROM ".PREFIX_BDD.$table." WHERE $strangerId = :id");
         $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
         $stmt->execute();
-        if (($stmt->rowCount() > 0) && !$allowDelete) {
+        if ($stmt->rowCount() > 0) {
           EC::addError(static::$BDDName."/delete : Impossible de supprimer l'objet car il a des enfants dans la table $table.");
           return false;
         }
@@ -283,6 +279,11 @@ abstract class Item
     return true;
   }
 
+  /** fonction inutile :
+   * j'utilise les contraintes de clés étrangères avec ON DELETE CASCADE
+   * pour supprimer les enfants automatiquement
+   */
+  /*
   protected function customDelete() {
       // Méthode vide, à surcharger dans les enfants si besoin
   }
@@ -306,6 +307,7 @@ abstract class Item
     }
     return true;
   }
+  */
 
   public function delete()
   {
@@ -314,15 +316,18 @@ abstract class Item
       return false;
     }
 
+    /*
     if (!$this->deleteChildren()) {
       EC::addError(static::$BDDName."/delete : Impossible de supprimer les enfants.");
       return false;
     }
+    */
 
     require_once BDD_CONFIG;
+    /*
     $this->customDelete();
+    */
     try {
-      // Suppression des assoc liées
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       $stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD.static::$BDDName." WHERE id = :id");
