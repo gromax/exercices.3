@@ -17,7 +17,6 @@ $router->addRule('api/users/:id', 'users', 'update', 'PUT');
 $router->addRule('api/users', 'users', 'insert', 'POST');
 $router->addRule('api/users/:id/init', 'users', 'forgottenWithId', 'POST');
 
-
 // classes
 $router->addRule('api/classes/:id', 'classes', 'fetch', 'GET');
 $router->addRule('api/classes', 'classes', 'fetch', 'GET');
@@ -28,6 +27,8 @@ $router->addRule('api/classes', 'classes', 'insert', 'POST');
 $router->addRule('api/classes/:id/test', 'classes', 'testMDP', 'GET');
 
 // devoirs
+$router->addRule('api/devoirs/:id', 'devoirs', 'fetch', 'GET');
+$router->addRule('api/devoirs', 'devoirs', 'fetch', 'GET');
 $router->addRule('api/devoirs/:id', 'devoirs', 'delete', 'DELETE');
 $router->addRule('api/devoirs/:id', 'devoirs', 'update', 'PUT');
 $router->addRule('api/devoirs', 'devoirs', 'insert', 'POST');
@@ -39,10 +40,12 @@ $router->addRule('api/exercices', 'exercices', 'insert', 'POST');
 $router->addRule('api/exercices/:id', 'exercices', 'update', 'PUT');
 $router->addRule('api/exercices/:id', 'exercices', 'delete', 'DELETE');
 
-// assosExoDevoir
-$router->addRule('api/assosExoDevoir/:id', 'assosExoDevoir', 'delete', 'DELETE');
-$router->addRule('api/assosExoDevoir/:id', 'assosExoDevoir', 'update', 'PUT');
-$router->addRule('api/assosExoDevoir', 'assosExoDevoir', 'insert', 'POST');
+// exodevoirs
+$router->addRule('api/exodevoirs/:id', 'exodevoirs', 'fetch', 'GET');
+$router->addRule('api/exodevoirs', 'exodevoirs', 'fetch', 'GET');
+$router->addRule('api/exodevoirs/:id', 'exodevoirs', 'delete', 'DELETE');
+$router->addRule('api/exodevoirs/:id', 'exodevoirs', 'update', 'PUT');
+$router->addRule('api/exodevoirs', 'exodevoirs', 'insert', 'POST');
 
 // assosUF
 $router->addRule('api/assosUF/:id', 'assosUF', 'delete', 'DELETE');
