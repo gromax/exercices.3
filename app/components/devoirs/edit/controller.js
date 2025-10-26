@@ -6,11 +6,15 @@ const Controller = MnObject.extend({
   edit(id, devoir, classes) {
     const channel = this.getChannel();
     if (devoir === undefined) {
-      channel.trigger("ariane:add", { text: "Devoir inconnu", link: `devoir:${id}/edit` });
+      channel.trigger("ariane:reset", [
+        { text: "Devoirs", link: "devoirs" },
+        { text: "Devoir inconnu", link: `devoir:${id}/edit` }
+      ]);
       channel.trigger("missing:item");
       return;
     }
-    channel.trigger("ariane:add", [
+    channel.trigger("ariane:reset", [
+      { text: "Devoirs", link: "devoirs" },
       { text: devoir.get("nom"), e: "devoir:show", data: id, link: `devoir:${id}` },
       { text: "Modification", e: "devoir:edit", data: id, link: `devoir:${id}/edit` },
     ]);
