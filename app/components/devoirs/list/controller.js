@@ -25,7 +25,7 @@ const Controller = MnObject.extend({
     });
 
     devoirsListView.on("item:show", (childView, args) => {
-      channel.trigger("fiche:show", childView.model.get("id"));
+      channel.trigger("devoir:show", childView.model.get("id"));
     });
     new Region({ el:"#main-region" }).show(listItemsLayout);
   },
