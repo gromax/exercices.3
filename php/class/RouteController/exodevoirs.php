@@ -2,7 +2,7 @@
 
 namespace RouteController;
 use ErrorController as EC;
-use BDDObject\AssoExoDevoir;
+use BDDObject\ExoDevoir;
 use BDDObject\Devoir;
 use BDDObject\Exercice;
 use BDDObject\Logged;
@@ -25,6 +25,60 @@ class assosExoDevoir
         $this->params = $params;
     }
 
+    public function fetch()
+    {
+      $uLog =Logged::getConnectedUser();
+      if (!$uLog->connexionOk())
+      {
+        EC::addError("Utilisateur non connecté.");
+        EC::set_error_code(401);
+        return false;
+      }
+
+      if (isset($this->params['id']))
+      {
+        $id = (integer) $this->params['id'];
+        return $this->fetchItem($id);
+      }
+
+      if ($uLog->isAdmin()) return ExoDevoir::getList();
+      if ($uLog->isProf()) return ExoDevoir::getList([
+        'wheres' => ['devoirs.idOwner'=> $uLog->getId()],
+        'hideCols' => ['idOwner', 'idClasse']
+      ]);
+      if ($uLog->isEleve()) return ExoDevoir::getList([
+        'wheres' => ['devoirs.idClasse' => $uLog->getClasseId()],
+        'hideCols' => ['idOwner', 'idClasse']
+      ]);
+      EC::addError("Pas les droits pour accéder aux associations.");
+      EC::set_error_code(403);
+      return false;
+    }
+
+    private function fetchItem($id) {
+      $uLog =Logged::getConnectedUser();
+      if (!$uLog->connexionOk())
+      {
+        EC::addError("Utilisateur non connecté.");
+        EC::set_error_code(401);
+        return false;
+      }
+      $oED = ExoDevoir::getObject($id);
+      if ($oED===null)
+      {
+        EC::addError("Association introuvable.");
+        EC::set_error_code(404);
+        return false;
+      }
+      if ( $uLog->isAdmin() || $oED->get("idOwner") === $uLog->getId() || $oED->get("idClasse") === $uLog->getClasseId() )
+      {
+        return $oED->toArray();
+      }
+      EC::addError("Pas les droits pour accéder à cette association.");
+      EC::set_error_code(403);
+      return false;
+    }
+
     public function delete()
     {
         $uLog=Logged::getConnectedUser();
@@ -42,14 +96,14 @@ class assosExoDevoir
         }
 
         $id = (integer) $this->params['id'];
-        $oED=AssoExoDevoir::getObject($id);
+        $oED=ExoDevoir::getObject($id);
         if ($oED === null)
         {
             EC::addError("Association introuvable.");
             EC::set_error_code(404);
             return false;
         }
-        if (!$oED->canBeUpdatedBy($uLog->getId()))
+        if (!$uLog->isAdmin() && $oED->get("idOwner") !== $uLog->getId())
         {
             EC::addError("Pas les droits pour supprimer cette association.");
             EC::set_error_code(403);
@@ -102,7 +156,7 @@ class assosExoDevoir
             EC::set_error_code(404);
             return false;
         }
-        $oED = new AssoExoDevoir($data);
+        $oED = new ExoDevoir($data);
         $response = $oED->insert();
         if ($response === null) {
             EC::set_error_code(501);
@@ -132,14 +186,14 @@ class assosExoDevoir
             return false;
         }
         $id = (integer) $this->params['id'];
-        $oED = AssoExoDevoir::getObject($id);
+        $oED = ExoDevoir::getObject($id);
         if ($oED === null)
         {
             EC::addError("Association introuvable.");
             EC::set_error_code(404);
             return false;
         }
-        if (!$oED->canBeUpdatedBy($uLog->getId()))
+        if (!$uLog->isAdmin() && $oED->get("idOwner") !== $uLog->getId())
         {
             EC::addError("Pas les droits pour modifier cette association.");
             EC::set_error_code(403);
