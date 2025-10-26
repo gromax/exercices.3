@@ -14,7 +14,8 @@ const Controller = MnObject.extend({
     'user:me': 'getMe',
     'user:destroy:update': 'userDestroyUpdate',
     'fiche:destroy:update': 'ficheDestroyUpdate',
-    'aUE:destroy:update': 'aUEDestroyUpdate'
+    'aUE:destroy:update': 'aUEDestroyUpdate',
+    'data:collection:additem': 'addItemToCache',
   },
 
   timeout:1500000, // 25 minutes
@@ -54,7 +55,7 @@ const Controller = MnObject.extend({
 
   getCustomEntities(ask) {
     const defer = $.Deferred();
-    const toFetch = _.filter(ask, (item) => (typeof this.stored_data[item] === "undefined") || (typeof this.stored_time[item] === "undefined") || (Date.now() - this.stored_time[item] > this.timeout));
+    const toFetch = _.filter(ask, (item) => this.getChachedCollection(item) === null);
     if (toFetch.length === 0) {
       // Pas de fetch requis => on renvoie les résultats
       defer.resolve.apply(null,_.map(ask, (item) => this.stored_data[item]));
@@ -95,7 +96,8 @@ const Controller = MnObject.extend({
   },
   getItem(entityName, idItem) {
     const defer = $.Deferred();
-    if ((typeof this.stored_data[entityName] === "undefined") || (typeof this.stored_time[entityName] === "undefined") || (Date.now() - this.stored_time[entityName] > this.timeout)) {
+    const col = this.getChachedCollection(entityName);
+    if (col === null) {
       const fetching = this.getCustomEntities([entityName]);
       $.when(fetching).done( (col) => {
         defer.resolve(col.get(idItem));
@@ -103,7 +105,7 @@ const Controller = MnObject.extend({
         defer.reject(response);
       });
     } else {
-      defer.resolve(this.stored_data[entityName].get(idItem));
+      defer.resolve(col.get(idItem));
     }
     return defer.promise();
   },
@@ -160,29 +162,32 @@ const Controller = MnObject.extend({
     }
   },
 
-  ficheDestroyUpdate(idFiche) {
-    //  Assure le cache quand un user est supprimé
-    if (this.stored_data.userfiches) {
-      userfichesToPurge = this.stored_data.userfiches.where({idFiche : idFiche});
-      this.stored_data.userfiches.remove(userfichesToPurge);
-    }
-    if (this.stored_data.exofiches) {
-      exofichesToPurge = this.stored_data.exofiches.where({idFiche : idFiche});
-      this.stored_data.exofiches.remove(exofichesToPurge);
-    }
-    if (this.stored_data.faits) {
-      delete this.stored_data.faits;
-    }
-    if (this.stored_data.messages) {
-      delete this.stored_data.messages;
+  /**
+   * Ajoute un item à une collection en cache si elle existe
+   * @param {string} colName 
+   * @param {Object} itemData
+   */
+  addItemToCache(colName, itemData) {
+    const col = this.getChachedCollection(colName);
+    if (col !== null) {
+      col.add(itemData);
     }
   },
 
-  aUEDestroyUpdate() {
-    if (this.stored_data.messages) {
-      delete this.stored_data.messages;
+  /**
+   * renvoie la collection si elle est stockée en cache et pas expirée, sinon null
+   * @param {string} colName 
+   * @returns {Collection|null}
+   */
+  getChachedCollection(colName) {
+    if (this.stored_data[colName] === undefined ||
+        this.stored_time[colName] === undefined ||
+        Date.now() - this.stored_time[colName] > this.timeout) {
+          return null;
     }
+    return this.stored_data[colName];
   },
+
 });
 
 new Controller();
