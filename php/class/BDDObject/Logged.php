@@ -186,7 +186,9 @@ class Logged extends User
     {
       if ($this->isProf())
       {
-        $this->_ownerOf = Classe::getList(array('ownerIs' => $this->id, 'primaryKey' => 'id'));
+        $this->_ownerOf = Classe::getList([
+          "wheres" => ['idOwner' => $this->id]
+        ]);
       }
       else
       {
