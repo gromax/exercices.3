@@ -13,6 +13,7 @@ final class Devoir extends Item
       'nom' => ['def' => "", 'type'=> 'string'],         // nom du devoir
       'idOwner' => ['def' => 0, 'type'=> 'int'],         // id du propriétaire du devoir
       'idClasse' => ['def' => 0, 'type'=> 'int'],        // id de la classe associée
+      'nomClasse' => ['def' => "", 'type'=> 'string', 'foreign'=>'classes.nom'], // nom de la classe associée
       'nomOwner' => ['def' => "", 'type'=> 'string', 'foreign'=>'users.nom'], // nom du propriétaire du devoir
       'description' => ['def' => "", 'type'=> 'string'], // descriptif du devoir
       'dateDebut' => ['def' => date('Y-m-d'), 'type'=> 'date'], // date de début
@@ -23,7 +24,7 @@ final class Devoir extends Item
   protected static function joinedTables()
   {
     return [
-      'inner' => ['idOwner' => 'users.id']
+      'inner' => ['idOwner' => 'users.id', 'idClasse' => 'classes.id']
     ];
   }
 
