@@ -73,4 +73,5 @@ const Collection = Backbone.Collection.extend({
 });
 
 
-export { Item, Collection }
+
+export { Item, Collection };
