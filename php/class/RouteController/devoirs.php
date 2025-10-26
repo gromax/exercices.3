@@ -19,10 +19,58 @@ class devoirs
     {
         $this->params = $params;
     }
-    /**
-     * renvoie les infos sur l'objet d'identifiant id
-     * @return array
-     */
+
+    public function fetch()
+    {
+      $uLog =Logged::getConnectedUser();
+      if (!$uLog->connexionOk())
+      {
+        EC::addError("Utilisateur non connecté.");
+        EC::set_error_code(401);
+        return false;
+      }
+
+      if (isset($this->params['id']))
+      {
+        $id = (integer) $this->params['id'];
+        return $this->fetchItem($id);
+      }
+
+      if ($uLog->isAdmin()) return Devoir::getList();
+      if ($uLog->isProf()) return Devoir::getList([
+        'wheres' => ['idOwner'=> $uLog->getId()]
+      ]);
+      if ($uLog->isEleve()) return Devoir::getList([
+        'wheres' => ['idClasse' => $uLog->getClasseId()]
+      ]);
+      EC::addError("Pas les droits pour accéder aux devoirs.");
+      EC::set_error_code(403);
+      return false;
+    }
+
+    private function fetchItem($id) {
+      $uLog =Logged::getConnectedUser();
+      if (!$uLog->connexionOk())
+      {
+        EC::addError("Utilisateur non connecté.");
+        EC::set_error_code(401);
+        return false;
+      }
+      $oDevoir = Devoir::getObject($id);
+      if ($oDevoir===null)
+      {
+        EC::addError("Devoir introuvable.");
+        EC::set_error_code(404);
+        return false;
+      }
+      if ( $uLog->isAdmin() || $oDevoir->get("idOwner") === $uLog->getId() || $oDevoir->get("idClasse") === $uLog->getClasseId() )
+      {
+        return $oDevoir->toArray();
+      }
+      EC::addError("Pas les droits pour accéder à ce devoir.");
+      EC::set_error_code(403);
+      return false;
+    }
 
     public function delete()
     {
@@ -136,6 +184,11 @@ class devoirs
         {
             EC::set_error_code(501);
             return false;
+        }
+        // la modification de l'idClasse peut nécessiter une mise à jour
+        if (isset($data["idClasse"]))
+        {
+            return Devoir::getObject($id)->toArray();
         }
         return $devoir->toArray();
     }
