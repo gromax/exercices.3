@@ -66,34 +66,34 @@ const Controller = MnObject.extend({
 
   devoirShow(id) {
     const channel = this.getChannel();
-    channel.trigger("popup:error", "L'affichage de devoir non implémenté pour le moment.");
+    const logged = channel.request("logged:get");
+    if (logged.isOff()) {
+      channel.trigger("home:login");
+      return;
+    }
+    if (logged.isEleve()) {
+      channel.trigger("not:found");
+      channel.trigger("popup:error", "Pas encore implémenté.");
+      return;
+    }
+    this.devoirShowForProf(Number(id));
   },
 
-  /*
-  devoirShow(id) {
-    const auth = app.Auth;
-    const devoirEdition = () => {
-      // Affichage du devoir afin d'édition
-      app.Ariane.reset([
-        { text: "Devoirs", e: "devoirs:list", link: "devoirs" },
-        { text: `Devoir #${id}`, e: "devoir:show", data: id, link: `devoir:${id}` }
-      ]);
-      require("./edit/controller.js").controller.show(id);
-    };
-    const exoDevoirRun = () => {
-      app.Ariane.reset([]);
-      require("./run/controller.js").controller.showEleve(id);
-    };
-    const todo = auth.mapItem({
-      "Admin": devoirEdition,
-      "Prof": devoirEdition,
-      "Eleve": exoDevoirRun,
-      "def": () => app.trigger("home:login")
+  devoirShowForProf(id) {
+    const channel = this.getChannel();
+    const fetching = channel.request("custom:entities", ["devoirs", "exodevoirs"]);
+    $.when(fetching).done((devoirs, exodevoirs) => {
+      // récupérer le bon devoir
+      const devoir = devoirs.find(d => d.id === id);
+      const assocs = exodevoirs.filter(a => a.idDevoir === id);
+      const collecAssocs = new exodevoirs.constructor(assocs);
+      require("./showProf/controller.js").controller.show(id, devoir, collecAssocs);
+    }).fail((response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always(() => {
+      channel.trigger("loading:down");
     });
-
-    todo();
   },
-  */
 
   devoirNew() {
     const channel = this.getChannel();
@@ -118,6 +118,26 @@ const Controller = MnObject.extend({
         channel.trigger("loading:down");
       });
   },
+
+  devoirEdit(id) {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    if (!logged.isProf() && !logged.isAdmin()) {
+      channel.trigger("not:found");
+      return;
+    }
+    channel.trigger("loading:up");
+    const fetching = channel.request("custom:entities", ["devoirs", "classes"]);
+    $.when(fetching).done((devoirs, classes) => {
+      const devoir = devoirs.find(d => d.id === Number(id));
+      require("./edit/controller.js").controller.edit(id, devoir, classes);
+    }).fail((response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always(() => {
+      channel.trigger("loading:down");
+    });
+  },
+
 });
 
 const controller = new Controller();
@@ -126,6 +146,7 @@ const Router = Backbone.Router.extend({
   routes: {
     "devoirs": "devoirsList",
     "devoir::id": "devoirShow",
+    "devoir::id/edit": "devoirEdit",
     "devoirs/nouveau": "devoirNew",
     //"fiches/fiche-eleve::id": "aUfShow",
     //"devoir::id/exercices": "devoirShowExercices",
@@ -142,6 +163,10 @@ const Router = Backbone.Router.extend({
 
   devoirShow(id) {
     controller.devoirShow(id);
+  },
+
+  devoirEdit(id) {
+    controller.devoirEdit(id);
   },
 
   devoirNew() {
