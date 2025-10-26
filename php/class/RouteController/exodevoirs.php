@@ -9,7 +9,7 @@ use BDDObject\Logged;
 
 
 
-class assosExoDevoir
+class exodevoirs
 {
     /**
      * paramères de la requète
@@ -167,7 +167,8 @@ class assosExoDevoir
             EC::set_error_code(422);
             return $response;
         }
-        return $oED->toArray();
+        // nécessite un chargement complet pour récupérer les données liées
+        return ExoDevoir::getObject($oED->getId())->toArray();
     }
 
     public function update()
