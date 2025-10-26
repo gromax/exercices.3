@@ -3,6 +3,9 @@ import { ShowDevoirView, AssosExoDevoirCollectionView, LayoutView } from './view
 
 const Controller = MnObject.extend({
   channelName: 'app',
+  radioEvents: {
+    'devoir:addexo': 'addExo',
+  },
   
   /**
    * Helper pour les fonctions
@@ -24,7 +27,7 @@ const Controller = MnObject.extend({
 
     layout.showChildView('devoirRegion', view);
     layout.showChildView('assocsRegion', assosExosView);
-
+    return { layout, view, assosExosView };
   },
   
   show(id, devoir, assosExos) {
@@ -62,7 +65,7 @@ const Controller = MnObject.extend({
       { text: "Ajouter des exercices", link: `devoir:${id}/addexo` },
     ]);
 
-    this.showLayoutView(devoir, assosExos);
+    const { assosExosView } = this.showLayoutView(devoir, assosExos);
 
     // ensuite j'ajoute la liste des sujets d'exercices à droite
 
@@ -72,11 +75,29 @@ const Controller = MnObject.extend({
       ".js-exercices"
     );
     listExercicesView.on("item:sujet:exercice:show", (childView) => {
-      console.log("addexo", id, childView.model.get("id"));
-      channel.trigger("devoir:addexo", { idDevoir:id, idExercice:childView.model.get("id") });
+      channel.trigger("devoir:addexo", id, childView.model.get("id"), assosExosView);
     });
+  },
 
-  }
+  addExo( idDevoir, idExercice, assosExosView ) {
+    const channel = this.getChannel();
+    const ExoDevoir = require('../exodevoir.js').Item;
+    const exoDevoir = new ExoDevoir({
+      idDevoir: idDevoir,
+      idExo: idExercice
+    });
+    const saving = exoDevoir.save();
+    channel.trigger("loading:up");
+    $.when(saving).done(() => {
+      channel.trigger("data:collection:additem", "exodevoirs", exoDevoir);
+      assosExosView.collection.add(exoDevoir);
+    }).fail((response) => {
+      console.warn("Erreur ajout exercice au devoir", response.responseJSON);
+      channel.trigger("popup:error", "Erreur inconnue lors de l'ajout de l'exercice au devoir.");
+    }).always(() => {
+      channel.trigger("loading:down");
+    });
+  },
 });
 
 export const controller = new Controller();
