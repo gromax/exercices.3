@@ -1,5 +1,6 @@
 import { MnObject, Region } from 'backbone.marionette';
 import { ShowDevoirView, AssosExoDevoirCollectionView, LayoutView } from './views.js';
+import { TwoColsView } from '../../common/views.js';
 
 const Controller = MnObject.extend({
   channelName: 'app',
@@ -14,6 +15,7 @@ const Controller = MnObject.extend({
    * pour l'ajout ou le paramétrage des exercices.
    */
   showLayoutView(devoir, assosExos) {
+    const twocolsLayout = new TwoColsView();
     const view = new ShowDevoirView({
       model: devoir
     });
@@ -22,12 +24,12 @@ const Controller = MnObject.extend({
       collection: assosExos
     });
 
-    const layout = new LayoutView({id:devoir.get('id')});
-    new Region({ el: '#main-region' }).show(layout);
-
-    layout.showChildView('devoirRegion', view);
-    layout.showChildView('assocsRegion', assosExosView);
-    return { layout, view, assosExosView };
+    const devoirLayout = new LayoutView({id:devoir.get('id')});
+    new Region({ el: '#main-region' }).show(twocolsLayout);
+    twocolsLayout.showChildView('left', devoirLayout);
+    devoirLayout.showChildView('devoirRegion', view);
+    devoirLayout.showChildView('assocsRegion', assosExosView);
+    return { twocolsLayout, devoirLayout, view, assosExosView };
   },
   
   show(id, devoir, assosExos) {
@@ -65,14 +67,14 @@ const Controller = MnObject.extend({
       { text: "Ajouter des exercices", link: `devoir:${id}/addexo` },
     ]);
 
-    const { assosExosView } = this.showLayoutView(devoir, assosExos);
+    const { assosExosView, twocolsLayout } = this.showLayoutView(devoir, assosExos);
 
     // ensuite j'ajoute la liste des sujets d'exercices à droite
 
     const { listExercicesView } = require('../../exercices/list/controller.js').controller.makeView(
       sujetsexercices,
       criterion,
-      ".js-exercices"
+      twocolsLayout.getRegion('right')
     );
     listExercicesView.on("item:sujet:exercice:show", (childView) => {
       channel.trigger("devoir:addexo", id, childView.model.get("id"), assosExosView);

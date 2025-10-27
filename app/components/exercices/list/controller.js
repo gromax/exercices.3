@@ -3,7 +3,7 @@ import { ListLayout, ExercicesPanel, ExercicesCollectionView } from './views.js'
 
 const Controller = MnObject.extend({
   channelName: "app",
-  makeView(exercices, criterion, containerId) {
+  makeView(exercices, criterion, region) {
     const channel = this.getChannel();
     criterion = criterion ? "" : "";
     const layout = new ListLayout();
@@ -22,13 +22,14 @@ const Controller = MnObject.extend({
       layout.getRegion('panelRegion').show(panel);
       layout.getRegion('itemsRegion').show(listExercicesView);
     });
-    new Region({ el:containerId }).show(layout);
+    region.show(layout);
     return { listExercicesView, panel, layout };
   },
   
   list(exercices, criterion) {
     const channel = this.getChannel();
-    const { listExercicesView } = this.makeView(exercices, criterion, "#main-region");
+    const region = new Region({ el: "#main-region" });
+    const { listExercicesView } = this.makeView(exercices, criterion, region);
     listExercicesView.on("item:sujet:exercice:show", (childView) => {
       channel.trigger("sujet:exercice:show", childView.model.get("id"));
     });
