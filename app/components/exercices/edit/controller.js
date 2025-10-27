@@ -1,5 +1,6 @@
 import { MnObject, Region } from 'backbone.marionette'
-import { EditExerciceView, ParamsView } from './views.js'
+import { EditExerciceView } from './views.js'
+import { TwoColsView } from '../../common/views.js';
 import { Item as SujetExercice } from '../sujetexo.js';
 
 const Controller = MnObject.extend ({
@@ -16,6 +17,9 @@ const Controller = MnObject.extend ({
       channel.trigger("missing:item");
       return;
     }
+
+
+    const layoutView = new TwoColsView();
 
     const view = new EditExerciceView({
         model: sujetExercice
@@ -35,10 +39,10 @@ const Controller = MnObject.extend ({
       for (const key in values) {
         exoApercu.set(key, values[key]);
       }
-      channel.trigger("exercice:apercu", exoApercu);
+      channel.trigger("exercice:apercu", exoApercu, layoutView.getRegion('right'));
     });
-
-    new Region({el: "#main-region"}).show(view);
+    new Region({el: "#main-region"}).show(layoutView);
+    layoutView.showChildView('left', view);
     view.triggerMethod("form:apercu");
   },
 
