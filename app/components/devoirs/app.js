@@ -3,13 +3,28 @@ import { MnObject } from 'backbone.marionette'
 
 const Controller = MnObject.extend({
   channelName: 'app',
-  radioEvents: {
-    "devoir:show": "onDevoirShow",
-  },
 
-  onDevoirShow(id) {
-    Backbone.history.navigate(`devoir:${id}`, {});
-    this.devoirShow(id);
+  devoirShow(id) {
+    const channel = this.getChannel();
+    const fetching = channel.request("custom:entities", ["devoirs", "exodevoirs"]);
+    id = Number(id);
+    $.when(fetching).done((devoirs, exodevoirs) => {
+      // récupérer le bon devoir
+      const devoir = devoirs.find(d => d.id === id);
+      const assocs = exodevoirs.filter(a => a.get('idDevoir') === id);
+      const collecAssocs = new exodevoirs.constructor(assocs);
+
+      channel.trigger("ariane:reset", [
+        { text: "Devoirs", link: "devoirs" },
+        { text: devoir ? devoir.get("nom") : `Devoir #${id}`, link: `devoir:${id}` }
+      ]);
+      channel.trigger("popup:alert", "Non encore implémenté.");
+      //require("./editexos/controller.js").controller.show(id, devoir, collecAssocs);
+    }).fail((response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always(() => {
+      channel.trigger("loading:down");
+    });
   },
 
   devoirsList() {
@@ -64,23 +79,13 @@ const Controller = MnObject.extend({
   },
   */
 
-  devoirShow(id) {
+  devoirEditParams(id) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
-    if (logged.isOff()) {
-      channel.trigger("home:login");
-      return;
-    }
-    if (logged.isEleve()) {
+    if (!logged.isProf() && !logged.isAdmin()) {
       channel.trigger("not:found");
-      channel.trigger("popup:error", "Pas encore implémenté.");
       return;
     }
-    this.devoirShowForProf(id);
-  },
-
-  devoirShowForProf(id) {
-    const channel = this.getChannel();
     const fetching = channel.request("custom:entities", ["devoirs", "exodevoirs"]);
     id = Number(id);
     $.when(fetching).done((devoirs, exodevoirs) => {
@@ -171,6 +176,7 @@ const Router = Backbone.Router.extend({
   routes: {
     "devoirs": "devoirsList",
     "devoir::id": "devoirShow",
+    "devoir::id/params": "devoirEditParams",
     "devoir::id/edit": "devoirEdit",
     "devoir::id/addexo": "devoirAddExo",
     "devoirs/nouveau": "devoirNew",
@@ -189,6 +195,10 @@ const Router = Backbone.Router.extend({
 
   devoirShow(id) {
     controller.devoirShow(id);
+  },
+
+  devoirEditParams(id) {
+    controller.devoirEditParams(id);
   },
 
   devoirEdit(id) {
