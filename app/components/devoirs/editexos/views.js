@@ -23,16 +23,18 @@ const ItemAssocDevoirExoView = View.extend({
         DestroyWarn,
     ],
     
+    modelEvents: {
+      'change': 'render'
+    },
+    
     triggers: {
-        "click td a.js-edit": "edit",
-        "click td a.js-classe-prof": "classes:prof",
-        "click": "show"
+        "click .js-up": "up",
+        "click .js-down": "down"
     },
 });
 
 const AssosExoDevoirCollectionView = CollectionView.extend({
     className: "list-group",
-  
     emptyView: NoAssocDevoirExoView,
     childView: ItemAssocDevoirExoView,
     childViewEventPrefix: "item",
