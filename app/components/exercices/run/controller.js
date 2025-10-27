@@ -34,7 +34,44 @@ const Controller = MnObject.extend ({
     }
   },
 
-  newExerciceTry(sujetExercice, options, idDevoir=null) {
+  showApercuInDevoir(sujetExercice, exodevoir, containerRegion) {
+    const channel = this.getChannel();
+    try {
+      const layoutView = new LayoutView();
+      containerRegion.show(layoutView);
+      const {options, defaultsOptions} = MainBloc.parseOptions(sujetExercice.get("options"));
+      const optionsSelected = { ...defaultsOptions, ...exodevoir.get("options") };
+      const optionsView = new OptionsView({ options: options, selected: optionsSelected });
+      optionsView.on("change", (data) => {
+        exodevoir.set("options", data);
+        const saving = exodevoir.save();
+        channel.trigger("loading:up");
+        $.when(saving).done(() => {
+          const exerciceTry = this.newExerciceTry(sujetExercice, data, exodevoir.id);
+          this.showExerciceTry(sujetExercice, exerciceTry, layoutView);
+        }).fail((response) => {
+          console.warn("Erreur sauvegarde options exo-devoir", response.responseJSON);
+          channel.trigger("popup:error", "Erreur inconnue lors de la sauvegarde des options de l'exercice dans le devoir.");
+        }).always(() => {
+          channel.trigger("loading:down");
+        });
+      });
+      const exerciceTry = this.newExerciceTry(sujetExercice, optionsSelected, exodevoir.get("id"));
+      if (!exerciceTry) {
+        return;
+      }
+      layoutView.showChildView('optionsSet', optionsView);
+      this.showExerciceTry(sujetExercice, exerciceTry, layoutView);
+    } catch (error) {
+      console.error(error);
+      channel.trigger("popup:error", {
+        title: "Erreur de compilation",
+        message: error.message
+      });
+    }
+  },
+
+  newExerciceTry(sujetExercice, options, idExoDevoir=null) {
     const channel = this.getChannel();
     try {
       const initParams = MainBloc.parseParams(sujetExercice.get("init"), options);
@@ -43,7 +80,7 @@ const Controller = MnObject.extend ({
         options: options,
         init: initParams,
         idUser: channel.request("logged:get").id || null,
-        idDevoir: idDevoir
+        idExoDevoir: idExoDevoir
       });
     } catch (error) {
       console.error(error);
@@ -94,6 +131,9 @@ const Controller = MnObject.extend ({
     const answers = exerciceTry.get("answers") || {};
     while (mainPile.length > 0) {
       const item = mainPile.pop();
+      if (item === "") {
+        continue;
+      }
       const itemScore = item.score;
       if (itemScore) {
         exerciceTry.set("intScore", exerciceTry.get("intScore") + itemScore);
