@@ -1,5 +1,5 @@
 import { View } from 'backbone.marionette';
-import { Form } from '../../behaviors.js';
+import Form from '../../behaviors/form.js';
 import UseBootstrapTag from 'use-bootstrap-tag'
 import exercice_edit_tpl from '@templates/exercices/edit/exercice-edit.jst'
 

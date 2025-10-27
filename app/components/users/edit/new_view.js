@@ -1,5 +1,5 @@
 import { View } from 'backbone.marionette';
-import { Form } from '../../behaviors.js';
+import Form from '../../behaviors/form.js';
 
 import edit_user_tpl from '@templates/users/edit/user-form.jst'
 import signin_classe_tpl from '@templates/users/edit/user-classe-signin.jst'

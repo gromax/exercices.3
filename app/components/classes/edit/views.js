@@ -1,5 +1,5 @@
 import { View } from 'backbone.marionette'
-import { Form } from '../../behaviors.js'
+import Form from '../../behaviors/form.js'
 import edit_tpl from '@templates/classes/edit/classe-form-edit.jst'
 
 const EditClasseView = View.extend({

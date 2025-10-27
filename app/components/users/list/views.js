@@ -1,5 +1,6 @@
 import { View, CollectionView } from 'backbone.marionette';
-import { DestroyWarn, FlashItem, FilterList, SortList, FilterPanel } from '../../behaviors.js';
+import DestroyWarn from '../../behaviors/destroy.js';
+import { FlashItem, FilterList, SortList, FilterPanel } from '../../behaviors.js';
 import users_panel_tpl from '@templates/users/list/user-list-panel.jst';
 import no_item_tpl from '@templates/users/list/user-list-none.jst';
 import item_admin_view_tpl from '@templates/users/list/user-list-admin-item.jst';

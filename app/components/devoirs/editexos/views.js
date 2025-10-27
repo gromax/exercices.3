@@ -1,5 +1,5 @@
 import { View, CollectionView } from 'backbone.marionette'
-import { DestroyWarn } from '../../behaviors.js';
+import DestroyWarn from '../../behaviors/destroy.js';
 import show_item_tpl from '@templates/devoirs/editexos/devoir-show.jst'
 import assoc_devoir_exo_tpl from '@templates/devoirs/editexos/asso-devoir-exo.jst'
 import no_asso_devoir_exo_tpl from '@templates/devoirs/editexos/no-asso-devoir-exo.jst'
@@ -22,12 +22,12 @@ const ItemAssocDevoirExoView = View.extend({
     behaviors: [
         DestroyWarn,
     ],
+    
     triggers: {
         "click td a.js-edit": "edit",
         "click td a.js-classe-prof": "classes:prof",
         "click": "show"
     },
-
 });
 
 const AssosExoDevoirCollectionView = CollectionView.extend({
