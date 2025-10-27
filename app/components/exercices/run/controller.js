@@ -118,7 +118,7 @@ const Controller = MnObject.extend ({
           exerciceTry.set("intScore", exerciceTry.get("intScore") + item.score);
           // 4. poursuivre l'exécution de la pile jusqu'au prochain stop
           //    ce qui pourra amener à modifier l'état "finished" de l'exercice
-          this.runExercice(mainPile, exerciceTry);
+          this.runExercice(mainPile, exerciceTry, layoutView);
           if (mainPile.length === 0) {
             exerciceTry.set("finished", true);
           }

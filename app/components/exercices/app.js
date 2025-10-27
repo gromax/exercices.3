@@ -20,8 +20,8 @@ const Controller = MnObject.extend({
     this.sujetExerciceShow(id);
   },
 
-  onExerciceApercu(sujetExo) {
-    require("./run/controller.js").controller.showApercu(sujetExo);
+  onExerciceApercu(sujetExo, region) {
+    require("./run/controller.js").controller.showApercu(sujetExo, region);
   },
 
   exercicesList(criterion) {
