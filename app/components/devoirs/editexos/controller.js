@@ -15,10 +15,14 @@ const Controller = MnObject.extend({
    * pour l'ajout ou le paramétrage des exercices.
    */
   showLayoutView(devoir, assosExos, region) {
+    const radio = this.getChannel();
     const view = new ShowDevoirView({
       model: devoir
     });
-    
+
+    assosExos.comparator = 'num';
+    assosExos.sort();
+
     const assosExosView = new AssosExoDevoirCollectionView({
       collection: assosExos
     });
@@ -27,6 +31,33 @@ const Controller = MnObject.extend({
     region.show(devoirLayout);
     devoirLayout.showChildView('devoirRegion', view);
     devoirLayout.showChildView('assocsRegion', assosExosView);
+
+    assosExosView.on("item:up", (childView) => {
+      const model = childView.model;
+      const update = model.moveUp(assosExos);
+      if (!update) return;
+      radio.trigger("loading:up");
+      $.when(update).fail((response) => {
+        console.warn("Erreur déplacement exercice dans le devoir", response.responseJSON);
+        radio.trigger("popup:error", "Erreur inconnue lors du déplacement de l'exercice dans le devoir.");
+      }).always(() => {
+        radio.trigger("loading:down");
+      });
+    });
+
+    assosExosView.on("item:down", (childView) => {
+      const model = childView.model;
+      const update = model.moveDown(assosExos);
+      if (!update) return;
+      radio.trigger("loading:up");
+      $.when(update).fail((response) => {
+        console.warn("Erreur déplacement exercice dans le devoir", response.responseJSON);
+        radio.trigger("popup:error", "Erreur inconnue lors du déplacement de l'exercice dans le devoir.");
+      }).always(() => {
+        radio.trigger("loading:down");
+      });
+    });
+
     return { devoirLayout, view, assosExosView };
   },
   
@@ -35,7 +66,7 @@ const Controller = MnObject.extend({
     if (devoir === undefined) {
       channel.trigger("ariane:reset", [
         { text: "Devoirs", link: "devoirs" },
-        { text: "Devoir inconnu", link: `devoir:${id}` }
+        { text: "Devoir inconnu", link: `devoir:${id}/dashboard` }
       ]);
       channel.trigger("missing:item");
       return;
@@ -43,8 +74,7 @@ const Controller = MnObject.extend({
     
     channel.trigger("ariane:reset", [
       { text: "Devoirs", link: "devoirs" },
-      { text: devoir.get("nom"), link: `devoir:${id}` },
-      { text: "Dashboard", link: `devoir:${id}/params` },
+      { text: devoir.get("nom"), link: `devoir:${id}/dashboard` },
     ]);
     const region = new Region({ el: '#main-region' });
     this.showLayoutView(devoir, assosExos, region);
@@ -55,15 +85,14 @@ const Controller = MnObject.extend({
     if (devoir === undefined) {
       channel.trigger("ariane:reset", [
         { text: "Devoirs", link: "devoirs" },
-        { text: "Devoir inconnu", link: `devoir:${id}/addexo` }
+        { text: "Devoir inconnu", link: `devoir:${id}/dashboard` }
       ]);
       channel.trigger("missing:item");
       return;
     }
     channel.trigger("ariane:reset", [
       { text: "Devoirs", link: "devoirs" },
-      { text: devoir.get("nom"), link: `devoir:${id}` },
-      { text: "Dashboard", link: `devoir:${id}/params` },
+      { text: devoir.get("nom"), link: `devoir:${id}/dashboard` },
       { text: "Ajouter des exercices", link: `devoir:${id}/addexo` },
     ]);
 
@@ -85,10 +114,14 @@ const Controller = MnObject.extend({
 
   addExo( idDevoir, idExercice, assosExosView ) {
     const channel = this.getChannel();
+    const nums = assosExosView.collection.pluck('num');
+    const nextNum = nums.length === 0 ? 1 : (Math.max(...nums) + 1);
     const ExoDevoir = require('../exodevoir.js').Item;
     const exoDevoir = new ExoDevoir({
       idDevoir: idDevoir,
-      idExo: idExercice
+      idExo: idExercice,
+      num: nextNum,
+      options: {}
     });
     const saving = exoDevoir.save();
     channel.trigger("loading:up");
@@ -102,6 +135,40 @@ const Controller = MnObject.extend({
       channel.trigger("loading:down");
     });
   },
+
+  showExo(idDevoir, idExoDevoir, devoir, assosExos, exoDevoir, sujet) {
+    const channel = this.getChannel();
+    if (devoir === undefined) {
+      channel.trigger("ariane:reset", [
+        { text: "Devoirs", link: "devoirs" },
+        { text: "Devoir inconnu", link: `devoir:${idDevoir}/dashboard` },
+        { text: `Exercices ${idExoDevoir}`, link: `devoir:${idDevoir}/exo:${idExoDevoir}` }
+      ]);
+      channel.trigger("missing:item");
+      return;
+    }
+    channel.trigger("ariane:reset", [
+      { text: "Devoirs", link: "devoirs" },
+      { text: devoir.get("nom"), link: `devoir:${idDevoir}/dashboard` },
+      { text: `Exercices ${idExoDevoir}`, link: `devoir:${idDevoir}/exo:${idExoDevoir}` }
+    ]);
+
+    const twocolsLayout = new TwoColsView();
+    new Region({ el: '#main-region' }).show(twocolsLayout);
+    const { assosExosView } = this.showLayoutView(devoir, assosExos, twocolsLayout.getRegion('left'));
+    require('../../exercices/run/controller.js').controller.showApercuInDevoir(
+      sujet,
+      exoDevoir,
+      twocolsLayout.getRegion('right')
+    );
+    assosExosView.on("item:destroy", (childView) => {
+      const model = childView.model;
+      if (model.get("id") === Number(idExoDevoir)) {
+        channel.trigger("devoir:dashboard", idDevoir);
+      }
+    });
+  },
+
 });
 
 export const controller = new Controller();
