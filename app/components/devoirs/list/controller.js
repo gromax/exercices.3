@@ -24,9 +24,6 @@ const Controller = MnObject.extend({
       listItemsLayout.getRegion('itemsRegion').show(devoirsListView);
     });
 
-    devoirsListView.on("item:show", (childView, args) => {
-      channel.trigger("devoir:show", childView.model.get("id"));
-    });
     new Region({ el:"#main-region" }).show(listItemsLayout);
   },
 });
