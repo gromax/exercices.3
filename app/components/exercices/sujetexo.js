@@ -18,8 +18,10 @@ const Item = Backbone.Model.extend({
     if (data.id) {
       data.id = Number(data.id);
     }
-    data.options = data.options;
-    data.code = data.code;
+    data.options = data.options || "";
+    data.keywords = data.keywords || "";
+    data.init = data.init || "";
+    data.code = data.code || "";
     return data;
   },
 
