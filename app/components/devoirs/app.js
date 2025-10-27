@@ -9,7 +9,7 @@ const Controller = MnObject.extend({
   },
 
   onShowDashboard(id) {
-    Backbone.history.navigate(`devoir:${id}/params`, { trigger: true });
+    Backbone.history.navigate(`devoir:${id}/dashboard`, { trigger: true });
     this.devoirShowDashboard(id);
   },
 
@@ -177,6 +177,30 @@ const Controller = MnObject.extend({
     });
   },
 
+  devoirEditExo(idDevoir, idExoDevoir) {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    if (!logged.isProf() && !logged.isAdmin()) {
+      channel.trigger("not:found");
+      return;
+    }
+    const fetching = channel.request("custom:entities", ["devoirs", "exodevoirs", "sujetsexercices"]);
+    idDevoir = Number(idDevoir);
+    $.when(fetching).done((devoirs, exodevoirs, sujetsexercices) => {
+      // récupérer le bon devoir
+      const devoir = devoirs.find(d => d.id === idDevoir);
+      const assocs = exodevoirs.filter(a => a.get('idDevoir') === idDevoir);
+      const collecAssocs = new exodevoirs.constructor(assocs);
+      const exoDevoir = collecAssocs.find(a => a.get('id') === Number(idExoDevoir));
+      const sujet = sujetsexercices.find(s => s.get('id') === exoDevoir.get('idExo'));
+      require("./editexos/controller.js").controller.showExo(idDevoir, idExoDevoir, devoir, collecAssocs, exoDevoir, sujet);
+    }).fail((response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always(() => {
+      channel.trigger("loading:down");
+    });
+  },
+
 });
 
 const controller = new Controller();
@@ -185,10 +209,11 @@ const Router = Backbone.Router.extend({
   routes: {
     "devoirs": "devoirsList",
     "devoir::id": "devoirShow",
-    "devoir::id/params": "devoirEditParams",
+    "devoir::id/dashboard": "devoirDashboard",
     "devoir::id/edit": "devoirEdit",
     "devoir::id/addexo": "devoirAddExo",
     "devoirs/nouveau": "devoirNew",
+    "devoir::idDevoir/exo::id": "devoirEditExo",
     //"fiches/fiche-eleve::id": "aUfShow",
     //"devoir::id/exercices": "devoirShowExercices",
     //"devoir::id/fiches-eleves": "devoirShowUserfiches",
@@ -206,7 +231,7 @@ const Router = Backbone.Router.extend({
     controller.devoirShow(id);
   },
 
-  devoirEditParams(id) {
+  devoirDashboard(id) {
     controller.devoirShowDashboard(id);
   },
 
@@ -222,7 +247,9 @@ const Router = Backbone.Router.extend({
     controller.devoirAddExo(id);
   },
 
-
+  devoirEditExo(idDevoir, id) {
+    controller.devoirEditExo(idDevoir, id);
+  }
 
 
   /*
