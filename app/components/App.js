@@ -53,7 +53,7 @@ const Manager = Application.extend({
       require('./header/app.js').headerApp.show();
       require('./home/app.js');
       require('./ariane/app.js').arianeApp.show();
-      require('./common/app.js');
+      require('./alert/app.js');
       require('./dataManager.js');
       require('./users/app.js');
       require('./exercices/app.js');
