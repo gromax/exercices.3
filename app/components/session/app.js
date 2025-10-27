@@ -49,9 +49,8 @@ const SessionApp = MnObject.extend({
 
   logout() {
     const channel = this.getChannel();
-    channel.request("data:purge");
     this.logged.kill();
-    channel.trigger("logged:destroy");
+    channel.trigger("data:purge");
     this.logged.load(function(){
       channel.trigger("home:show");
     });

@@ -5,13 +5,14 @@ const Controller = MnObject.extend({
   radioRequests: {
     'classes:tojoin:fetch': 'classesToJoinFetch',
     'custom:entities': 'getCustomEntities',
-    'logged:destroy': 'purge',
-    'data:purge': 'purge',
     'user:me': 'getMe',
-    'user:destroy:update': 'userDestroyUpdate',
-    'data:collection:additem': 'addItemToCache',
     'data:getitem': 'getItem',
-    'data:removeitem': 'removeItemFromCache'
+  },
+
+  radioEvents: {
+    'data:collection:additem': 'addItemToCache',
+    'data:removeitem': 'removeItemFromCache',
+    'data:purge': 'purge',
   },
 
   timeout:1500000, // 25 minutes
@@ -142,20 +143,6 @@ const Controller = MnObject.extend({
       delete this.stored_time[colName];
     } else {
       this.stored_data = {};
-    }
-  },
-
-  userDestroyUpdate(idUser) {
-    //  Assure le cache quand un user est supprimé
-    if (this.stored_data.userfiches) {
-      userfichesToPurge = this.stored_data.userfiches.where({idUser : idUser});
-      this.stored_data.userfiches.remove(userfichesToPurge);
-    }
-    if (this.stored_data.faits) {
-      delete this.stored_data.faits;
-    }
-    if (this.stored_data.messages) {
-      delete this.stored_data.messages;
     }
   },
 

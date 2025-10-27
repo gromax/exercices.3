@@ -144,7 +144,7 @@ const Session = Backbone.Model.extend({
         });
         request.done( function(response) {
             // le token
-            channel.request("data:purge");
+            channel.trigger("data:purge");
             const logged = channel.request("logged:get");
             localStorage.setItem('jwt', response.token);
             logged.set(logged.parse(response));
