@@ -1,8 +1,8 @@
 import { Toast } from 'bootstrap';
 import { View } from 'backbone.marionette'
-import alert_tpl from '@templates/common/alert-view.jst'
-import missing_item_tpl from '@templates/common/missing-item.jst'
-import popup_tpl from '@templates/common/popup.jst'
+import alert_tpl from '@templates/alerts/alert-view.jst'
+import missing_item_tpl from '@templates/alerts/missing-item.jst'
+import popup_tpl from '@templates/alerts/popup.jst'
 
 const AlertView = View.extend ({
   tag: "div",
