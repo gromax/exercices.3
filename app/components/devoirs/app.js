@@ -4,6 +4,15 @@ import { MnObject } from 'backbone.marionette'
 const Controller = MnObject.extend({
   channelName: 'app',
 
+  radioEvents: {
+    'devoir:dashboard': 'onShowDashboard',
+  },
+
+  onShowDashboard(id) {
+    Backbone.history.navigate(`devoir:${id}/params`, { trigger: true });
+    this.devoirShowDashboard(id);
+  },
+
   devoirShow(id) {
     const channel = this.getChannel();
     const fetching = channel.request("custom:entities", ["devoirs", "exodevoirs"]);
@@ -79,7 +88,7 @@ const Controller = MnObject.extend({
   },
   */
 
-  devoirEditParams(id) {
+  devoirShowDashboard(id) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
     if (!logged.isProf() && !logged.isAdmin()) {
@@ -198,7 +207,7 @@ const Router = Backbone.Router.extend({
   },
 
   devoirEditParams(id) {
-    controller.devoirEditParams(id);
+    controller.devoirShowDashboard(id);
   },
 
   devoirEdit(id) {

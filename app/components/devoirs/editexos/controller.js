@@ -14,8 +14,7 @@ const Controller = MnObject.extend({
    * sur la gauche et prévoit une place sur la droite
    * pour l'ajout ou le paramétrage des exercices.
    */
-  showLayoutView(devoir, assosExos) {
-    const twocolsLayout = new TwoColsView();
+  showLayoutView(devoir, assosExos, region) {
     const view = new ShowDevoirView({
       model: devoir
     });
@@ -25,11 +24,10 @@ const Controller = MnObject.extend({
     });
 
     const devoirLayout = new LayoutView({id:devoir.get('id')});
-    new Region({ el: '#main-region' }).show(twocolsLayout);
-    twocolsLayout.showChildView('left', devoirLayout);
+    region.show(devoirLayout);
     devoirLayout.showChildView('devoirRegion', view);
     devoirLayout.showChildView('assocsRegion', assosExosView);
-    return { twocolsLayout, devoirLayout, view, assosExosView };
+    return { devoirLayout, view, assosExosView };
   },
   
   show(id, devoir, assosExos) {
@@ -48,8 +46,8 @@ const Controller = MnObject.extend({
       { text: devoir.get("nom"), link: `devoir:${id}` },
       { text: "Dashboard", link: `devoir:${id}/params` },
     ]);
-
-    this.showLayoutView(devoir, assosExos);
+    const region = new Region({ el: '#main-region' });
+    this.showLayoutView(devoir, assosExos, region);
   },
 
   showAddExo(id, devoir, assosExos, sujetsexercices, criterion) {
@@ -69,7 +67,9 @@ const Controller = MnObject.extend({
       { text: "Ajouter des exercices", link: `devoir:${id}/addexo` },
     ]);
 
-    const { assosExosView, twocolsLayout } = this.showLayoutView(devoir, assosExos);
+    const twocolsLayout = new TwoColsView();
+    new Region({ el: '#main-region' }).show(twocolsLayout);
+    const { assosExosView } = this.showLayoutView(devoir, assosExos, twocolsLayout.getRegion('left'));
 
     // ensuite j'ajoute la liste des sujets d'exercices à droite
 

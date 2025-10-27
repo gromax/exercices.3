@@ -28,7 +28,7 @@ const Controller = MnObject.extend({
     });
 
     view.on("success", (model, resp) => {
-      channel.trigger("devoir:show", model.get("id"));
+      channel.trigger("devoir:dashboard", model.get("id"));
     });
     new Region({ el: '#main-region' }).show(view);
   },
@@ -57,7 +57,7 @@ const Controller = MnObject.extend({
       { text: "Nouveau devoir", link: "devoirs/new" }
     ]);
     view.on("success", (model, resp) => {
-      channel.trigger("devoir:show", model.get("id"));
+      channel.trigger("devoir:dashboard", model.get("id"));
     });
     new Region({ el: '#main-region' }).show(view);
   },
