@@ -1,5 +1,5 @@
 import { MnObject, Region } from 'backbone.marionette'
-import { OptionsView, ParamsView, Finished_View } from './views.js'
+import { OptionsView, ParamsView, Finished_View, LayoutView } from './views.js'
 import { Item as ExerciceTry } from '../exotry.js'
 import MainBloc from '../tools/mainbloc.js';
 
@@ -8,21 +8,23 @@ import renderMathInElement from "katex/contrib/auto-render";
 const Controller = MnObject.extend ({
   channelName: "app",
 
-  showApercu(sujetExercice) {
+  showApercu(sujetExercice, containerRegion) {
     const channel = this.getChannel();
     try {
+      const layoutView = new LayoutView();
+      containerRegion.show(layoutView);
       const {options, defaultsOptions} = MainBloc.parseOptions(sujetExercice.get("options"));
       const optionsView = new OptionsView({ options: options, selected: defaultsOptions });
       optionsView.on("change", (data) => {
         const exerciceTry = this.newExerciceTry(sujetExercice, data);
-        this.showExerciceTry(sujetExercice, exerciceTry);
+        this.showExerciceTry(sujetExercice, exerciceTry, layoutView);
       });
       const exerciceTry = this.newExerciceTry(sujetExercice, defaultsOptions);
       if (!exerciceTry) {
         return;
       }
-      new Region({ el: '#exercice-options-set' }).show(optionsView);
-      this.showExerciceTry(sujetExercice, exerciceTry);
+      layoutView.showChildView('optionsSet', optionsView);
+      this.showExerciceTry(sujetExercice, exerciceTry, layoutView);
     } catch (error) {
       console.error(error);
       channel.trigger("popup:error", {
@@ -53,7 +55,7 @@ const Controller = MnObject.extend ({
     }
   },
 
-  showExerciceTry(sujetExercice, exerciceTry) {
+  showExerciceTry(sujetExercice, exerciceTry, layoutView) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
     const showParams = (logged.id === sujetExercice.get("idOwner") || logged.isAdmin());
@@ -62,10 +64,9 @@ const Controller = MnObject.extend ({
         const paramsView = new ParamsView({
           params: exerciceTry.get("init")
         });
-        new Region({ el: '#exercice-initparams' }).show(paramsView);
+        layoutView.showChildView('initParams', paramsView);
       }
-      const region = document.querySelector('#exercice-run');
-      region.innerHTML = "";
+      layoutView.getRegion('run').empty();
       const mainPile = MainBloc.runCode(
         sujetExercice.get("code"),
         exerciceTry.get("init"),
@@ -77,7 +78,7 @@ const Controller = MnObject.extend ({
       );
       exerciceTry.set("scoreMax", scoreMax);
       exerciceTry.set("intScore", 0);
-      this.runExercice(mainPile, exerciceTry);
+      this.runExercice(mainPile, exerciceTry, layoutView);
     } catch (error) {
       console.error(error);
       channel.trigger("popup:error", {
@@ -87,9 +88,9 @@ const Controller = MnObject.extend ({
     }
   },
 
-  runExercice(mainPile, exerciceTry) {
+  runExercice(mainPile, exerciceTry, layoutView) {
     let questionLeft = false;
-    const region = document.querySelector('#exercice-run');
+    const region = layoutView.getRegion('run').el;
     const answers = exerciceTry.get("answers") || {};
     while (mainPile.length > 0) {
       const item = mainPile.pop();

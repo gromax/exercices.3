@@ -9,6 +9,7 @@ import form_tpl from '@templates/exercices/run/exercice.form.jst'
 import exercice_finished_tpl from '@templates/exercices/run/exercice-finished.jst'
 import exercice_results_tpl from '@templates/exercices/run/exercice-results.jst'
 import exercice_input_tpl from '@templates/exercices/run/exercice-input.jst'
+import layout_tpl from '@templates/exercices/run/layout.jst'
 
 const OptionsView = View.extend({
   template: options_tpl,
@@ -165,6 +166,15 @@ const Finished_View = View.extend({
   }
 });
 
+const LayoutView = View.extend({
+  template: layout_tpl,
+  regions: {
+    optionsSet: ".options-set",
+    initParams: ".initparams",
+    run: ".run"
+  }
+});
+
 export {
   OptionsView,
   ParamsView,
@@ -175,5 +185,6 @@ export {
   RadioView,
   FormView,
   ResultsView,
-  InputView
+  InputView,
+  LayoutView
 };
