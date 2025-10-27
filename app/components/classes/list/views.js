@@ -33,7 +33,6 @@ const ItemView = View.extend({
   
   triggers: {
     "click td a.js-edit": "edit",
-    "click td a.js-fill": "fill",
     "click td a.js-classe-prof": "classes:prof",
     "click": "show"
   },
