@@ -11,7 +11,7 @@ const Item = Backbone.Model.extend({
     init: {},
     answers: {},
     idUser: null,
-    idDevoir: null,
+    idExoDevoir: null,
     score: 0,
     finished: false
   },
