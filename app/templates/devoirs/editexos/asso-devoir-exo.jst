@@ -1,8 +1,8 @@
 <h5><span class="badge rounded-pill bg-primary"><%- id %></span> <%- title %></h5>
-<p><%- options %></p>
+<p><% _.each(options, function(value,key) { %> <span class="badge bg-secondary"><%- key %>: <%- value %></span> <% }); %></p>
 <div class="btn-group" role="group">
     <button type="button" class="btn btn-outline-primary btn-sm js-up"><i class="fa-solid fa-chevron-up"></i></button>
     <button type="button" class="btn btn-outline-primary btn-sm js-down"><i class="fa-solid fa-chevron-down"></i></button>
-    <button type="button" class="btn btn-outline-primary btn-sm js-options"><i class="fa-solid fa-gear"></i></button>
+    <a href="#devoir:<%-idDevoir %>/exo:<%- id %>" role="button" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-gear"></i></a>
     <button type="button" class="btn btn-outline-danger btn-sm js-delete"><i class="fa-solid fa-trash" aria-hidden="true" title="Supprimer"></i></button>
 </div>
