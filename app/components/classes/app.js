@@ -62,7 +62,7 @@ const Controller = MnObject.extend ({
 
     const forProf = () => {
       channel.trigger("loading:up");
-      const fetching = channel.request("classe:entity", id);
+      const fetching = channel.request("data:getitem", "classes", id);
       $.when(fetching).done( (classe) => {
         require("./show/controller.js").controller.show(id, classe);
       }).fail( (response) => {
@@ -88,7 +88,7 @@ const Controller = MnObject.extend ({
     const forProf = () => {
       channel.trigger("ariane:reset", [{ text:"Classes", e:"classes:list", link:"classes"}]);
       channel.trigger("loading:up");
-      $.when(channel.request("classe:entity", id)).done( (classe) => {
+      $.when(channel.request("data:getitem", "classes", id)).done( (classe) => {
         require("./edit/controller.js").controller.edit(id, classe);
       }).fail( (response) => {
         channel.trigger("data:fetch:fail", response);

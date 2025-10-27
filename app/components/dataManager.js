@@ -7,15 +7,11 @@ const Controller = MnObject.extend({
     'custom:entities': 'getCustomEntities',
     'logged:destroy': 'purge',
     'data:purge': 'purge',
-    'classe:entity': 'getClasse',
-    'user:entity': 'getUser',
-    'devoir:entity': 'getDevoir',
-    'sujetexercice:entity': 'getSujetExercice',
     'user:me': 'getMe',
     'user:destroy:update': 'userDestroyUpdate',
-    'fiche:destroy:update': 'ficheDestroyUpdate',
-    'aUE:destroy:update': 'aUEDestroyUpdate',
     'data:collection:additem': 'addItemToCache',
+    'data:getitem': 'getItem',
+    'data:removeitem': 'removeItemFromCache'
   },
 
   timeout:1500000, // 25 minutes
@@ -94,6 +90,13 @@ const Controller = MnObject.extend({
     const promise = defer.promise();
     return promise;
   },
+  
+  /**
+   * Récupère un item dans le cache ou via une requête si non présent
+   * @param {string} entityName Nom de l'entité
+   * @param {int} idItem ID de l'item
+   * @returns une promesse résolue avec l'item demandé
+   */
   getItem(entityName, idItem) {
     const defer = $.Deferred();
     const col = this.getChachedCollection(entityName);
@@ -109,29 +112,14 @@ const Controller = MnObject.extend({
     }
     return defer.promise();
   },
-  getUser(id) {
-    return this.getItem("users", id);
-  },
-  getClasse(id) {
-    return this.getItem("classes", id);
-  },
-  getSujetExercice(id) {
-    return this.getItem("sujetsexercices", id);
-  },
-  getDevoir(id) {
-    return this.getItem("devoirs", id);
-  },
+
   getMe() {
     const defer = $.Deferred();
     const t = Date.now();
     if (typeof this.stored_data.me !== "undefined" && typeof this.stored_time.me !== "undefined" && t - this.stored_time.me < this.timeout) {
       defer.resolve(this.stored_data.me);
     } else {
-      const request = $.ajax("api/me",{
-        method:'GET',
-        dataType:'json',
-        headers: localStorage.getItem('jwt') ? { Authorization: 'Bearer ' + localStorage.getItem('jwt') } : {}
-      })
+      const request = this.request("api/me");
       request.done( (data) => {
         const User = require("./users/entity.js").Item;
         this.stored_data.me = new User(data, {parse:true});
@@ -144,8 +132,17 @@ const Controller = MnObject.extend({
     return defer.promise();
   },
 
-  purge() {
-    this.stored_data = {};
+  /**
+   * Purge le cache des données stockées
+   * @param {string} colName Nom de la collection à purger (optionnel)
+   */
+  purge(colName) {
+    if (colName) {
+      delete this.stored_data[colName];
+      delete this.stored_time[colName];
+    } else {
+      this.stored_data = {};
+    }
   },
 
   userDestroyUpdate(idUser) {
@@ -171,6 +168,18 @@ const Controller = MnObject.extend({
     const col = this.getChachedCollection(colName);
     if (col !== null) {
       col.add(itemData);
+    }
+  },
+
+  /**
+   * supprime un item d'une collection en cache si elle existe
+   * @param {string} colName 
+   * @param {int} idItem
+   */
+  removeItemFromCache(colName, idItem) {
+    const col = this.getChachedCollection(colName);
+    if (col !== null) {
+      col.remove(idItem);
     }
   },
 

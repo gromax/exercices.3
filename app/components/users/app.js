@@ -89,7 +89,7 @@ const Controller = MnObject.extend ({
     } else {
       channel.trigger("ariane:reset", [{ text:"Utilisateurs", e:"users:list", link:"users"}]);
     }
-    const fetchingUser = isMe ? channel.request("user:me") : channel.request("user:entity", id);
+    const fetchingUser = isMe ? channel.request("user:me") : channel.request("data:getitem", "users", id);
     $.when(fetchingUser).done( (user) => {
       require("./show/controller.js").controller.showUser(id, user, isMe);
     }).fail( (response) => {
@@ -113,7 +113,7 @@ const Controller = MnObject.extend ({
       channel.trigger("ariane:reset", [{ text:"Utilisateurs", link:"users"}]);
     }
     channel.trigger("loading:up");
-    const fetchingUser = isMe ? channel.request("user:me") : channel.request("user:entity", id);
+    const fetchingUser = isMe ? channel.request("user:me") : channel.request("data:getitem", "users", id);
     $.when(fetchingUser).done( (user) => {
       if (isMe) {
         require("./edit/controller.js").controller.editMe(id, user, pwd);
