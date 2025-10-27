@@ -10,6 +10,11 @@ const Item = Backbone.Model.extend ({
     dateFin: "2000-02-01",
   },
 
+  toString() {
+    const id = this.get('id') ? `#${this.get('id')} :` : "";
+    return `${id} ${this.get("nom")} ${this.get("description")}`;
+  },
+
   toJSON() {
     return _.pick(this.attributes, 'id', 'idOwner', 'idClasse', 'nom', 'description', 'dateDebut', 'dateFin');
   },

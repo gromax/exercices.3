@@ -13,6 +13,11 @@ const Item = Backbone.Model.extend ({
     expiration: today,
     date: today
   },
+
+  toString() {
+    const id = this.get('id') ? `#${this.get('id')} :` : "";
+    return `${id} ${this.get("nom")}`;
+  },
   
   parse(data) {
     if (typeof data.ouverte === "string") {

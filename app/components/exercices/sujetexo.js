@@ -9,6 +9,11 @@ const Item = Backbone.Model.extend({
     init: ""
   },
 
+  toString() {
+    const id = this.get('id') ? `#${this.get('id')} :` : "";
+    return `${id} ${this.get("title")}`;
+  },
+
   parse(data) {
     if (data.id) {
       data.id = Number(data.id);

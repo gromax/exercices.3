@@ -9,6 +9,11 @@ const Item = Backbone.Model.extend ({
     pref: { mathquill: true }
   },
   
+  toString() {
+    const id = this.get('id') ? `#${this.get('id')} :` : "";
+    return `${id} ${this.get("prenom")} ${this.get("nom")}`;
+  },
+
   toJSON() {
     const output = _.clone(_.omit(this.attributes, "pref"));
     if (this.attributes.pref !== false) {

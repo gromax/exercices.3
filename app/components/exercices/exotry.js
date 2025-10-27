@@ -16,6 +16,11 @@ const Item = Backbone.Model.extend({
     finished: false
   },
 
+  toString() {
+    const id = this.get('id') ? `#${this.get('id')} :` : "";
+    return `${id}`;
+  },
+
   initialize() {
     this.on('change:intScore', this.onUpdateIntScore, this);
   },
