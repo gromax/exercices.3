@@ -1,8 +1,8 @@
 import { View, CollectionView } from 'backbone.marionette'
-import show_item_tpl from '@templates/devoirs/showProf/devoir-show.jst'
-import assoc_devoir_exo_tpl from '@templates/devoirs/showProf/asso-devoir-exo.jst'
-import no_asso_devoir_exo_tpl from '@templates/devoirs/showProf/no-asso-devoir-exo.jst'
-import layout_tpl from '@templates/devoirs/showProf/devoir-layout.jst'
+import show_item_tpl from '@templates/devoirs/editexos/devoir-show.jst'
+import assoc_devoir_exo_tpl from '@templates/devoirs/editexos/asso-devoir-exo.jst'
+import no_asso_devoir_exo_tpl from '@templates/devoirs/editexos/no-asso-devoir-exo.jst'
+import layout_tpl from '@templates/devoirs/editexos/devoir-layout.jst'
 
 const ShowDevoirView = View.extend({
   template: show_item_tpl,

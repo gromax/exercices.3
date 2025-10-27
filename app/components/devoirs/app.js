@@ -88,7 +88,7 @@ const Controller = MnObject.extend({
       const devoir = devoirs.find(d => d.id === id);
       const assocs = exodevoirs.filter(a => a.get('idDevoir') === id);
       const collecAssocs = new exodevoirs.constructor(assocs);
-      require("./showProf/controller.js").controller.show(id, devoir, collecAssocs);
+      require("./editexos/controller.js").controller.show(id, devoir, collecAssocs);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {
@@ -111,7 +111,7 @@ const Controller = MnObject.extend({
       const devoir = devoirs.find(d => d.id === id);
       const assocs = exodevoirs.filter(a => a.get('idDevoir') === id);
       const collecAssocs = new exodevoirs.constructor(assocs);
-      require("./showProf/controller.js").controller.showAddExo(id, devoir, collecAssocs, sujetsexercices, "");
+      require("./editexos/controller.js").controller.showAddExo(id, devoir, collecAssocs, sujetsexercices, "");
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {
