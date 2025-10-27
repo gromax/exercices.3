@@ -201,6 +201,10 @@ class exodevoirs
             return false;
         }
         $data = json_decode(file_get_contents("php://input"),true);
+        
+        $currentNum = $oED->get("num");
+        $nextNum = isset($data['num']) ? (integer) $data['num'] : $currentNum;
+        
         $response = $oED->update($data);
         if (is_array($response))
         {
@@ -211,6 +215,12 @@ class exodevoirs
         if ($response === false)
         {
             EC::set_error_code(501);
+            return false;
+        }
+
+        // réordonnancement demandé
+        if (!$oED->reorder($currentNum, $nextNum))
+        {
             return false;
         }
         return $oED->toArray();
