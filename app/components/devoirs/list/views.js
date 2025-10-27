@@ -43,14 +43,9 @@ const DevoirItemView = View.extend({
   errorCode: "021",
   behaviors: [
     DestroyWarn,
-    FlashItem,
-    ToggleItemValue
+    FlashItem
   ],
   
-  triggers: {
-    "click": "show"
-  },
-
   templateContext() {
     return {
       showNomOwner: this.getOption("showNomOwner")
