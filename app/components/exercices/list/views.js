@@ -48,7 +48,7 @@ const ExercicesCollectionView = CollectionView.extend({
   childView: ExerciceItemView,
   childViewEventPrefix: "item",
   behaviors: [FilterList],
-  filterKeys: ["title", "description", "keyWords"]
+  filterKeys: ["title", "description", "keywords"]
 });
 
 export { ListLayout, ExercicesPanel, ExercicesCollectionView }
