@@ -15,8 +15,9 @@ const Controller = MnObject.extend({
     }
     channel.trigger("ariane:reset", [
       { text: "Devoirs", link: "devoirs" },
-      { text: devoir.get("nom"), e: "devoir:show", data: id, link: `devoir:${id}` },
-      { text: "Modification", e: "devoir:edit", data: id, link: `devoir:${id}/edit` },
+      { text: devoir.get("nom"), link: `devoir:${id}` },
+      { text: "Dashboard", link: `devoir:${id}/params` },
+      { text: "Modification", link: `devoir:${id}/edit` },
     ]);
 
     const view = new EditDevoirView({

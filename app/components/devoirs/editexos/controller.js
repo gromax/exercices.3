@@ -45,7 +45,8 @@ const Controller = MnObject.extend({
     
     channel.trigger("ariane:reset", [
       { text: "Devoirs", link: "devoirs" },
-      { text: devoir.get("nom"), link: `devoir:${id}` }
+      { text: devoir.get("nom"), link: `devoir:${id}` },
+      { text: "Dashboard", link: `devoir:${id}/params` },
     ]);
 
     this.showLayoutView(devoir, assosExos);
@@ -64,6 +65,7 @@ const Controller = MnObject.extend({
     channel.trigger("ariane:reset", [
       { text: "Devoirs", link: "devoirs" },
       { text: devoir.get("nom"), link: `devoir:${id}` },
+      { text: "Dashboard", link: `devoir:${id}/params` },
       { text: "Ajouter des exercices", link: `devoir:${id}/addexo` },
     ]);
 
