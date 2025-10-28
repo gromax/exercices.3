@@ -47,15 +47,9 @@ $router->addRule('api/exodevoirs/:id', 'exodevoirs', 'delete', 'DELETE');
 $router->addRule('api/exodevoirs/:id', 'exodevoirs', 'update', 'PUT');
 $router->addRule('api/exodevoirs', 'exodevoirs', 'insert', 'POST');
 
-// assosUF
-$router->addRule('api/assosUF/:id', 'assosUF', 'delete', 'DELETE');
-$router->addRule('api/assosUF/:id', 'assosUF', 'update', 'PUT');
-$router->addRule('api/assosUF', 'assosUF', 'insert', 'POST');
-
 // notes
-$router->addRule('api/notes/:id', 'notes', 'delete', 'DELETE');
-$router->addRule('api/notes/:id', 'notes', 'update', 'PUT');
-$router->addRule('api/notes', 'notes', 'insert', 'POST');
+$router->addRule('api/notesexos/:id', 'notesexos', 'fetch', 'GET');
+$router->addRule('api/notesexos', 'notesexos', 'fetch', 'GET');
 
 // messages
 $router->addRule('api/messages', 'messages', 'insert', 'POST');

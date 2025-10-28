@@ -9,6 +9,7 @@ use BDDObject\User;
 use BDDObject\Message;
 use BDDObject\Classe;
 use BDDObject\Exercice;
+use BDDObject\NoteExo;
 
 class data
 {
@@ -80,7 +81,8 @@ class data
             'classes' => Classe::class,
             'devoirs' => Devoir::class,
             'users' => User::class,
-            'exodevoirs' => ExoDevoir::class
+            'exodevoirs' => ExoDevoir::class,
+            'notesexos' => NoteExo::class
         ];
 
         $output = [];
@@ -114,6 +116,9 @@ class data
             ],
             "classes" => [
                 'wheres' => ['id'=> $uLog->getClasseId('idClasse') ]
+            ],
+            "notesexos" => [
+                'wheres' => ['users.idUser'=> $uLog->get('id') ]
             ]
         ];
         $output = $this->customFetchHelper($toLoad, $asks);
@@ -163,6 +168,9 @@ class data
             "classes" => [
                 'wheres' => ['idOwner'=> $uLog->get('id') ]
             ],
+            "notesexos" => [
+                'wheres' => ['devoirs.idOwner'=> $uLog->get('id') ]
+            ]
         ];
         $output = $this->customFetchHelper($toLoad, $asks);
         if ($output === false) return false;
@@ -199,7 +207,8 @@ class data
             "devoirs"=>[],
             "exodevoirs"=>[],
             "users"=>array("ranks"=>$ranks),
-            "classes"=>[]
+            "classes"=>[],
+            "notesexos"=>[]
         ];
         $output = $this->customFetchHelper($toLoad, $asks);
         if ($output === false) return false;
