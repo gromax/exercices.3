@@ -56,6 +56,18 @@ abstract class Item
     return array();
   }
 
+  protected static function groupby()
+  {
+    /*
+      Permet aux classes enfants de définir des colonnes pour le group by
+      [
+        "table1.key1",
+        "table2.key2"
+      ]
+    */
+    return array();
+  }
+
   protected static function protectedChildren()
   {
     /*
@@ -74,7 +86,11 @@ abstract class Item
       if (in_array($key,$hideCols)) continue;
       if (isset($val['foreign'])) {
         [$table, $col] = explode(".",$val['foreign']);
-        $keys[] = "$table.`$col` AS `$key`";
+        if (isset($val['agregation'])) {
+          $keys[] = "COALESCE(".$val['agregation']."($table.`$col`), 0) AS `$key`";
+        } else {
+          $keys[] = "$table.`$col` AS `$key`";
+        }
       } else {
         $keys[] = "s.`$key`";
       }
@@ -141,6 +157,22 @@ abstract class Item
     return "SELECT s.id, $fields FROM (".PREFIX_BDD.static::$BDDName." AS s $innerJoined $leftJoined)";
   }
 
+  protected static function sqlGetGROUPBY()
+  {
+    $groupby = static::groupby();
+    if (count($groupby) === 0) {
+      return "";
+    }
+    $cols = array_map(function($col){
+      if (strpos($col, '.') === false) {
+        return "s.`" . $col . "`";
+      } else {
+        return $col;
+      }
+    }, $groupby);
+    return " GROUP BY ".implode(", ", $cols);
+  }
+
   public static function getList($filter = [])
   {
     $args = ["wheres", "hideCols"];
@@ -157,12 +189,13 @@ abstract class Item
     if (isset($filter['wheres'])) $wheres = $filter['wheres']; else $wheres = array();
     if (isset($filter['hideCols'])) $hideCols = $filter['hideCols']; else $hideCols = array();
     $where = static::sqlGetWhere($wheres);
+    $groupby = static::sqlGetGROUPBY();
     require_once BDD_CONFIG;
     try {
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
       $select = static::sqlGetSELECT($hideCols);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $stmt = $pdo->prepare("$select $where");
+      $stmt = $pdo->prepare("$select $where $groupby");
       foreach ($wheres as $k => $v) {
         $stmt->bindValue(
           ":".str_replace(".", "_", $k),
