@@ -7,7 +7,7 @@ use ErrorController as EC;
  * Ne correspond pas à une table de la BDD
  * Donc en lecture seule
  */
-final class Note extends Item
+final class NoteExo extends Item
 {
   protected static $BDDName = "exodevoirs";
 
