@@ -47,9 +47,14 @@ $router->addRule('api/exodevoirs/:id', 'exodevoirs', 'delete', 'DELETE');
 $router->addRule('api/exodevoirs/:id', 'exodevoirs', 'update', 'PUT');
 $router->addRule('api/exodevoirs', 'exodevoirs', 'insert', 'POST');
 
-// notes
+// notesexos
 $router->addRule('api/notesexos/:id', 'notesexos', 'fetch', 'GET');
 $router->addRule('api/notesexos', 'notesexos', 'fetch', 'GET');
+
+// notes
+$router->addRule('api/notes/devoir/:id', 'notes', 'fetchDevoir', 'GET');
+$router->addRule('api/notes', 'notes', 'fetch', 'GET');
+
 
 // messages
 $router->addRule('api/messages', 'messages', 'insert', 'POST');

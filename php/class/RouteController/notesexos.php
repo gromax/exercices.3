@@ -7,72 +7,72 @@ use BDDObject\Logged;
 
 class notes
 {
-    /**
-     * paramères de la requète
-     * @array
-     */
-    private $params;
+  /**
+   * paramères de la requète
+   * @array
+   */
+  private $params;
 
-    /**
-     * Constructeur
-     */
-    public function __construct($params)
+  /**
+   * Constructeur
+   */
+  public function __construct($params)
+  {
+      $this->params = $params;
+  }
+
+  public function fetch()
+  {
+    $uLog =Logged::getConnectedUser();
+    if (!$uLog->connexionOk())
     {
-        $this->params = $params;
-    }
-
-    public function fetch()
-    {
-      $uLog =Logged::getConnectedUser();
-      if (!$uLog->connexionOk())
-      {
-        EC::addError("Utilisateur non connecté.");
-        EC::set_error_code(401);
-        return false;
-      }
-
-      if (isset($this->params['id']))
-      {
-        $id = (integer) $this->params['id'];
-        return $this->fetchItem($id);
-      }
-
-      if ($uLog->isAdmin()) return NoteExo::getList();
-      if ($uLog->isProf()) return NoteExo::getList([
-        'wheres' => ['devoirs.idOwner'=> $uLog->getId()],
-        'hideCols' => ['idOwner', 'idClasse']
-      ]);
-      if ($uLog->isEleve()) return NoteExo::getList([
-        'wheres' => ['devoirs.idClasse' => $uLog->getClasseId()],
-        'hideCols' => ['idOwner', 'idClasse']
-      ]);
-      EC::addError("Pas les droits pour accéder aux associations.");
-      EC::set_error_code(403);
+      EC::addError("Utilisateur non connecté.");
+      EC::set_error_code(401);
       return false;
     }
 
-    private function fetchItem($id) {
-      $uLog =Logged::getConnectedUser();
-      if (!$uLog->connexionOk())
-      {
-        EC::addError("Utilisateur non connecté.");
-        EC::set_error_code(401);
-        return false;
-      }
-      $oNote = NoteExo::getObject($id);
-      if ($oNote===null)
-      {
-        EC::addError("Association introuvable.");
-        EC::set_error_code(404);
-        return false;
-      }
-      if ( $uLog->isAdmin() || $oNote->get("idOwner") === $uLog->getId() || $oNote->get("idClasse") === $uLog->getClasseId() )
-      {
-        return $oNote->toArray();
-      }
-      EC::addError("Pas les droits pour accéder à cette association.");
-      EC::set_error_code(403);
+    if (isset($this->params['id']))
+    {
+      $id = (integer) $this->params['id'];
+      return $this->fetchItem($id);
+    }
+
+    if ($uLog->isAdmin()) return NoteExo::getList();
+    if ($uLog->isProf()) return NoteExo::getList([
+      'wheres' => ['devoirs.idOwner'=> $uLog->getId()],
+      'hideCols' => ['idOwner', 'idClasse']
+    ]);
+    if ($uLog->isEleve()) return NoteExo::getList([
+      'wheres' => ['devoirs.idClasse' => $uLog->getClasseId()],
+      'hideCols' => ['idOwner', 'idClasse']
+    ]);
+    EC::addError("Pas les droits pour accéder aux associations.");
+    EC::set_error_code(403);
+    return false;
+  }
+
+  private function fetchItem($id) {
+    $uLog =Logged::getConnectedUser();
+    if (!$uLog->connexionOk())
+    {
+      EC::addError("Utilisateur non connecté.");
+      EC::set_error_code(401);
       return false;
     }
+    $oNote = NoteExo::getObject($id);
+    if ($oNote===null)
+    {
+      EC::addError("Association introuvable.");
+      EC::set_error_code(404);
+      return false;
+    }
+    if ( $uLog->isAdmin() || $oNote->get("idOwner") === $uLog->getId() || $oNote->get("idClasse") === $uLog->getClasseId() )
+    {
+      return $oNote->toArray();
+    }
+    EC::addError("Pas les droits pour accéder à cette association.");
+    EC::set_error_code(403);
+    return false;
+  }
 }
 ?>
