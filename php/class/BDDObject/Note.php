@@ -36,7 +36,15 @@ final class Note extends Item
   protected static function joinedTables()
   {
     return [
-      'inner' => ['id' => 'trials.idExoDevoir', 'users.id' => 'trials.idUser'],
+      'inner' => [
+        'devoirs' => 'exodevoirs.idDevoir = devoirs.id',
+        'exercices' => 'exodevoirs.idExo = exercices.id',
+        'classes' => 'devoirs.idClasse = classes.id',
+        'users' => 'users.idClasse = classes.id'
+      ],
+      'left' => [
+        'trials' => 'exodevoirs.id = trials.idExoDevoir AND trials.idUser = users.id'
+      ]
     ];
   }
 
