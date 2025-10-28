@@ -68,6 +68,7 @@ const Controller = MnObject.extend({
             case "users": colObj = require("./users/entity.js"); break;
             case "classes": colObj = require("./classes/entity.js"); break;
             case "sujetsexercices": colObj = require("./exercices/sujetexo.js"); break;
+            case "notesexos": colObj = require("./notes/noteexo.js"); break;
             //case "exofiches": colObj = require("@entities/exofiches.js"); break;
             //case "faits": colObj = require("@entities/faits.js"); break;
             //case "exams": colObj = require("@entities/exams.js"); break;
