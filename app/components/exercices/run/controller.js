@@ -16,10 +16,10 @@ const Controller = MnObject.extend ({
       const {options, defaultsOptions} = MainBloc.parseOptions(sujetExercice.get("options"));
       const optionsView = new OptionsView({ options: options, selected: defaultsOptions });
       optionsView.on("change", (data) => {
-        const exerciceTry = this.newExerciceTry(sujetExercice, data);
+        const exerciceTry = this.newExerciceTry(sujetExercice, data, null);
         this.showExerciceTry(sujetExercice, exerciceTry, layoutView);
       });
-      const exerciceTry = this.newExerciceTry(sujetExercice, defaultsOptions);
+      const exerciceTry = this.newExerciceTry(sujetExercice, defaultsOptions, null);
       if (!exerciceTry) {
         return;
       }
@@ -47,7 +47,7 @@ const Controller = MnObject.extend ({
         const saving = exodevoir.save();
         channel.trigger("loading:up");
         $.when(saving).done(() => {
-          const exerciceTry = this.newExerciceTry(sujetExercice, data, exodevoir.id);
+          const exerciceTry = this.newExerciceTry(sujetExercice, data, exodevoir.get("id"));
           this.showExerciceTry(sujetExercice, exerciceTry, layoutView);
         }).fail((response) => {
           console.warn("Erreur sauvegarde options exo-devoir", response.responseJSON);
@@ -71,15 +71,17 @@ const Controller = MnObject.extend ({
     }
   },
 
-  newExerciceTry(sujetExercice, options, idExoDevoir=null) {
+  newExerciceTry(sujetExercice, options, idExoDevoir) {
     const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    const idUser = logged.isEleve() ? logged.id : null;
     try {
       const initParams = MainBloc.parseParams(sujetExercice.get("init"), options);
       return new ExerciceTry({
         idExercice: sujetExercice.id,
         options: options,
         init: initParams,
-        idUser: channel.request("logged:get").id || null,
+        idUser: idUser,
         idExoDevoir: idExoDevoir
       });
     } catch (error) {

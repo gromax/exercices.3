@@ -7,6 +7,7 @@ const Item = Backbone.Model.extend({
   urlRoot: "api/tryexos",
   defaults: {
     idExercice: null,
+    idUser:null,
     options: {},
     init: {},
     answers: {},
@@ -34,6 +35,8 @@ const Item = Backbone.Model.extend({
     data.answers = JSON.parse(data.answers);
     data.score = Number(data.score);
     data.finished = Boolean(data.finished);
+    data.idExercice = Number(data.idExercice);
+    data.idUser = Number(data.idUser);
     return data;
   },
 
@@ -53,7 +56,7 @@ const Item = Backbone.Model.extend({
   },
 
   isEleveTry() {
-    return this.get("idDevoir") !== null
+    return (this.get("idUser") !== null) && (this.get("idExoDevoir") !== null);
   },
 
   sync(method, model, options) {
