@@ -25,7 +25,7 @@ final class Exercice extends Item
     protected static function joinedTables()
     {
         return [
-            'inner' => ['idOwner' => 'users.id']
+            'inner' => [ 'users' => 'exercices.idOwner = users.id' ]
         ];
     }
 

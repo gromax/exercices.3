@@ -24,7 +24,10 @@ final class Devoir extends Item
   protected static function joinedTables()
   {
     return [
-      'inner' => ['idOwner' => 'users.id', 'idClasse' => 'classes.id']
+      'inner' => [
+        'users' => 'devoirs.idOwner = users.id',
+        'classes' => 'devoirs.idClasse = classes.id'
+      ]
     ];
   }
 

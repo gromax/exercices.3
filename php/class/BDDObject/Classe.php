@@ -29,7 +29,7 @@ final class Classe extends Item
   protected static function joinedTables()
   {
     return [
-      'inner' => ['idOwner' => 'users.id']
+      'inner' => ['users' => 'classes.idOwner = users.id']
     ];
   }
 

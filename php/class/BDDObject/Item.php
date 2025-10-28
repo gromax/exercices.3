@@ -47,10 +47,10 @@ abstract class Item
       Permet aux classes enfants de définir des tables jointes.
       [
         "inner" => [         // pour les inner join
-          "table1.key" => "table2.key"
+          "table à joindre" => "condition"
         ],
         "left" => [          // pour les left join
-          "table1.key" => "table2.key"
+          "table à joindre" => "condition"
       ]
     */
     return array();
@@ -81,6 +81,7 @@ abstract class Item
   protected static function sqlGetFieldsNames($hideCols = array())
   {
     $champs = static::champs();
+    $bddName = static::$BDDName;
     $keys = array();
     foreach ($champs as $key => $val) {
       if (in_array($key,$hideCols)) continue;
@@ -92,13 +93,19 @@ abstract class Item
           $keys[] = "$table.`$col` AS `$key`";
         }
       } else {
-        $keys[] = "s.`$key`";
+        $keys[] = "$bddName.`$key`";
       }
     }
     return implode(", ",$keys);
   }
 
-  protected static function sqlGetJoin($type, $hideCols)
+  /**
+   * Génère la clause JOIN SQL à partir des tables jointes
+   * définies dans joinedTables
+   * $type : inner | left
+   * @return string
+   */
+  protected static function sqlGetJoin($type)
   {
     // type = inner | left
     if ($type !== "inner" && $type !== "left")
@@ -111,16 +118,8 @@ abstract class Item
     if (!isset($joined[$type])) {
       return "";
     }
-    foreach ($joined[$type] as $k1 => $k2) {
-      if (in_array($k2,$hideCols)) continue;
-      if (strpos($k1,".")===false) {
-        $t1 = "s";
-        $c1 = $k1;
-      } else {
-        [$t1, $c1] = explode(".",$k1);
-      }
-      [$t2, $c2] = explode(".",$k2);
-      $join .= strtoupper($type)." JOIN ".PREFIX_BDD.$t2." AS $t2 ON $t1.`$c1` = $t2.`$c2` ";
+    foreach ($joined[$type] as $table => $condition) {
+      $join .= strtoupper($type)." JOIN ".PREFIX_BDD.$table." AS $table ON $condition ";
     }
     return $join;
   }
@@ -134,7 +133,7 @@ abstract class Item
     $whereStrings = array_map(
       function($key) {
         if (strpos($key,".")===false) {
-          $t1 = "s";
+          $t1 = static::$BDDName;
           $c1 = $key;
         } else {
           [$t1, $c1] = explode(".",$key);
@@ -149,12 +148,26 @@ abstract class Item
     }
   }
 
+  /**
+   * Complète le nom d'un champ avec le nom de la table si nécessaire
+   */
+  protected static function completeFieldName($col)
+  {
+    if (strpos($col,".")===false) {
+      return static::$BDDName.".`$col`";
+    } else {
+      return $col;
+    }
+  }
+
   protected static function sqlGetSELECT($hideCols = array())
   {
+    $bddName = static::$BDDName;
+    $prefixedBddName = PREFIX_BDD.static::$BDDName;
     $fields = static::sqlGetFieldsNames($hideCols);
-    $innerJoined = static::sqlGetJoin("inner", $hideCols);
-    $leftJoined = static::sqlGetJoin("left", $hideCols);
-    return "SELECT s.id, $fields FROM (".PREFIX_BDD.static::$BDDName." AS s $innerJoined $leftJoined)";
+    $innerJoined = static::sqlGetJoin("inner");
+    $leftJoined = static::sqlGetJoin("left");
+    return "SELECT $bddName.id, $fields FROM ($prefixedBddName AS $bddName $innerJoined $leftJoined)";
   }
 
   protected static function sqlGetGROUPBY()
@@ -164,11 +177,7 @@ abstract class Item
       return "";
     }
     $cols = array_map(function($col){
-      if (strpos($col, '.') === false) {
-        return "s.`" . $col . "`";
-      } else {
-        return $col;
-      }
+      return static::completeFieldName($col);
     }, $groupby);
     return " GROUP BY ".implode(", ", $cols);
   }

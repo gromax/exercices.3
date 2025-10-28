@@ -27,7 +27,10 @@ final class ExoDevoir extends Item
   protected static function joinedTables()
   {
     return [
-      'inner' => ['idDevoir' => 'devoirs.id', 'idExo' => 'exercices.id'],
+      'inner' => [
+        'devoirs' => 'exodevoirs.idDevoir = devoirs.id',
+        'exercices' => 'exodevoirs.idExo = exercices.id'
+      ],
     ];
   }
 
