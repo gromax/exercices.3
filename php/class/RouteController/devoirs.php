@@ -41,7 +41,7 @@ class devoirs
         'wheres' => ['idOwner'=> $uLog->getId()]
       ]);
       if ($uLog->isEleve()) return Devoir::getList([
-        'wheres' => ['idClasse' => $uLog->getClasseId()]
+        'wheres' => ['idClasse' => $uLog->get('idClasse')]
       ]);
       EC::addError("Pas les droits pour accéder aux devoirs.");
       EC::set_error_code(403);
@@ -63,7 +63,7 @@ class devoirs
         EC::set_error_code(404);
         return false;
       }
-      if ( $uLog->isAdmin() || $oDevoir->get("idOwner") === $uLog->getId() || $oDevoir->get("idClasse") === $uLog->getClasseId() )
+      if ( $uLog->isAdmin() || $oDevoir->get("idOwner") === $uLog->getId() || $oDevoir->get("idClasse") === $uLog->get('idClasse') )
       {
         return $oDevoir->toArray();
       }
