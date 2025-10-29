@@ -78,7 +78,7 @@ abstract class Item
     return array();
   }
 
-  protected static function sqlGetFieldsNames($hideCols = array())
+  protected static function sqlGetFieldsNames($hideCols, $forcecols)
   {
     $champs = static::champs();
     $bddName = static::$BDDName;
@@ -95,6 +95,9 @@ abstract class Item
       } else {
         $keys[] = "$bddName.`$key`";
       }
+    }
+    foreach ($forcecols as $key) {
+      $keys[] = static::$BDDName.".`$key`";
     }
     return implode(", ",$keys);
   }
@@ -130,20 +133,31 @@ abstract class Item
    */
   protected static function sqlGetWhere($wheres)
   {
-    $whereStrings = array_map(
-      function($key) {
-        if (strpos($key,".")===false) {
-          $t1 = static::$BDDName;
-          $c1 = $key;
-        } else {
-          [$t1, $c1] = explode(".",$key);
-        }
-        return "$t1.`$c1`=:".str_replace(".","_",$key);
-      }, array_keys($wheres)
-    );
-    if (count($wheres) > 0) {
-      return "WHERE ".implode(" AND ",$whereStrings);
-    } else {
+    $champs = static::champs();
+    $whereItems = [];
+    foreach ($wheres as $key => $value)
+    {
+      $operator = is_array($value) ? $value[0] : "=";
+      if (strpos($key,".")!==false)
+      {
+        [$t1, $c1] = explode(".",$key);
+        $whereItems[] = "$t1.`$c1` $operator :".str_replace(".","_",$key);
+        continue;
+      }
+      if (isset($champs[$key]) && isset($champs[$key]['foreign']))
+      {
+        // clé étrangère avec un alias
+        EC::addError("Ne pas créer de WHERE sur une clé étrangère avec alias : $key");
+        continue;
+      }
+      $whereItems[] = static::$BDDName.".`$key` $operator :$key";
+    }
+    if (count($whereItems) > 0)
+    {
+      return "WHERE ".implode(" AND ",$whereItems);
+    }
+    else
+    {
       return "";
     }
   }
@@ -160,11 +174,11 @@ abstract class Item
     }
   }
 
-  protected static function sqlGetSELECT($hideCols = array())
+  protected static function sqlGetSELECT($hideCols, $forcecols)
   {
     $bddName = static::$BDDName;
     $prefixedBddName = PREFIX_BDD.static::$BDDName;
-    $fields = static::sqlGetFieldsNames($hideCols);
+    $fields = static::sqlGetFieldsNames($hideCols, $forcecols);
     $innerJoined = static::sqlGetJoin("inner");
     $leftJoined = static::sqlGetJoin("left");
     return "SELECT $bddName.id, $fields FROM ($prefixedBddName AS $bddName $innerJoined $leftJoined)";
@@ -184,7 +198,7 @@ abstract class Item
 
   public static function getList($filter = [])
   {
-    $args = ["wheres", "hideCols"];
+    $args = ["wheres", "hideCols", "forcecols"];
     foreach ($filter as $key => $value) {
       if (!$key) {
         EC::addError("getList : clé vide dans le filtre.");
@@ -197,12 +211,13 @@ abstract class Item
     }
     if (isset($filter['wheres'])) $wheres = $filter['wheres']; else $wheres = array();
     if (isset($filter['hideCols'])) $hideCols = $filter['hideCols']; else $hideCols = array();
+    if (isset($filter['forcecols'])) $forcecols = $filter['forcecols']; else $forcecols = array();
     $where = static::sqlGetWhere($wheres);
     $groupby = static::sqlGetGROUPBY();
     require_once BDD_CONFIG;
     try {
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
-      $select = static::sqlGetSELECT($hideCols);
+      $select = static::sqlGetSELECT($hideCols, $forcecols);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       $stmt = $pdo->prepare("$select $where $groupby");
       foreach ($wheres as $k => $v) {
@@ -221,6 +236,66 @@ abstract class Item
       return $bdd_result;
   }
 
+  public static function getObject($idInput)
+  {
+    if (!is_numeric($idInput)) {
+      return null;
+    }
+    require_once BDD_CONFIG;
+    try {
+      $bddName = static::$BDDName;
+      $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $select = static::sqlGetSELECT([], []);
+      $stmt = $pdo->prepare("$select WHERE $bddName.id = :id");
+      $stmt->bindValue(':id', $idInput, PDO::PARAM_INT);
+
+      $stmt->execute();
+      $bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
+      if ($bdd_result === null) return null;
+      $item = new static($bdd_result);
+      return $item;
+    } catch(PDOException $e) {
+      EC::addBDDError($e->getMessage(),static::$BDDName."/getObject");
+    }
+    return null;
+  }
+
+  protected static function filterInsert($values)
+  {
+    $champs = static::champs();
+    $toInsert = array_intersect_key($values, $champs);
+    unset($toInsert['id']);
+    foreach ($champs as $key => $value) {
+      if ($value['foreign'] ?? false) {
+        // champ de jointure, on ne l'insère pas
+        unset($toInsert[$key]);
+      }
+    }
+    return $toInsert;
+  }
+  
+  protected static function filterUpdate($params)
+  {
+    $toUpdate = array_intersect_key($params, static::champs());
+    unset($toUpdate['id']);
+    $champs = static::champs();
+    foreach ($champs as $key => $value) {
+      if ($value['foreign'] ?? false) {
+        // champ de jointure, on ne l'insère pas
+        unset($toUpdate[$key]);
+      }
+    }
+    return $toUpdate;
+  }
+
+  protected static function insertValidation($params)
+  {
+    return true;
+  }
+
+
+  ##################################### METHODES #####################################
 
   public function __construct($options=array())
   {
@@ -236,32 +311,6 @@ abstract class Item
       $this->values["id"] = $this->id;
     }
   }
-
-  public static function getObject($idInput)
-  {
-    if (!is_numeric($idInput)) {
-      return null;
-    }
-    require_once BDD_CONFIG;
-    try {
-      $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $select = static::sqlGetSELECT();
-      $stmt = $pdo->prepare("$select WHERE s.id = :id");
-      $stmt->bindValue(':id', $idInput, PDO::PARAM_INT);
-
-      $stmt->execute();
-      $bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
-      if ($bdd_result === null) return null;
-      $item = new static($bdd_result);
-      return $item;
-    } catch(PDOException $e) {
-      EC::addBDDError($e->getMessage(),static::$BDDName."/getObject");
-    }
-    return null;
-  }
-  
-  ##################################### METHODES #####################################
 
   public function parse($params=array())
   {
@@ -386,33 +435,14 @@ abstract class Item
     }
   }
 
-  protected function filterInsert()
-  {
-    $champs = static::champs();
-    $toInsert = array_intersect_key($this->values, $champs);
-    unset($toInsert['id']);
-    foreach ($champs as $key => $value) {
-      if ($value['foreign'] ?? false) {
-        // champ de jointure, on ne l'insère pas
-        unset($toInsert[$key]);
-      }
-    }
-    return $toInsert;
-  }
-
-  protected function insertValidation($params)
-  {
-    return true;
-  }
-
   public function insert()
   {
-    $toInsert = $this->filterInsert();
-
-    $valid = $this->insertValidation($toInsert);
+    $values = $this->values;
+    $valid = static::insertValidation($values);
     if ($valid !== true) {
       return array("errors" => $valid);
     }
+    $toInsert = static::filterInsert($values);
 
     if (count($toInsert) === 0) {
       EC::add(static::$BDDName."/insert : Aucune donnée à insérer.");
@@ -427,7 +457,14 @@ abstract class Item
       $tokens_values = implode(", ", array_map(function($k){ return ":$k"; }, array_keys($toInsert)));
       $stmt = $pdo->prepare("INSERT INTO ".PREFIX_BDD.static::$BDDName." ( $champs ) VALUES ( $tokens_values )");
       foreach ($toInsert as $k => $v) {
-        $stmt->bindValue(":$k", $v, static::$TYPES[static::champs()[$k]['type']] ?? PDO::PARAM_STR);
+        $champs = static::champs();
+        if (isset($champs[$k]) && isset($champs[$k]['type']))
+        {
+          $type = $champs[$k]['type'];
+        } else {
+          $type = PDO::PARAM_STR;
+        }
+        $stmt->bindValue(":$k", $v, $type);
       }
       $stmt->execute();
     } catch(PDOException $e) {
@@ -443,21 +480,6 @@ abstract class Item
   protected function updateValidation($params)
   {
     return true;
-  }
-
-  protected function filterUpdate($params)
-  {
-
-    $toUpdate = array_intersect_key($params, static::champs());
-    unset($toUpdate['id']);
-    $champs = static::champs();
-    foreach ($champs as $key => $value) {
-      if ($value['foreign'] ?? false) {
-        // champ de jointure, on ne l'insère pas
-        unset($toUpdate[$key]);
-      }
-    }
-    return $toUpdate;
   }
 
   public function update($params=array(),$updateBDD=true)
@@ -476,7 +498,7 @@ abstract class Item
     }
 
     // filtre les modifications
-    $params = $this->filterUpdate($params);
+    $params = static::filterUpdate($params);
     if (count($params) === 0) {
       EC::add(static::$BDDName."/update : Aucune modification.");
       return false;
@@ -514,6 +536,12 @@ abstract class Item
   public function get($key)
   {
     return $this->values[$key] ?? null;
+  }
+
+  public function set($key, $value)
+  {
+    $this->values[$key] = $value;
+    return $this;
   }
 
   public function getValues()
