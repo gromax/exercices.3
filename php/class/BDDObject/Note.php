@@ -35,7 +35,7 @@ final class Note extends Item
 
   public static function getList($filter = [])
   {
-    $args = ["wheres"];
+    $args = ["wheres", "wheres_trials"];
     foreach ($filter as $key => $value) {
       if (!$key) {
         EC::addError("getList : clé vide dans le filtre.");
@@ -47,37 +47,54 @@ final class Note extends Item
       }
     }
 
+// requête à reprendre :
+/*
+SELECT users.id AS idUser, COALESCE(MAX(trials.note),0) AS note, exodevoirs.id AS idExoDevoir
+  FROM exo_users AS users
+  INNER JOIN exo_classes AS classes ON users.idClasse = classes.id
+  INNER JOIN exo_devoirs AS devoirs ON devoirs.idClasse = classes.id
+  INNER JOIN exo_exodevoirs AS exodevoirs ON exodevoirs.idDevoir = devoirs.id
+  LEFT JOIN exo_trials AS trials ON trials.idExoDevoir = exodevoirs.id AND trials.idUser = users.id
+  GROUP BY users.id, exodevoirs.id
+  ;
+*/
+
+
+
+    
     $request = "WITH mtrials AS (
-      SELECT exodevoirs.idDevoir as idDevoir, trials.idExoDevoir, idUser,
-      MAX(trials.note) AS max_note_exo_devoir
-      FROM ".PREFIX_BDD."trials AS trials
-      INNER JOIN ".PREFIX_BDD."exodevoirs AS exodevoirs ON exodevoirs.id = trials.idExoDevoir
-      INNER JOIN ".PREFIX_BDD."devoirs AS devoirs ON devoirs.id = exodevoirs.idDevoir
-      __where_trials_clause__ GROUP BY idExoDevoir, idUser
+      SELECT users.id AS idUser, COALESCE(MAX(trials.note),0) AS note, exodevoirs.id AS idExoDevoir, devoirs.id AS idDevoir
+      FROM ".PREFIX_BDD."users AS users
+      INNER JOIN ".PREFIX_BDD."classes AS classes ON users.idClasse = classes.id
+      INNER JOIN ".PREFIX_BDD."devoirs AS devoirs ON devoirs.idClasse = classes.id
+      INNER JOIN ".PREFIX_BDD."exodevoirs AS exodevoirs ON exodevoirs.idDevoir = devoirs.id
+      LEFT JOIN ".PREFIX_BDD."trials AS trials ON trials.idExoDevoir = exodevoirs.id AND trials.idUser = users.id
+      __where_trials_clause__
+      GROUP BY users.id, exodevoirs.id
     )
     SELECT devoirs.nom, devoirs.idOwner, devoirs.idClasse, classes.nom AS nomClasse,
            owners.nom AS nomOwner, users.nom AS nomUser, users.prenom AS prenomUser,
            devoirs.dateDebut, devoirs.dateFin,
-           AVG(mtrials.max_note_exo_devoir) AS note
+           CEIL(COALESCE(AVG(mtrials.note), 0)) AS note
     FROM ".PREFIX_BDD."devoirs AS devoirs
     INNER JOIN ".PREFIX_BDD."users AS owners ON owners.id = devoirs.idOwner
     INNER JOIN ".PREFIX_BDD."classes AS classes ON classes.id = devoirs.idClasse
     INNER JOIN ".PREFIX_BDD."users AS users ON users.idClasse = classes.id
-    LEFT JOIN max_trial ON max_trial.idDevoir = devoirs.id AND max_trial.idUser = users.id
+    LEFT JOIN mtrials ON mtrials.idDevoir = devoirs.id AND mtrials.idUser = users.id
     __where_clause__
-    GROUP BY devoirs.id";
+    GROUP BY devoirs.id, users.id";
     if (isset($filter['wheres'])) $wheres = $filter['wheres']; else $wheres = array();
-    $where1 = array_intersect_key($wheres, array_flip(['trials.idUser', 'devoirs.idClasse', 'devoirs.id']));
-    $where2 = array_intersect_key($wheres, array_flip(['devoirs.id', 'users.id', 'classes.id', 'devoirs.idOwner']));
-    $request = str_replace("__where_trials_clause__", static::sqlGetWhere($where1), $request);
-    $request = str_replace("__where_clause__", static::sqlGetWhere($where2), $request);
+    if (isset($filter['wheres_trials'])) $wheres_trials = $filter['wheres_trials']; else $wheres_trials = array();
+    $request = str_replace("__where_trials_clause__", static::sqlGetWhere($wheres_trials), $request);
+    $request = str_replace("__where_clause__", static::sqlGetWhere($wheres), $request);
+    $wheres_globals = array_merge($wheres, $wheres_trials);
     require_once BDD_CONFIG;
     try
     {
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       $stmt = $pdo->prepare($request);
-      foreach ($wheres as $k => $v) {
+      foreach ($wheres_globals as $k => $v) {
         $stmt->bindValue(
           ":".str_replace(".", "_", $k),
           (string) $v
@@ -95,25 +112,23 @@ final class Note extends Item
     return $bdd_result;
   }
 
+  protected static function insertValidation($params)
+  {
+    return false;
+  }
+
   ##################################### METHODES #####################################
-
-  protected function okToDelete()
-  {
-    EC::addError("Une note ne peut pas être supprimée directement.");
-    return false;
-  }
-
-  protected function insertValidation($params)
-  {
-    return false;
-  }
 
   protected function updateValidation($params)
   {
     return false;
   }
 
-
+  protected function okToDelete()
+  {
+    EC::addError("Une note ne peut pas être supprimée directement.");
+    return false;
+  }
 }
 
 ?>
