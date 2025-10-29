@@ -1,25 +1,14 @@
-import Backbone from 'backbone'
+import { MyModel } from '../common/entity.js'
 import Radio from 'backbone.radio'
 
 const channel = Radio.channel('app');
 
-const Session = Backbone.Model.extend({
+const Session = MyModel.extend({
     urlRoot: "api/session",
 
     defaults: {
         isOff: true,
         age: 0
-    },
-
-    sync(method, model, options) {
-        options = options || {};
-        const token = localStorage.getItem('jwt');
-        options.beforeSend = function (xhr) {
-            if (token) {
-            xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-            }
-        };
-        return Backbone.sync(method, model, options);
     },
 
     validate(attrs, options) {
