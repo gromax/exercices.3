@@ -72,8 +72,10 @@ SELECT users.id AS idUser, COALESCE(MAX(trials.note),0) AS note, exodevoirs.id A
       __where_trials_clause__
       GROUP BY users.id, exodevoirs.id
     )
-    SELECT devoirs.nom, devoirs.idOwner, devoirs.idClasse, classes.nom AS nomClasse,
-           owners.nom AS nomOwner, users.nom AS nomUser, users.prenom AS prenomUser,
+    SELECT devoirs.id AS idDevoir, devoirs.nom,
+           devoirs.idClasse, classes.nom AS nomClasse,
+           owners.nom AS nomOwner, devoirs.idOwner AS idOwner,
+           users.nom AS nomUser, users.prenom AS prenomUser, users.id AS idUser,
            devoirs.dateDebut, devoirs.dateFin,
            CEIL(COALESCE(AVG(mtrials.note), 0)) AS note
     FROM ".PREFIX_BDD."devoirs AS devoirs
