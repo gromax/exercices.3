@@ -71,10 +71,7 @@ final class Classe extends Item
     return array("error"=>"Mot de passe invalide.");
   }
 
-
-  ##################################### METHODES #####################################
-
-  protected function insertionValidation($params)
+  protected static function insertionValidation($params)
   {
     // vérifie si l'utilisateur peut-être inséré
     $errors = array();
@@ -92,9 +89,11 @@ final class Classe extends Item
       return true;
   }
 
+  ##################################### METHODES #####################################
+
   protected function updateValidation($params)
   {
-    return $this->insertionValidation($params);
+    return static::insertionValidation($params);
   }
 
   public function hasUser($user)
