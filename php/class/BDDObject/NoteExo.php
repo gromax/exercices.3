@@ -56,7 +56,18 @@ final class NoteExo extends Item
     ];
   }
 
+  protected static function insertValidation($params)
+  {
+    return false;
+  }
+
   ##################################### METHODES ###############################
+
+  protected function updateValidation($params)
+  {
+    return false;
+  }
+
 
   protected function okToDelete()
   {
@@ -64,15 +75,7 @@ final class NoteExo extends Item
     return false;
   }
 
-  protected function insertValidation($params)
-  {
-    return false;
-  }
 
-  protected function updateValidation($params)
-  {
-    return false;
-  }
 
   ##################################### METHODES PUBLIQUES ###############################
 
