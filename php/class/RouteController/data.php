@@ -112,10 +112,10 @@ class data
         $toLoad = [
             "sujetsexercices"=>[],
             "exodevoirs" => [
-                'wheres' => ['devoirs.idClasse' => $uLog->getClasseId('idClasse') ],
+                'wheres' => ['devoirs.idClasse' => $uLog->get('idClasse') ],
             ],
             "classes" => [
-                'wheres' => ['id'=> $uLog->getClasseId('idClasse') ]
+                'wheres' => ['id'=> $uLog->get('idClasse') ]
             ],
             "notesexos" => [
                 'wheres' => ['users.idUser'=> $uLog->get('id') ]
@@ -163,7 +163,7 @@ class data
                 'wheres' => ['devoirs.idOwner'=> $uLog->get('id') ],
             ],
             "users" => [
-                'classes'=>array_keys( $uLog->ownerOf() )
+                'wheres' => ['classes.idOwner'=> $uLog->getId()]
             ],
             "classes" => [
                 'wheres' => ['idOwner'=> $uLog->get('id') ]
