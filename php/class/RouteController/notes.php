@@ -34,11 +34,14 @@ class notes
 
     if ($uLog->isAdmin()) return Note::getList();
     if ($uLog->isProf()) return Note::getList([
-      'wheres' => ['devoirs.idOwner'=> $uLog->getId()]
+      'wheres' => ['devoirs.idOwner'=> $uLog->getId()],
+      'wheres_trials' => ['devoirs.idOwner'=> $uLog->getId()]
     ]);
     if ($uLog->isEleve()) return Note::getList([
       'wheres' => [
-        'users.id' => $uLog->getId(),
+        'users.id' => $uLog->getId()
+      ],
+      'wheres_trials' => [
         'trials.idUser' => $uLog->getId()
       ]
     ]);
@@ -64,7 +67,9 @@ class notes
       EC::set_error_code(404);
       return false;
     }
-    if (!$uLog->isAdmin() && $oDevoir->get("idOwner") !== $uLog->getId() && $oDevoir->get("idClasse") !== $uLog->getClasseId())
+    if (!$uLog->isAdmin()
+       && $oDevoir->get("idOwner") !== $uLog->getId()
+       && $oDevoir->get("idClasse") !== $uLog->get('idClasse'))
     {
       EC::addError("Pas les droits pour accéder à ce devoir.");
       EC::set_error_code(403);
@@ -74,6 +79,9 @@ class notes
       return Note::getList([
         'wheres' => [
           'users.id' => $uLog->getId(),
+          'devoirs.id' => $idDevoir
+        ],
+        'wheres_trials' => [
           'trials.idUser' => $uLog->getId(),
           'devoirs.id' => $idDevoir
         ]
@@ -81,6 +89,9 @@ class notes
     }
     return Note::getList([
       'wheres' => [
+        'devoirs.id' => $idDevoir
+      ],
+      'wheres_trials' => [
         'devoirs.id' => $idDevoir
       ]
     ]);
