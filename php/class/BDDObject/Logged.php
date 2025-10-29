@@ -15,16 +15,16 @@ class Logged extends User
   private static $_connectedUser=null;
 
   private $lastTime = null;
-  private $ip = null;
+  //private $ip = null;
   private $isConnected = null;  // Permet d'éviter de répéter la modification de bdd en vas de plusieurs check de connexion
-  private $_ownerOf = null;   // ids des classes dont l'utilisateur est propriétaire
+
 
   ##################################### METHODES STATIQUES #####################################
 
   public function __construct($params=array())
   {
     parent::__construct($params);
-    $this->ip=$_SERVER['REMOTE_ADDR'];
+    //$this->ip = $_SERVER['REMOTE_ADDR'];
     $this->refreshTimeOut();
   }
 
@@ -33,21 +33,30 @@ class Logged extends User
     if ( (self::$_connectedUser === null) || ($force === true) )
     {
       $data = SC::verify_token();
-      if ($data === null) {
+      if ($data === null)
+      {
         self::$_connectedUser = new Logged();
-      } else {
-        self::$_connectedUser = new Logged(array(
-          "id" => $data->id,
-          "email" => $data->email,
-          "rank" => $data->rank
-        ));
-        self::$_connectedUser->consolidate();
+        return self::$_connectedUser;
       }
+      $results = User::getList([
+        'wheres' => [
+          'id' => (integer) $data->id,
+          'email' => $data->email,
+          'rank' => $data->rank
+        ]
+      ]);
+      if (count($results) == 0) {
+        // L'utilisateur n'existe plus
+        self::$_connectedUser = new Logged();
+        return self::$_connectedUser;
+      }
+      $result = $results[array_key_first($results)];
+      self::$_connectedUser = new Logged($result);
       return self::$_connectedUser;
     }
   }
 
-  public static function tryConnexion($identifiant, $pwd, $idClasse = null)
+  public static function tryConnexion($identifiant, $pwd)
   {
     if ($identifiant !== ''){
       if ($pwd === "") {
@@ -56,29 +65,23 @@ class Logged extends User
         return null;
       }
 
-      require_once BDD_CONFIG;
-      
-      try {
-        $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
-        $sql = "SELECT id, idClasse, nom, prenom, email, `rank`, pref, hash FROM " . PREFIX_BDD . "users WHERE email=:identifiant";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':identifiant', $identifiant);
-        $stmt->execute();
-        $bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
-      } catch(PDOException $e) {
-        EC::set_error_code(501);
-        EC::addBDDError($e->getMessage(), 'Logged/tryConnexion');
+      $results = User::getList(array(
+        'wheres' => array('email' => $identifiant),
+        'forcecols' => ['hash']
+      ));
+      if (count($results) == 0)
+      {
+        EC::addError("Mot de passe ou identifiant invalide.");
+        EC::set_error_code(422);
         return null;
       }
-
-      if ($bdd_result) {
-        // L'id existe, reste à vérifier le mot de passe
-        $hash = $bdd_result['hash'];
-        if (($hash=="") || (password_verify($pwd, $hash))) {
-          // Le hash correspond, connexion réussie
-          //$bdd_result["pwd"] = $pwd;
-          return new Logged($bdd_result);
-        }
+      $result = $results[array_key_first($results)];
+      $hash = $result['hash'];
+      if (($hash=="") || (password_verify($pwd, $hash)))
+      {
+        // Le hash correspond, connexion réussie
+        //$bdd_result["pwd"] = $pwd;
+        return new Logged($result);
       }
     }
     EC::addError("Mot de passe ou identifiant invalide.");
@@ -127,50 +130,17 @@ class Logged extends User
     return $this;
   }
 
-  private function consolidate()
-  {
-    require_once BDD_CONFIG;
-    try {
-      $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
-      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $stmt = $pdo->prepare("SELECT id, idClasse, nom, prenom, email, pref, `rank` FROM ".PREFIX_BDD."users WHERE id=:id");
-      $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
-      $stmt->execute();
-      $bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);
-      if (($bdd_result) && ($this->email == $bdd_result['email']) && ($this->rank == $bdd_result['rank'])){
-        $this->idClasse = $bdd_result['idClasse'];
-        $this->nom = $bdd_result['nom'];
-        $this->prenom = $bdd_result['prenom'];
-        $this->email = $bdd_result['email'];
-        $this->pref = $bdd_result['pref'];
-        $this->rank = $bdd_result['rank'];
-      } else {
-        // L'utilisateur a été supprimé ou son email/rank ont été modifiés
-        $this->id = null;
-        $this->idClasse = null;
-        $this->nom = 'Disconnected';
-        $this->prenom = '';
-        $this->email = '';
-        $this->pref = '';
-        $this->rank = self::RANK_DISCONNECTED;
-      }
-    } catch(PDOException $e) {
-      EC::addBDDError($e->getMessage(), 'Logged/consolidate');
-    }
-    return $this;
-  }
-
   public function connexionOk()
   {
     if ($this->isConnected === null)
     {
-      if ($this->rank==self::RANK_DISCONNECTED)
+      if ($this->get('rank') == self::RANK_DISCONNECTED)
       {
-       $this->isConnected=false;
+        $this->isConnected = false;
       }
       else
       {
-        $this->isConnected= ( ((time()-$this->lastTime)<self::TIME_OUT) && ($this->id !== null));
+        $this->isConnected = ( ((time()-$this->lastTime)<self::TIME_OUT) && ($this->id !== null));
       }
     }
     if ($this->isConnected)
@@ -179,31 +149,6 @@ class Logged extends User
     }
     return ($this->isConnected === true);
   }
-
-  public function ownerOf($forceRefresh = false)
-  {
-    if (($this->_ownerOf === null) || ($forceRefresh))
-    {
-      if ($this->isProf())
-      {
-        $this->_ownerOf = Classe::getList([
-          "wheres" => ['idOwner' => $this->id]
-        ]);
-      }
-      else
-      {
-        // Seul un prof peut être propriétaire d'une classe
-        $this->_ownerOf = array();
-      }
-    }
-    return $this->_ownerOf;
-  }
-
-  public function isOwnerOf($idClasse)
-  {
-    return array_key_exists($idClasse, $this->ownerOf());
-  }
-
 }
 
 ?>

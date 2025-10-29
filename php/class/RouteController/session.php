@@ -27,10 +27,17 @@ class session
         $uLog = Logged::getConnectedUser();
         $data = $this->getData($uLog);
         // ajout du token si l'utilisateur est connecté
-        if ($uLog->connexionOk()) {
+        if ($uLog->connexionOk())
+        {
             return array_merge(
                 $data,
-                array("token" => SC::make_token($uLog->getId(), $uLog->getEmail(), $uLog->getRank()) )
+                [
+                    "token" => SC::make_token(
+                        $uLog->getId(),
+                        $uLog->get('email'),
+                        $uLog->get('rank')
+                    )
+                ]
             );
         }
         return $data;
@@ -94,13 +101,17 @@ class session
             return false;
         }
 
-        return array(
+        return [
             "logged"=> array_merge(
                 $userToConnect->toArray(),
                 array("unread"=>Message::unReadNumber($userToConnect->getId())),
             ),
-            "token"=>SC::make_token($userToConnect->getId(), $userToConnect->getEmail(), $userToConnect->getRank())
-        );
+            "token" => SC::make_token(
+                $userToConnect->getId(),
+                $userToConnect->get('email'),
+                $userToConnect->get('rank')
+            )
+        ];
     }
 
     public function logged()
