@@ -5,6 +5,7 @@ const Item = Backbone.Model.extend ({
     idExo:null,
     title: "",
     idDevoir: null,
+    description: "",
     options: "",
     idOwner: 0,
     idClasse: 0,
@@ -13,7 +14,7 @@ const Item = Backbone.Model.extend ({
     nomUser: "",
     prenomUser: "",
     note: 0,
-    trialNumber: 0
+    trialsNumber: 0
   },
 
   toString() {
@@ -22,12 +23,13 @@ const Item = Backbone.Model.extend ({
   },
 
   parse(data) {
-    if (data.id) data.id = Number(data.id);
+    data.idUser = Number(data.id);
+    data.id = `${data.idExoDevoir}_${data.id}`;
     data.idExo = Number(data.idExo);
+    data.idExoDevoir = Number(data.idExoDevoir);
     data.idDevoir = Number(data.idDevoir);
-    data.idUser = Number(data.idUser);
     data.note = Number(data.note);
-    data.trialNumber = Number(data.trialNumber);
+    data.trialsNumber = Number(data.trialsNumber);
     data.num = Number(data.num);
     data.idOwner = Number(data.idOwner);
     data.idClasse = Number(data.idClasse);
