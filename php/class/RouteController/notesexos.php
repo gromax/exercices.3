@@ -5,7 +5,7 @@ use ErrorController as EC;
 use BDDObject\NoteExo;
 use BDDObject\Logged;
 
-class notes
+class notesexos
 {
   /**
    * paramères de la requète
@@ -43,7 +43,7 @@ class notes
       'hideCols' => ['idOwner', 'idClasse']
     ]);
     if ($uLog->isEleve()) return NoteExo::getList([
-      'wheres' => ['devoirs.idClasse' => $uLog->getClasseId()],
+      'wheres' => ['devoirs.idClasse' => $uLog->get("idClasse")],
       'hideCols' => ['idOwner', 'idClasse']
     ]);
     EC::addError("Pas les droits pour accéder aux associations.");
@@ -66,7 +66,7 @@ class notes
       EC::set_error_code(404);
       return false;
     }
-    if ( $uLog->isAdmin() || $oNote->get("idOwner") === $uLog->getId() || $oNote->get("idClasse") === $uLog->getClasseId() )
+    if ( $uLog->isAdmin() || $oNote->get("idOwner") === $uLog->getId() || $oNote->get("idClasse") === $uLog->get("idClasse") )
     {
       return $oNote->toArray();
     }
