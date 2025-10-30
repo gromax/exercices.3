@@ -52,26 +52,21 @@ const Controller = MnObject.extend ({
   listUsers(criterion) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
-    const forProf = () => {
-      channel.trigger("ariane:reset", [{ text:"Utilisateurs", link:"users"}]);
-      channel.trigger("loading:up");
-      const fetchingUsers = channel.request("custom:entities", ["users"]);
-      $.when(fetchingUsers).done((users) => {
-        require("./list/controller.js").controller.listUsers(users, logged.get("rank"), criterion);
-      }).fail((response) => {
-        channel.trigger("data:fetch:fail", response);
-      }).always(() => {
-        channel.trigger("loading:down");
-      });
-    };
+    if (!logged.isAdmin() && !logged.isProf()) {
+      channel.trigger("not:found");
+      return;
+    }
 
-    const todo = logged.mapItem({
-      "admin": forProf,
-      "prof": forProf,
-      "eleve": () => channel.trigger("not:found"),
-      "def": () => channel.trigger("home:login")
+    channel.trigger("ariane:reset", [{ text:"Utilisateurs", link:"users"}]);
+    channel.trigger("loading:up");
+    const fetchingUsers = channel.request("custom:entities", ["users"]);
+    $.when(fetchingUsers).done((users) => {
+      require("./list/controller.js").controller.listUsers(users, logged.get("rank"), criterion);
+    }).fail((response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always(() => {
+      channel.trigger("loading:down");
     });
-    todo();
   },
 
   showUser(id) {
