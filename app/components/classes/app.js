@@ -34,113 +34,99 @@ const Controller = MnObject.extend ({
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
 
-    const forProf = () => {
-      channel.trigger("ariane:reset", [{ text: "Classes", e: "classes:list", link: "classes" }]);
-      channel.trigger("loading:up");
-      const fetching = channel.request("custom:entities", ["classes"]);
-      $.when(fetching).done( (classes) => {
-        require("./list/controller.js").controller.list(classes, false);
-      }).fail( (response) => {
-        channel.trigger("data:fetch:fail", response);
-      }).always( () => {
-        channel.trigger("loading:down");
-      });
-    };
-
-    const todo = logged.mapItem({
-      "admin": forProf,
-      "prof": forProf,
-      "eleve": () => channel.trigger("not:found"),
-      "def": () => channel.trigger("home:login")
+    if(logged.isEleve() || logged.isOff()) {
+      channel.trigger("not:found");
+      return;
+    }
+    channel.trigger("loading:up");
+    const fetching = channel.request("custom:entities", ["classes"]);
+    $.when(fetching).done( (classes) => {
+      require("./list/controller.js").controller.list(classes);
+    }).fail( (response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always( () => {
+      channel.trigger("loading:down");
     });
-    todo();
+
   },
 
   classeShow(id) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
 
-    const forProf = () => {
-      channel.trigger("loading:up");
-      const fetching = channel.request("data:getitem", "classes", id);
-      $.when(fetching).done( (classe) => {
-        require("./show/controller.js").controller.show(id, classe);
-      }).fail( (response) => {
-        channel.trigger("data:fetch:fail", response);
-      }).always( () => {
-        channel.trigger("loading:down");
-      });
-    };
+    if (logged.isEleve() || logged.isOff()) {
+      channel.trigger("not:found");
+      return;
+    }
 
-    const todo = logged.mapItem({
-      "admin": forProf,
-      "prof": forProf,
-      "eleve": () => channel.trigger("not:found"),
-      "def": () => channel.trigger("home:login")
+    channel.trigger("loading:up");
+    const fetching = channel.request("data:getitem", "classes", id);
+    $.when(fetching).done( (classe) => {
+      if (classe === undefined) {
+        channel.trigger("not:found");
+        return;
+      }
+      require("./show/controller.js").controller.show(id, classe);
+    }).fail( (response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always( () => {
+      channel.trigger("loading:down");
     });
-    todo();
+
   },
 
   classeEdit(id) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
-    
-    const forProf = () => {
-      channel.trigger("ariane:reset", [{ text:"Classes", e:"classes:list", link:"classes"}]);
-      channel.trigger("loading:up");
-      $.when(channel.request("data:getitem", "classes", id)).done( (classe) => {
-        require("./edit/controller.js").controller.edit(id, classe);
-      }).fail( (response) => {
-        channel.trigger("data:fetch:fail", response);
-      }).always( () => {
-        channel.trigger("loading:down");
-      });
+
+    if (!logged.isProf() && !logged.isAdmin()) {
+      channel.trigger("not:found");
+      return;
     }
 
-    const todo = logged.mapItem({
-      "admin": forProf,
-      "prof": forProf,
-      "eleve": () => channel.trigger("not:found"),
-      "def": () => channel.trigger("home:login")
+    channel.trigger("loading:up");
+    $.when(channel.request("data:getitem", "classes", id)).done( (classe) => {
+      if (classe === undefined) {
+        channel.trigger("not:found");
+        return;
+      }
+      require("./edit/controller.js").controller.edit(id, classe);
+    }).fail( (response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always( () => {
+      channel.trigger("loading:down");
     });
-    todo();
   },
 
   classesProf(id) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
 
-    const forAdmin = () => {
-      channel.trigger("ariane:reset", [{ text: "Classes", e: "classes:list", link: "classes" }]);
-      channel.trigger("loading:up");
-      const fetching = channel.request("custom:entities", ["classes", "users"]);
-      $.when(fetching).done((classes, users) => {
-        const prof = users.get(id);
-        if (!prof) {
-          channel.trigger("not:found");
-          return;
-        }
-        require("./list/controller.js").controller.list(classes, prof);
-      }).fail((response) => {
-        channel.trigger("data:fetch:fail", response);
-      }).always(() => {
-        channel.trigger("loading:down");
-      });
-    };
+    if (!logged.isAdmin()) {
+      channel.trigger("not:found");
+      return;
+    }
 
-    const todo = logged.mapItem({
-      "Admin": forAdmin,
-      "Prof": () => channel.trigger("not:found"),
-      "Eleve": () => channel.trigger("not:found"),
-      "def": () => channel.trigger("home:login")
+    channel.trigger("loading:up");
+    const fetching = channel.request("custom:entities", ["classes", "users"]);
+    $.when(fetching).done((classes, users) => {
+      const prof = users.get(id);
+      if (!prof) {
+        channel.trigger("not:found");
+        return;
+      }
+      require("./list/controller.js").controller.list(classes, prof);
+    }).fail((response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always(() => {
+      channel.trigger("loading:down");
     });
-    todo();
   },
 
   classesToJoinShow() {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
-    if (logged.isAdmin() || logged.isProf() ) {
+    if (!logged.isOff()) {
       channel.trigger("not:found");
       return;
     }

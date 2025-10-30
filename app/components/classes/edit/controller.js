@@ -5,12 +5,14 @@ const Controller = MnObject.extend({
   channelName: "app",
   edit(id, classe) {
     const channel = this.getChannel();
-    if (classe === undefined) {
-      channel.trigger("ariane:add", { text: "Classe inconnue", link: `classe:${id}/edit` });
-      channel.trigger("missing:item");
+    
+    if (!classe) {
+      channel.trigger("popup:error", "Classe indéfinie.");
       return;
     }
+    
     channel.trigger("ariane:add", [
+      { text:"Classes", e:"classes:list", link:"classes"},
       { text: classe.get("nom"), link: `classe:${id}` },
       { text: "Modification", link: `classe:${id}/edit` },
     ]);

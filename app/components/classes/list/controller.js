@@ -4,8 +4,18 @@ import { ClassesCollectionView, ClassesPanel, ListLayout } from './views.js'
 const Controller = MnObject.extend({
   channelName: 'app',
 
-  list(classes, prof = false) {
+  list(classes, prof = null) {
     const channel = this.getChannel();
+
+    if (!prof) {
+      channel.trigger("ariane:reset", [{ text: "Classes", link: "classes" }]);
+    } else {
+      channel.trigger("ariane:reset", [
+        { text: "Classes", link: "classes" },
+        { text: `Classes de ${prof.get("nomComplet")}`, link: `classes/prof:${prof.get("id")}` }
+      ]);
+    }
+
     const logged = channel.request("logged:get");
     const listItemsLayout = new ListLayout()
     const listItemsPanel = new ClassesPanel({
@@ -20,25 +30,15 @@ const Controller = MnObject.extend({
       showProfName: !prof && logged.isAdmin()
     });
 
-    if (prof) {
-      channel.trigger("ariane:add", [
-        { text: `Classes de ${prof.get("nomComplet")}`, e: "classes:prof", data: id, link: `classes/prof:${id}` }
-      ]);
-      listItemsView.trigger("set:filter:criterion", prof.get("id") + prof.get("nom") + prof.get("prenom"), { preventRender: true });
-    }
-
     listItemsLayout.on("render", () => {
       listItemsLayout.getRegion('panelRegion').show(listItemsPanel);
       listItemsLayout.getRegion('itemsRegion').show(listItemsView);
     });
 
-    if (!prof) {
-      // en mode classe/prof, je ne permet pas la navigation qui serait de toute façon déroutante
-      listItemsView.on("item:show", (childView) => {
-        const model = childView.model;
-        channel.trigger("classe:show", model.get("id"));
-      });
-    }
+    listItemsView.on("item:show", (childView) => {
+      const model = childView.model;
+      channel.trigger("classe:show", model.get("id"));
+    });
 
     listItemsView.on("item:classes:prof", (childView) => {
       channel.trigger("classes:prof", childView.model.get("idOwner"));
