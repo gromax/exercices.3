@@ -115,7 +115,8 @@ const Controller = MnObject.extend ({
         channel.trigger("not:found");
         return;
       }
-      require("./list/controller.js").controller.list(classes, prof);
+      filteredClasses = new classes.constructor(classes.filter((classe) => classe.get("idOwner") === prof.get("id")));
+      require("./list/controller.js").controller.list(filteredClasses, prof);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {
