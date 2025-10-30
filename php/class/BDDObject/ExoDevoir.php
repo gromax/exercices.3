@@ -16,6 +16,7 @@ final class ExoDevoir extends Item
     return [
       'idExo' => ['def' => 0, 'type'=> 'int'],       // id de l'exercice associé
       'title' => ['def' => "", 'type'=> 'string', 'foreign'=>'exercices.title'],    // titre de l'exercice
+      'description' => ['def' => "", 'type'=> 'string', 'foreign'=>'exercices.description'],    // description de l'exercice
       'idDevoir' => ['def' => 0, 'type'=> 'int'],      // id du devoir associé
       'options' => ['def' => "", 'type'=> 'string'],   // options de l'exercice, JSON
       'idOwner' => ['def' => 0, 'type'=> 'int', 'foreign'=>'devoirs.idOwner'],    // id du propriétaire (professeur)
