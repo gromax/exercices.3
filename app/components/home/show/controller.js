@@ -12,6 +12,8 @@ const Controller = MnObject.extend({
     new Region({ el: '#main-region'}).show(view);
   },
   showAdminHome() {
+    const channel = this.getChannel();
+    channel.trigger("ariane:reset", []);
     let unread = this.getChannel().request("logged:get").get("unread");
     const view = new AdminProfPanel({adminMode:true, unread:unread});
     view.on("show:list", (cible)=> this.getChannel().trigger(`${cible}:list`));
@@ -19,37 +21,18 @@ const Controller = MnObject.extend({
   },
 
   showProfHome() {
+    const channel = this.getChannel();
+    channel.trigger("ariane:reset", []);
     let unread = this.getChannel().request("logged:get").get("unread");
     const view = new AdminProfPanel({adminMode:false, unread:unread});
     new Region({ el: '#main-region'}).show(view);
   },
 
   showOffHome() {
+    const channel = this.getChannel();
+    channel.trigger("ariane:reset", []);
     const view = new OffView();
     new Region({ el: '#main-region'}).show(view);
-  },
-
-  showEleveHome() {
-    const channel = this.getChannel();
-    channel.trigger("loading:up");
-    let layout = new EleveLayout();
-    //require('entities/dataManager.coffee');
-    let fetchingData = channel.request("custom:entities", ["userfiches", "exofiches", "faits"]);
-    $.when(fetchingData).done( (userfiches, exofiches, faits) => {
-      const listEleveView = new EleveListeDevoirs({
-        collection: userfiches,
-        exofiches: exofiches,
-        faits: faits
-      });
-      listEleveView.on("item:devoir:show", (childView) => {
-        model = childView.model;
-        channel.trigger("devoir:show", model.get("id"));
-      });
-    }).fail( (response) => {
-      channel.trigger("data:fetch:fail", response);
-    }).always( function(){
-      channel.trigger("loading:down");
-    });
   },
 
   showLogOnForgottenKey(success) {
