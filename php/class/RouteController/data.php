@@ -113,6 +113,9 @@ class data
     {
         $toLoad = [
             "sujetsexercices"=>[],
+            "users" => [
+                'wheres' => ['id'=> $uLog->get('id') ]
+            ],
             "exodevoirs" => [
                 'wheres' => ['devoirs.idClasse' => $uLog->get('idClasse') ],
             ],
