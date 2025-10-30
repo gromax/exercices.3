@@ -128,43 +128,15 @@ class session
     {
         if ($uLog === null) $uLog = Logged::getConnectedUser();
         if ($uLog->connexionOk()) {
-            if($uLog->isRoot()) {
-                return array(
-                    "logged"=>array_merge(
-                        $uLog->toArray(),
-                        array("unread"=>Message::unReadNumber($uLog->getId()) )
-                    ),
-                    "messages"=>EC::messages()
-                );
-            } elseif ($uLog->isAdmin()) {
-                return array(
-                    "logged"=>array_merge(
-                        $uLog->toArray(),
-                        array("unread"=>Message::unReadNumber($uLog->getId()) )
-                    ),
-                    "messages"=>EC::messages()
-                );
-            } elseif ($uLog->isProf()) {
-                return array(
-                    "logged"=>array_merge(
-                        $uLog->toArray(),
-                        array("unread"=>Message::unReadNumber($uLog->getId()) )
-                    ),
-                    "messages"=>EC::messages()
-                );
-            } else {
-                return array(
-                    "logged"=>array_merge(
-                        $uLog->toArray(),
-                        array("unread"=>Message::unReadNumber($uLog->getId()) )
-                    ),
-                    "messages"=>EC::messages()
-                );
-            }
+            return [
+                "logged"=>array_merge(
+                    $uLog->toArray(),
+                    array("unread"=>Message::unReadNumber($uLog->getId()) )
+                ),
+                "messages"=>EC::messages()
+            ];
         }
-        return array(
-            "logged"=>$uLog->toArray()
-        );
+        return [ "logged"=>$uLog->toArray() ];
     }
 
     public function reinitMDP()
