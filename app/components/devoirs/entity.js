@@ -7,6 +7,8 @@ const Item = MyModel.extend ({
   defaults: {
     nomOwner: "",
     idOwner: null,
+    idClasse: null,
+    nomClasse: "",
     nom: "",
     description: "",
     dateDebut: "2000-01-01",
@@ -29,6 +31,7 @@ const Item = MyModel.extend ({
     data.timeleft = Misc.computeTimeLeft(data.dateDebut, data.dateFin);
     data.actif = (data.timeleft !== null);
     data.idOwner = Number(data.idOwner);
+    data.idClasse = Number(data.idClasse);
     return data;
   },
 
