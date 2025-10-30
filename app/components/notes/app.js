@@ -4,12 +4,29 @@ import {MnObject} from "backbone.marionette"
 const Controller = MnObject.extend({
   channelName: "app",
   radioEvents: {
-    "notes:devoir:user:show": "onShowNotesForDevoirUser"
+    "notes:devoir:user:show": "onShowNotesForDevoirUser",
+    "notes:my": "onShowMyNotes",
+    "notes:my:devoir": "onShowMyNotesForDevoir",
   },
 
   onShowNotesForDevoirUser(idDevoir, idUser) {
     Backbone.history.navigate(`devoir:${idDevoir}/notes/user:${idUser}`, { trigger: false });
     this.showNotesExosForDevoirUser(idDevoir, idUser);
+  },
+
+  onShowMyNotes() {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    if (!logged.isEleve()) {
+      return;
+    }
+    Backbone.history.navigate("home", { trigger: false });
+    this.showNotesListForEleve(logged.id);
+  },
+
+  onShowMyNotesForDevoir(idDevoir) {
+    Backbone.history.navigate(`mynotes:${idDevoir}`, { trigger: false });
+    this.showMyNotesExosForDevoir(idDevoir);
   },
 
   showNotesForDevoir(idDevoir) {
@@ -40,10 +57,21 @@ const Controller = MnObject.extend({
     });
   },
 
-  showNotesExosForDevoirUser(idDevoir, idUser) {
+  showMyNotesExosForDevoir(idDevoir) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
-    if (logged.isOff() || logged.isEleve()) {
+    if (!logged.isEleve()) {
+      channel.trigger("not:found");
+      return;
+    }
+    this.showNotesExosForDevoirUser(idDevoir, logged.id);
+  },
+
+  showNotesExosForDevoirUser(idDevoir, idUser) {
+    const channel = this.getChannel();
+    console.log("lalala");
+    const logged = channel.request("logged:get");
+    if (logged.isOff()) {
       channel.trigger("not:found");
       return;
     }
@@ -68,7 +96,30 @@ const Controller = MnObject.extend({
     }).always( () => {
       channel.trigger("loading:down");
     });
+  },
+
+  showNotesListForEleve(idUser) {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    channel.trigger("loading:up");
+    const fetching = channel.request("custom:entities", ["notes", "users"]);
+    $.when(fetching).done( (notes, users) => {
+      idUser = Number(idUser);
+      const user = users.find(u => u.id === idUser);
+      if (!user) {
+        channel.trigger("not:found");
+        return;
+      }
+      const notesDuUser = notes.filter(a => a.get('idUser') === user.id);
+      const collecNotes = new notes.constructor(notesDuUser);
+      require("./list/controller.js").controller.showNotesListForEleve(idUser, user, collecNotes);
+    }).fail( (response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always( () => {
+      channel.trigger("loading:down");
+    });
   }
+
 });
 
 const controller = new Controller();
@@ -76,7 +127,8 @@ const controller = new Controller();
 const Router = Backbone.Router.extend({
   routes: {
     "devoir::id/notes": "showNotesForDevoir",
-    "devoir::idDevoir/notes/user::idUser": "showNotesExosForDevoirUser"
+    "devoir::idDevoir/notes/user::idUser": "showNotesExosForDevoirUser",
+    "mynotes::id": "showMyNotesExosForDevoir",
   },
 
   showNotesForDevoir(id) {
@@ -85,6 +137,10 @@ const Router = Backbone.Router.extend({
 
   showNotesExosForDevoirUser(idDevoir, idUser) {
     controller.showNotesExosForDevoirUser(idDevoir, idUser);
+  },
+
+  showMyNotesExosForDevoir(idDevoir) {
+    controller.showMyNotesExosForDevoir(idDevoir);
   }
 });
 
