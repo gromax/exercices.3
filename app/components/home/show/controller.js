@@ -1,5 +1,5 @@
 import { MnObject, Region } from 'backbone.marionette';
-import { EleveListeDevoirs, EleveLayout, UnfinishedsView } from './home_eleve_views';
+import { EleveListeDevoirs, EleveLayout } from './home_eleve_views';
 import { NotFoundView } from './not_found_view';
 import { OffView } from './off_view';
 import { ForgottenKeyView } from './forgotten_key_view';
@@ -45,33 +45,6 @@ const Controller = MnObject.extend({
         model = childView.model;
         channel.trigger("devoir:show", model.get("id"));
       });
-      let unfinishedMessageView = null;
-      listeUnfinished = _.filter(
-        faits.where({ finished: false }),
-        function(item){
-          let uf = userfiches.get(item.get("aUF"));
-          if (uf.get("actif") && uf.get("ficheActive")){
-            return true;
-          } else {
-            return false;
-          }
-        }
-      );
-      let n = listeUnfinished.length;
-      if (n>0){
-        // Il existe des exerices non terminés, on affiche la vue correspondante
-        unfinishedMessageView = new UnfinishedsView({ number:n });
-        unfinishedMessageView.on("unfinished:show", () => {
-          this.getChannel().trigger("faits:unfinished");
-        });
-        layout.on("render", function(){
-          layout.getRegion('devoirsRegion').show(listEleveView);
-          if (unfinishedMessageView){
-            layout.getRegion('unfinishedRegion').show(unfinishedMessageView);
-          }
-        });
-        new Region({ el: '#main-region'}).show(layout);
-      }
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
     }).always( function(){

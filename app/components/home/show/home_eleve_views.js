@@ -2,7 +2,6 @@ import { View, CollectionView } from 'backbone.marionette';
 import eleve_no_devoir_tpl from '@templates/home/show/devoirs-list-eleve-none.jst';
 import eleve_devoir_item_tpl from '@templates/home/show/devoirs-list-eleve-item.jst';
 import eleve_layout_tpl from '@templates/home/show/eleve-view-layout.jst';
-import eleve_unfinisheds_tpl from '@templates/home/show/unfinished-message.jst';
 
 const EleveNoDevoirView = View.extend({
   template: eleve_no_devoir_tpl,
@@ -55,24 +54,7 @@ const EleveLayout = View.extend({
   }
 });
 
-const UnfinishedsView = View.extend({
-  tagName: "div",
-  className: "alert alert-warning",
-  template: eleve_unfinisheds_tpl,
-  templateContext() {
-    return {
-      number: this.getOption("number")
-    };
-  },
-  triggers: {
-    "click": "unfinished:show"
-  }
-});
-
-
-
 export {
   EleveListeDevoirs,
   EleveLayout,
-  UnfinishedsView
 };
