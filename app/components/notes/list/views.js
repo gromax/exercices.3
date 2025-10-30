@@ -23,7 +23,6 @@ const ItemView = View.extend({
   },
   templateContext() {
     return {
-      showId: this.getOption("showId"),
       showUser: this.getOption("showUser"),
       showDevoir: this.getOption("showDevoir"),
       showNomOwner: this.getOption("showNomOwner"),
