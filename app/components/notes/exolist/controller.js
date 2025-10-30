@@ -7,18 +7,17 @@ const Controller = MnObject.extend({
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
 
-    channel.trigger("ariane:reset", [
+    if (user.get('id') !== logged.get('id')) {
+      channel.trigger("ariane:reset", [
       { text: "Devoirs", link: "#devoirs" },
       { text: `Devoir : ${devoir.get('nom')}`, link: `#devoir:${idDevoir}` },
-      
-    ]);
-    if (user.get('id') !== logged.get('id')) {
-      channel.trigger("ariane:add", [
-        { text: "Notes", link: `#devoir:${idDevoir}/notes` },
-        { text: user.get('nomComplet'), link: `#devoir:${idDevoir}/notes/user:${idUser}` }
+      { text: "Notes", link: `#devoir:${idDevoir}/notes` },
+      { text: user.get('nomComplet'), link: `#devoir:${idDevoir}/notes/user:${idUser}` }
     ]);
     } else {
-      channel.trigger("ariane:add", { text: "Mes notes", link: `#devoir:${idDevoir}/notes/user:${idUser}` });
+      channel.trigger("ariane:reset", [
+        { text: devoir.get("nom"), link: `#mynotes:${idDevoir}` }
+      ]);
     }
 
     const layoutView = new LayoutView();
