@@ -4,6 +4,8 @@ const Item = Backbone.Model.extend ({
   defaults: {
     idDevoir: "",
     idExo: "",
+    title: "",
+    description: "",
     options: "",
     idOwner: 0,
     idClasse: 0,
