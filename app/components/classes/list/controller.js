@@ -5,6 +5,8 @@ const Controller = MnObject.extend({
   channelName: 'app',
 
   list(classes, prof = null) {
+    // classes peuvent être filtrées si on est dans le contexte d'un prof
+    // mais dans ce cas, pas de add possible
     const channel = this.getChannel();
 
     if (!prof) {
@@ -40,9 +42,11 @@ const Controller = MnObject.extend({
       channel.trigger("classe:show", model.get("id"));
     });
 
-    listItemsView.on("item:classes:prof", (childView) => {
-      channel.trigger("classes:prof", childView.model.get("idOwner"));
-    });
+    if (!prof && logged.isAdmin()) {
+      listItemsView.on("item:classes:prof", (childView) => {
+        channel.trigger("classes:prof", childView.model.get("idOwner"));
+      });
+    }
 
     listItemsView.on("item:edit", (childView) => {
       channel.trigger("classe:edit", childView.model.get("id"));
