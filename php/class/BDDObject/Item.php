@@ -85,15 +85,24 @@ abstract class Item
     $keys = array();
     foreach ($champs as $key => $val) {
       if (in_array($key,$hideCols)) continue;
+      if (isset($val['alias'])) {
+        $alias = $val['alias'];
+      } else {
+        $alias = $key;
+      }
       if (isset($val['foreign'])) {
         [$table, $col] = explode(".",$val['foreign']);
         if (isset($val['agregation'])) {
-          $keys[] = "COALESCE(".$val['agregation']."($table.`$col`), 0) AS `$key`";
+          $keys[] = "COALESCE(".$val['agregation']."($table.`$col`), 0) AS `$alias`";
         } else {
-          $keys[] = "$table.`$col` AS `$key`";
+          $keys[] = "$table.`$col` AS `$alias`";
         }
       } else {
-        $keys[] = "$bddName.`$key`";
+        if ($alias !== $key) {
+          $keys[] = "$bddName.`$key` AS `$alias`";
+        } else {
+          $keys[] = "$bddName.`$key`";
+        }
       }
     }
     foreach ($forcecols as $key) {
@@ -227,6 +236,7 @@ abstract class Item
         );
       }
       $stmt->execute();
+      //EC::add($stmt->queryString, static::$BDDName."/getList");
       $bdd_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
       } catch(PDOException $e) {
           EC::addBDDError($e->getMessage(), static::$BDDName."/getList");
@@ -373,36 +383,6 @@ abstract class Item
     }
     return true;
   }
-
-  /** fonction inutile :
-   * j'utilise les contraintes de clés étrangères avec ON DELETE CASCADE
-   * pour supprimer les enfants automatiquement
-   */
-  /*
-  protected function customDelete() {
-      // Méthode vide, à surcharger dans les enfants si besoin
-  }
-
-  protected function deleteChildren()
-  {
-    $children = static::children();
-    foreach ($children as $table => $child) {
-      $strangerId = $child['strangerId'];
-      require_once BDD_CONFIG;
-      try {
-        $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD.$table." WHERE $strangerId = :id");
-        $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
-        $stmt->execute();
-      } catch(PDOException $e) {
-        EC::addError($e->getMessage(), static::$BDDName."/deleteChildren");
-        return false;
-      }
-    }
-    return true;
-  }
-  */
 
   public function delete()
   {
