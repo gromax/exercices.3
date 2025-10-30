@@ -116,14 +116,18 @@ class data
             "users" => [
                 'wheres' => ['id'=> $uLog->get('id') ]
             ],
+            "devoirs" => [
+                'wheres' => ['idClasse'=> $uLog->get('idClasse') ]
+            ],
             "exodevoirs" => [
                 'wheres' => ['devoirs.idClasse' => $uLog->get('idClasse') ],
             ],
             "classes" => [
-                'wheres' => ['id'=> $uLog->get('idClasse') ]
+                'wheres' => ['id'=> $uLog->get('idClasse') ],
+                'hideCols' => ['pwd']
             ],
             "notesexos" => [
-                'wheres' => ['users.idUser'=> $uLog->get('id') ]
+                'wheres' => ['users.id'=> $uLog->get('id') ]
             ],
             "notes" => [
                 'wheres' => ['users.id'=> $uLog->get('id') ],
