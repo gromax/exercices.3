@@ -53,6 +53,9 @@ final class Message extends Item
 
   public static function unReadNumber($idUser)
   {
+    if ($idUser === null) {
+      return 0;
+    }
     require_once BDD_CONFIG;
     try{
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
