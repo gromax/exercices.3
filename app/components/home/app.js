@@ -29,17 +29,16 @@ const HomeApp = MnObject.extend({
   },
 
   showHome() {
-    this.getChannel().trigger("ariane:reset", []);
-    let controller = require("./show/controller.js").controller;
+    const channel = this.getChannel();
     let logged = this.getChannel().request("logged:get");
     if (logged.isAdmin()) {
-      controller.showAdminHome();
+      require("./show/controller.js").controller.showAdminHome();
     } else if(logged.isProf()) {
-      controller.showProfHome();
+      require("./show/controller.js").controller.showProfHome();
     } else if(logged.isEleve()) {
-      controller.showEleveHome();
+      channel.trigger("notes:my", logged.id);
     } else {
-      controller.showOffHome();
+      require("./show/controller.js").controller.showOffHome();
     }
   },
 
