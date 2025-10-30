@@ -11,12 +11,19 @@ const Controller = MnObject.extend({
       { text: "Notes", link: `#devoir:${idDevoir}/notes` }
     ])
     const notesView = new NotesCollectionView({
+      ncols: 2,
       collection: collecNotes,
       showId: true,
       showUser: true,
       showDevoir: false,
       showNomOwner: false,
       showTimeLeft: false
+    });
+    notesView.on("item:show", (childView) => {
+      const model = childView.model;
+      const idDevoir = model.get('idDevoir');
+      const idUser = model.get('idUser');
+      channel.trigger("notes:devoir:user:show", idDevoir, idUser);
     });
     new Region({ el: '#main-region' }).show(notesView);
   }

@@ -18,6 +18,9 @@ const NoItemView = View.extend({
 const ItemView = View.extend({
   tagName: "tr",
   template: item_tpl,
+  triggers: {
+    "click": "show"
+  },
   templateContext() {
     return {
       showId: this.getOption("showId"),
