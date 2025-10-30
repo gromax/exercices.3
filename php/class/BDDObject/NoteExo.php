@@ -9,38 +9,39 @@ use ErrorController as EC;
  */
 final class NoteExo extends Item
 {
-  protected static $BDDName = "exodevoirs";
+  protected static $BDDName = "users";
+
 
   ##################################### METHODES STATIQUES #####################################
 
   protected static function champs()
   {
     return [
-      'idExo' => ['def' => 0, 'type'=> 'int'],       // id de l'exercice associé
+      'nom' => ['def' => "", 'type'=> 'string', 'alias' => 'nomUser'], // nom de l'utilisateur
+      'prenom' => ['def' => "", 'type'=> 'string', 'alias' => 'prenomUser'], // prénom de l'utilisateur
+      'idClasse' => ['def' => 0, 'type'=> 'int', 'foreign'=>'classes.id'],    // id de la classe à laquelle l'exercice a été assigné
+      'idOwner' => ['def' => 0, 'type'=> 'int', 'foreign'=>'classes.idOwner'],    // id du propriétaire (professeur)
+      'nomClasse' => ['def' => "", 'type'=> 'string', 'foreign'=>'classes.nom'], // nom de la classe
+      'idDevoir' => ['def' => 0, 'type'=> 'int', 'foreign'=>'devoirs.id'],      // id du devoir associé
+      'idExo' => ['def' => 0, 'type'=> 'int', 'foreign'=>'exercices.id'],       // id de l'exercice associé
+      'idExoDevoir' => ['def' => 0, 'type'=> 'int', 'foreign'=>'exodevoirs.id'], // id de l'exercice dans le devoir
       'title' => ['def' => "", 'type'=> 'string', 'foreign'=>'exercices.title'],    // titre de l'exercice
-      'idDevoir' => ['def' => 0, 'type'=> 'int'],      // id du devoir associé
-      'options' => ['def' => "", 'type'=> 'string'],   // options de l'exercice, JSON
-      'idOwner' => ['def' => 0, 'type'=> 'int', 'foreign'=>'devoirs.idOwner'],    // id du propriétaire (professeur)
-      'idClasse' => ['def' => 0, 'type'=> 'int', 'foreign'=>'devoirs.idClasse'],    // id de la classe à laquelle l'exercice a été assigné
-      'num' => ['def' => 0, 'type'=> 'int'],        // numéro d'ordre dans le devoir
-      'idUser' => ['def' => 0, 'type'=> 'int', 'foreign'=>'trials.idUser'],     // id de l'utilisateur
-      'nomUser' => ['def' => "", 'type'=> 'string', 'foreign'=>'users.nom'], // nom de l'utilisateur
-      'prenomUser' => ['def' => "", 'type'=> 'string', 'foreign'=>'users.prenom'], // prénom de l'utilisateur
+      'description' => ['def' => "", 'type'=> 'string', 'foreign'=>'exercices.description'], // description de l'exercice
+      'options' => ['def' => "", 'type'=> 'string', 'foreign'=>'exodevoirs.options'],   // options de l'exercice, JSON
+      'num' => ['def' => 0, 'type'=> 'int', 'foreign'=>'exodevoirs.num'],        // numéro d'ordre dans le devoir
       'note' => ['def' => 0, 'type'=> 'int', 'foreign'=>'trials.note', 'agregation'=>'MAX'],        // note obtenue pour cet exercice
-      'trialNumber' => ['def' => 0, 'type'=> 'int', 'foreign'=>'trials.id', 'agregation'=>'COUNT'] // nombre d'essais
+      'trialsNumber' => ['def' => 0, 'type'=> 'int', 'foreign'=>'trials.id', 'agregation'=>'COUNT'] // nombre d'essais
     ] ;
   }
-
-  // note ça va être plus compliqué par ce qu'il va falloir un group by
 
   protected static function joinedTables()
   {
     return [
       'inner' => [
-        'devoirs' => 'exodevoirs.idDevoir = devoirs.id',
+        'classes' => 'users.idClasse = classes.id',
+        'devoirs' => 'devoirs.idClasse = classes.id',
+        'exodevoirs' => 'devoirs.id = exodevoirs.idDevoir',
         'exercices' => 'exodevoirs.idExo = exercices.id',
-        'classes' => 'devoirs.idClasse = classes.id',
-        'users' => 'users.idClasse = classes.id'
       ],
       'left' => [
         'trials' => 'exodevoirs.id = trials.idExoDevoir AND trials.idUser = users.id'
@@ -51,8 +52,8 @@ final class NoteExo extends Item
   protected static function groupby()
   {
     return [
-      'trials.idExoDevoir',
-      'trials.idUser'
+      'exodevoirs.id',
+      'users.id'
     ];
   }
 
