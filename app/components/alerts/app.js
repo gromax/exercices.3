@@ -80,13 +80,12 @@ const Controller = MnObject.extend({
     }
   },
   notFound() {
+    const channel = this.getChannel();
     const view = new AlertView({
       message: "Page introuvable",
       dismiss: false
     });
-    this.getChannel().trigger("ariane:reset", [
-      { text:"Page introuvable", e:"", link:"" }
-    ]);
+    channel.trigger("ariane:push", { text:"Page introuvable", link:"", fragile:true });
     new Region({ el: '#main-region' }).show(view);
   },
 

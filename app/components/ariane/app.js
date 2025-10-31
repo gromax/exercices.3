@@ -6,7 +6,8 @@ const ArianeItem = Backbone.Model.extend({
   defaults: {
     text: "",
     link: "",
-    active: false
+    active: false,
+    fragile: false
   }
 });
 
@@ -17,7 +18,8 @@ const ArianeCollection = Backbone.Collection.extend({
 const home = {
   text: "<i class='fa fa-home'></i>",
   link: "home",
-  active: false
+  active: false,
+  fragile: false
 }
 
 const collection = new ArianeCollection([ home ]); // comme on ne parse pas ici, le active restera false
@@ -50,8 +52,16 @@ const ArianeApp = MnObject.extend({
     new Region({ el: '#ariane' }).show(view);
   },
 
+  purgeFragile() {
+    const toRemove = collection.filter(m => m.get('fragile') === true);
+    if (toRemove.length) {
+      collection.remove(toRemove);
+    }
+  },
+
   push(linkData) {
     const model = new ArianeItem(linkData);
+    this.purgeFragile();
     const existing = collection.findWhere({ link: model.get("link") });
     if (existing) {
       const idx = collection.indexOf(existing);
