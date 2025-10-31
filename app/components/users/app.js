@@ -3,22 +3,18 @@ import { MnObject } from 'backbone.marionette';
 const Controller = MnObject.extend ({
   channelName: 'app',
   radioEvents: {
-    "users:filter": "onUsersFilter",
     "user:show": "onShowUser",
+    "users:classe:show": "onUsersClasseShow",
     "user:classe:signin":"onUserClasseSignin"
-  },
-
-  onUsersFilter(criterion) {
-    if (criterion) {
-      Backbone.history.navigate(`users/filter/criterion:${criterion}`, {});
-    } else {
-      Backbone.history.navigate("users", {});
-    }
   },
 
   onShowUser(id) {
     Backbone.history.navigate(`user:${id}`, {});
     this.showUser(id);
+  },
+  onUsersClasseShow(idClasse) {
+    Backbone.history.navigate(`users/classe:${idClasse}`, {});
+    this.listUsers(idClasse);
   },
 
   onUserClasseSignin(id) {
@@ -50,23 +46,32 @@ const Controller = MnObject.extend ({
     });
   },
 
-  listUsers(criterion) {
+  listUsers(idClasse = null) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
     if (!logged.isAdmin() && !logged.isProf()) {
       channel.trigger("not:found");
       return;
     }
-
-    channel.trigger("ariane:push", {
-      text:logged.isProf() ? "Vos élèves" : "Utilisateurs",
-      link:"users"
-    });
     channel.trigger("loading:up");
-    const fetchingUsers = channel.request("custom:entities", ["users"]);
+    const dataToLoad = idClasse ? ["users", "classes"] : ["users"];
+    const fetchingUsers = channel.request("custom:entities", dataToLoad);
     $.when(fetchingUsers).done((data) => {
+      const classe = idClasse ? data.classes.get(idClasse) : null;
+      if (idClasse !== null && !classe) {
+        channel.trigger("not:found");
+        return;
+      }
       const {users} = data;
-      require("./list/controller.js").controller.listUsers(users, logged.get("rank"), criterion);
+      const filteredUsers = idClasse ? new users.constructor(users.filter(u => u.get("idClasse") === Number(idClasse))) : users;
+      if (classe) {
+        channel.trigger("ariane:push", { text: `Élèves de ${classe.get("nom")}`, link: `users/classe:${classe.id}` });
+      } else if (logged.isProf()) {
+        channel.trigger("ariane:push", { text: "Vos élèves", link: "users" });
+      } else {
+        channel.trigger("ariane:push", { text: "Utilisateurs", link: "users" });
+      }
+      require("./list/controller.js").controller.listUsers(filteredUsers, classe);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {
@@ -146,7 +151,7 @@ const Controller = MnObject.extend ({
       channel.trigger("not:found");
       return;
     }
-    channel.trigger("ariane:push", { text:"Nouvel utilisateur", link:"user/new" });
+    channel.trigger("ariane:push", { text:"Nouvel utilisateur", link:"user/new", fragile:true });
     require("./edit/controller.js").controller.NewUserView();
   }
 
@@ -156,16 +161,17 @@ const controller = new Controller();
 
 const Router = Backbone.Router.extend({
   routes: {
-    "users(/filter/criterion::criterion)": "listUsers",
+    "users": "listUsers",
     "user::id": "showUser",
     "user::id/edit": "editUser",
     "user::id/password": "editUserPwd",
     "user/classe::id/signin": "classeSignin",
+    "users/classe::id": "listUsers",
     "user/new": "NewUserView",
   },
 
-  listUsers(criterion) {
-    controller.listUsers(criterion);
+  listUsers(idClasse = null) {
+    controller.listUsers(idClasse);
   },
 
   showUser(id) {

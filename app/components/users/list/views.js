@@ -8,6 +8,7 @@ import item_prof_view_tpl from '@templates/users/list/user-list-prof-item.jst';
 import users_admin_view_tpl from '@templates/users/list/user-list-admin.jst';
 import users_prof_view_tpl from '@templates/users/list/user-list-prof.jst';
 import user_list_layout_tpl from '@templates/users/list/user-list-layout.jst';
+import { template } from 'underscore';
 
 const ListLayout = View.extend ({
   template: user_list_layout_tpl,
@@ -50,9 +51,16 @@ const UserView = View.extend ({
       return item_prof_view_tpl;
     }
   },
+  templateContext() {
+    return {
+      adminMode: this.getOption("adminMode"),
+      showClasse: this.getOption("showClasse")
+    };
+  },
   triggers: {
     "click button.js-forgotten": "forgotten",
     "click button.js-sudo": "sudo",
+    "click a.js-classe": "classe",
     "click": "show"
   }
 });
@@ -69,7 +77,14 @@ const UsersCollectionView = CollectionView.extend ({
   filterKeys: ["nom", "prenom", "nomClasse"],
   childViewOptions() {
     return {
-      adminMode: this.getOption("adminMode")
+      adminMode: this.getOption("adminMode"),
+      showClasse: this.getOption("showClasse")
+    };
+  },
+  templateContext() {
+    return {
+      adminMode: this.getOption("adminMode"),
+      showClasse: this.getOption("showClasse")
     };
   },
   getTemplate(data) {

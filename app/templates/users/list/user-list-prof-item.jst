@@ -1,6 +1,8 @@
 <td><span class="badge rounded-pill bg-primary"><%- id %></span></td>
 <td><%= nom %> <%= prenom %><br/><small class="text-muted"><i class="fa fa-envelope fa-1" style="margin-right: 5px;"></i><%- email %></small></td>
-<td><%= nomClasse %></td>
+<% if (showClasse) { %>
+	<td><a class="js-classe" href="#users/classe:<%- idClasse %>"><%- nomClasse %></a></td>
+<% } %>
 <td><%= date %></td> <!-- à parser -->
 <td align="right">
 	<div class="btn-group" role="group">

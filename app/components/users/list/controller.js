@@ -3,24 +3,23 @@ import { UsersPanel, UsersCollectionView, ListLayout } from './views.js';
 
 const Controller = MnObject.extend ({
   channelName: 'app',
-  listUsers(users, rank, criterion) {
+  listUsers(users, classe = null) {
     const channel = this.getChannel();
+    const logged = channel.request("logged:get");
     const that = this;
-    criterion = criterion || "";
     const usersListLayout = new ListLayout();
     const usersListPanel = new UsersPanel({
-      filterCriterion: criterion,
-      showAddButton: (rank == "root") || (rank == "admin")
+      filterCriterion: "",
+      showAddButton: logged.isAdmin()
     });
     const usersListView = new UsersCollectionView({
       collection: users,
-      adminMode: (rank == "admin") || (rank == "root")
+      adminMode: logged.isAdmin(),
+      showClasse: classe === null
     });
 
-    usersListView.trigger("set:filter:criterion", criterion, { preventRender: false });
     usersListPanel.on("items:filter", (filterCriterion) => {
       usersListView.trigger("set:filter:criterion", filterCriterion, { preventRender: false });
-      Backbone.history.navigate(`users/filter/criterion:${filterCriterion}`, {});
     });
 
     usersListLayout.on("render", () => {
@@ -28,14 +27,18 @@ const Controller = MnObject.extend ({
       usersListLayout.getRegion('itemsRegion').show(usersListView);
     });
 
-    usersListPanel.on("user:new", () => {
+    /*usersListPanel.on("user:new", () => {
       const view = channel.request("new:user:modal");
       view.on("success", (model, data) => {
         usersListView.collection.add(model);
         usersListView.children.findByModel(model)?.trigger("flash:success");
       });
-    });
+    });*/
 
+    usersListView.on("item:classe", (childView) => {
+      const model = childView.model;
+      channel.trigger("users:classe:show", model.get("idClasse"));
+    });
     usersListView.on("item:show", (childView, args) => {
       const model = childView.model;
       channel.trigger("user:show", model.get("id"));

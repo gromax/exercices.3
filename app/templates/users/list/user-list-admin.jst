@@ -2,7 +2,9 @@
 	<tr>
 		<th><a href="" class="js-sort" data-sort="id"><i class="fa-solid fa-hashtag"></i></a></th>
 		<th><a href="" class="js-sort" data-sort="nomComplet"><i class="fa-solid fa-address-card"></i></a></th>
-		<th><a href="" class="js-sort" data-sort="nomClasse"><i class="fa fa-graduation-cap"></a></th>
+		<% if (showClasse) { %>
+			<th><a href="" class="js-sort" data-sort="nomClasse"><i class="fa-solid fa-chalkboard"></i></a></th>
+		<% } %>
 		<th><a href="" class="js-sort" data-sort="date"><i class="fa-solid fa-clock"></i></a></th>
 		<th><a href="" class="js-sort" data-sort="rank"><i class="fa-solid fa-ranking-star"></i></a></th>
 		<!-- boutons verrou|modification|suppression -->
