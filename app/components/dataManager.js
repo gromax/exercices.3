@@ -55,7 +55,8 @@ const Controller = MnObject.extend({
     const toFetch = _.filter(ask, (item) => this.getChachedCollection(item) === null);
     if (toFetch.length === 0) {
       // Pas de fetch requis => on renvoie les résultats
-      defer.resolve.apply(null,_.map(ask, (item) => this.stored_data[item]));
+      const responseObj = Object.fromEntries(ask.map(k => [k, this.stored_data[k]]));
+      defer.resolve(responseObj);
     } else {
       const request = this.fetch("api/customData/"+toFetch.join("&"));
       request.done( (data) => {
@@ -106,7 +107,8 @@ const Controller = MnObject.extend({
     const col = this.getChachedCollection(entityName);
     if (col === null) {
       const fetching = this.getCustomEntities([entityName]);
-      $.when(fetching).done( (col) => {
+      $.when(fetching).done( (data) => {
+        const col = data[entityName];
         defer.resolve(col.get(idItem));
       }).fail( (response) => {
         defer.reject(response);
