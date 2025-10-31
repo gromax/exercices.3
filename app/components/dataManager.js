@@ -85,7 +85,8 @@ const Controller = MnObject.extend({
             }
           }
         }
-        defer.resolve.apply(null,_.map(ask, (item) => { return this.stored_data[item]; } ));
+        const responseObj = Object.fromEntries(ask.map(k => [k, this.stored_data[k]]));
+        defer.resolve(responseObj);
       }).fail( (response) => {
         defer.reject(response);
       });

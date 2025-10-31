@@ -38,7 +38,8 @@ const Controller = MnObject.extend({
     }
     channel.trigger("loading:up");
     const fetching = channel.request("custom:entities", ["notes", "devoirs"]);
-    $.when(fetching).done( (notes, devoirs) => {
+    $.when(fetching).done( (data) => {
+      const {notes, devoirs} = data;
       // récupérer le bon devoir
       idDevoir = Number(idDevoir);
       const devoir = devoirs.find(d => d.id === idDevoir);
@@ -77,10 +78,11 @@ const Controller = MnObject.extend({
     }
     channel.trigger("loading:up");
     const fetching = channel.request("custom:entities", ["notesexos", "devoirs", "users"]);
-    $.when(fetching).done( (notesexos, devoirs, users) => {
+    $.when(fetching).done( (data) => {
       // récupérer le bon devoir
       idDevoir = Number(idDevoir);
       idUser = Number(idUser);
+      const {notesexos, devoirs, users} = data;
       const devoir = devoirs.find(d => d.id === idDevoir);
       const user = users.find(u => u.id === idUser);
       if (devoir === undefined || user === undefined) {
@@ -103,7 +105,8 @@ const Controller = MnObject.extend({
     const logged = channel.request("logged:get");
     channel.trigger("loading:up");
     const fetching = channel.request("custom:entities", ["notes", "users"]);
-    $.when(fetching).done( (notes, users) => {
+    $.when(fetching).done( (data) => {
+      const {notes, users} = data;
       idUser = Number(idUser);
       const user = users.find(u => u.id === idUser);
       if (!user) {

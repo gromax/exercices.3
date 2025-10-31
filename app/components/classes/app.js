@@ -109,7 +109,8 @@ const Controller = MnObject.extend ({
 
     channel.trigger("loading:up");
     const fetching = channel.request("custom:entities", ["classes", "users"]);
-    $.when(fetching).done((classes, users) => {
+    $.when(fetching).done((data) => {
+      const {classes, users} = data;
       const prof = users.get(id);
       if (!prof) {
         channel.trigger("not:found");
@@ -133,7 +134,8 @@ const Controller = MnObject.extend ({
     }
     const fetchingClasses = channel.request("classes:tojoin:fetch");
     channel.trigger("loading:up");
-    $.when(fetchingClasses).done( (classes) => {
+    $.when(fetchingClasses).done( (data) => {
+      const { classes } = data;
       require("./signin/controller.js").controller.showSigninClasses(classes);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
