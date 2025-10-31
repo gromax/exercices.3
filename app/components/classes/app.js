@@ -40,7 +40,8 @@ const Controller = MnObject.extend ({
     }
     channel.trigger("loading:up");
     const fetching = channel.request("custom:entities", ["classes"]);
-    $.when(fetching).done( (classes) => {
+    $.when(fetching).done( (data) => {
+      const { classes } = data;
       require("./list/controller.js").controller.list(classes);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
