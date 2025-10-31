@@ -3,13 +3,9 @@ import { NotesCollectionView } from './views.js';
 
 const Controller = MnObject.extend({
   channelName: 'app',
-  showNotesListForDevoir(idDevoir, devoir, collecNotes) {
+  showNotesListForDevoir(devoir, collecNotes) {
     const channel = this.getChannel();
-    channel.trigger("ariane:reset", [
-      { text: "Devoirs", link: "#devoirs" },
-      { text: `Devoir : ${devoir.get('nom')}`, link: `#devoir:${idDevoir}` },
-      { text: "Notes", link: `#devoir:${idDevoir}/notes` }
-    ])
+
     const notesView = new NotesCollectionView({
       ncols: 2,
       collection: collecNotes,
@@ -27,21 +23,11 @@ const Controller = MnObject.extend({
     new Region({ el: '#main-region' }).show(notesView);
   },
 
-  showNotesListForEleve(idUser, eleve, collecNotes) {
+  showNotesListForEleve(eleve, collecNotes) {
     // il manque clairement un panel
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
     
-    if (logged.id === idUser) {
-      // si utilisateur est user alors se sont ses notes et c'est le home
-      channel.trigger("ariane:reset", []);
-    } else {
-      channel.trigger("ariane:reset", [
-        { text: "users", link: "#users" },
-        { text: `Élève : ${eleve.get('nomComplet')} ${eleve.get('prenom')}`, link: `#user:${idUser}` },
-        { text: "Notes", link: `#user:${idUser}/notes` }
-      ]);
-    }
     const notesView = new NotesCollectionView({
       ncols: 4,
       collection: collecNotes,

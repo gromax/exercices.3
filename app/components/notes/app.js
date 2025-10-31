@@ -43,14 +43,14 @@ const Controller = MnObject.extend({
       // récupérer le bon devoir
       idDevoir = Number(idDevoir);
       const devoir = devoirs.find(d => d.id === idDevoir);
-
-      if (devoir === undefined) {
+      if (!devoir) {
         channel.trigger("not:found");
         return;
       }
       const notesDuDevoir = notes.filter(a => a.get('idDevoir') === idDevoir);
       const collecNotes = new notes.constructor(notesDuDevoir);
-      require("./list/controller.js").controller.showNotesListForDevoir(idDevoir, devoir, collecNotes);
+      channel.trigger("ariane:push", { text: `Notes de ${devoir.get('nom')}`, link: `#devoir:${idDevoir}/notes` });
+      require("./list/controller.js").controller.showNotesListForDevoir(devoir, collecNotes);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
     }).always( () => {
@@ -70,29 +70,35 @@ const Controller = MnObject.extend({
 
   showNotesExosForDevoirUser(idDevoir, idUser) {
     const channel = this.getChannel();
-    console.log("lalala");
     const logged = channel.request("logged:get");
     if (logged.isOff()) {
       channel.trigger("not:found");
       return;
     }
     channel.trigger("loading:up");
-    const fetching = channel.request("custom:entities", ["notesexos", "devoirs", "users"]);
+    const fetching = channel.request("custom:entities", ["notesexos", "notes", "users"]);
     $.when(fetching).done( (data) => {
       // récupérer le bon devoir
       idDevoir = Number(idDevoir);
       idUser = Number(idUser);
-      const {notesexos, devoirs, users} = data;
-      const devoir = devoirs.find(d => d.id === idDevoir);
+      const {notesexos, notes, users} = data;
+      const note = notes.find(d => d.idDevoir === idDevoir);
       const user = users.find(u => u.id === idUser);
-      if (devoir === undefined || user === undefined) {
+      if (!note || !user) {
         channel.trigger("not:found");
         return;
       }
       // si un user peut charger le devoir, c'est qu'il a le droit de le voir
       const notesExosDuDevoirUser = notesexos.filter(a => a.get('idDevoir') === idDevoir && a.get('idUser') === idUser);
       const collecNotesExo = new notesexos.constructor(notesExosDuDevoirUser);
-      require("./exolist/controller.js").controller.showNotesExosListForDevoirUser(idDevoir, idUser, devoir, collecNotesExo, user);
+      if (user.get('id') !== logged.get('id')) {
+        // prof / admin qui regarde les notes d'un élève
+        channel.trigger("ariane:push", { text: `Notes de ${user.get('nomComplet')} pour ${note.get('nom')}`, link: `#devoir:${idDevoir}/notes/user:${idUser}` });
+      } else {
+        // élève qui regarde ses propres notes
+        channel.trigger("ariane:push", { text: `Notes pour ${note.get("nom")}`, link: `#mynotes:${idDevoir}` });
+      }
+      require("./exolist/controller.js").controller.showNotesExosListForDevoirUser(note, collecNotesExo, user);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
     }).always( () => {
@@ -115,7 +121,15 @@ const Controller = MnObject.extend({
       }
       const notesDuUser = notes.filter(a => a.get('idUser') === user.id);
       const collecNotes = new notes.constructor(notesDuUser);
-      require("./list/controller.js").controller.showNotesListForEleve(idUser, user, collecNotes);
+
+      if (logged.id === idUser) {
+        // si utilisateur est user alors se sont ses notes et c'est le home
+        channel.trigger("ariane:reset", []);
+      } else {
+        channel.trigger("ariane:push", { text: `Notes de ${user.get('nomComplet')}`, link: `#user:${idUser}/notes` });
+      }
+
+      require("./list/controller.js").controller.showNotesListForEleve(user, collecNotes);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
     }).always( () => {
