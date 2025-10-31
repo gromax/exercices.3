@@ -41,7 +41,8 @@ const Controller = MnObject.extend ({
         channel.trigger("not:found");
         return;
       }
-      require("./edit/controller.js").controller.classeSignin(idClasse, classe);
+      channel.trigger("ariane:push", { text: classe.get("nom"), link: `user/classe:${idClasse}/signin` });
+      require("./edit/controller.js").controller.classeSignin(classe);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
     }).always( () => {
@@ -57,10 +58,14 @@ const Controller = MnObject.extend ({
       return;
     }
 
-    channel.trigger("ariane:reset", [{ text:"Utilisateurs", link:"users"}]);
+    channel.trigger("ariane:push", {
+      text:logged.isProf() ? "Vos élèves" : "Utilisateurs",
+      link:"users"
+    });
     channel.trigger("loading:up");
     const fetchingUsers = channel.request("custom:entities", ["users"]);
-    $.when(fetchingUsers).done((users) => {
+    $.when(fetchingUsers).done((data) => {
+      const {users} = data;
       require("./list/controller.js").controller.listUsers(users, logged.get("rank"), criterion);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
@@ -79,14 +84,20 @@ const Controller = MnObject.extend ({
       return;
     }
     channel.trigger("loading:up");
-    if (isMe) {
-      channel.trigger("ariane:reset", []);
-    } else {
-      channel.trigger("ariane:reset", [{ text:"Utilisateurs", e:"users:list", link:"users"}]);
-    }
     const fetchingUser = isMe ? channel.request("user:me") : channel.request("data:getitem", "users", id);
     $.when(fetchingUser).done( (user) => {
-      require("./show/controller.js").controller.showUser(id, user, isMe);
+      if (!user) {
+        channel.trigger("not:found");
+        return;
+      }
+      if (isMe) {
+        channel.trigger("ariane:reset", [
+          { text: "Mon compte", link: `user:${id}` }
+        ]);
+      } else {
+        channel.trigger("ariane:push", { text: user.get("nomComplet"), link: `user:${id}` });
+      }
+      require("./show/controller.js").controller.showUser(user);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
     }).always( () => {
@@ -102,19 +113,21 @@ const Controller = MnObject.extend ({
       channel.trigger("not:found");
       return;
     }
-    if (isMe) {
-      channel.trigger("ariane:reset", []);
-    } else {
-      channel.trigger("ariane:reset", [{ text:"Utilisateurs", link:"users"}]);
-    }
     channel.trigger("loading:up");
     const fetchingUser = isMe ? channel.request("user:me") : channel.request("data:getitem", "users", id);
     $.when(fetchingUser).done( (user) => {
-      if (isMe) {
-        require("./edit/controller.js").controller.editMe(id, user, pwd);
-      } else {
-        require("./edit/controller.js").controller.editUser(id, user, pwd, false);
+      if (!user) {
+        channel.trigger("not:found");
+        return;
       }
+      if (isMe) {
+        channel.trigger("ariane:reset", []);
+      }
+      channel.trigger("ariane:push", {
+        text: pwd === true ? "Modification du mot de passe" : "Modification des informations",
+        link: `user:${id}/edit`
+      });
+      require("./edit/controller.js").controller.editUser(user, pwd);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
     }).always( () => {
@@ -129,11 +142,11 @@ const Controller = MnObject.extend ({
   newUser() {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
-
     if (!(logged.isAdmin())) {
       channel.trigger("not:found");
       return;
     }
+    channel.trigger("ariane:push", { text:"Nouvel utilisateur", link:"user/new" });
     require("./edit/controller.js").controller.NewUserView();
   }
 

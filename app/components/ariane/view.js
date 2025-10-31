@@ -49,12 +49,12 @@ const ItemView = View.extend({
     */
 });
 
-
 const ArianeView = CollectionView.extend({
-  tagName: "ol",
+  tagName: "nav",
   className: "breadcrumb",
   childView: ItemView,
   emptyView: NoView,
+  childViewContainer: "ol",
   template: ariane_tpl,
 });
 

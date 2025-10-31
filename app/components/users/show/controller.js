@@ -3,19 +3,12 @@ import { ShowUserView } from './view.js'
 
 const Controller = MnObject.extend ({
   channelName: "app",
-  showUser(id, user, isMe) {
+  showUser(user) {
     const channel = this.getChannel();
-    if (isMe) {
-      channel.trigger("ariane:add", { text: "Mon compte", e: "user:show", data: id, link: `user:${id}` });
-    } else {
-      channel.trigger("ariane:add", { text: user ? user.get("nomComplet") : "Utilisateur inconnu", e: "user:show", data: id, link: `user:${id}` });
-    }
-
-    if (user === undefined) {
-      channel.trigger("missing:item");
+    if (!user) {
+      channel.trigger("popup:error", "Utilisateur introuvable");
       return;
     }
-
     const view = new ShowUserView({
       model: user
     });
