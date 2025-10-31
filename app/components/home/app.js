@@ -43,33 +43,35 @@ const HomeApp = MnObject.extend({
   },
 
   showLogin() {
-    let logged = this.getChannel().request("logged:get");
+    const channel = this.getChannel();
+    const logged = this.getChannel().request("logged:get");
     if (logged.get("logged_in")) {
       this.showHome();
     } else {
-      this.getChannel().trigger("ariane:reset", [{text:"Connexion", link:"login", e:"home:login"}]);
+      channel.trigger("ariane:reset", [{text:"Connexion", link:"login"}]);
       require("./login/controller.js").controller.showLogin();
     }
   },
 
-  showReLogin(options) {
+  showReLogin() {
     require("./login/controller.js").controller.showReLogin();
   },
 
   logout() {
     const channel = this.getChannel();
-    let logged = this.getChannel().request("logged:get");
+    const logged = channel.request("logged:get");
     if(logged.get("logged_in")) {
       channel.trigger("session:logout");
     }
   },
 
   forgotten(key) {
-    let logged = this.getChannel().request("logged:get");
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
     if (logged.get("logged_in")) {
-      this.getChannel().trigger("notFound");
+      channel.trigger("notFound");
     } else {
-      this.getChannel().trigger("ariane:reset", [{text:"Réinitialisation de mot de passe"}]);
+      channel.trigger("ariane:reset", [{text:"Réinitialisation de mot de passe"}]);
       this.getChannel().trigger("loading:up");
       let showController = require("./show/controller.js").controller;
       let fetching = logged.getWithForgottenKey(key);
@@ -82,7 +84,7 @@ const HomeApp = MnObject.extend({
           alert(`Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}/034]`);
         }
       }).always( function(){
-        this.getChannel().trigger("loading:down");
+        channel.trigger("loading:down");
       });
     }
   }
