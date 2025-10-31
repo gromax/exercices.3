@@ -43,6 +43,7 @@ const Controller = MnObject.extend({
       errorCode: "002"
     });
     view.on("success", (model, resp) => {
+      channel.trigger("data:collection:additem", "devoirs", model);
       channel.trigger("devoir:dashboard", model.get("id"));
     });
     new Region({ el: '#main-region' }).show(view);

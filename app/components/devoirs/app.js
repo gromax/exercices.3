@@ -48,7 +48,7 @@ const Controller = MnObject.extend({
     const fetching = channel.request("custom:entities", ["devoirs"]);
     $.when(fetching).done((data) => {
       const {devoirs} = data;
-      channel.trigger("ariane:push", [{ text: "Devoirs", link: "devoirs" }]);
+      channel.trigger("ariane:push", { text: "Devoirs", link: "devoirs" });
       channel.trigger("loading:up");
       require("./list/controller.js").controller.list(devoirs);
     }).fail((response) => {
@@ -137,7 +137,7 @@ const Controller = MnObject.extend({
           channel.trigger("not:found");
           return;
         }
-        channel.trigger("ariane:push", { text: "Nouveau devoir", link: "devoirs/new" });
+        channel.trigger("ariane:push", { text: "Nouveau devoir", link: "devoirs/new", fragile:true });
         
         require("./edit/controller.js").controller.newDevoir(classes);
       }).fail((response) => {
