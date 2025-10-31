@@ -61,40 +61,23 @@ const Controller = MnObject.extend({
     return { devoirLayout, view, assosExosView };
   },
   
-  show(id, devoir, assosExos) {
+  show(devoir, assosExos) {
     const channel = this.getChannel();
-    if (devoir === undefined) {
-      channel.trigger("ariane:reset", [
-        { text: "Devoirs", link: "devoirs" },
-        { text: "Devoir inconnu", link: `devoir:${id}/dashboard` }
-      ]);
-      channel.trigger("missing:item");
+    if (!devoir) {
+      channel.trigger("popup:error", "Devoir indéfini.");
       return;
     }
     
-    channel.trigger("ariane:reset", [
-      { text: "Devoirs", link: "devoirs" },
-      { text: devoir.get("nom"), link: `devoir:${id}/dashboard` },
-    ]);
     const region = new Region({ el: '#main-region' });
     this.showLayoutView(devoir, assosExos, region);
   },
 
-  showAddExo(id, devoir, assosExos, sujetsexercices, criterion) {
+  showAddExo(devoir, assosExos, sujetsexercices, criterion) {
     const channel = this.getChannel();
-    if (devoir === undefined) {
-      channel.trigger("ariane:reset", [
-        { text: "Devoirs", link: "devoirs" },
-        { text: "Devoir inconnu", link: `devoir:${id}/dashboard` }
-      ]);
-      channel.trigger("missing:item");
+    if (!devoir) {
+      channel.trigger("popup:error", "Devoir indéfini.");
       return;
     }
-    channel.trigger("ariane:reset", [
-      { text: "Devoirs", link: "devoirs" },
-      { text: devoir.get("nom"), link: `devoir:${id}/dashboard` },
-      { text: "Ajouter des exercices", link: `devoir:${id}/addexo` },
-    ]);
 
     const twocolsLayout = new TwoColsView();
     new Region({ el: '#main-region' }).show(twocolsLayout);
@@ -108,7 +91,7 @@ const Controller = MnObject.extend({
       twocolsLayout.getRegion('right')
     );
     listExercicesView.on("item:sujet:exercice:show", (childView) => {
-      channel.trigger("devoir:addexo", id, childView.model.get("id"), assosExosView);
+      channel.trigger("devoir:addexo", devoir.id, childView.model.get("id"), assosExosView);
     });
   },
 
@@ -136,22 +119,12 @@ const Controller = MnObject.extend({
     });
   },
 
-  showExo(idDevoir, idExoDevoir, devoir, assosExos, exoDevoir, sujet) {
+  showExo(devoir, assosExos, exoDevoir, sujet) {
     const channel = this.getChannel();
-    if (devoir === undefined) {
-      channel.trigger("ariane:reset", [
-        { text: "Devoirs", link: "devoirs" },
-        { text: "Devoir inconnu", link: `devoir:${idDevoir}/dashboard` },
-        { text: `Exercices ${idExoDevoir}`, link: `devoir:${idDevoir}/exo:${idExoDevoir}` }
-      ]);
-      channel.trigger("missing:item");
+    if (!devoir || !exoDevoir || !sujet) {
+      channel.trigger("popup:error", "Un ou plusieurs éléments sont manquants.");
       return;
     }
-    channel.trigger("ariane:reset", [
-      { text: "Devoirs", link: "devoirs" },
-      { text: devoir.get("nom"), link: `devoir:${idDevoir}/dashboard` },
-      { text: `Exercices ${idExoDevoir}`, link: `devoir:${idDevoir}/exo:${idExoDevoir}` }
-    ]);
 
     const twocolsLayout = new TwoColsView();
     new Region({ el: '#main-region' }).show(twocolsLayout);
@@ -163,8 +136,8 @@ const Controller = MnObject.extend({
     );
     assosExosView.on("item:destroy", (childView) => {
       const model = childView.model;
-      if (model.get("id") === Number(idExoDevoir)) {
-        channel.trigger("devoir:dashboard", idDevoir);
+      if (model.get("id") === exoDevoir.id) {
+        channel.trigger("devoir:dashboard", devoir.id);
       }
     });
   },

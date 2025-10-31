@@ -21,13 +21,14 @@ const Controller = MnObject.extend({
       // récupérer le bon devoir
       const {devoirs, exodevoirs} = data;
       const devoir = devoirs.find(d => d.id === id);
+      if (!devoir) {
+        channel.trigger("not:found");
+        return;
+      }
       const assocs = exodevoirs.filter(a => a.get('idDevoir') === id);
       const collecAssocs = new exodevoirs.constructor(assocs);
 
-      channel.trigger("ariane:reset", [
-        { text: "Devoirs", link: "devoirs" },
-        { text: devoir ? devoir.get("nom") : `Devoir #${id}`, link: `devoir:${id}` }
-      ]);
+      channel.trigger("ariane:push", { text: devoir.get("nom"), link: `devoir:${id}` });
       channel.trigger("popup:alert", "Non encore implémenté.");
       //require("./editexos/controller.js").controller.show(id, devoir, collecAssocs);
     }).fail((response) => {
@@ -40,28 +41,21 @@ const Controller = MnObject.extend({
   devoirsList() {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
-    const forProf = () => {
-      channel.trigger("ariane:reset", [{ text: "Devoirs", link: "devoirs" }]);
+    if (!logged.isProf() && !logged.isAdmin()) {
+      channel.trigger("not:found");
+      return;
+    }
+    const fetching = channel.request("custom:entities", ["devoirs"]);
+    $.when(fetching).done((data) => {
+      const {devoirs} = data;
+      channel.trigger("ariane:push", [{ text: "Devoirs", link: "devoirs" }]);
       channel.trigger("loading:up");
-      const fetching = channel.request("custom:entities", ["devoirs"]);
-      $.when(fetching).done((data) => {
-        const {devoirs} = data;
-        require("./list/controller.js").controller.list(devoirs);
-      }).fail((response) => {
-        channel.trigger("data:fetch:fail", response);
-      }).always(() => {
-        channel.trigger("loading:down");
-      });
-    };
-
-    const todo = logged.mapItem({
-      "admin": forProf,
-      "prof": forProf,
-      "eleve": () => channel.trigger("not:found"),
-      "def": () => channel.trigger("home:login")
+      require("./list/controller.js").controller.list(devoirs);
+    }).fail((response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always(() => {
+      channel.trigger("loading:down");
     });
-
-    todo();
   },
 
   devoirShowDashboard(id) {
@@ -77,9 +71,16 @@ const Controller = MnObject.extend({
       // récupérer le bon devoir
       const {devoirs, exodevoirs} = data;
       const devoir = devoirs.find(d => d.id === id);
+      if (!devoir) {
+        channel.trigger("not:found");
+        return;
+      }
       const assocs = exodevoirs.filter(a => a.get('idDevoir') === id);
       const collecAssocs = new exodevoirs.constructor(assocs);
-      require("./editexos/controller.js").controller.show(id, devoir, collecAssocs);
+
+      channel.trigger("ariane:push", { text: devoir.get("nom"), link: `devoir:${id}/dashboard` });
+      
+      require("./editexos/controller.js").controller.show(devoir, collecAssocs);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {
@@ -101,9 +102,16 @@ const Controller = MnObject.extend({
       const {devoirs, exodevoirs, sujetsexercices} = data;
       // récupérer le bon devoir
       const devoir = devoirs.find(d => d.id === id);
+      if (!devoir) {
+        channel.trigger("not:found");
+        return;
+      }
       const assocs = exodevoirs.filter(a => a.get('idDevoir') === id);
       const collecAssocs = new exodevoirs.constructor(assocs);
-      require("./editexos/controller.js").controller.showAddExo(id, devoir, collecAssocs, sujetsexercices, "");
+
+      channel.trigger("ariane:push", { text: "Ajouter des exercices", link: `devoir:${id}/addexo` });
+
+      require("./editexos/controller.js").controller.showAddExo(devoir, collecAssocs, sujetsexercices, "");
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {
@@ -129,6 +137,8 @@ const Controller = MnObject.extend({
           channel.trigger("not:found");
           return;
         }
+        channel.trigger("ariane:push", { text: "Nouveau devoir", link: "devoirs/new" });
+        
         require("./edit/controller.js").controller.newDevoir(classes);
       }).fail((response) => {
         channel.trigger("data:fetch:fail", response);
@@ -149,7 +159,13 @@ const Controller = MnObject.extend({
     $.when(fetching).done((data) => {
       const {devoirs, classes} = data;
       const devoir = devoirs.find(d => d.id === Number(id));
-      require("./edit/controller.js").controller.edit(id, devoir, classes);
+      if (!devoir) {
+        channel.trigger("not:found");
+        return;
+      }
+      channel.trigger("ariane:push", { text: "Modification", link: `devoir:${id}/edit` });
+
+      require("./edit/controller.js").controller.edit(devoir, classes);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {
@@ -174,7 +190,13 @@ const Controller = MnObject.extend({
       const collecAssocs = new exodevoirs.constructor(assocs);
       const exoDevoir = collecAssocs.find(a => a.get('id') === Number(idExoDevoir));
       const sujet = sujetsexercices.find(s => s.get('id') === exoDevoir.get('idExo'));
-      require("./editexos/controller.js").controller.showExo(idDevoir, idExoDevoir, devoir, collecAssocs, exoDevoir, sujet);
+      if (!devoir || !exoDevoir || !sujet) {
+        channel.trigger("not:found");
+        return;
+      }
+      channel.trigger("ariane:push", { text: `Exercices ${idExoDevoir}`, link: `devoir:${idDevoir}/exo:${idExoDevoir}` });
+
+      require("./editexos/controller.js").controller.showExo(devoir, collecAssocs, exoDevoir, sujet);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {

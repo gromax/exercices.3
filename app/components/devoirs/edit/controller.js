@@ -3,22 +3,12 @@ import { EditDevoirView } from './views.js';
 
 const Controller = MnObject.extend({
   channelName: "app",
-  edit(id, devoir, classes) {
+  edit(devoir, classes) {
     const channel = this.getChannel();
-    if (devoir === undefined) {
-      channel.trigger("ariane:reset", [
-        { text: "Devoirs", link: "devoirs" },
-        { text: "Devoir inconnu", link: `devoir:${id}/edit` }
-      ]);
-      channel.trigger("missing:item");
+    if (!devoir) {
+      channel.trigger("popup:error", "Devoir indéfini.");
       return;
     }
-    channel.trigger("ariane:reset", [
-      { text: "Devoirs", link: "devoirs" },
-      { text: devoir.get("nom"), link: `devoir:${id}` },
-      { text: "Dashboard", link: `devoir:${id}/params` },
-      { text: "Modification", link: `devoir:${id}/edit` },
-    ]);
 
     const view = new EditDevoirView({
       model: devoir,
@@ -52,10 +42,6 @@ const Controller = MnObject.extend({
       title: `Nouveau devoir pour ${prof.get("nomComplet")}`,
       errorCode: "002"
     });
-    channel.trigger("ariane:reset", [
-      { text: "devoirs", link: "devoirs" },
-      { text: "Nouveau devoir", link: "devoirs/new" }
-    ]);
     view.on("success", (model, resp) => {
       channel.trigger("devoir:dashboard", model.get("id"));
     });
