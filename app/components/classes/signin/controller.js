@@ -6,9 +6,6 @@ const Controller = MnObject.extend({
 
   showSigninClasses(classes) {
     const channel = this.getChannel();
-    channel.trigger("ariane:reset", [
-      { text: "Rejoindre une classe", link: "classes/signin" },
-    ])
     const logged = channel.request("logged:get");
     if (logged.isEleve()) {
       const idClasseEleve = logged.get("idClasse");

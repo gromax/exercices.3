@@ -4,7 +4,7 @@ import { ShowClasseView } from './views.js';
 const Controller = MnObject.extend({
   channelName: 'app',
 
-  show(id, classe) {
+  show(classe) {
     const channel = this.getChannel();
 
     if (!classe) {
@@ -12,10 +12,6 @@ const Controller = MnObject.extend({
       return;
     }
 
-    channel.trigger("ariane:reset", [
-      { text: "Classes", link: "classes" },
-      { text: classe.get("nom"), link: `classe:${id}` }
-    ]);
     const view = new ShowClasseView({
       model: classe
     });

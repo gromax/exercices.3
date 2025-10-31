@@ -9,15 +9,6 @@ const Controller = MnObject.extend({
     // mais dans ce cas, pas de add possible
     const channel = this.getChannel();
 
-    if (!prof) {
-      channel.trigger("ariane:reset", [{ text: "Classes", link: "classes" }]);
-    } else {
-      channel.trigger("ariane:reset", [
-        { text: "Classes", link: "classes" },
-        { text: `Classes de ${prof.get("nomComplet")}`, link: `classes/prof:${prof.get("id")}` }
-      ]);
-    }
-
     const logged = channel.request("logged:get");
     const listItemsLayout = new ListLayout()
     const listItemsPanel = new ClassesPanel({

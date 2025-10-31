@@ -42,6 +42,11 @@ const Controller = MnObject.extend ({
     const fetching = channel.request("custom:entities", ["classes"]);
     $.when(fetching).done( (data) => {
       const { classes } = data;
+      if (logged.isProf()) {
+        channel.trigger("ariane:push", { text: "Vos classes", link: "classes" });
+      } else {
+        channel.trigger("ariane:push", { text: "Classes", link: "classes" });
+      }
       require("./list/controller.js").controller.list(classes);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
@@ -67,7 +72,8 @@ const Controller = MnObject.extend ({
         channel.trigger("not:found");
         return;
       }
-      require("./show/controller.js").controller.show(id, classe);
+      channel.trigger("ariane:push", { text: classe.get("name"), link: `classe:${id}` });
+      require("./show/controller.js").controller.show(classe);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
     }).always( () => {
@@ -91,7 +97,8 @@ const Controller = MnObject.extend ({
         channel.trigger("not:found");
         return;
       }
-      require("./edit/controller.js").controller.edit(id, classe);
+      channel.trigger("ariane:push", { text: `Modification de ${classe.get("name")}`, link: `classe:${id}/edit` });
+      require("./edit/controller.js").controller.edit(classe);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
     }).always( () => {
@@ -117,7 +124,8 @@ const Controller = MnObject.extend ({
         channel.trigger("not:found");
         return;
       }
-      filteredClasses = new classes.constructor(classes.filter((classe) => classe.get("idOwner") === prof.get("id")));
+      const filteredClasses = new classes.constructor(classes.filter((classe) => classe.get("idOwner") === prof.get("id")));
+      channel.trigger("ariane:push", { text: `Classes de ${prof.get("name")}`, link: `classes/prof:${id}` });
       require("./list/controller.js").controller.list(filteredClasses, prof);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
@@ -137,6 +145,7 @@ const Controller = MnObject.extend ({
     channel.trigger("loading:up");
     $.when(fetchingClasses).done( (data) => {
       const { classes } = data;
+      channel.trigger("ariane:push", { text: "Classes ouvertes", link: "classes/signin" });
       require("./signin/controller.js").controller.showSigninClasses(classes);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
@@ -152,6 +161,7 @@ const Controller = MnObject.extend ({
       channel.trigger("not:found");
       return;
     }
+    channel.trigger("ariane:push", { text: "Créer une classe", link: "classe/new" });
     require("./edit/controller.js").controller.newClasse(logged);
   }
 });

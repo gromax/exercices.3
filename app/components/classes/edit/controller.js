@@ -3,20 +3,13 @@ import { EditClasseView } from './views.js';
 
 const Controller = MnObject.extend({
   channelName: "app",
-  edit(id, classe) {
+  edit(classe) {
     const channel = this.getChannel();
     
     if (!classe) {
       channel.trigger("popup:error", "Classe indéfinie.");
       return;
     }
-    
-    channel.trigger("ariane:add", [
-      { text:"Classes", e:"classes:list", link:"classes"},
-      { text: classe.get("nom"), link: `classe:${id}` },
-      { text: "Modification", link: `classe:${id}/edit` },
-    ]);
-
     const view = new EditClasseView({
       model: classe,
       errorCode: "001",
@@ -46,10 +39,6 @@ const Controller = MnObject.extend({
       title: `Nouvelle classe pour ${prof.get("nomComplet")}`,
       errorCode: "002"
     });
-    channel.trigger("ariane:reset", [
-      { text: "classes", link: "classes" },
-      { text: "Nouvelle classe", link: "classes/new" }
-    ]);
     view.on("success", (model, resp) => {
       channel.trigger("classe:show", model.get("id"));
     });
