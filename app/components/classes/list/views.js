@@ -5,15 +5,6 @@ import no_item_tpl from '@templates/classes/list/classe-list-none.jst'
 import item_view_tpl from '@templates/classes/list/classe-list-item.jst'
 import classes_view_tpl from '@templates/classes/list/classe-list.jst'
 import panel_tpl from '@templates/classes/list/classe-list-panel.jst'
-import classe_list_layout_tpl from '@templates/users/list/user-list-layout.jst';
-
-const ListLayout = View.extend ({
-  template: classe_list_layout_tpl,
-  regions: {
-    panelRegion: "#panel-region",
-    itemsRegion: "#items-region"
-  }
-});
 
 const NoItemView = View.extend({
   template: no_item_tpl,
@@ -82,4 +73,4 @@ const ClassesPanel = View.extend({
   }
 });
 
-export { ClassesCollectionView, ClassesPanel, ListLayout }
+export { ClassesCollectionView, ClassesPanel }

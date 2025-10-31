@@ -24,6 +24,7 @@ const Controller = MnObject.extend({
 
   newClasse(prof) {
     const channel = this.getChannel();
+    const logged = channel.request("logged:get");
     if (!prof) {
       channel.trigger("popup:error", "Impossible de créer une classe sans professeur.");
       return;
@@ -31,15 +32,15 @@ const Controller = MnObject.extend({
     const Classe = require('../entity.js').Item;
 
     const newClasse = new Classe({
-      idOwner: prof.get("id"),
+      idOwner: prof.id,
       nomOwner: prof.get("nom"),
     });
     const view = new EditClasseView({
       model: newClasse,
-      title: `Nouvelle classe pour ${prof.get("nomComplet")}`,
-      errorCode: "002"
+      title: logged.id === prof.id ? "Nouvelle classe" : `Nouvelle classe pour ${prof.get("nomComplet")}`,
     });
     view.on("success", (model, resp) => {
+      channel.trigger("data:collection:additem", "classes", model);
       channel.trigger("classe:show", model.get("id"));
     });
     new Region({ el: '#main-region' }).show(view);

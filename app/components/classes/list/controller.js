@@ -1,5 +1,6 @@
 import { MnObject, Region } from 'backbone.marionette'
-import { ClassesCollectionView, ClassesPanel, ListLayout } from './views.js'
+import { ClassesCollectionView, ClassesPanel } from './views.js'
+import { ListLayout } from '../../common/views.js'
 
 const Controller = MnObject.extend({
   channelName: 'app',

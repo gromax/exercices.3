@@ -22,7 +22,7 @@ const Controller = MnObject.extend ({
 
   onClassesProf(id) {
     Backbone.history.navigate(`classes/prof:${id}`, {});
-    this.classeProf(id);
+    this.classesList(id);
   },
 
   onClassesToJoinShow() {
@@ -30,7 +30,7 @@ const Controller = MnObject.extend ({
     this.classesToJoinShow();
   },
 
-  classesList() {
+  classesList(idProf = null) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
 
@@ -39,15 +39,25 @@ const Controller = MnObject.extend ({
       return;
     }
     channel.trigger("loading:up");
-    const fetching = channel.request("custom:entities", ["classes"]);
+    const dataToLoad = idProf ? ["classes", "users"] : ["classes"];
+    const fetching = channel.request("custom:entities", dataToLoad);
     $.when(fetching).done( (data) => {
-      const { classes } = data;
-      if (logged.isProf()) {
+      const user = idProf ? data.users.get(idProf) : null;
+      if (idProf && !user) {
+        channel.trigger("not:found");
+        return;
+      }
+      const classes = idProf
+        ? new data.classes.constructor(data.classes.filter((classe) => classe.get("idOwner") === idProf))
+        : data.classes;
+      if (idProf) {
+        channel.trigger("ariane:push", { text: `Classes de ${user.get("name")}`, link: `classes/prof:${idProf}` });
+      } else if (logged.isProf()) {
         channel.trigger("ariane:push", { text: "Vos classes", link: "classes" });
       } else {
         channel.trigger("ariane:push", { text: "Classes", link: "classes" });
       }
-      require("./list/controller.js").controller.list(classes);
+      require("./list/controller.js").controller.list(classes, user);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
     }).always( () => {
@@ -72,7 +82,7 @@ const Controller = MnObject.extend ({
         channel.trigger("not:found");
         return;
       }
-      channel.trigger("ariane:push", { text: classe.get("name"), link: `classe:${id}` });
+      channel.trigger("ariane:push", { text: classe.get("nom"), link: `classe:${id}` });
       require("./show/controller.js").controller.show(classe);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
@@ -106,34 +116,6 @@ const Controller = MnObject.extend ({
     });
   },
 
-  classesProf(id) {
-    const channel = this.getChannel();
-    const logged = channel.request("logged:get");
-
-    if (!logged.isAdmin()) {
-      channel.trigger("not:found");
-      return;
-    }
-
-    channel.trigger("loading:up");
-    const fetching = channel.request("custom:entities", ["classes", "users"]);
-    $.when(fetching).done((data) => {
-      const {classes, users} = data;
-      const prof = users.get(id);
-      if (!prof) {
-        channel.trigger("not:found");
-        return;
-      }
-      const filteredClasses = new classes.constructor(classes.filter((classe) => classe.get("idOwner") === prof.get("id")));
-      channel.trigger("ariane:push", { text: `Classes de ${prof.get("name")}`, link: `classes/prof:${id}` });
-      require("./list/controller.js").controller.list(filteredClasses, prof);
-    }).fail((response) => {
-      channel.trigger("data:fetch:fail", response);
-    }).always(() => {
-      channel.trigger("loading:down");
-    });
-  },
-
   classesToJoinShow() {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
@@ -154,15 +136,40 @@ const Controller = MnObject.extend ({
     });
   },
 
-  classeNew() {
+  classeNew(idProf = null) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
-    if (!logged.isProf()) {
+    if (!logged.isProf() && (!logged.isAdmin() || idProf === null)) {
       channel.trigger("not:found");
       return;
     }
-    channel.trigger("ariane:push", { text: "Créer une classe", link: "classe/new" });
-    require("./edit/controller.js").controller.newClasse(logged);
+    if (logged.isProf()) {
+      if (idProf !== null && idProf !== logged.id) {
+        channel.trigger("not:found");
+        return;
+      }
+      idProf = null;
+    }
+    const dataToLoad = idProf ? ["users"] : [];
+    const fetching = channel.request("custom:entities", dataToLoad);
+    channel.trigger("loading:up");
+    $.when(fetching).done((data) => {
+      const prof = idProf === null ? null : data.users.get(idProf);
+      if (!prof && logged.isAdmin()) {
+        channel.trigger("not:found");
+        return;
+      }
+      if (logged.isAdmin()) {
+        channel.trigger("ariane:push", { text: `Créer une classe pour ${prof.get("nomComplet")}`, link: `classe/new:${prof.id}`, fragile:true });
+      } else {
+        channel.trigger("ariane:push", { text: "Créer une nouvelle classe", link: "classe/new", fragile:true });
+      }
+      require("./edit/controller.js").controller.newClasse(prof || logged);
+    }).fail((response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always(() => {
+      channel.trigger("loading:down");
+    });
   }
 });
 
@@ -175,11 +182,12 @@ const Router = Backbone.Router.extend({
     "classe::id": "classeShow",
     "classe::id/edit": "classeEdit",
     "classes/signin": "classesToJoinShow",
-    "classe/new": "classeNew"
+    "classe/new": "classeNew",
+    "classe/new::idProf": "classeNew"
   },
 
   classesProf(id) {
-    controller.classesProf(id);
+    controller.classesList(id);
   },
 
   classesList() {
@@ -198,8 +206,8 @@ const Router = Backbone.Router.extend({
     controller.classesToJoinShow();
   },
 
-  classeNew() {
-    controller.classeNew();
+  classeNew(idProf = null) {
+    controller.classeNew(idProf);
   }
 });
 
