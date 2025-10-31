@@ -52,13 +52,14 @@ const ArianeApp = MnObject.extend({
 
   push(linkData) {
     const model = new ArianeItem(linkData);
-    const existing = collection.findWhere({ text: model.get("text") });
+    const existing = collection.findWhere({ link: model.get("link") });
     if (existing) {
       const idx = collection.indexOf(existing);
       if (idx !== -1 && idx < collection.length -1) {
-        collection.remove(collection.models.slice(idx + 1));
+        collection.remove(collection.models.slice(idx));
       }
-      existing.set("active", false);
+      collection.add(model);
+      model.set("active", false);
     } else {
       const lastModel = collection.last();
       if (lastModel) {
