@@ -53,3 +53,36 @@ Important : désormais, on crée une asso exercice-devoir pour une répétition 
 La note de l'élève pour cette assoc est la meilleure réalisation.
 
 Pour une assoc, on reprend toujours le dernier essai enregistré tant qu'il n'est pas terminé.
+
+## Arborescence des pages
+
++ home
+  +-- login
+  +-- forgotten:key
++-- users
+  +-- user:id
+  +-- user:id/edit
+  +-- user:id/password
+  +-- user/new
+  +-- user/classe:id/signin
++-- devoirs
+  +-- devoir:id
+  +-- devoir:id/dashboard
+  +-- devoir:id/edit
+  +-- devoir:id/addexo
+  +-- devoirs/nouveau
+  +-- devoir:id/exo:id
++-- classes
+  +-- classes/prof:id
+  +-- classe:id
+  +-- classe:id/edit
+  +-- classe/new
+  +-- classes/signin
++-- exercices (sujets)
+  +-- sujet-exercice:id
+  +-- sujet-exercuce:id/edit
++-- notes
+  +-- devoir:id/notes
+  +-- devoir:id/notes/user:id
+  +-- mynotes
+  +-- mynotes:id
