@@ -5,19 +5,13 @@ import { Item as SujetExercice } from '../sujetexo.js';
 
 const Controller = MnObject.extend ({
   channelName: "app",
-  edit(id, sujetExercice) {
+  edit(sujetExercice) {
     const channel = this.getChannel();
-    channel.trigger("ariane:reset", [
-      { text:"Exercices", link:"exercices" },
-      { text:sujetExercice ? sujetExercice.get("title") : "Exercice inconnu", link:`sujet-exercice:${id}` },
-      { text:"Modification", link:`exercice:${id}/edit` }
-    ]);
 
-    if (sujetExercice === undefined) {
-      channel.trigger("missing:item");
+    if (!sujetExercice) {
+      channel.trigger("popup:error", "Exercice introuvable.");
       return;
     }
-
 
     const layoutView = new TwoColsView();
 

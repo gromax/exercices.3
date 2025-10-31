@@ -3,20 +3,12 @@ import { ShowExerciceView } from './view.js';
 
 const Controller = MnObject.extend({
   channelName: 'app',
-  show(id, exercice) {
+  show(exercice) {
     const channel = this.getChannel();
-    if (exercice === undefined) {
-      channel.trigger("ariane:reset", [
-        { text: "Exercices", link: "exercices" },
-        { text: "Exercice inconnu", link: `exercice:${id}` }
-      ]);
-      channel.trigger("missing:item");
+    if (!exercice) {
+      channel.trigger("popup:error", "Exercice inconnu.");
       return;
     }
-    channel.trigger("ariane:reset", [
-      { text: "Exercices", link: "exercices" },
-      { text: exercice.get("title"), link: `exercice:${id}` }
-    ]);
     const view = new ShowExerciceView({
       model: exercice
     });

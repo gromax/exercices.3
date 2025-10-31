@@ -26,13 +26,11 @@ const Controller = MnObject.extend({
 
   exercicesList(criterion) {
     const channel = this.getChannel();
-    channel.trigger("ariane:reset", [
-      { text:"Exercices", link:"exercices"}
-    ]);
     channel.trigger("loading:up");
     const fetching = channel.request("custom:entities", ["sujetsexercices"]);
     $.when(fetching).done((data) => {
       const {sujetsexercices} = data;
+      channel.trigger("ariane:push", { text:"Exercices", link:"exercices"});
       require("./list/controller.js").controller.list(sujetsexercices, criterion);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
@@ -46,13 +44,19 @@ const Controller = MnObject.extend({
     channel.trigger("loading:up");
     const fetching = channel.request("data:getitem", "sujetsexercices", id);
     $.when(fetching).done((sujetExo) => {
-      require("./show/controller.js").controller.show(id, sujetExo);
+      if (!sujetExo) {
+        channel.trigger("not:found");
+        return;
+      }
+      channel.trigger("ariane:push", { text: sujetExo.get("title"), link: `exercice:${id}` });
+      require("./show/controller.js").controller.show(sujetExo);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {
       channel.trigger("loading:down");
     });
   },
+
   sujetExerciceEdit(id) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
@@ -63,7 +67,12 @@ const Controller = MnObject.extend({
     channel.trigger("loading:up");
     const fetching = channel.request("data:getitem", "sujetsexercices", id);
     $.when(fetching).done((sujetExo) => {
-      require("./edit/controller.js").controller.edit(id, sujetExo);
+      if (!sujetExo) {
+        channel.trigger("not:found");
+        return;
+      }
+      channel.trigger("ariane:push", { text:"Modification", link:`exercice:${id}/edit` });
+      require("./edit/controller.js").controller.edit(sujetExo);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {
