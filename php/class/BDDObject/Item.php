@@ -440,7 +440,7 @@ abstract class Item
         $champs = static::champs();
         if (isset($champs[$k]) && isset($champs[$k]['type']))
         {
-          $type = $champs[$k]['type'];
+          $type = static::$TYPES[$champs[$k]['type']] ?? PDO::PARAM_STR;
         } else {
           $type = PDO::PARAM_STR;
         }
