@@ -24,7 +24,7 @@ const Controller = MnObject.extend({
       listItemsLayout.getRegion('itemsRegion').show(devoirsListView);
     });
 
-    new Region({ el:"#main-region" }).show(listItemsLayout);
+    channel.request("region:main").show(listItemsLayout);
   },
 });
 

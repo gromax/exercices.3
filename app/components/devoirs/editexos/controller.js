@@ -68,8 +68,7 @@ const Controller = MnObject.extend({
       return;
     }
     
-    const region = new Region({ el: '#main-region' });
-    this.showLayoutView(devoir, assosExos, region);
+    this.showLayoutView(devoir, assosExos, channel.request("region:main"));
   },
 
   showAddExo(devoir, assosExos, sujetsexercices, criterion) {
@@ -80,7 +79,7 @@ const Controller = MnObject.extend({
     }
 
     const twocolsLayout = new TwoColsView();
-    new Region({ el: '#main-region' }).show(twocolsLayout);
+    channel.request("region:main").show(twocolsLayout);
     const { assosExosView } = this.showLayoutView(devoir, assosExos, twocolsLayout.getRegion('left'));
 
     // ensuite j'ajoute la liste des sujets d'exercices à droite
@@ -127,7 +126,7 @@ const Controller = MnObject.extend({
     }
 
     const twocolsLayout = new TwoColsView();
-    new Region({ el: '#main-region' }).show(twocolsLayout);
+    channel.request("region:main").show(twocolsLayout);
     const { assosExosView } = this.showLayoutView(devoir, assosExos, twocolsLayout.getRegion('left'));
     require('../../exercices/run/controller.js').controller.showApercuInDevoir(
       sujet,

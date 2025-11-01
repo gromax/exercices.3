@@ -20,7 +20,7 @@ const Controller = MnObject.extend({
       const idUser = model.get('idUser');
       channel.trigger("notes:devoir:user:show", idDevoir, idUser);
     });
-    new Region({ el: '#main-region' }).show(notesView);
+    channel.request("region:main").show(notesView);
   },
 
   showNotesListForEleve(eleve, collecNotes) {
@@ -47,7 +47,7 @@ const Controller = MnObject.extend({
         channel.trigger("popup:alert", "À réfléchir. Pb de navigation ?");
       }
     });
-    new Region({ el: '#main-region' }).show(notesView);
+    channel.request("region:main").show(notesView);
   }
 
 });

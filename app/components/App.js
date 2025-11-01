@@ -4,11 +4,12 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'use-bootstrap-tag/dist/use-bootstrap-tag.css'
 import "katex/dist/katex.min.css";
 import '../styles/application.css'; // ton CSS personnalisé
-import { Application} from 'backbone.marionette';
+import { Application, Region } from 'backbone.marionette';
 import { SessionApp } from './session/app';
 import Radio from 'backbone.radio';
 
 const radioApp = Radio.channel("app");
+const mainRegion = new Region({ el: "#main-region" });
 
 _.extend(Backbone.History.prototype, {
   loadUrl: function(fragment) {
@@ -50,6 +51,8 @@ const Manager = Application.extend({
 
     // import de l'appli entities, session
     const whenSessionLoaded = () => {
+      radioApp.reply("region:main", () => mainRegion);
+      
       require('./header/app.js').headerApp.show();
       require('./home/app.js');
       require('./ariane/app.js').arianeApp.show();

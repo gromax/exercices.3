@@ -28,7 +28,7 @@ const Controller = MnObject.extend({
   
   list(exercices, criterion) {
     const channel = this.getChannel();
-    const region = new Region({ el: "#main-region" });
+    const region = channel.request("region:main");
     const { listExercicesView } = this.makeView(exercices, criterion, region);
     listExercicesView.on("item:sujet:exercice:show", (childView) => {
       channel.trigger("sujet:exercice:show", childView.model.get("id"));

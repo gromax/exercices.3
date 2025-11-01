@@ -12,7 +12,7 @@ const Controller = MnObject.extend({
     const view = new ShowExerciceView({
       model: exercice
     });
-    new Region({ el: '#main-region' }).show(view);
+    channel.request("region:main").show(view);
   }
 });
 

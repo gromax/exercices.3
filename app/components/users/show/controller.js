@@ -20,8 +20,8 @@ const Controller = MnObject.extend ({
     view.on("click:edit:pwd", () => {
       channel.trigger("user:editPwd", user.get("id"));
     });
-    
-    new Region({ el: '#main-region' }).show(view);
+
+    channel.request("region:main").show(view);
   }
 });
 

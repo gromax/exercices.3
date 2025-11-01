@@ -3,7 +3,7 @@ import { EditClasseView } from './views.js';
 
 const Controller = MnObject.extend({
   channelName: "app",
-  edit(classe) {
+  edit(classe, region) {
     const channel = this.getChannel();
     
     if (!classe) {
@@ -19,10 +19,10 @@ const Controller = MnObject.extend({
     view.on("success", (model, resp) => {
       channel.trigger("classe:show", model.get("id"));
     });
-    new Region({ el: '#main-region' }).show(view);
+    region.show(view);
   },
 
-  newClasse(prof) {
+  newClasse(prof, region) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
     if (!prof) {
@@ -43,7 +43,7 @@ const Controller = MnObject.extend({
       channel.trigger("data:collection:additem", "classes", model);
       channel.trigger("classe:show", model.get("id"));
     });
-    new Region({ el: '#main-region' }).show(view);
+    region.show(view);
   },
 });
 

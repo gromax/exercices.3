@@ -57,7 +57,7 @@ const Controller = MnObject.extend ({
       } else {
         channel.trigger("ariane:push", { text: "Classes", link: "classes" });
       }
-      require("./list/controller.js").controller.list(classes, user);
+      require("./list/controller.js").controller.list(classes, user, channel.request("region:main"));
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
     }).always( () => {
@@ -83,7 +83,7 @@ const Controller = MnObject.extend ({
         return;
       }
       channel.trigger("ariane:push", { text: classe.get("nom"), link: `classe:${id}` });
-      require("./show/controller.js").controller.show(classe);
+      require("./show/controller.js").controller.show(classe, channel.request("region:main"));
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
     }).always( () => {
@@ -108,7 +108,7 @@ const Controller = MnObject.extend ({
         return;
       }
       channel.trigger("ariane:push", { text: `Modification de ${classe.get("name")}`, link: `classe:${id}/edit` });
-      require("./edit/controller.js").controller.edit(classe);
+      require("./edit/controller.js").controller.edit(classe, channel.request("region:main"));
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
     }).always( () => {
@@ -128,7 +128,7 @@ const Controller = MnObject.extend ({
     $.when(fetchingClasses).done( (data) => {
       const { classes } = data;
       channel.trigger("ariane:push", { text: "Classes ouvertes", link: "classes/signin" });
-      require("./signin/controller.js").controller.showSigninClasses(classes);
+      require("./signin/controller.js").controller.showSigninClasses(classes, channel.request("region:main"));
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
     }).always( () => {
@@ -164,7 +164,7 @@ const Controller = MnObject.extend ({
       } else {
         channel.trigger("ariane:push", { text: "Créer une nouvelle classe", link: "classe/new", fragile:true });
       }
-      require("./edit/controller.js").controller.newClasse(prof || logged);
+      require("./edit/controller.js").controller.newClasse(prof || logged, channel.request("region:main"));
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {

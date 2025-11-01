@@ -5,7 +5,7 @@ import { ListLayout } from '../../common/views.js'
 const Controller = MnObject.extend({
   channelName: 'app',
 
-  list(classes, prof = null) {
+  list(classes, prof, region) {
     // classes peuvent être filtrées si on est dans le contexte d'un prof
     // mais dans ce cas, pas de add possible
     const channel = this.getChannel();
@@ -44,7 +44,7 @@ const Controller = MnObject.extend({
       channel.trigger("classe:edit", childView.model.get("id"));
     });
 
-    new Region({ el: "#main-region" }).show(listItemsLayout);
+    region.show(listItemsLayout);
   }
 });
 

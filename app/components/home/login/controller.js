@@ -33,7 +33,7 @@ const Controller = MnObject.extend({
         })
       }
     });
-    new Region({ el: '#main-region'}).show(view);
+    channel.request("region:main").show(view);
   },
   showReLogin(options) {
     let that = this;
@@ -67,7 +67,7 @@ const Controller = MnObject.extend({
         view.triggerMethod("form:data:invalid", [{success:false, message:"C'est une reconnexion : Vous devez réutiliser le même identifiant que précedemment."}]);
       }
     });
-    new Region({ el: '#main-region'}).show(view);
+    channel.request("region:main").show(view);
   }
 });
 

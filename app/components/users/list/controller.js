@@ -65,7 +65,7 @@ const Controller = MnObject.extend ({
       that.sudo(model.get("id"));
     });
 
-    new Region({ el: "#main-region" }).show(usersListLayout);
+    channel.request("region:main").show(usersListLayout);
   },
 
   sudo(id) {

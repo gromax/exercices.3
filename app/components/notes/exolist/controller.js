@@ -6,7 +6,7 @@ const Controller = MnObject.extend({
   showNotesExosListForDevoirUser(note, collecNotesExo, user) {
     const channel = this.getChannel();
     const layoutView = new LayoutView();
-    new Region({ el: '#main-region' }).show(layoutView);
+    channel.request("region:main").show(layoutView);
     const panelView = new PanelView({
       model: note,
       nomComplet: user.get('nomComplet'),

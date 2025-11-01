@@ -4,7 +4,7 @@ import { ShowClasseView } from './views.js';
 const Controller = MnObject.extend({
   channelName: 'app',
 
-  show(classe) {
+  show(classe, region) {
     const channel = this.getChannel();
 
     if (!classe) {
@@ -15,7 +15,7 @@ const Controller = MnObject.extend({
     const view = new ShowClasseView({
       model: classe
     });
-    new Region({ el: '#main-region' }).show(view);
+    region.show(view);
   }
 });
 

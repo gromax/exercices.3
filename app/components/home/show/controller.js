@@ -8,8 +8,9 @@ import { AdminProfPanel } from './admin_prof_panel';
 const Controller = MnObject.extend({
   channelName: "app",
   notFound() {
+    const channel = this.getChannel();
     const view = new NotFoundView();
-    new Region({ el: '#main-region'}).show(view);
+    channel.request("region:main").show(view);
   },
   showAdminHome() {
     const channel = this.getChannel();
@@ -17,7 +18,7 @@ const Controller = MnObject.extend({
     let unread = this.getChannel().request("logged:get").get("unread");
     const view = new AdminProfPanel({adminMode:true, unread:unread});
     view.on("show:list", (cible)=> this.getChannel().trigger(`${cible}:list`));
-    new Region({ el: '#main-region'}).show(view);
+    channel.request("region:main").show(view);
   },
 
   showProfHome() {
@@ -25,25 +26,26 @@ const Controller = MnObject.extend({
     channel.trigger("ariane:reset", []);
     let unread = this.getChannel().request("logged:get").get("unread");
     const view = new AdminProfPanel({adminMode:false, unread:unread});
-    new Region({ el: '#main-region'}).show(view);
+    channel.request("region:main").show(view);
   },
 
   showOffHome() {
     const channel = this.getChannel();
     channel.trigger("ariane:reset", []);
     const view = new OffView();
-    new Region({ el: '#main-region'}).show(view);
+    channel.request("region:main").show(view);
   },
 
   showLogOnForgottenKey(success) {
+    const channel = this.getChannel();
     if (success) {
       let view = new ForgottenKeyView();
       view.on("forgotten:reinitMDP:click", () => {
-        this.getChannel().trigger("user:editPwd", null);
+        channel.trigger("user:editPwd", null);
       });
-      new Region({ el: '#main-region'}).show(view);
+      channel.request("region:main").show(view);
     } else {
-      this.getChannel().trigger("show:message:error", {
+      channel.trigger("show:message:error", {
         title:"Clé introuvable !",
         message:"L'adresse que vous avez saisie n'est pas valable."
       });

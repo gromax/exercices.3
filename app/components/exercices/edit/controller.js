@@ -35,7 +35,7 @@ const Controller = MnObject.extend ({
       }
       channel.trigger("exercice:apercu", exoApercu, layoutView.getRegion('right'));
     });
-    new Region({el: "#main-region"}).show(layoutView);
+    channel.request("region:main").show(layoutView);
     layoutView.showChildView('left', view);
     view.triggerMethod("form:apercu");
   },
