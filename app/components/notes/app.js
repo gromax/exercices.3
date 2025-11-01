@@ -82,8 +82,8 @@ const Controller = MnObject.extend({
       idDevoir = Number(idDevoir);
       idUser = Number(idUser);
       const {notesexos, notes, users} = data;
-      const note = notes.find(d => d.idDevoir === idDevoir);
-      const user = users.find(u => u.id === idUser);
+      const note = notes.find(d =>  d.get('idDevoir') === idDevoir);
+      const user = users.get(idUser);
       if (!note || !user) {
         channel.trigger("not:found");
         return;
