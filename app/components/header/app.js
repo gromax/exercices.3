@@ -2,6 +2,7 @@ import { MnObject, Region } from 'backbone.marionette';
 import { HeaderView } from './view.js';
 
 const navbar = new HeaderView();
+const headerRegion = new Region({ el: '#header-region' });
 
 const HeaderApp = MnObject.extend({
   channelName: "app",
@@ -15,17 +16,14 @@ const HeaderApp = MnObject.extend({
   initialize() {
     const channel = this.getChannel();
     navbar.on("home:show", () => { channel.trigger("home:show"); });
-    navbar.on("home:editme", () => { channel.trigger("home:editme"); });
+    navbar.on("home:editme", () => { channel.trigger("user:show:me"); });
     navbar.on("home:login", () => { channel.trigger("home:login"); });
     navbar.on("home:logout", () => { channel.trigger("home:logout"); });
     navbar.on("messages:list", () => { channel.trigger("messages:show:list"); });
   },
 
   show() {
-    const myRegion = new Region({
-      el: '#header-region'
-    });
-    myRegion.show(navbar);
+    headerRegion.show(navbar);
   },
 
   onLoadingDown() {
