@@ -4,6 +4,7 @@ const Controller = MnObject.extend ({
   channelName: 'app',
   radioEvents: {
     "user:show": "onShowUser",
+    "user:show:me": "onShowUserMe",
     "users:classe:show": "onUsersClasseShow",
     "user:classe:signin":"onUserClasseSignin"
   },
@@ -12,6 +13,16 @@ const Controller = MnObject.extend ({
     Backbone.history.navigate(`user:${id}`, {});
     this.showUser(id);
   },
+
+  onShowUserMe() {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    if (!logged) {
+      return;
+    }
+    this.showUser(logged.get("id"));
+  },
+
   onUsersClasseShow(idClasse) {
     Backbone.history.navigate(`users/classe:${idClasse}`, {});
     this.listUsers(idClasse);
@@ -96,9 +107,7 @@ const Controller = MnObject.extend ({
         return;
       }
       if (isMe) {
-        channel.trigger("ariane:reset", [
-          { text: "Mon compte", link: `user:${id}` }
-        ]);
+        channel.trigger("ariane:push", { text: "Mon compte", link: `user:${id}`, fragile: true });
       } else {
         channel.trigger("ariane:push", { text: user.get("nomComplet"), link: `user:${id}` });
       }
@@ -113,7 +122,7 @@ const Controller = MnObject.extend ({
   editUser(id, pwd = false) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
-    const isMe = (logged.get("id") === Number(id));
+    const isMe = (logged.id === Number(id));
     if (!isMe && !(logged.isAdmin() || logged.isProf())) {
       channel.trigger("not:found");
       return;
@@ -126,12 +135,18 @@ const Controller = MnObject.extend ({
         return;
       }
       if (isMe) {
-        channel.trigger("ariane:reset", []);
+        channel.trigger("ariane:push", {
+          text: pwd === true ? "Modification de votre mot de passe" : "Modification de vos informations",
+          link: `user:${id}/edit`,
+          fragile: true
+        });
+      } else {
+        channel.trigger("ariane:push", {
+          text: pwd === true ? "Modification du mot de passe" : "Modification des informations",
+          link: `user:${id}/edit`,
+          fragile: true
+        });
       }
-      channel.trigger("ariane:push", {
-        text: pwd === true ? "Modification du mot de passe" : "Modification des informations",
-        link: `user:${id}/edit`
-      });
       require("./edit/controller.js").controller.editUser(user, pwd);
     }).fail( (response) => {
       channel.trigger("data:fetch:fail", response);
