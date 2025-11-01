@@ -62,25 +62,22 @@ const Controller = MnObject.extend({
       request.done( (data) => {
         for (const colName of ask) {
           if (!data[colName]) continue;
-          let colObj = false;
+          let ColObj = false;
           switch (colName) {
-            case "devoirs": colObj = require("./devoirs/entity.js"); break;
-            case "exodevoirs": colObj = require("./devoirs/exodevoir.js"); break;
-            case "users": colObj = require("./users/entity.js"); break;
-            case "classes": colObj = require("./classes/entity.js"); break;
-            case "sujetsexercices": colObj = require("./exercices/sujetexo.js"); break;
-            case "notesexos": colObj = require("./notes/noteexo.js"); break;
-            case "notes": colObj = require("./notes/note.js"); break;
-            //case "exofiches": colObj = require("@entities/exofiches.js"); break;
-            //case "faits": colObj = require("@entities/faits.js"); break;
-            //case "exams": colObj = require("@entities/exams.js"); break;
+            case "devoirs": ColObj = require("./devoirs/entity.js").Collection; break;
+            case "exodevoirs": ColObj = require("./devoirs/exodevoir.js").Collection; break;
+            case "users": ColObj = require("./users/entity.js").Collection; break;
+            case "classes": ColObj = require("./classes/entity.js").Collection; break;
+            case "sujetsexercices": ColObj = require("./exercices/sujetexo.js").Collection; break;
+            case "notesexos": ColObj = require("./notes/noteexo.js").Collection; break;
+            case "notes": ColObj = require("./notes/note.js").Collection; break;
           }
-          if (colObj !== false) {
+          if (ColObj !== false) {
             try {
-              this.stored_data[colName] = new colObj.Collection(data[colName], { parse:true });
+              this.stored_data[colName] = new ColObj(data[colName], { parse:true });
               this.stored_time[colName] = Date.now();
             } catch(e) {
-              this.stored_data[colName] = new colObj.Collection([]);
+              this.stored_data[colName] = new ColObj([]);
               this.stored_time[colName] = Date.now();
               console.warn("Erreur lors du parse de la collection "+colName);
             }
@@ -125,7 +122,7 @@ const Controller = MnObject.extend({
     if (typeof this.stored_data.me !== "undefined" && typeof this.stored_time.me !== "undefined" && t - this.stored_time.me < this.timeout) {
       defer.resolve(this.stored_data.me);
     } else {
-      const request = this.request("api/me");
+      const request = this.fetch("api/me");
       request.done( (data) => {
         const User = require("./users/entity.js").Item;
         this.stored_data.me = new User(data, {parse:true});
