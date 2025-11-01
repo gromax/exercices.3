@@ -1,7 +1,6 @@
 import { Toast } from 'bootstrap';
 import { View } from 'backbone.marionette'
 import alert_tpl from '@templates/alerts/alert-view.jst'
-import missing_item_tpl from '@templates/alerts/missing-item.jst'
 import popup_tpl from '@templates/alerts/popup.jst'
 
 const AlertView = View.extend ({
@@ -20,16 +19,6 @@ const AlertView = View.extend ({
       message: this.getOption("message"),
       type: this.getOption("type"),
       dismiss: this.getOption("dismiss")
-    };
-  }
-});
-
-const MissingView = View.extend ({
-  template: missing_item_tpl,
-  message: "Cet item n'existe pas.",
-  templateContext() {
-    return {
-      message: this.getOption("message")
     };
   }
 });
@@ -56,4 +45,4 @@ const PopupView = View.extend ({
   }
 });
 
-export { AlertView, MissingView, PopupView };
+export { AlertView, PopupView };

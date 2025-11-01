@@ -1,5 +1,5 @@
 import { MnObject, Region } from 'backbone.marionette';
-import { AlertView, MissingView, PopupView } from './views.js'
+import { AlertView, PopupView } from './views.js'
 
 const messageRegion = new Region({
   el: '#message-region'
@@ -12,7 +12,6 @@ const Controller = MnObject.extend({
     "show:message:error":"showMessageError",
     "data:fetch:fail":"dataFetchFail",
     "not:found": "notFound",
-    "missing:item": "missingItem",
     "popup:alert": "popupAlert",
     "popup:error": "popupError",
     "popup:info": "popupInfo",
@@ -86,12 +85,7 @@ const Controller = MnObject.extend({
       dismiss: false
     });
     channel.trigger("ariane:push", { text:"Page introuvable", link:"", fragile:true });
-    new Region({ el: '#main-region' }).show(view);
-  },
-
-  missingItem(item) {
-    const view = new MissingView();
-    new Region({ el: '#main-region' }).show(view);
+    channel.request("region:main").show(view);
   },
 
   popup(data) {
