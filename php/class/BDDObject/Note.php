@@ -20,6 +20,7 @@ final class Note extends Item
   {
     return [
       'nom' => ['def' => "", 'type'=> 'string'],         // nom du devoir
+      'description' => ['def' => "", 'type'=> 'string'], // description du devoir
       'idOwner' => ['def' => 0, 'type'=> 'int'],         // id du propriétaire du devoir
       'nomOwner' => ['def' => "", 'type'=> 'string', 'foreign'=>'owners.nom'], // nom du propriétaire du devoir
       'idClasse' => ['def' => 0, 'type'=> 'int'],        // id de la classe associée
@@ -72,7 +73,7 @@ SELECT users.id AS idUser, COALESCE(MAX(trials.note),0) AS note, exodevoirs.id A
       __where_trials_clause__
       GROUP BY users.id, exodevoirs.id
     )
-    SELECT devoirs.id AS idDevoir, devoirs.nom,
+    SELECT devoirs.id AS idDevoir, devoirs.nom, devoirs.description,
            devoirs.idClasse, classes.nom AS nomClasse,
            owners.nom AS nomOwner, devoirs.idOwner AS idOwner,
            users.nom AS nomUser, users.prenom AS prenomUser, users.id AS idUser,
