@@ -14,8 +14,11 @@ const Controller = MnObject.extend ({
     }
     const isAdmin = channel.request("logged:get").isAdmin();
     const OView = pwd === true ? EditPwdUserView : EditUserView;
+    const isMe = (logged.id === user.id);
+    const titleMdp = isMe ? "Modification de votre mot de passe" : `Modification du mot de passe de ${user.get('nomComplet')}`;
+    const titleInfo = isMe ? "Modification de vos informations" : `Modification des informations de ${user.get('nomComplet')}`;
     const view = new OView({
-      title: pwd === true ? "Modification du mot de passe" : `Modification de ${user.get('prenom')} ${user.get('nom')}`,
+      title: pwd === true ? titleMdp : titleInfo,
       model: user,
       editorIsAdmin: isAdmin,
       errorCode: "028",
@@ -26,7 +29,7 @@ const Controller = MnObject.extend ({
       }
       channel.trigger("user:show", user.id);
     });
-    new Region({ el: '#main-region' }).show(view);
+    channel.request("region:main").show(view);
   },
 
   NewUserView() {
@@ -43,7 +46,7 @@ const Controller = MnObject.extend ({
       channel.trigger("data:collection:additem", "users", model);
       channel.trigger("user:show", model.get("id"));
     });
-    new Region({ el: "#main-region" }).show(view);
+    channel.request("region:main").show(view);
   },
 
   classeSignin(classe) {
@@ -65,7 +68,7 @@ const Controller = MnObject.extend ({
         model: user
       });
     }
-    new Region({ el: "#main-region" }).show(view);
+    channel.request("region:main").show(view);
     view.on("success", (data) => {
       channel.trigger("popup:info", {
         title: `Bienvenue ${data.prenom} ${data.nom}`,
