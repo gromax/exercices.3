@@ -119,8 +119,8 @@ const Controller = MnObject.extend({
         channel.trigger("not:found");
         return;
       }
-      const notesDuUser = notes.filter(a => a.get('idUser') === user.id);
-      const collecNotes = new notes.constructor(notesDuUser);
+      const notesUser = notes.filter(a => a.get('idUser') === user.id);
+      const collecNotes = new notes.constructor(notesUser);
 
       if (logged.id === idUser) {
         // si utilisateur est user alors se sont ses notes et c'est le home
