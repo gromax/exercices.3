@@ -5,6 +5,7 @@ const Controller = MnObject.extend({
   channelName: 'app',
   showNotesExosListForDevoirUser(note, collecNotesExo, user) {
     const channel = this.getChannel();
+    const logged = channel.request("logged:get");
     const layoutView = new LayoutView();
     channel.request("region:main").show(layoutView);
     const panelView = new PanelView({
@@ -16,6 +17,12 @@ const Controller = MnObject.extend({
     const notesView = new NotesExosCollectionView({
       collection: collecNotesExo,
     });
+    if (logged.isEleve()) {
+      notesView.on("item:show", (childView) => {
+        const model = childView.model;
+        channel.trigger("exodevoir:run", model.get("idExoDevoir"));
+      });
+    }
     layoutView.getRegion('itemsRegion').show(notesView);
   }
 });
