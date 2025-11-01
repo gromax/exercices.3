@@ -6,7 +6,8 @@ const Controller = MnObject.extend({
   radioEvents: {
     "exercices:list": "onExercicesList",
     "sujet:exercice:show": "onSujetExerciceShow",
-    "exercice:apercu": "onExerciceApercu"
+    "exercice:apercu": "onExerciceApercu",
+    "exodevoir:run": "onExoDevoirRun"
   },
 
   onExercicesList() {
@@ -22,6 +23,11 @@ const Controller = MnObject.extend({
 
   onExerciceApercu(sujetExo, region) {
     require("./run/controller.js").controller.showApercu(sujetExo, region);
+  },
+
+  onExoDevoirRun(idExoDevoir) {
+    Backbone.history.navigate(`exodevoir:${idExoDevoir}/run`, {});
+    this.exoDevoirRun(idExoDevoir);
   },
 
   exercicesList(criterion) {
@@ -78,6 +84,45 @@ const Controller = MnObject.extend({
     }).always(() => {
       channel.trigger("loading:down");
     });
+  },
+
+  exoDevoirRun(idExoDevoir) {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    if (logged.isOff()) {
+      channel.trigger("not:found");
+      return;
+    }
+    channel.trigger("loading:up");
+    const fetching = channel.request("custom:entities", ["exodevoirs", "devoirs", "sujetsexercices"]);
+    $.when(fetching).done((data) => {
+      const {exodevoirs, devoirs, sujetsexercices} = data;
+      const exoDevoir = exodevoirs.get(idExoDevoir);
+      if (!exoDevoir) {
+        channel.trigger("not:found");
+        return;
+      }
+      const sujetExo = sujetsexercices.get(exoDevoir.get("idExo"));
+      if (!sujetExo) {
+        channel.trigger("not:found");
+        return;
+      }
+      const devoir = devoirs.get(exoDevoir.get("idDevoir"));
+      if (!devoir) {
+        channel.trigger("not:found");
+        return;
+      }
+      if (logged.isEleve() && devoir.get("idClasse") !== logged.get("idClasse")) {
+        channel.trigger("not:found");
+        return;
+      }
+      // prof ne pourrait de toute façon pas voir un devoir dont il n'est pas l'auteur
+      console.log(`Prêt à lancer l'exercice devoir ${exoDevoir.id} pour le devoir ${devoir.get("nom")} et l'exercice ${sujetExo.get("title")}`);
+    }).fail((response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always(() => {
+      channel.trigger("loading:down");
+    });
   }
 });
 
@@ -87,7 +132,8 @@ const Router = Backbone.Router.extend({
   routes: {
     "exercices(/filter/criterion::criterion)": "exercicesList",
     "sujet-exercice::id": "sujetExerciceShow",
-    "sujet-exercice::id/edit": "sujetExerciceEdit"
+    "sujet-exercice::id/edit": "sujetExerciceEdit",
+    "exodevoir::idExoDevoir/run": "exoDevoirRun"
   },
 
   exercicesList(criterion) {
@@ -98,6 +144,9 @@ const Router = Backbone.Router.extend({
   },
   sujetExerciceEdit(id) {
     controller.sujetExerciceEdit(id);
+  },
+  exoDevoirRun(idExoDevoir) {
+    controller.exoDevoirRun(idExoDevoir);
   }
 });
 
