@@ -1,4 +1,5 @@
 import { MnObject } from 'backbone.marionette';
+import { MyModel } from './common/entity.js';
 
 const Controller = MnObject.extend({
   channelName: 'app',
@@ -116,18 +117,13 @@ const Controller = MnObject.extend({
    */
   getItem(entityName, idItem) {
     const defer = $.Deferred();
-    const col = this.getChachedCollection(entityName);
-    if (col === null) {
-      const fetching = this.getCustomEntities([entityName]);
-      $.when(fetching).done( (data) => {
-        const col = data[entityName];
-        defer.resolve(col.get(idItem));
-      }).fail( (response) => {
-        defer.reject(response);
-      });
-    } else {
-      defer.resolve(col.get(idItem));
-    }
+    const name = `${entityName}:${idItem}`;
+    const fetching = this.getCustomEntities([name]);
+    $.when(fetching).done( (data) => {
+      defer.resolve(data[name]);
+    }).fail( (response) => {
+      defer.reject(response);
+    });
     return defer.promise();
   },
 
@@ -171,7 +167,7 @@ const Controller = MnObject.extend({
   addItemToCache(colName, itemData) {
     const col = this.getChachedCollection(colName);
     if (col) {
-      col.add(itemData, { parse:Array.isArray(itemData) });
+      col.add(itemData, { parse:!(itemData instanceof MyModel) });
     } else {
       const ColConstructor = this.getCollectionConstructor(colName);
       if (ColConstructor) {
@@ -180,7 +176,7 @@ const Controller = MnObject.extend({
         const col = this.addEmptyCollectionToCache(colName);
         if (col) {
           col.setPartial(true);
-          col.add(itemData, { parse:Array.isArray(itemData) });
+          col.add(itemData, { parse:!(itemData instanceof MyModel) });
         }
       }
     }
@@ -212,12 +208,17 @@ const Controller = MnObject.extend({
       if (col) {
         const item = col.get(id);
         if (item) return item;
-        if (col.partial) return false;
+        if (col.getPartial()) return false;
         return null;
       }
       return false;
     } else {
-      return this.getChachedCollection(name);
+      const col = this.getChachedCollection(name);
+      if (!col) return false;
+      if (col.getPartial() === true) {
+        return false;
+      }
+      return col;
     }
   },
 
@@ -248,7 +249,7 @@ const Controller = MnObject.extend({
           return false;
     }
     const col = this.stored_data[colName];
-    if (col.partial) {
+    if (col.getPartial()) {
       return false;
     }
     return col;

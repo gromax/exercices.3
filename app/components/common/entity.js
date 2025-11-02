@@ -19,7 +19,7 @@ const MyModel = Backbone.Model.extend({
 
 const MyCollection = Backbone.Collection.extend({
   _partial: false,
-  get partial() {
+  getPartial() {
     return this._partial;
   },
   
