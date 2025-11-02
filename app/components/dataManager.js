@@ -28,6 +28,19 @@ const Controller = MnObject.extend({
     });
   },
 
+  getCollectionConstructor(name) {
+    switch (name) {
+      case "devoirs": return require("./devoirs/entity.js").Collection;
+      case "exodevoirs": return require("./devoirs/exodevoir.js").Collection;
+      case "users": return require("./users/entity.js").Collection;
+      case "classes": return require("./classes/entity.js").Collection;
+      case "sujetsexercices": return require("./exercices/sujetexo.js").Collection;
+      case "notesexos": return require("./notes/noteexo.js").Collection;
+      case "notes": return require("./notes/note.js").Collection;
+      default: return null;
+    }
+  },
+
   classesToJoinFetch() {
     const defer = $.Deferred();
     if (
@@ -50,41 +63,43 @@ const Controller = MnObject.extend({
     return defer.promise();
   },
 
+  /**
+   * Récupère des entités personnalisées
+   * @param {Array} ask Liste des entités à récupérer de forme key ou [key,id]
+   * @returns {Promise} Promesse résolue avec les entités demandées
+   */
   getCustomEntities(ask) {
     const defer = $.Deferred();
-    const toFetch = _.filter(ask, (item) => this.getChachedCollection(item) === null);
+    const alreadyKnown = Object.fromEntries(ask.map(
+      (name) => [name, this.getEntityFromCache(name)]
+    ));
+    const toFetch = ask.filter(
+      (name) => alreadyKnown[name] === false
+    );
     if (toFetch.length === 0) {
       // Pas de fetch requis => on renvoie les résultats
-      const responseObj = Object.fromEntries(ask.map(k => [k, this.stored_data[k]]));
-      defer.resolve(responseObj);
+      defer.resolve(alreadyKnown);
     } else {
       const request = this.fetch("api/customData/"+toFetch.join("&"));
       request.done( (data) => {
-        for (const colName of ask) {
-          if (!data[colName]) continue;
-          let ColObj = false;
-          switch (colName) {
-            case "devoirs": ColObj = require("./devoirs/entity.js").Collection; break;
-            case "exodevoirs": ColObj = require("./devoirs/exodevoir.js").Collection; break;
-            case "users": ColObj = require("./users/entity.js").Collection; break;
-            case "classes": ColObj = require("./classes/entity.js").Collection; break;
-            case "sujetsexercices": ColObj = require("./exercices/sujetexo.js").Collection; break;
-            case "notesexos": ColObj = require("./notes/noteexo.js").Collection; break;
-            case "notes": ColObj = require("./notes/note.js").Collection; break;
+        for (const name of ask) {
+          if (!data[name]) continue;
+          if (name.includes(":")) {
+            const [key, id] = name.split(":");
+            this.addItemToCache(key, data[name]);
+            alreadyKnown[name] = this.stored_data[key].get(id);
+            continue;
           }
-          if (ColObj !== false) {
-            try {
-              this.stored_data[colName] = new ColObj(data[colName], { parse:true });
-              this.stored_time[colName] = Date.now();
-            } catch(e) {
-              this.stored_data[colName] = new ColObj([]);
-              this.stored_time[colName] = Date.now();
-              console.warn("Erreur lors du parse de la collection "+colName);
-            }
+          const col = this.addEmptyCollectionToCache(name);
+          if (!col) continue;
+          try {
+            col.add(data[name], { parse:true });
+            alreadyKnown[name] = col;
+          } catch(e) {
+            console.warn(`Erreur lors du parse de la collection ${name}`);
           }
         }
-        const responseObj = Object.fromEntries(ask.map(k => [k, this.stored_data[k]]));
-        defer.resolve(responseObj);
+        defer.resolve(alreadyKnown);
       }).fail( (response) => {
         defer.reject(response);
       });
@@ -155,8 +170,19 @@ const Controller = MnObject.extend({
    */
   addItemToCache(colName, itemData) {
     const col = this.getChachedCollection(colName);
-    if (col !== null) {
-      col.add(itemData);
+    if (col) {
+      col.add(itemData, { parse:Array.isArray(itemData) });
+    } else {
+      const ColConstructor = this.getCollectionConstructor(colName);
+      if (ColConstructor) {
+        // Création d'une collection partielle
+        // Pour stocker cet item
+        const col = this.addEmptyCollectionToCache(colName);
+        if (col) {
+          col.setPartial(true);
+          col.add(itemData, { parse:Array.isArray(itemData) });
+        }
+      }
     }
   },
 
@@ -167,26 +193,67 @@ const Controller = MnObject.extend({
    */
   removeItemFromCache(colName, idItem) {
     const col = this.getChachedCollection(colName);
-    if (col !== null) {
+    if (col) {
       col.remove(idItem);
     }
   },
 
   /**
-   * renvoie la collection si elle est stockée en cache et pas expirée, sinon null
+   * Renvoie un élément du cache s'il existe et n'est pas expiré
+   * si renvoie false, l'élément n'existe pas mais pourrait exister côté serveur
+   * si renvoie null, l'élément n'existe pas et a priori pas sur le serveur non plus
+   * @param {string} name 
+   * @returns {Item|Collection|null|false}
+   */
+  getEntityFromCache(name) {
+    if (name.includes(":")) {
+      const [key, id] = name.split(":");
+      const col = this.getChachedCollection(key);
+      if (col) {
+        const item = col.get(id);
+        if (item) return item;
+        if (col.partial) return false;
+        return null;
+      }
+      return false;
+    } else {
+      return this.getChachedCollection(name);
+    }
+  },
+
+  /**
+   * Ajoute une collection vide au cache
    * @param {string} colName 
-   * @returns {Collection|null}
+   */
+  addEmptyCollectionToCache(colName) {
+    const ColConstructor = this.getCollectionConstructor(colName);
+    if (!ColConstructor) {
+      return null;
+    }
+    this.stored_data[colName] = new ColConstructor([], { parse:false });
+    this.stored_time[colName] = Date.now();
+    return this.stored_data[colName];
+  },
+  /**
+   * renvoie la collection si elle est stockée en cache et pas expirée,
+   * et complète, sinon false
+   * @param {string} colName 
+   * @returns {Collection|false}
    */
   getChachedCollection(colName) {
     if (this.stored_data[colName] === undefined ||
         this.stored_time[colName] === undefined ||
-        Date.now() - this.stored_time[colName] > this.timeout) {
-          return null;
+        Date.now() - this.stored_time[colName] > this.timeout
+    ) {
+          return false;
     }
-    return this.stored_data[colName];
+    const col = this.stored_data[colName];
+    if (col.partial) {
+      return false;
+    }
+    return col;
   },
 
 });
 
 new Controller();
-
