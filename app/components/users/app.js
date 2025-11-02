@@ -65,10 +65,10 @@ const Controller = MnObject.extend ({
       return;
     }
     channel.trigger("loading:up");
-    const dataToLoad = idClasse ? ["users", "classes"] : ["users"];
+    const dataToLoad = idClasse ? ["users", `classes:${idClasse}`] : ["users"];
     const fetchingUsers = channel.request("custom:entities", dataToLoad);
     $.when(fetchingUsers).done((data) => {
-      const classe = idClasse ? data.classes.get(idClasse) : null;
+      const classe = idClasse ? data[`classes:${idClasse}`] : null;
       if (idClasse !== null && !classe) {
         channel.trigger("not:found");
         return;
