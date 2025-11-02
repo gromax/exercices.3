@@ -18,6 +18,15 @@ const MyModel = Backbone.Model.extend({
 });
 
 const MyCollection = Backbone.Collection.extend({
+  _partial: false,
+  get partial() {
+    return this._partial;
+  },
+  
+  setPartial(value) {
+    this._partial = Boolean(value);
+  },
+
   sync(method, model, options) {
     options = options || {};
     const token = localStorage.getItem('jwt');
