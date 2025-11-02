@@ -15,12 +15,14 @@ const Controller = MnObject.extend({
 
   devoirShow(id) {
     const channel = this.getChannel();
-    const fetching = channel.request("custom:entities", ["devoirs", "exodevoirs"]);
+    //const fetching = channel.request("custom:entities", ["devoirs", "exodevoirs"]);
+    const fetching = channel.request("custom:entities", [`devoirs:${id}`, "exodevoirs"]);
     id = Number(id);
     $.when(fetching).done((data) => {
       // récupérer le bon devoir
-      const {devoirs, exodevoirs} = data;
-      const devoir = devoirs.find(d => d.id === id);
+      const { exodevoirs } = data;
+      const devoir = data[`devoirs:${id}`];
+      //const devoir = devoirs.find(d => d.id === id);
       if (!devoir) {
         channel.trigger("not:found");
         return;
