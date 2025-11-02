@@ -1,5 +1,8 @@
-const Item = Backbone.Model.extend ({
+import { MyModel, MyCollection } from "../common/entity";
+
+const Item = MyModel.extend ({
   urlRoot: "api/notesexos",
+  readOnly: true,
 
   defaults: {
     idExo:null,
@@ -36,44 +39,11 @@ const Item = Backbone.Model.extend ({
     data.options = JSON.parse(data.options);
     return data;
   },
-
-  
-  sync(method, model, options) {
-    options = options || {};
-    const token = localStorage.getItem('jwt');
-
-    // n'autoriser que la lecture ('read') ; bloquer create/update/patch/delete
-    if (method !== 'read') {
-      const err = new Error('Model is read-only');
-      if (options && typeof options.error === 'function') options.error(err);
-      // retourner une Promise rejetée (compatible fetch-style) ou un Deferred si présent
-      if (typeof Promise !== 'undefined') return Promise.reject(err);
-      if (Backbone.$ && Backbone.$.Deferred) return Backbone.$.Deferred().reject(err);
-      throw err;
-    }
-
-    options.beforeSend = function (xhr) {
-      if (token) {
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-      }
-    };
-    return Backbone.sync(method, model, options);
-  }
 });
 
-const Collection = Backbone.Collection.extend({
+const Collection = MyCollection.extend({
   url: "api/notesexos",
   model: Item,
-  sync(method, model, options) {
-    options = options || {};
-    const token = localStorage.getItem('jwt');
-    options.beforeSend = function (xhr) {
-      if (token) {
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-      }
-    };
-    return Backbone.sync(method, model, options);
-  }
 });
 
 export { Item, Collection };

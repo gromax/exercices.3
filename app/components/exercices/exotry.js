@@ -2,8 +2,9 @@
  * Modèle décrivant un essai de réalisation d'un exercice
  */
 
+import { MyModel, MyCollection } from '../common/entity.js'
 
-const Item = Backbone.Model.extend({
+const Item = MyModel.extend({
   urlRoot: "api/tryexos",
   defaults: {
     idExercice: null,
@@ -58,19 +59,12 @@ const Item = Backbone.Model.extend({
   isEleveTry() {
     return (this.get("idUser") !== null) && (this.get("idExoDevoir") !== null);
   },
-
-  sync(method, model, options) {
-    options = options || {};
-    const token = localStorage.getItem('jwt');
-    options.beforeSend = function (xhr) {
-      if (token) {
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-      }
-    };
-    return Backbone.sync(method, model, options);
-  }
-
-
 });
 
-export { Item }
+const Collection = MyCollection.extend({
+  model: Item,
+  url: "api/tryexos",
+  comparator: 'id',
+});
+  
+export { Item, Collection }

@@ -1,4 +1,6 @@
-const Item = Backbone.Model.extend ({
+import { MyModel, MyCollection } from "../common/entity";
+
+const Item = MyModel.extend ({
   urlRoot: "api/exodevoirs",
 
   defaults: {
@@ -86,32 +88,11 @@ const Item = Backbone.Model.extend ({
     data.options = JSON.stringify(data.options);
     return data;
   },
-  
-  sync(method, model, options) {
-    options = options || {};
-    const token = localStorage.getItem('jwt');
-    options.beforeSend = function (xhr) {
-      if (token) {
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-      }
-    };
-    return Backbone.sync(method, model, options);
-  }
 });
 
-const Collection = Backbone.Collection.extend({
+const Collection = MyCollection.extend({
   url: "api/exodevoirs",
   model: Item,
-  sync(method, model, options) {
-    options = options || {};
-    const token = localStorage.getItem('jwt');
-    options.beforeSend = function (xhr) {
-      if (token) {
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-      }
-    };
-    return Backbone.sync(method, model, options);
-  }
 });
 
 export { Item, Collection };

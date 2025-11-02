@@ -1,4 +1,6 @@
-const Item = Backbone.Model.extend({
+import { MyModel, MyCollection } from "../common/entity";
+
+const Item = MyModel.extend({
   urlRoot: "api/exercices",
   defaults: {
     title: "Titre de l'exercice",
@@ -24,21 +26,10 @@ const Item = Backbone.Model.extend({
     data.code = data.code || "";
     return data;
   },
-
-  sync(method, model, options) {
-    options = options || {};
-    const token = localStorage.getItem('jwt');
-    options.beforeSend = function (xhr) {
-      if (token) {
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-      }
-    };
-    return Backbone.sync(method, model, options);
-  }
 });
 
 
-const Collection = Backbone.Collection.extend({
+const Collection = MyCollection.extend({
   url: "api/exercices",
   model: Item,
   comparator: "title"

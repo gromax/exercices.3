@@ -1,7 +1,9 @@
+import { MyModel, MyCollection } from "../common/entity";
+
 const d = new Date();
 const today = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 
-const Item = Backbone.Model.extend ({
+const Item = MyModel.extend ({
   urlRoot: "api/classes",
   defaults: {
     nomOwner: "",
@@ -54,34 +56,12 @@ const Item = Backbone.Model.extend ({
     });
     return promise;
   },
-
-  sync(method, model, options) {
-    options = options || {};
-    const token = localStorage.getItem('jwt');
-    options.beforeSend = function (xhr) {
-      if (token) {
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-      }
-    };
-    return Backbone.sync(method, model, options);
-  }
 });
 
-const Collection = Backbone.Collection.extend({
+const Collection = MyCollection.extend({
   url: "api/classes",
   model: Item,
   comparator: "nom",
-
-  sync(method, model, options) {
-    options = options || {};
-    const token = localStorage.getItem('jwt');
-    options.beforeSend = function (xhr) {
-      if (token) {
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-      }
-    };
-    return Backbone.sync(method, model, options);
-  }
 });
 
 export { Collection, Item }
