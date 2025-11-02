@@ -26,8 +26,7 @@ const Item = MyModel.extend ({
   },
 
   parse(data) {
-    data.idUser = Number(data.id);
-    data.id = `${data.idExoDevoir}_${data.id}`;
+    data.idUser = Number(data.idUser);
     data.idExo = Number(data.idExo);
     data.idExoDevoir = Number(data.idExoDevoir);
     data.idDevoir = Number(data.idDevoir);

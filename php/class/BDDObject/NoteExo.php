@@ -17,6 +17,8 @@ final class NoteExo extends Item
   protected static function champs()
   {
     return [
+      'id' => ['def' => "", 'type'=> 'string', 'alias'=>"id", "sub" => "CONCAT(users.id,'_',exodevoirs.id)"], // identifiant unique de la note exercice
+      'idUser' => ['def' => 0, 'type'=> 'int', 'foreign'=>'users.id'],      // id de l'utilisateur (élève)
       'nom' => ['def' => "", 'type'=> 'string', 'alias' => 'nomUser'], // nom de l'utilisateur
       'prenom' => ['def' => "", 'type'=> 'string', 'alias' => 'prenomUser'], // prénom de l'utilisateur
       'idClasse' => ['def' => 0, 'type'=> 'int', 'foreign'=>'classes.id'],    // id de la classe à laquelle l'exercice a été assigné

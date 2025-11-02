@@ -83,6 +83,9 @@ abstract class Item
     $champs = static::champs();
     $bddName = static::$BDDName;
     $keys = array();
+    if (!isset($champs["id"]) && !in_array("id",$hideCols)) {
+      $keys[] = "$bddName.`id`";
+    }
     foreach ($champs as $key => $val) {
       if (in_array($key,$hideCols)) continue;
       if (isset($val['alias'])) {
@@ -90,7 +93,9 @@ abstract class Item
       } else {
         $alias = $key;
       }
-      if (isset($val['foreign'])) {
+      if (isset($val['sub'])) {
+        $keys[] = $val['sub'] ." AS `$alias`";
+      } else if (isset($val['foreign'])) {
         [$table, $col] = explode(".",$val['foreign']);
         if (isset($val['agregation'])) {
           $keys[] = "COALESCE(".$val['agregation']."($table.`$col`), 0) AS `$alias`";
@@ -190,7 +195,7 @@ abstract class Item
     $fields = static::sqlGetFieldsNames($hideCols, $forcecols);
     $innerJoined = static::sqlGetJoin("inner");
     $leftJoined = static::sqlGetJoin("left");
-    return "SELECT $bddName.id, $fields FROM ($prefixedBddName AS $bddName $innerJoined $leftJoined)";
+    return "SELECT $fields FROM ($prefixedBddName AS $bddName $innerJoined $leftJoined)";
   }
 
   protected static function sqlGetGROUPBY()
@@ -236,7 +241,7 @@ abstract class Item
         );
       }
       $stmt->execute();
-      //EC::add($stmt->queryString, static::$BDDName."/getList");
+      EC::add($stmt->queryString, static::$BDDName."/getList");
       $bdd_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
       } catch(PDOException $e) {
           EC::addBDDError($e->getMessage(), static::$BDDName."/getList");

@@ -19,6 +19,7 @@ final class Note extends Item
   protected static function champs()
   {
     return [
+      'id' => ['def' => 0, 'type'=> 'string', 'alias'=>"id"], // identifiant unique du devoir
       'nom' => ['def' => "", 'type'=> 'string'],         // nom du devoir
       'description' => ['def' => "", 'type'=> 'string'], // description du devoir
       'idOwner' => ['def' => 0, 'type'=> 'int'],         // id du propriétaire du devoir
@@ -73,7 +74,8 @@ SELECT users.id AS idUser, COALESCE(MAX(trials.note),0) AS note, exodevoirs.id A
       __where_trials_clause__
       GROUP BY users.id, exodevoirs.id
     )
-    SELECT devoirs.id AS idDevoir, devoirs.nom, devoirs.description,
+    SELECT CONCAT(users.id, '_', devoirs.id) AS id,
+           devoirs.id AS idDevoir, devoirs.nom, devoirs.description,
            devoirs.idClasse, classes.nom AS nomClasse,
            owners.nom AS nomOwner, devoirs.idOwner AS idOwner,
            users.nom AS nomUser, users.prenom AS prenomUser, users.id AS idUser,
