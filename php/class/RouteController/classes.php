@@ -244,22 +244,20 @@ class classes
     $data['idClasse'] = $idClasse;
     $data['rank'] = User::RANK_ELEVE;
     $user=new User($data);
-    $validation = $user->insertion_validation();
-    if ($validation === true)
+
+    $reponse = $user->insert();
+    if ($reponse === null)
     {
-      $id = $user->insertion();
-      if ($id!==null)
-      {
-        return $user->toArray();
-      }
+        EC::set_error_code(501);
+        return false;
     }
-    else
+    if (is_array($reponse))
     {
-      EC::set_error_code(422);
-      return array('errors'=>$validation);
+        // erreurs de validation
+        EC::set_error_code(422);
+        return $reponse;
     }
-    EC::set_error_code(501);
-    return false;
+    return $user->toArray();
   }
 
   public function testMDP()
