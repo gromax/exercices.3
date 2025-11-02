@@ -241,7 +241,7 @@ abstract class Item
         );
       }
       $stmt->execute();
-      EC::add($stmt->queryString, static::$BDDName."/getList");
+      //EC::add($stmt->queryString, static::$BDDName."/getList");
       $bdd_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
       } catch(PDOException $e) {
           EC::addBDDError($e->getMessage(), static::$BDDName."/getList");
