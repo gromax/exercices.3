@@ -88,11 +88,25 @@ class data
         ];
 
         $output = [];
-        foreach ($toLoad as $key => $params)
+        foreach ($asks as $name)
         {
-            if (!in_array($key, $asks)) continue;
+            if (strpos($name, ':') !== false) {
+                list($key, $id) = explode(':', $name);
+            } else {
+                $key = $name;
+                $id = null;
+            }
+            if (!isset($toLoad[$key])) continue;
+            $params = unserialize(serialize($toLoad[$key])); // copie profonde
             $class = $objects[$key] ?? null;
             if ($class === null) continue;
+            if ($id !== null) {
+                // Chargement d'un seul objet
+                if (!isset($params['wheres'])) {
+                    $params['wheres'] = [];
+                }
+                $params['wheres']['id'] = (int)$id;
+            }
             $answer = $class::getList($params);
             if (isset($answer["error"]) && $answer["error"])
             {
@@ -100,9 +114,21 @@ class data
                 EC::set_error_code(501);
                 return false;
             }
+            else if($id !== null)
+            {
+                // Chargement d'un seul objet
+                if (count($answer) > 0)
+                {
+                    $output[$name] = $answer[0];
+                }
+                else
+                {
+                    $output[$name] = null;
+                }
+            }
             else
             {
-                $output[$key] = $answer;
+                $output[$name] = $answer;
             }
         }
 
