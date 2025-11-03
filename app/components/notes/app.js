@@ -37,12 +37,12 @@ const Controller = MnObject.extend({
       return;
     }
     channel.trigger("loading:up");
-    const fetching = channel.request("custom:entities", ["notes", "devoirs"]);
+    const fetching = channel.request("custom:entities", ["notes", `devoirs:${idDevoir}`]);
     $.when(fetching).done( (data) => {
-      const {notes, devoirs} = data;
+      const {notes} = data;
       // récupérer le bon devoir
       idDevoir = Number(idDevoir);
-      const devoir = devoirs.find(d => d.id === idDevoir);
+      const devoir = data[`devoirs:${idDevoir}`];
       if (!devoir) {
         channel.trigger("not:found");
         return;
@@ -76,14 +76,14 @@ const Controller = MnObject.extend({
       return;
     }
     channel.trigger("loading:up");
-    const fetching = channel.request("custom:entities", ["notesexos", "notes", "users"]);
+    const fetching = channel.request("custom:entities", ["notesexos", "notes", `users:${idUser}`]);
     $.when(fetching).done( (data) => {
       // récupérer le bon devoir
       idDevoir = Number(idDevoir);
       idUser = Number(idUser);
-      const {notesexos, notes, users} = data;
+      const {notesexos, notes} = data;
       const note = notes.find(d =>  d.get('idDevoir') === idDevoir);
-      const user = users.get(idUser);
+      const user = data[`users:${idUser}`];
       if (!note || !user) {
         channel.trigger("not:found");
         return;
@@ -110,11 +110,10 @@ const Controller = MnObject.extend({
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
     channel.trigger("loading:up");
-    const fetching = channel.request("custom:entities", ["notes", "users"]);
+    const fetching = channel.request("custom:entities", ["notes", `users:${idUser}`]);
     $.when(fetching).done( (data) => {
-      const {notes, users} = data;
-      idUser = Number(idUser);
-      const user = users.find(u => u.id === idUser);
+      const {notes} = data;
+      const user = data[`users:${idUser}`];
       if (!user) {
         channel.trigger("not:found");
         return;
