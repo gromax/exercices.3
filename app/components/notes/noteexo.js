@@ -17,7 +17,7 @@ const Item = MyModel.extend ({
     nomUser: "",
     prenomUser: "",
     note: 0,
-    trialsNumber: 0
+    trials: 0
   },
 
   toString() {
@@ -31,7 +31,7 @@ const Item = MyModel.extend ({
     data.idExoDevoir = Number(data.idExoDevoir);
     data.idDevoir = Number(data.idDevoir);
     data.note = Number(data.note);
-    data.trialsNumber = Number(data.trialsNumber);
+    data.trials = Number(data.trials);
     data.num = Number(data.num);
     data.idOwner = Number(data.idOwner);
     data.idClasse = Number(data.idClasse);
