@@ -94,10 +94,10 @@ const Controller = MnObject.extend({
       return;
     }
     channel.trigger("loading:up");
-    const fetching = channel.request("custom:entities", ["exodevoirs", "devoirs", "sujetsexercices"]);
+    const fetching = channel.request("custom:entities", [`exodevoirs:${idExoDevoir}`, "devoirs", "sujetsexercices"]);
     $.when(fetching).done((data) => {
-      const {exodevoirs, devoirs, sujetsexercices} = data;
-      const exoDevoir = exodevoirs.get(idExoDevoir);
+      const {devoirs, sujetsexercices} = data;
+      const exoDevoir = data[`exodevoirs:${idExoDevoir}`];
       if (!exoDevoir) {
         channel.trigger("not:found");
         return;
@@ -116,6 +116,9 @@ const Controller = MnObject.extend({
         channel.trigger("not:found");
         return;
       }
+      const region = channel.request("region:get", "main");
+      // existe pas encore
+      require("./run/controller.js").controller.runExoDevoir(exoDevoir, sujetExo, devoir, region);
       // prof ne pourrait de toute façon pas voir un devoir dont il n'est pas l'auteur
       console.log(`Prêt à lancer l'exercice devoir ${exoDevoir.id} pour le devoir ${devoir.get("nom")} et l'exercice ${sujetExo.get("title")}`);
     }).fail((response) => {
