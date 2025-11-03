@@ -20,6 +20,7 @@ final class Note extends Item
   {
     return [
       'id' => ['def' => 0, 'type'=> 'string', 'alias'=>"id", "sub"=>"CONCAT(users.id, '_', devoirs.id)"], // identifiant unique du devoir
+      'idUser' => ['def' => 0, 'type'=> 'int', "foreign"=>'users.id'],        // id de l'élève
       'idDevoir' => ['def' => 0, 'type'=> 'int', "foreign"=>'devoirs.id'],        // id du devoir associé
       'nom' => ['def' => "", 'type'=> 'string', "foreign"=>'devoirs.nom'],         // nom du devoir
       'description' => ['def' => "", 'type'=> 'string', "foreign"=>'devoirs.description'], // description du devoir
