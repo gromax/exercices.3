@@ -157,7 +157,6 @@ class data
             ],
             "notes" => [
                 'wheres' => ['users.id'=> $uLog->get('id') ],
-                'wheres_trials' => ['trials.idUser'=> $uLog->get('id') ]
             ]
         ];
         $output = $this->customFetchHelper($toLoad, $asks);
@@ -212,7 +211,6 @@ class data
             ],
             "notes" => [
                 'wheres' => ['devoirs.idOwner'=> $uLog->get('id') ],
-                'wheres_trials' => ['devoirs.idOwner'=> $uLog->get('id') ]
             ]
         ];
         $output = $this->customFetchHelper($toLoad, $asks);

@@ -98,7 +98,8 @@ abstract class Item
       } else if (isset($val['foreign'])) {
         [$table, $col] = explode(".",$val['foreign']);
         if (isset($val['agregation'])) {
-          $keys[] = "COALESCE(".$val['agregation']."($table.`$col`), 0) AS `$alias`";
+          $def = isset($val['def']) ? $val['def'] : 0;
+          $keys[] = "COALESCE(".$val['agregation']."($table.`$col`), $def) AS `$alias`";
         } else {
           $keys[] = "$table.`$col` AS `$alias`";
         }
@@ -135,8 +136,17 @@ abstract class Item
     if (!isset($joined[$type])) {
       return "";
     }
-    foreach ($joined[$type] as $table => $condition) {
-      $join .= strtoupper($type)." JOIN ".PREFIX_BDD.$table." AS $table ON $condition ";
+    foreach ($joined[$type] as $table => $condition)
+    {
+      if (strpos($table,":")!==false)
+      {
+        list($table, $alias) = explode(":",$table);
+      }
+      else
+      {
+        $alias = $table;
+      }
+      $join .= strtoupper($type)." JOIN ".PREFIX_BDD.$table." AS $alias ON $condition ";
     }
     return $join;
   }
@@ -365,6 +375,21 @@ abstract class Item
     }
   }
 
+  protected function onUpdateSuccess() {
+    // Méthode appelée après une mise à jour réussie
+    return true;
+  }
+
+  protected function onInsertSuccess() {
+    // Méthode appelée après une insertion réussie
+    return true;
+  }
+
+  protected function onDeleteSuccess() {
+    // Méthode appelée après une suppression réussie
+    return true;
+  }
+
   protected function okToDelete()
   {
     // Vérifie si l'objet peut être supprimé (enfants, etc.)
@@ -413,6 +438,7 @@ abstract class Item
       $stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD.static::$BDDName." WHERE id = :id");
       $stmt->execute(array(':id' => $this->id));
       EC::add("Item supprimé avec succès.");
+      $this->onDeleteSuccess();
       return true;
     } catch(PDOException $e) {
       EC::addError($e->getMessage(), static::$BDDName."/delete");
@@ -459,6 +485,7 @@ abstract class Item
     $this->id=$pdo->lastInsertId();
     $this->values["id"] = $this->id;
     EC::add($this." créé avec succès.");
+    $this->onInsertSuccess();
     return $this->id;
   }
 
@@ -510,6 +537,7 @@ abstract class Item
       return false;
     }
     EC::add(static::$BDDName."/update : Succès.");
+    $this->onUpdateSuccess();
     return true;
   }
 

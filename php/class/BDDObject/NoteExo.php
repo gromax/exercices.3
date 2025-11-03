@@ -31,8 +31,8 @@ final class NoteExo extends Item
       'description' => ['def' => "", 'type'=> 'string', 'foreign'=>'exercices.description'], // description de l'exercice
       'options' => ['def' => "", 'type'=> 'string', 'foreign'=>'exodevoirs.options'],   // options de l'exercice, JSON
       'num' => ['def' => 0, 'type'=> 'int', 'foreign'=>'exodevoirs.num'],        // numéro d'ordre dans le devoir
-      'note' => ['def' => 0, 'type'=> 'int', 'foreign'=>'trials.note', 'agregation'=>'MAX'],        // note obtenue pour cet exercice
-      'trialsNumber' => ['def' => 0, 'type'=> 'int', 'foreign'=>'trials.id', 'agregation'=>'COUNT'] // nombre d'essais
+      'note' => ['def' => 0, 'type'=> 'int', 'foreign'=>'noteexos.note'],        // note obtenue pour cet exercice
+      'trials' => ['def' => 0, 'type'=> 'int', 'foreign'=>'noteexos.trials'] // nombre d'essais
     ] ;
   }
 
@@ -46,16 +46,8 @@ final class NoteExo extends Item
         'exercices' => 'exodevoirs.idExo = exercices.id',
       ],
       'left' => [
-        'trials' => 'exodevoirs.id = trials.idExoDevoir AND trials.idUser = users.id'
+        'noteexos' => 'exodevoirs.id = noteexos.idExoDevoir AND noteexos.idUser = users.id'
       ]
-    ];
-  }
-
-  protected static function groupby()
-  {
-    return [
-      'exodevoirs.id',
-      'users.id'
     ];
   }
 
