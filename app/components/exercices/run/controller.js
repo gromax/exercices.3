@@ -1,6 +1,6 @@
 import { MnObject, Region } from 'backbone.marionette'
 import { OptionsView, ParamsView, Finished_View, LayoutView } from './views.js'
-import { Item as ExerciceTry } from '../exotry.js'
+import { Item as ExerciceTry } from '../trial.js'
 import MainBloc from '../tools/mainbloc.js';
 
 import renderMathInElement from "katex/contrib/auto-render";
@@ -8,23 +8,23 @@ import renderMathInElement from "katex/contrib/auto-render";
 const Controller = MnObject.extend ({
   channelName: "app",
 
-  showApercu(sujetExercice, containerRegion) {
+  showApercu(sujet, region) {
     const channel = this.getChannel();
     try {
       const layoutView = new LayoutView();
-      containerRegion.show(layoutView);
-      const {options, defaultsOptions} = MainBloc.parseOptions(sujetExercice.get("options"));
+      region.show(layoutView);
+      const {options, defaultsOptions} = MainBloc.parseOptions(sujet.get("options"));
       const optionsView = new OptionsView({ options: options, selected: defaultsOptions });
       optionsView.on("change", (data) => {
-        const exerciceTry = this.newExerciceTry(sujetExercice, data, null);
-        this.showExerciceTry(sujetExercice, exerciceTry, layoutView);
+        const trial = this.newTrial(sujet, data, null);
+        this.showTrial(sujet, trial, layoutView);
       });
-      const exerciceTry = this.newExerciceTry(sujetExercice, defaultsOptions, null);
-      if (!exerciceTry) {
+      const trial = this.newTrial(sujet, defaultsOptions, null);
+      if (!trial) {
         return;
       }
       layoutView.showChildView('optionsSet', optionsView);
-      this.showExerciceTry(sujetExercice, exerciceTry, layoutView);
+      this.showTrial(sujet, trial, layoutView);
     } catch (error) {
       console.error(error);
       channel.trigger("popup:error", {
@@ -34,21 +34,21 @@ const Controller = MnObject.extend ({
     }
   },
 
-  showApercuInDevoir(sujetExercice, exodevoir, containerRegion) {
+  showApercuInDevoir(sujet, exoDevoir, region) {
     const channel = this.getChannel();
     try {
       const layoutView = new LayoutView();
-      containerRegion.show(layoutView);
-      const {options, defaultsOptions} = MainBloc.parseOptions(sujetExercice.get("options"));
-      const optionsSelected = { ...defaultsOptions, ...exodevoir.get("options") };
+      region.show(layoutView);
+      const {options, defaultsOptions} = MainBloc.parseOptions(sujet.get("options"));
+      const optionsSelected = { ...defaultsOptions, ...exoDevoir.get("options") };
       const optionsView = new OptionsView({ options: options, selected: optionsSelected });
       optionsView.on("change", (data) => {
-        exodevoir.set("options", data);
-        const saving = exodevoir.save();
+        exoDevoir.set("options", data);
+        const saving = exoDevoir.save();
         channel.trigger("loading:up");
         $.when(saving).done(() => {
-          const exerciceTry = this.newExerciceTry(sujetExercice, data, exodevoir.get("id"));
-          this.showExerciceTry(sujetExercice, exerciceTry, layoutView);
+          const trial = this.newTrial(sujet, data, exoDevoir.id);
+          this.showTrial(sujet, trial, layoutView);
         }).fail((response) => {
           console.warn("Erreur sauvegarde options exo-devoir", response.responseJSON);
           channel.trigger("popup:error", "Erreur inconnue lors de la sauvegarde des options de l'exercice dans le devoir.");
@@ -56,12 +56,12 @@ const Controller = MnObject.extend ({
           channel.trigger("loading:down");
         });
       });
-      const exerciceTry = this.newExerciceTry(sujetExercice, optionsSelected, exodevoir.get("id"));
-      if (!exerciceTry) {
+      const trial = this.newTrial(sujet, optionsSelected, exoDevoir.id);
+      if (!trial) {
         return;
       }
       layoutView.showChildView('optionsSet', optionsView);
-      this.showExerciceTry(sujetExercice, exerciceTry, layoutView);
+      this.showTrial(sujet, trial, layoutView);
     } catch (error) {
       console.error(error);
       channel.trigger("popup:error", {
@@ -71,14 +71,44 @@ const Controller = MnObject.extend ({
     }
   },
 
-  newExerciceTry(sujetExercice, options, idExoDevoir) {
+  runExoDevoirForEleve(exoDevoir, sujet, devoir, user, trial, region) {
+    const channel = this.getChannel();
+    if (!exoDevoir||!devoir||!sujet||!user) {
+      channel.trigger("popup:error", "Données de l'exercice ou du devoir incorrectes.");
+      return;
+    }
+    try {
+      const {options, defaultsOptions} = MainBloc.parseOptions(sujet.get("options"));
+      const optionsSelected = { ...defaultsOptions, ...exoDevoir.get("options") };
+      if (trial) {
+        trial.set("options", optionsSelected);
+      } else {
+        trial = this.newTrial(sujet, optionsSelected, exoDevoir.id);
+        trial.save();
+      }
+      trial.setNeedSave();
+
+      const layoutView = new LayoutView();
+      region.show(layoutView);
+      this.showTrial(sujet, trial, layoutView);
+    } catch (error) {
+      console.error(error);
+      channel.trigger("popup:error", {
+        title: "Erreur de compilation",
+        message: error.message
+      });
+    }
+  },
+
+
+  newTrial(sujet, options, idExoDevoir) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
     const idUser = logged.isEleve() ? logged.id : null;
     try {
-      const initParams = MainBloc.parseParams(sujetExercice.get("init"), options);
+      const initParams = MainBloc.parseParams(sujet.get("init"), options);
       return new ExerciceTry({
-        idExercice: sujetExercice.id,
+        idExercice: sujet.id,
         options: options,
         init: initParams,
         idUser: idUser,
@@ -94,30 +124,30 @@ const Controller = MnObject.extend ({
     }
   },
 
-  showExerciceTry(sujetExercice, exerciceTry, layoutView) {
+  showTrial(sujet, trial, layoutView) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
-    const showParams = (logged.id === sujetExercice.get("idOwner") || logged.isAdmin());
+    const showParams = (logged.id === sujet.get("idOwner") || logged.isAdmin());
     try {
       if (showParams) {
         const paramsView = new ParamsView({
-          params: exerciceTry.get("init")
+          params: trial.get("init")
         });
         layoutView.showChildView('initParams', paramsView);
       }
       layoutView.getRegion('run').empty();
       const mainPile = MainBloc.runCode(
-        sujetExercice.get("code"),
-        exerciceTry.get("init"),
-        exerciceTry.get("options")
+        sujet.get("code"),
+        trial.get("init"),
+        trial.get("options")
       );
       const scoreMax = mainPile.reduce(
         (sum, item) => typeof item.nombrePts === 'function' ? sum + item.nombrePts() || 0 : sum,
         0
       );
-      exerciceTry.set("scoreMax", scoreMax);
-      exerciceTry.set("intScore", 0);
-      this.runExercice(mainPile, exerciceTry, layoutView);
+      trial.set("scoreMax", scoreMax);
+      trial.set("intScore", 0);
+      this.runExercice(mainPile, trial, layoutView);
     } catch (error) {
       console.error(error);
       channel.trigger("popup:error", {
@@ -127,10 +157,10 @@ const Controller = MnObject.extend ({
     }
   },
 
-  runExercice(mainPile, exerciceTry, layoutView) {
+  runExercice(mainPile, trial, layoutView) {
     let questionLeft = false;
     const region = layoutView.getRegion('run').el;
-    const answers = exerciceTry.get("answers") || {};
+    const answers = trial.get("answers") || {};
     while (mainPile.length > 0) {
       const item = mainPile.pop();
       if (item === "") {
@@ -138,7 +168,7 @@ const Controller = MnObject.extend ({
       }
       const itemScore = item.score;
       if (itemScore) {
-        exerciceTry.set("intScore", exerciceTry.get("intScore") + itemScore);
+        trial.set("intScore", trial.get("intScore") + itemScore);
       }
       if (typeof item.view !== 'function') {
         console.warn(`<${item.tag}> le bloc principal doit uniquement produire des vues.`);
@@ -147,26 +177,26 @@ const Controller = MnObject.extend ({
       const itemView = item.view(answers);
       if (typeof itemView.onSubmit === 'function') {
         itemView.on("validation:success", (data) => {
-          // 1. ajouter dans exerciceTry les réponses
-          exerciceTry.addAnswers(data);
+          // 1. ajouter dans trial les réponses
+          trial.addAnswers(data);
           // 2. détruire la vue du formulaire
           itemView.el.remove();
           // 3. relancer la vue pour le même item.
-          const newItemView = item.view(exerciceTry.get("answers"));
+          const newItemView = item.view(trial.get("answers"));
           region.appendChild(newItemView.el);
           newItemView.render();
           //    le formulaire doit afficher les résultats avec
           //    tous les commentaies nécessaires
-          exerciceTry.set("intScore", exerciceTry.get("intScore") + item.score);
+          trial.set("intScore", trial.get("intScore") + item.score);
           // 4. poursuivre l'exécution de la pile jusqu'au prochain stop
           //    ce qui pourra amener à modifier l'état "finished" de l'exercice
-          this.runExercice(mainPile, exerciceTry, layoutView);
+          this.runExercice(mainPile, trial, layoutView);
           if (mainPile.length === 0) {
-            exerciceTry.set("finished", true);
+            trial.set("finished", true);
           }
-          // 5. sauvegarder l'état de l'exerciceTry
-          if (exerciceTry.isEleveTry()) {
-            exerciceTry.save();
+          // 5. sauvegarder l'état du trial
+          if (trial.needSave()) {
+            trial.save();
           }
         });
       }
@@ -179,9 +209,9 @@ const Controller = MnObject.extend ({
       }
     }
     if (!questionLeft) {
-      exerciceTry.set("finished", true);
+      trial.set("finished", true);
       const finishedView = new Finished_View({
-        score: exerciceTry.get("score")
+        score: trial.get("score")
       });
       region.appendChild(finishedView.el);
       finishedView.render();
