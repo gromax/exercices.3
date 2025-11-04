@@ -23,13 +23,11 @@ final class NoteExo extends Item
       'prenom' => ['def' => "", 'type'=> 'string', 'alias' => 'prenomUser'], // prénom de l'utilisateur
       'idClasse' => ['def' => 0, 'type'=> 'int', 'foreign'=>'classes.id'],    // id de la classe à laquelle l'exercice a été assigné
       'idOwner' => ['def' => 0, 'type'=> 'int', 'foreign'=>'classes.idOwner'],    // id du propriétaire (professeur)
-      'nomClasse' => ['def' => "", 'type'=> 'string', 'foreign'=>'classes.nom'], // nom de la classe
       'idDevoir' => ['def' => 0, 'type'=> 'int', 'foreign'=>'devoirs.id'],      // id du devoir associé
       'idExo' => ['def' => 0, 'type'=> 'int', 'foreign'=>'exercices.id'],       // id de l'exercice associé
       'idExoDevoir' => ['def' => 0, 'type'=> 'int', 'foreign'=>'exodevoirs.id'], // id de l'exercice dans le devoir
       'title' => ['def' => "", 'type'=> 'string', 'foreign'=>'exercices.title'],    // titre de l'exercice
       'description' => ['def' => "", 'type'=> 'string', 'foreign'=>'exercices.description'], // description de l'exercice
-      'options' => ['def' => "", 'type'=> 'string', 'foreign'=>'exodevoirs.options'],   // options de l'exercice, JSON
       'num' => ['def' => 0, 'type'=> 'int', 'foreign'=>'exodevoirs.num'],        // numéro d'ordre dans le devoir
       'note' => ['def' => 0, 'type'=> 'int', 'foreign'=>'noteexos.note'],        // note obtenue pour cet exercice
       'trials' => ['def' => 0, 'type'=> 'int', 'foreign'=>'noteexos.trials'] // nombre d'essais
