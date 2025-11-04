@@ -20,7 +20,13 @@ const Controller = MnObject.extend({
     if (logged.isEleve()) {
       notesView.on("item:show", (childView) => {
         const model = childView.model;
-        channel.trigger("exodevoir:run", model.get("idExoDevoir"));
+        channel.trigger(
+          "exodevoir:run",
+          model.get("idExoDevoir"),
+          model.get("idExo"),
+          model.get("idDevoir"),
+          logged.get("id")
+        );
       });
     }
     layoutView.getRegion('itemsRegion').show(notesView);
