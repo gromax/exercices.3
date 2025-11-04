@@ -16,7 +16,8 @@ const Item = MyModel.extend({
     idUser: null,
     idExoDevoir: null,
     score: 0,
-    finished: false
+    finished: false,
+    idBDD:null
   },
 
   toString() {
@@ -31,6 +32,9 @@ const Item = MyModel.extend({
   parse(data) {
     if (data.id && /^\d+$/.test(data.id)) {
       data.id = Number(data.id);
+      data.idBDD = data.id;
+    } else if (data.idBDD !== undefined){
+      data.idBDD = Number(data.idBDD);
     }
     if (data.options) {
       data.options = JSON.parse(data.options);
@@ -49,7 +53,8 @@ const Item = MyModel.extend({
   },
 
   toJSON() {
-    const output = _.clone(_.pick(this.attributes, "id", "score", "idExoDevoir", "idUser"));
+    const output = _.clone(_.pick(this.attributes, "score", "idExoDevoir", "idUser"));
+    output.id = this.get("idBDD");
     output.finished = this.get("finished") ? 1 : 0;
     output.init = JSON.stringify(this.get("init") || {});
     output.answers = JSON.stringify(this.get("answers") || {});
@@ -78,6 +83,13 @@ const Item = MyModel.extend({
   needSave() {
     return this._needSave;
   },
+
+  url() {
+    const base = _.result(this, 'urlRoot') || (this.collection && this.collection.url) || '';
+    // si pas d'id, POST vers base
+    const idForUrl = this.get('idBDD') || this.id; // ou autre champ
+    return idForUrl ? `${base}/${encodeURIComponent(idForUrl)}` : base;
+  }
 });
 
 const Collection = MyCollection.extend({
