@@ -47,7 +47,7 @@ class exodevoirs
         'hideCols' => ['idOwner', 'idClasse']
       ]);
       if ($uLog->isEleve()) return ExoDevoir::getList([
-        'wheres' => ['devoirs.idClasse' => $uLog->getClasseId()],
+        'wheres' => ['devoirs.idClasse' => $uLog->get("idClasse")],
         'hideCols' => ['idOwner', 'idClasse']
       ]);
       EC::addError("Pas les droits pour accéder aux associations.");
@@ -70,7 +70,7 @@ class exodevoirs
         EC::set_error_code(404);
         return false;
       }
-      if ( $uLog->isAdmin() || $oED->get("idOwner") === $uLog->getId() || $oED->get("idClasse") === $uLog->getClasseId() )
+      if ( $uLog->isAdmin() || $oED->get("idOwner") === $uLog->getId() || $oED->get("idClasse") === $uLog->get("idClasse") )
       {
         return $oED->toArray();
       }
