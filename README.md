@@ -36,17 +36,9 @@ This is a modern JS skeleton with MarionetteJS for [Webpack](https://webpack.git
   * sauvegarde sur aperçu
 * chargement d'une classe à la algoPython ?
 * interface devoir pour prof
-  * modif d'un devoir
-  * sélection des exercices
-  * ajustement des options
-  * visualisation de l'exercice
   * clonage de devoir
-  * voir notes élèves
 * admin : interface de nettoyage
 * élève
-  * tableau de bord
-  * voir un devoir
-  * faire un exo
 
 Important : désormais, on crée une asso exercice-devoir pour une répétition de l'exo dans le devoir. Si on veut que l'élève le fasse 5x alors il faut entrer 5 assoc.
 
@@ -84,5 +76,6 @@ Pour une assoc, on reprend toujours le dernier essai enregistré tant qu'il n'es
 +-- notes
   +-- devoir:id/notes
   +-- devoir:id/notes/user:id
+  +-- devoirExo:id/:id/:id/:id/run
   +-- mynotes
   +-- mynotes:id
