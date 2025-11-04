@@ -187,13 +187,17 @@ const Controller = MnObject.extend ({
           newItemView.render();
           //    le formulaire doit afficher les résultats avec
           //    tous les commentaies nécessaires
+          
+          // si suite à cela l'exercice est fini, marquer le trial comme terminé
+          if (mainPile.length === 0) {
+            trial.set("finished", true);
+          }
+          // mettre à jour le score
           trial.set("intScore", trial.get("intScore") + item.score);
           // 4. poursuivre l'exécution de la pile jusqu'au prochain stop
           //    ce qui pourra amener à modifier l'état "finished" de l'exercice
           this.runExercice(mainPile, trial, layoutView);
-          if (mainPile.length === 0) {
-            trial.set("finished", true);
-          }
+          
           // 5. sauvegarder l'état du trial
           if (trial.needSave()) {
             trial.save();
