@@ -3,7 +3,7 @@
 namespace RouteController;
 use ErrorController as EC;
 use BDDObject\Message;
-use BDDObject\User;
+use BDDObject\Classe;
 use BDDObject\Logged;
 use BDDObject\Note;
 
@@ -67,12 +67,12 @@ class messages
 
         // Si l'utilisateur est élève, le dest est forcément le prof
         if ($uLog->isEleve()) {
-            $classe = $uLog->getClasse();
+            $classe = Classe::getObject($uLog->get("idClasse"));
             if ($classe ==null) {
                 EC::set_error_code(501);
                 return false;
             } else {
-                $data["idDest"] = $classe->toArray()["idOwner"];
+                $data["idDest"] = $classe->get("idOwner");
             }
         }
 
