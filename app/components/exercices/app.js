@@ -25,9 +25,9 @@ const Controller = MnObject.extend({
     require("./run/controller.js").controller.showApercu(sujetExo, region);
   },
 
-  onExoDevoirRun(idExoDevoir) {
-    Backbone.history.navigate(`exodevoir:${idExoDevoir}/run`, {});
-    this.exoDevoirRun(idExoDevoir);
+  onExoDevoirRun(idExoDevoir, idExo, idDevoir, idUser) {
+    Backbone.history.navigate(`exodevoir:${idExoDevoir}/${idExo}/${idDevoir}/${idUser}/run`, {});
+    this.exoDevoirRun(idExoDevoir, idExo, idDevoir, idUser);
   },
 
   exercicesList(criterion) {
@@ -86,7 +86,7 @@ const Controller = MnObject.extend({
     });
   },
 
-  exoDevoirRun(idExoDevoir) {
+  exoDevoirRun(idExoDevoir, idExo, idDevoir, idUser) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
     if (logged.isOff()) {
@@ -94,33 +94,29 @@ const Controller = MnObject.extend({
       return;
     }
     channel.trigger("loading:up");
-    const fetching = channel.request("custom:entities", [`exodevoirs:${idExoDevoir}`, "devoirs", "sujetsexercices"]);
+    const fetching = channel.request("custom:entities", [
+      `exodevoirs:${idExoDevoir}`,
+      `sujetsexercices:${idExo}`,
+      `devoirs:${idDevoir}`,
+      `users:${idUser}`,
+      `unfinished:${idUser}_${idExoDevoir}`
+    ]);
     $.when(fetching).done((data) => {
-      const {devoirs, sujetsexercices} = data;
       const exoDevoir = data[`exodevoirs:${idExoDevoir}`];
-      if (!exoDevoir) {
+      const devoir = data[`devoirs:${idDevoir}`];
+      const sujet = data[`sujetsexercices:${idExo}`];
+      const user = data[`users:${idUser}`];
+      const trial = data[`unfinished:${idUser}_${idExoDevoir}`];
+      if (!exoDevoir||!devoir||!sujet||!user
+        || exoDevoir.get("idExo") != sujet.id
+        || exoDevoir.get("idDevoir") != devoir.id
+      ) {
         channel.trigger("not:found");
         return;
       }
-      const sujetExo = sujetsexercices.get(exoDevoir.get("idExo"));
-      if (!sujetExo) {
-        channel.trigger("not:found");
-        return;
-      }
-      const devoir = devoirs.get(exoDevoir.get("idDevoir"));
-      if (!devoir) {
-        channel.trigger("not:found");
-        return;
-      }
-      if (logged.isEleve() && devoir.get("idClasse") !== logged.get("idClasse")) {
-        channel.trigger("not:found");
-        return;
-      }
-      const region = channel.request("region:get", "main");
-      // existe pas encore
-      require("./run/controller.js").controller.runExoDevoir(exoDevoir, sujetExo, devoir, region);
-      // prof ne pourrait de toute façon pas voir un devoir dont il n'est pas l'auteur
-      console.log(`Prêt à lancer l'exercice devoir ${exoDevoir.id} pour le devoir ${devoir.get("nom")} et l'exercice ${sujetExo.get("title")}`);
+      channel.trigger("ariane:push", { text: sujet.get("title"), link: `exodevoir:${idExoDevoir}/${idExo}/${idDevoir}/${idUser}/run` });
+      const region = channel.request("region:main");
+      require("./run/controller.js").controller.runExoDevoirForEleve(exoDevoir, sujet, devoir, user, trial, region);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {
@@ -136,7 +132,7 @@ const Router = Backbone.Router.extend({
     "exercices(/filter/criterion::criterion)": "exercicesList",
     "sujet-exercice::id": "sujetExerciceShow",
     "sujet-exercice::id/edit": "sujetExerciceEdit",
-    "exodevoir::idExoDevoir/run": "exoDevoirRun"
+    "exodevoir::id/:id/:id/:id/run": "exoDevoirRun"
   },
 
   exercicesList(criterion) {
@@ -148,8 +144,8 @@ const Router = Backbone.Router.extend({
   sujetExerciceEdit(id) {
     controller.sujetExerciceEdit(id);
   },
-  exoDevoirRun(idExoDevoir) {
-    controller.exoDevoirRun(idExoDevoir);
+  exoDevoirRun(idExoDevoir, idExo, idDevoir, idUser) {
+    controller.exoDevoirRun(idExoDevoir, idExo, idDevoir, idUser);
   }
 });
 
