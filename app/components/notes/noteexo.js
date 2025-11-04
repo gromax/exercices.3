@@ -9,7 +9,6 @@ const Item = MyModel.extend ({
     title: "",
     idDevoir: null,
     description: "",
-    options: "",
     idOwner: 0,
     idClasse: 0,
     num: 0,
@@ -35,7 +34,6 @@ const Item = MyModel.extend ({
     data.num = Number(data.num);
     data.idOwner = Number(data.idOwner);
     data.idClasse = Number(data.idClasse);
-    data.options = JSON.parse(data.options);
     return data;
   },
 });
