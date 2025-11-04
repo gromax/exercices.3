@@ -10,16 +10,16 @@ $router->addRule('api/session/sudo/:id', 'session', 'sudo', 'POST'); // Connecte
 $router->addRule('api/session/test', 'session', 'logged', 'GET'); // Vérifie l'état de connexion
 
 // users
-$router->addRule('api/users/:id', 'users', 'fetch', 'GET');
-$router->addRule('api/users', 'users', 'fetchList', 'GET');
+//$router->addRule('api/users/:id', 'users', 'fetch', 'GET');
+//$router->addRule('api/users', 'users', 'fetchList', 'GET');
 $router->addRule('api/users/:id', 'users', 'delete', 'DELETE');
 $router->addRule('api/users/:id', 'users', 'update', 'PUT');
 $router->addRule('api/users', 'users', 'insert', 'POST');
 $router->addRule('api/users/:id/init', 'users', 'forgottenWithId', 'POST');
 
 // classes
-$router->addRule('api/classes/:id', 'classes', 'fetch', 'GET');
-$router->addRule('api/classes', 'classes', 'fetch', 'GET');
+//$router->addRule('api/classes/:id', 'classes', 'fetch', 'GET');
+//$router->addRule('api/classes', 'classes', 'fetch', 'GET');
 $router->addRule('api/classestojoin', 'classes', 'fetchToJoin', 'GET');
 $router->addRule('api/classes/:id', 'classes', 'delete', 'DELETE');
 $router->addRule('api/classes/:id', 'classes', 'update', 'PUT');
@@ -27,34 +27,38 @@ $router->addRule('api/classes', 'classes', 'insert', 'POST');
 $router->addRule('api/classes/:id/test', 'classes', 'testMDP', 'GET');
 
 // devoirs
-$router->addRule('api/devoirs/:id', 'devoirs', 'fetch', 'GET');
-$router->addRule('api/devoirs', 'devoirs', 'fetch', 'GET');
+//$router->addRule('api/devoirs/:id', 'devoirs', 'fetch', 'GET');
+//$router->addRule('api/devoirs', 'devoirs', 'fetch', 'GET');
 $router->addRule('api/devoirs/:id', 'devoirs', 'delete', 'DELETE');
 $router->addRule('api/devoirs/:id', 'devoirs', 'update', 'PUT');
 $router->addRule('api/devoirs', 'devoirs', 'insert', 'POST');
 
 // exercices
-$router->addRule('api/exercices/:id', 'exercices', 'fetch', 'GET');
-$router->addRule('api/exercices', 'exercices', 'fetchList', 'GET');
+//$router->addRule('api/exercices/:id', 'exercices', 'fetch', 'GET');
+//$router->addRule('api/exercices', 'exercices', 'fetchList', 'GET');
 $router->addRule('api/exercices', 'exercices', 'insert', 'POST');
 $router->addRule('api/exercices/:id', 'exercices', 'update', 'PUT');
 $router->addRule('api/exercices/:id', 'exercices', 'delete', 'DELETE');
 
 // exodevoirs
-$router->addRule('api/exodevoirs/:id', 'exodevoirs', 'fetch', 'GET');
-$router->addRule('api/exodevoirs', 'exodevoirs', 'fetch', 'GET');
+//$router->addRule('api/exodevoirs/:id', 'exodevoirs', 'fetch', 'GET');
+//$router->addRule('api/exodevoirs', 'exodevoirs', 'fetch', 'GET');
 $router->addRule('api/exodevoirs/:id', 'exodevoirs', 'delete', 'DELETE');
 $router->addRule('api/exodevoirs/:id', 'exodevoirs', 'update', 'PUT');
 $router->addRule('api/exodevoirs', 'exodevoirs', 'insert', 'POST');
 
 // notesexos
-$router->addRule('api/notesexos/:id', 'notesexos', 'fetch', 'GET');
-$router->addRule('api/notesexos', 'notesexos', 'fetch', 'GET');
+//$router->addRule('api/notesexos/:id', 'notesexos', 'fetch', 'GET');
+//$router->addRule('api/notesexos', 'notesexos', 'fetch', 'GET');
 
 // notes
-$router->addRule('api/notes/devoir/:id', 'notes', 'fetchDevoir', 'GET');
-$router->addRule('api/notes', 'notes', 'fetch', 'GET');
+//$router->addRule('api/notes/devoir/:id', 'notes', 'fetchDevoir', 'GET');
+//$router->addRule('api/notes', 'notes', 'fetch', 'GET');
 
+// trials
+//$router->addRule('api/trials/:id', 'trials', 'delete', 'DELETE');
+//$router->addRule('api/trials/:id', 'trials', 'update', 'PUT');
+$router->addRule('api/trials', 'trials', 'insert', 'POST');
 
 // messages
 $router->addRule('api/messages', 'messages', 'insert', 'POST');
