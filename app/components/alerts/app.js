@@ -43,17 +43,22 @@ const Controller = MnObject.extend({
     const channel = this.getChannel();
     let messages = '';
     if (xhr.responseText) {
-      let items = JSON.parse(xhr.responseText);
-      if (items.ajaxMessages) {
-        messages = _.reduce(items.ajaxMessages, function(memo, item){
-          return item.message + ' ' + memo;
-        }, '');
+      try {
+        let items = JSON.parse(xhr.responseText);
+        if (items.ajaxMessages) {
+          messages = _.reduce(items.ajaxMessages, function(memo, item){
+            return item.message + ' ' + memo;
+          }, '');
+        }
+      } catch (e) {
+        console.error("Failed to parse JSON response:", e);
+        console.error("Response text:", xhr.responseText);
       }
     }
     switch(xhr.status) {
       case 401:
         alert("Vous devez vous (re)connecter !");
-        this.getChannel().trigger("home:logout");
+        channel.trigger("home:logout");
         break;
       case 404:
         const mView = new MissingView();
