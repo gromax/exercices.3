@@ -5,7 +5,8 @@
 import { MyModel, MyCollection } from '../common/entity.js'
 
 const Item = MyModel.extend({
-  urlRoot: "api/tryexos",
+  urlRoot: "api/trials",
+  _needSave: false,
   defaults: {
     idExercice: null,
     idUser:null,
@@ -28,17 +29,31 @@ const Item = MyModel.extend({
   },
 
   parse(data) {
-    if (data.id) {
+    if (data.id && /^\d+$/.test(data.id)) {
       data.id = Number(data.id);
     }
-    data.options = JSON.parse(data.options);
-    data.init = JSON.parse(data.init);
-    data.answers = JSON.parse(data.answers);
+    if (data.options) {
+      data.options = JSON.parse(data.options);
+    }
+    if (data.init) {
+      data.init = JSON.parse(data.init);
+    }
+    if (data.answers) {
+      data.answers = JSON.parse(data.answers);
+    }
     data.score = Number(data.score);
     data.finished = Boolean(data.finished);
     data.idExercice = Number(data.idExercice);
     data.idUser = Number(data.idUser);
     return data;
+  },
+
+  toJSON() {
+    const output = _.clone(_.pick(this.attributes, "id", "score", "idExoDevoir", "idUser"));
+    output.finished = this.get("finished") ? 1 : 0;
+    output.init = JSON.stringify(this.get("init") || {});
+    output.answers = JSON.stringify(this.get("answers") || {});
+    return output;
   },
 
   addAnswers(newAnswers) {
@@ -56,14 +71,18 @@ const Item = MyModel.extend({
     }
   },
 
-  isEleveTry() {
-    return (this.get("idUser") !== null) && (this.get("idExoDevoir") !== null);
+  setNeedSave() {
+    this._needSave = true;
+  },
+
+  needSave() {
+    return this._needSave;
   },
 });
 
 const Collection = MyCollection.extend({
   model: Item,
-  url: "api/tryexos",
+  url: "api/trials",
   comparator: 'id',
 });
   
