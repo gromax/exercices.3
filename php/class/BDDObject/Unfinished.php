@@ -16,7 +16,7 @@ final class Unfinished extends Trial
       'id' => ['def' =>'', 'type' => 'string', "sub" =>"CONCAT(idUser,'_',idExoDevoir)"],
       'idExoDevoir' => ['def' => 0, 'type'=> 'int'],     // id de l'exercice associé
       'idUser' => ['def' => 0, 'type'=> 'int'],     // id de l'utilisateur
-      'note' => ['def' => 0, 'type'=> 'int'],        // note de l'essai
+      'score' => ['def' => 0, 'type'=> 'int'],        // score de l'essai
       'init' => ['def' => "", 'type'=> 'string'], // JSON des intialisations de l'exercice
       'answers' => ['def' => "", 'type'=> 'string'], // JSON des réponses de l'utilisateur
       'date' => ['def' => date('Y-m-d'), 'type'=> 'date'], // date de l'essai

@@ -16,7 +16,7 @@ class Trial extends Item
     return [
       'idExoDevoir' => ['def' => 0, 'type'=> 'int'],     // id de l'exercice associé
       'idUser' => ['def' => 0, 'type'=> 'int'],     // id de l'utilisateur
-      'note' => ['def' => 0, 'type'=> 'int'],        // note de l'essai
+      'score' => ['def' => 0, 'type'=> 'int'],        // score de l'essai
       'init' => ['def' => "", 'type'=> 'string'], // JSON des intialisations de l'exercice
       'answers' => ['def' => "", 'type'=> 'string'], // JSON des réponses de l'utilisateur
       'date' => ['def' => date('Y-m-d'), 'type'=> 'date'], // date de l'essai
@@ -61,12 +61,12 @@ class Trial extends Item
     // Met à jour la note de l'essai correspondant
     $idExoDevoir = $this->get('idExoDevoir');
     $idUser = $this->get('idUser');
-    $note = $this->get('note');
+    $score = $this->get('score');
     require_once BDD_CONFIG;
     try {
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $stmt = $pdo->prepare("UPDATE ".PREFIX_BDD."noteexos SET note = MAX(note,$note) WHERE idExoDevoir = :idExoDevoir AND idUser = :idUser");
+      $stmt = $pdo->prepare("UPDATE ".PREFIX_BDD."noteexos SET note = GREATEST(note,$score) WHERE idExoDevoir = :idExoDevoir AND idUser = :idUser");
       $stmt->bindValue(":idExoDevoir", $idExoDevoir, PDO::PARAM_INT);
       $stmt->bindValue(":idUser", $idUser, PDO::PARAM_INT);
       $stmt->execute();
@@ -83,17 +83,17 @@ class Trial extends Item
     // Met à jour la note de l'essai correspondant. Le crée au besoin
     $idExoDevoir = $this->get('idExoDevoir');
     $idUser = $this->get('idUser');
-    $note = $this->get('note');
+    $score = $this->get('score');
     require_once BDD_CONFIG;
     try {
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       $stmt = $pdo->prepare("INSERT INTO ".PREFIX_BDD."noteexos (idExoDevoir, idUser, note, trials)
-        VALUES (:idExoDevoir, :idUser, :note, 1)
+        VALUES (:idExoDevoir, :idUser, :score, 1)
         ON DUPLICATE KEY UPDATE note = GREATEST(note, VALUES(note)), trials = trials + 1");
       $stmt->bindValue(":idExoDevoir", $idExoDevoir, PDO::PARAM_INT);
       $stmt->bindValue(":idUser", $idUser, PDO::PARAM_INT);
-      $stmt->bindValue(":note", $note, PDO::PARAM_INT);
+      $stmt->bindValue(":score", $score, PDO::PARAM_INT);
       $stmt->execute();
       return true;
     } catch(PDOException $e) {
@@ -112,16 +112,16 @@ class Trial extends Item
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-      $stmMax = $pdo->prepare("SELECT COALESCE(MAX(note), 0) FROM trials WHERE idExoDevoir = :idExoDevoir AND idUser = :idUser");
+      $stmMax = $pdo->prepare("SELECT COALESCE(MAX(score), 0) FROM ".PREFIX_BDD."trials WHERE idExoDevoir = :idExoDevoir AND idUser = :idUser");
       $stmMax->bindValue(":idExoDevoir", $idExoDevoir, PDO::PARAM_INT);
       $stmMax->bindValue(":idUser", $idUser, PDO::PARAM_INT);
       $stmMax->execute();
-      $maxNote = (int) $stmMax->fetchColumn();
+      $maxScore = (int) $stmMax->fetchColumn();
 
-      $stmt = $pdo->prepare("UPDATE ".PREFIX_BDD."noteexos SET note = :note, trials = trials - 1 WHERE idExoDevoir = :idExoDevoir AND idUser = :idUser");
+      $stmt = $pdo->prepare("UPDATE ".PREFIX_BDD."noteexos SET note = :score, trials = trials - 1 WHERE idExoDevoir = :idExoDevoir AND idUser = :idUser");
       $stmt->bindValue(":idExoDevoir", $idExoDevoir, PDO::PARAM_INT);
       $stmt->bindValue(":idUser", $idUser, PDO::PARAM_INT);
-      $stmt->bindValue(":note", $maxNote, PDO::PARAM_INT);
+      $stmt->bindValue(":score", $maxScore, PDO::PARAM_INT);
       $stmt->execute();
       return true;
     } catch(PDOException $e) {
