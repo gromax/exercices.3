@@ -17,6 +17,7 @@ const Item = MyModel.extend({
     idExoDevoir: null,
     score: 0,
     finished: false,
+    idDevoir: null,
     idBDD:null
   },
 
@@ -48,6 +49,9 @@ const Item = MyModel.extend({
     data.score = Number(data.score);
     data.finished = Boolean(data.finished);
     data.idExercice = Number(data.idExercice);
+    if (data.idDevoir !== undefined) {
+      data.idDevoir = Number(data.idDevoir);
+    }
     data.idUser = Number(data.idUser);
     return data;
   },
