@@ -91,5 +91,24 @@ final class ExoDevoir extends Item
       return false;
     }
   }
+
+  protected function onDeleteSuccess() {
+    $num = $this->get("num");
+    $idDevoir = $this->get("idDevoir");
+    require_once BDD_CONFIG;
+    try {
+      $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
+      $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $stmt = $pdo->prepare("UPDATE ".PREFIX_BDD.self::$BDDName." SET num = num - 1 WHERE idDevoir = :idDevoir AND num > :num");
+      $stmt->bindValue(':idDevoir', $idDevoir, PDO::PARAM_INT);
+      $stmt->bindValue(':num', $num, PDO::PARAM_INT);
+      $stmt->execute();
+      return true;
+    } catch (PDOException $e) {
+      EC::addError("Erreur lors du réordonnancement des exercices : ".$e->getMessage());
+      EC::set_error_code(501);
+      return false;
+    }
+  }
 }
 ?>
