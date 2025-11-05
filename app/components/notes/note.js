@@ -20,6 +20,7 @@ const Item = MyModel.extend ({
     note:0, // note de l'élève
     actif: true, // si le devoir est actif ou non
     timeLeft: null, // temps restant pour rendre le devoir
+    exoCount:0 // nombre d'exercices liés
   },
 
   toString() {
@@ -33,6 +34,7 @@ const Item = MyModel.extend ({
     data.isClasse = Number(data.isClasse);
     data.note = Number(data.note);
     data.actif = Boolean(data.actif);
+    data.exoCount = Number(data.exoCount);
     data.timeLeft = Misc.computeTimeLeft(data.dateDebut, data.dateFin);
     data.actif = (data.timeLeft !== null);
     return data;
