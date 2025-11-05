@@ -14,6 +14,8 @@ const Controller = MnObject.extend({
     'data:collection:additem': 'addItemToCache',
     'data:removeitem': 'removeItemFromCache',
     'data:purge': 'purge',
+    'data:update:notes': 'updateNotes',
+    'data:update:trials:count': 'updateTrialsCount',
   },
 
   timeout:1500000, // 25 minutes
@@ -249,12 +251,50 @@ const Controller = MnObject.extend({
     ) {
           return false;
     }
-    const col = this.stored_data[colName];
-    if (col.getPartial()) {
-      return false;
-    }
-    return col;
+    return this.stored_data[colName];
   },
+
+  updateNotes(trial) {
+    const idUser = trial.get("idUser");
+    const idExoDevoir = trial.get("idExoDevoir");
+    const idDevoir = trial.get("idDevoir");
+    const notesExos = this.getChachedCollection("notesexos");
+    if (notesExos) {
+      const noteExo = notesExos.findWhere({ idUser, idExoDevoir });
+      if (noteExo) {
+        noteExo.set("note", Math.max(trial.get("score"), noteExo.get("note")));
+      }
+    }
+    // On met à jour la note globale si on a suffisamment d'infos
+    const notes = this.getChachedCollection("notes");
+    if (!notes) {
+      return;
+    }
+    const note = this.notes.get(`${idUser}_${idDevoir}`);
+    if (!note) {
+      // pas en cache pas de mise à jour possible
+      return;
+    }
+    fetch = this.getCustomEntities([`notes:${idUser}_${idDevoir}`]);
+    $.when(fetch).done( (data) => {
+      const noteUpdated = data[`notes:${idUser}_${idDevoir}`];
+      if (noteUpdated) {
+        notes.add(noteUpdated, { parse:true });
+      }
+    });
+  },
+
+  updateTrialsCount(trial) {
+    const idUser = trial.get("idUser");
+    const idExoDevoir = trial.get("idExoDevoir");
+    const notesExos = this.getChachedCollection("notesexos");
+    if (notesExos) {
+      const noteExo = notesExos.findWhere({ idUser, idExoDevoir });
+      if (noteExo) {
+        noteExo.set("trials", noteExo.get("trials") + 1);
+      }
+    }
+  }
 
 });
 
