@@ -58,6 +58,16 @@ const Controller = MnObject.extend({
       });
     });
 
+    assosExosView.on("item:delete:success", (childView) => {
+      const model = childView.model;
+      const numDeleted = model.get('num');
+      collection.each( (asso) => {
+        if (asso.get('num') > numDeleted) {
+          asso.set('num', asso.get('num') - 1);
+        }
+      });
+    });
+
     return { devoirLayout, view, assosExosView };
   },
   
