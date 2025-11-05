@@ -150,13 +150,15 @@ class data
             ],
             "exodevoirs" => [
                 'wheres' => ['devoirs.idClasse' => $uLog->get('idClasse') ],
+                'orderby' => 'exodevoirs.num ASC'
             ],
             "classes" => [
                 'wheres' => ['id'=> $uLog->get('idClasse') ],
                 'hideCols' => ['pwd']
             ],
             "notesexos" => [
-                'wheres' => ['users.id'=> $uLog->get('id') ]
+                'wheres' => ['users.id'=> $uLog->get('id') ],
+                'orderby' => 'exodevoirs.num ASC'
             ],
             "notes" => [
                 'wheres' => ['users.id'=> $uLog->get('id') ],
@@ -205,6 +207,7 @@ class data
             ],
             "exodevoirs" => [
                 'wheres' => ['devoirs.idOwner'=> $uLog->get('id') ],
+                'orderby' => 'exodevoirs.num ASC'
             ],
             "users" => [
                 'wheres' => ['classes.idOwner'=> $uLog->getId()]
@@ -213,7 +216,8 @@ class data
                 'wheres' => ['idOwner'=> $uLog->get('id') ]
             ],
             "notesexos" => [
-                'wheres' => ['devoirs.idOwner'=> $uLog->get('id') ]
+                'wheres' => ['devoirs.idOwner'=> $uLog->get('id') ],
+                'orderby' => 'exodevoirs.num ASC'
             ],
             "notes" => [
                 'wheres' => ['devoirs.idOwner'=> $uLog->get('id') ],
@@ -252,10 +256,14 @@ class data
         $toLoad = [
             "sujetsexercices"=>[],
             "devoirs"=>[],
-            "exodevoirs"=>[],
+            "exodevoirs"=>[
+                'orderby' => 'exodevoirs.num ASC'
+            ],
             "users"=>array("ranks"=>$ranks),
             "classes"=>[],
-            "notesexos"=>[],
+            "notesexos"=>[
+                'orderby' => 'exodevoirs.num ASC'
+            ],
             "notes"=>[]
         ];
         $output = $this->customFetchHelper($toLoad, $asks);
