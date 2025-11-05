@@ -16,10 +16,10 @@ const Controller = MnObject.extend ({
       const {options, defaultsOptions} = MainBloc.parseOptions(sujet.get("options"));
       const optionsView = new OptionsView({ options: options, selected: defaultsOptions });
       optionsView.on("change", (data) => {
-        const trial = this.newTrial(sujet, data, null);
+        const trial = this.newTrial(sujet, data, null, null);
         this.showTrial(sujet, trial, layoutView);
       });
-      const trial = this.newTrial(sujet, defaultsOptions, null);
+      const trial = this.newTrial(sujet, defaultsOptions, null, null);
       if (!trial) {
         return;
       }
@@ -47,7 +47,7 @@ const Controller = MnObject.extend ({
         const saving = exoDevoir.save();
         channel.trigger("loading:up");
         $.when(saving).done(() => {
-          const trial = this.newTrial(sujet, data, exoDevoir.id);
+          const trial = this.newTrial(sujet, data, exoDevoir.id, exoDevoir.idDevoir);
           this.showTrial(sujet, trial, layoutView);
         }).fail((response) => {
           console.warn("Erreur sauvegarde options exo-devoir", response.responseJSON);
@@ -56,7 +56,7 @@ const Controller = MnObject.extend ({
           channel.trigger("loading:down");
         });
       });
-      const trial = this.newTrial(sujet, optionsSelected, exoDevoir.id);
+      const trial = this.newTrial(sujet, optionsSelected, exoDevoir.id, exoDevoir.idDevoir);
       if (!trial) {
         return;
       }
@@ -82,9 +82,11 @@ const Controller = MnObject.extend ({
       const optionsSelected = { ...defaultsOptions, ...exoDevoir.get("options") };
       if (trial) {
         trial.set("options", optionsSelected);
+        trial.set("idDevoir", devoir.id);
       } else {
-        trial = this.newTrial(sujet, optionsSelected, exoDevoir.id);
+        trial = this.newTrial(sujet, optionsSelected, exoDevoir.id, exoDevoir.idDevoir);
         trial.save();
+        channel.trigger("data:update:trials:count", trial);
       }
       trial.setNeedSave();
 
@@ -101,7 +103,7 @@ const Controller = MnObject.extend ({
   },
 
 
-  newTrial(sujet, options, idExoDevoir) {
+  newTrial(sujet, options, idExoDevoir, idDevoir) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
     const idUser = logged.isEleve() ? logged.id : null;
@@ -112,7 +114,8 @@ const Controller = MnObject.extend ({
         options: options,
         init: initParams,
         idUser: idUser,
-        idExoDevoir: idExoDevoir
+        idExoDevoir: idExoDevoir,
+        idDevoir: idDevoir
       });
     } catch (error) {
       console.error(error);
@@ -159,6 +162,7 @@ const Controller = MnObject.extend ({
 
   runExercice(mainPile, trial, layoutView) {
     let questionLeft = false;
+    const channel = this.getChannel();
     const region = layoutView.getRegion('run').el;
     const answers = trial.get("answers") || {};
     while (mainPile.length > 0) {
@@ -201,6 +205,7 @@ const Controller = MnObject.extend ({
           // 5. sauvegarder l'état du trial
           if (trial.needSave()) {
             trial.save();
+            channel.trigger("data:update:notes", trial);
           }
         });
       }
