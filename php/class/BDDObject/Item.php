@@ -222,7 +222,7 @@ abstract class Item
 
   public static function getList($filter = [])
   {
-    $args = ["wheres", "hideCols", "forcecols"];
+    $args = ["wheres", "hideCols", "forcecols", "orderby"];
     foreach ($filter as $key => $value) {
       if (!$key) {
         EC::addError("getList : clé vide dans le filtre.");
@@ -236,6 +236,7 @@ abstract class Item
     if (isset($filter['wheres'])) $wheres = $filter['wheres']; else $wheres = array();
     if (isset($filter['hideCols'])) $hideCols = $filter['hideCols']; else $hideCols = array();
     if (isset($filter['forcecols'])) $forcecols = $filter['forcecols']; else $forcecols = array();
+    if (isset($filter['orderby'])) $orderby = "ORDER BY ".$filter['orderby']; else $orderby = "";
     $where = static::sqlGetWhere($wheres);
     $groupby = static::sqlGetGROUPBY();
     require_once BDD_CONFIG;
@@ -243,7 +244,7 @@ abstract class Item
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
       $select = static::sqlGetSELECT($hideCols, $forcecols);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $stmt = $pdo->prepare("$select $where $groupby");
+      $stmt = $pdo->prepare("$select $where $groupby $orderby");
       foreach ($wheres as $k => $v) {
         $stmt->bindValue(
           ":".str_replace(".", "_", $k),
@@ -318,7 +319,6 @@ abstract class Item
   {
     return true;
   }
-
 
   ##################################### METHODES #####################################
 
