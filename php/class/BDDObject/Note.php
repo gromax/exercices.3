@@ -32,7 +32,8 @@ final class Note extends Item
       'prenomUser' => ['def' => "", 'type'=> 'string', 'foreign'=>'users.prenom'], // prénom de l'élève
       'dateDebut' => ['def' => date('Y-m-d'), 'type'=> 'date', "foreign"=>'devoirs.dateDebut'], // date de début
       'dateFin' => ['def' => date('Y-m-d', strtotime('+1 month')), 'type'=> 'date', "foreign"=>'devoirs.dateFin'], // date de fin
-      'note' => ['def' => 0, 'type'=> 'int', 'foreign'=>'noteexos.note', 'agregation'=>'AVG']        // note obtenue pour ce devoir
+      'note' => ['def' => 0, 'type'=> 'int', 'foreign'=>'noteexos.note', 'sub'=>'CEIL(AVG(COALESCE(noteexos.note,0)))'],        // note obtenue pour ce devoir
+      'exosCount' => ['def' => 0, 'type'=> 'int', 'foreign'=>'exodevoirs.id', 'agregation'=>'COUNT'] // nombre d'exercices liés
     ] ;
   }
 
