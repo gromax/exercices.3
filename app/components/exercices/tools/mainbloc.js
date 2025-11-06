@@ -204,9 +204,7 @@ class MainBloc extends Bloc {
           item.doAffectation(params, options);
         }
         // Filtrage des noms en _nom
-        return Object.fromEntries(
-          Object.entries(params).filter(([key]) => !key.startsWith('_'))
-        );
+        return params;
     }
 
     /**
