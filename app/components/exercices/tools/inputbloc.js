@@ -59,10 +59,10 @@ class InputTextBloc extends InputBloc {
         const userValue = data[name] || '';
         const userValueParsed = MyMath.parseUser(userValue);
         const userValueTag = userValue.includes('\\') ? `$${userValue}$` : userValue;
-        const expectedValue = this.params.expected;
+        const solution = this.params.solution;
         const tag = this.params.tag;
         const entete = tag?`${tag} : `:'';
-        if (!expectedValue) {
+        if (!solution) {
             return {
                 name: name,
                 success: false,
@@ -71,7 +71,7 @@ class InputTextBloc extends InputBloc {
             };
         }
         // C'est là qu'il faudra prévoir les divers vérifications
-        if (MyMath.areEqual(userValueParsed, expectedValue)) {
+        if (MyMath.areEqual(userValueParsed, solution)) {
             const message = `${userValueTag} est une bonne réponse.`;
             return {
                 name: name,
@@ -81,7 +81,7 @@ class InputTextBloc extends InputBloc {
             };
         } else {
             const message = `${userValueTag} est une Mauvaise réponse.`;
-            const complement = `La réponse attendue était : $${MyMath.latex(expectedValue)}$.`;
+            const complement = `La réponse attendue était : $${MyMath.latex(solution)}$.`;
             return {
                 name: name,
                 success: false,
@@ -111,11 +111,11 @@ class RadioBloc extends InputBloc {
         const name = this.header;
         const userValue = data[name] || '';
         const userValueTag = this._options[userValue];
-        const expectedValue = this.params.expected;
-        const expectedValueTag = this._options[expectedValue];
+        const solution = this.params.solution;
+        const solutionTag = this._options[solution];
         const tag = this.params.tag;
         const entete = tag?`${tag} : `:'';
-        if (!expectedValue) {
+        if (!solution) {
             return {
                 name: name,
                 success: false,
@@ -124,7 +124,7 @@ class RadioBloc extends InputBloc {
             };
         }
         // C'est là qu'il faudra prévoir les divers vérifications
-        if (expectedValue == userValue) {
+        if (solution == userValue) {
             return {
                 name: name,
                 success: true,
@@ -133,7 +133,7 @@ class RadioBloc extends InputBloc {
             };
         }
         const message = `${userValueTag} est une Mauvaise réponse.`;
-        const complement = `La réponse attendue était : ${expectedValueTag}.`;
+        const complement = `La réponse attendue était : ${solutionTag}.`;
         return {
             name: name,
             success: false,
