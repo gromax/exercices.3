@@ -1,4 +1,3 @@
-import { substituteLabels } from './misc.js';
 import MyMath from '@tools/mymath.js';
 
 class Affectation {
@@ -28,8 +27,7 @@ class Affectation {
         if ((this._tag in params) && (this._operator === ':=')) {
             return; // ne fait rien si le paramètre existe déjà
         }
-        const substituted = substituteLabels(this._value, { ...params, ...protectedParams }, true);
-        params[this._tag] = MyMath.evaluate(substituted);
+        params[this._tag] = MyMath.evaluate(this._value, { ...params, ...protectedParams });
     }
 
     toString() {
