@@ -1,4 +1,4 @@
-import { substituteLabels } from "./misc";
+import MyMath from '@tools/mymath.js';
 
 class Option {
     static REGEX = /^([\w]+)\s*=>(.*)/;
@@ -25,7 +25,7 @@ class Option {
     }
 
     run(params, caller) {
-        const value = substituteLabels(this._value, params);
+        const value = MyMath.substituteLabels(this._value, params);
         if (caller && typeof caller.setOption === 'function') {
             caller.setOption(this._key, value);
         }
