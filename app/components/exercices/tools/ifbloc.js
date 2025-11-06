@@ -1,4 +1,3 @@
-import { substituteLabels } from './misc.js';
 import Bloc from './bloc.js';
 import MyMath from '@tools/mymath.js';
 
@@ -61,8 +60,8 @@ class SimpleCondition {
     }
 
     evaluate(params) {
-        const left = MyMath.evaluate(substituteLabels(this.left, params));
-        const right = MyMath.evaluate(substituteLabels(this.right, params));
+        const left = MyMath.evaluate(this.left, params);
+        const right = MyMath.evaluate(this.right, params);
         return (left === right) === (this.operator === '==');
     }
 
@@ -159,8 +158,8 @@ class IfBloc extends Bloc {
      * @returns {boolean}
      */
     static testSingleCondition(condition, params) {
-        const left = MyMath.evaluate(substituteLabels(condition.left, params));
-        const right = MyMath.evaluate(substituteLabels(condition.right, params));
+        const left = MyMath.evaluate(condition.left, params);
+        const right = MyMath.evaluate(condition.right, params);
         return (left === right) === (condition.operator === '==');
     }
 
