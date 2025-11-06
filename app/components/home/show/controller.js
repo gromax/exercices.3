@@ -1,5 +1,4 @@
-import { MnObject, Region } from 'backbone.marionette';
-import { EleveListeDevoirs, EleveLayout } from './home_eleve_views';
+import { MnObject } from 'backbone.marionette';
 import { NotFoundView } from './not_found_view';
 import { OffView } from './off_view';
 import { ForgottenKeyView } from './forgotten_key_view';

@@ -1,4 +1,4 @@
-import { MnObject, Region } from 'backbone.marionette';
+import { MnObject } from 'backbone.marionette';
 import { EditDevoirView } from './views.js';
 
 const Controller = MnObject.extend({

@@ -1,4 +1,4 @@
-import { MnObject, Region } from 'backbone.marionette';
+import { MnObject } from 'backbone.marionette';
 import { ShowDevoirView, AssosExoDevoirCollectionView, LayoutView } from './views.js';
 import { TwoColsView } from '../../common/views.js';
 

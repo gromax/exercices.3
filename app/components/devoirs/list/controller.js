@@ -1,4 +1,4 @@
-import { MnObject, Region } from 'backbone.marionette'
+import { MnObject } from 'backbone.marionette'
 import { DevoirsPanel, DevoirsCollectionView, ListLayout } from './views.js'
 
 
