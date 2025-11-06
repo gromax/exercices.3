@@ -1,4 +1,5 @@
-import { substituteExpressions, substituteLabels } from './misc.js';
+import MyMath from '@tools/mymath.js';
+import { substituteExpressions } from './misc.js';
 
 class TextNode {
   constructor(text) {
@@ -11,7 +12,7 @@ class TextNode {
 
   run(params, caller) {
     const text = substituteExpressions(this._text, params);
-    return substituteLabels(text, params);
+    return MyMath.substituteLabels(text, params);
   }
 
   get text() {
