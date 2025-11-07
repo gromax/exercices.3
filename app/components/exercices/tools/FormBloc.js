@@ -53,9 +53,7 @@ class FormBloc extends Bloc {
                 errors[name] = "Champ manquant";
                 continue;
             }
-            console.log("check ?")
             if (child.params.format) {
-                console.log("check format", child.params.format);
                 const userValue = data[name] || '';
                 const v = formatCheck(userValue, child.params.format);
                 if (v!==true) {
