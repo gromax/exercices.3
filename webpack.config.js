@@ -70,6 +70,7 @@ const webpackCommon = {
       '@styles': path.resolve(__dirname, 'app/styles'),
       '@templates': path.resolve(__dirname, 'app/templates'),
       '@tools': path.resolve(__dirname, 'app/tools'),
+      'jsxgraph/distrib/jsxgraph.css': require('path').resolve(__dirname, 'node_modules/jsxgraph/distrib/jsxgraph.css')
       // Ajoute d'autres alias si besoin
     }
   },
