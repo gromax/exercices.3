@@ -3,6 +3,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'use-bootstrap-tag/dist/use-bootstrap-tag.css'
 import "katex/dist/katex.min.css";
+import "jsxgraph/distrib/jsxgraph.css";
 import '../styles/application.css'; // ton CSS personnalisé
 import { Application, Region } from 'backbone.marionette';
 import { SessionApp } from './session/app';
