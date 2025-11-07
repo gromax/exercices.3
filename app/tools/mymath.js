@@ -1,10 +1,11 @@
 import Parser from './parser/parser.js';
 import { build } from './parser/rpnbuilder.js';
 import Alea from './misc/alea.js';
+import Calc from './misc/calc.js';
 import nerdamer from 'nerdamer';
 import 'nerdamer/all';
 
-const MODULES = [Alea];
+const MODULES = [Alea, Calc];
 
 /**
  * parse
@@ -20,7 +21,7 @@ function executePile(pile) {
   pile.reverse();
   if (pile.length === 0) return null;
   while (pile.length > 0) {
-      const top = pile.pop();
+      let top = pile.pop();
       if (typeof top !== 'string') {
           operandes.push(top);
           continue;
@@ -28,6 +29,13 @@ function executePile(pile) {
       if (!/^[A-Za-z_]+\.[A-Za-z_]+$/.test(top)) {
         operandes.push(top);
         continue;
+      }
+      if (top === '*') {
+        top = 'Calc.mult';
+      } else if (top === '+') {
+        top = 'Calc.add';
+      } else if (top === '-') {
+        top = 'Calc.sub';
       }
       const match = top.match(/^(\w+)\.(\w+)$/);
       const moduleName = match[1];
