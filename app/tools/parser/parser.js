@@ -3,6 +3,7 @@ import { TFunction } from './tokens/function';
 import { TOperator } from './tokens/operator';
 import { TParenthesis } from './tokens/parenthesis';
 import { TSymbol } from './tokens/symbol';
+import { build } from './rpnbuilder.js';
 
 const TOKENS = [TNumber, TFunction, TOperator, TParenthesis, TSymbol];
 
@@ -16,8 +17,17 @@ class Parser {
     static REGEX = new RegExp ( _.map(TOKENS, function(tok){ return `(${tok.sREGEX})`; } ).join("|"), "gi");
 
     /**
+     * construit un objet Parser et parse la saisie
+     * @param {string} expr 
+     * @returns {Parser}
+     */
+    static build(expr) {
+        return build(new Parser(expr).rpn);
+    }
+
+    /**
      * constructeur
-     * @param {string} saisie 
+     * @param {string} saisie
      */
     constructor(saisie) {
         this.#saisie = saisie || "";
