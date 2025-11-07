@@ -1,7 +1,7 @@
 import MyMath from '@tools/mymath.js';
 
 class Parameter {
-    static REGEX = /^<(\w+)\s*:([^>/]+)\/>$/;
+    static REGEX = /^<(\w+)\s*:(.*)\/>$/;
     static parse(line) {
         const m = line.match(Parameter.REGEX);
         if (m) {
