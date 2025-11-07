@@ -1,4 +1,11 @@
 <div class="mb-3">
     <label for="<%- name %>" class="form-label"><%- tag %></label>
     <input type="text" class="form-control" id="<%- name %>" name="<%- name %>" value="<%- answer %>" required>
+    <% if (keyboard && !_.isEmpty(keyboard)) { %>
+    <div class="btn-group mb-3" role="group" aria-label="Basic example">
+    <% _.each(keyboard, (value, key) => { %>
+    <button type="button" class="btn btn-outline-primary js-<%- key %>"><%- value %></button>
+    <% }) %>
+    </div>
+    <% } %>
 </div>

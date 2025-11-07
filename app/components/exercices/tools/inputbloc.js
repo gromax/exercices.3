@@ -31,7 +31,18 @@ class InputBloc extends Bloc {
             return new RadioBloc(label, paramsString);
         }
     }
-    
+
+    setParam(key, value) {
+        if (key === 'keyboard') {
+            if (this._params.keyboard === undefined) {
+                this._params.keyboard = [];
+            }
+            this._params.keyboard.push(value);
+            return;
+        }
+        super.setParam(key, value);
+    }
+
     constructor(label, paramsString) {
         super(label, paramsString, false);
         if (!paramsString) {
@@ -50,7 +61,8 @@ class InputTextBloc extends InputBloc {
         return new InputView({
             name: this.header,
             tag: this.params.tag || this.header,
-            answer: answers[this.header] || null
+            answer: answers[this.header] || null,
+            keyboard: this.params.keyboard || []
         });
     }
 

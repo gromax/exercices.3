@@ -53,15 +53,15 @@ class FormBloc extends Bloc {
                 errors[name] = "Champ manquant";
                 continue;
             }
+            console.log("check ?")
             if (child.params.format) {
+                console.log("check format", child.params.format);
                 const userValue = data[name] || '';
                 const v = formatCheck(userValue, child.params.format);
                 if (v!==true) {
                     errors[name] = v;
                 }
             }
-            // Il faudrait vérifier le type ici
-            console.log(`expected format: ${child.params.format}`);
         }
         if (Object.keys(errors).length > 0) {
             return errors;
