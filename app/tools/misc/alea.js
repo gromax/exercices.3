@@ -6,6 +6,10 @@ class Alea {
         max = Math.max(a, b);
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
+
+    static signe() {
+        return Math.random() < 0.5 ? -1 : 1;
+    }
 }
 
 export default Alea;
