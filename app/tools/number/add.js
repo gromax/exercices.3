@@ -84,6 +84,16 @@ class Add extends Base {
         return this.#right;
     }
 
+    isExpanded() {
+        if (!this.left.isExpanded() || !this.right.isExpanded()) {
+            return false;
+        }
+        if (this.left instanceof Scalar && this.right instanceof Scalar) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * si un nom est précisé, renvoie true si le nœud dépend de la variable,
      * sinon renvoie la liste des variables dont dépend le noeud
@@ -153,6 +163,16 @@ class Minus extends Base {
 
     get right() {
         return this.#right;
+    }
+
+    isExpanded() {
+        if (!this.left.isExpanded() || !this.right.isExpanded()) {
+            return false;
+        }
+        if (this.left instanceof Scalar && this.right instanceof Scalar) {
+            return false;
+        }
+        return true;
     }
 
     /**

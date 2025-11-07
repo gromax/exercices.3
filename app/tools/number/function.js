@@ -78,6 +78,11 @@ class Function extends Base {
         return this.#child;
     }
 
+    isExpanded() {
+        return this.#child.isExpanded();
+    }
+
+
     /**
      * si un nom est précisé, renvoie true si le nœud dépend de la variable,
      * sinon renvoie la liste des variables dont dépend le noeud

@@ -52,6 +52,14 @@ class Power extends Base {
         return this.#exposant;
     }
 
+    isExpanded() {
+        if (!this.#base.isExpanded() || !this.#exposant.isExpanded()) {
+            return false;
+        }
+        return true;
+    }
+
+
     /**
      * si un nom est précisé, renvoie true si le nœud dépend de la variable,
      * sinon renvoie la liste des variables dont dépend le noeud

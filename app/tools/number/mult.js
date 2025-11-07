@@ -1,5 +1,6 @@
 import { Base } from "./base";
 import { Scalar } from "./scalar";
+import { Add, Minus } from "./add";
 import Decimal from "decimal.js";
 
 class Mult extends Base {
@@ -88,6 +89,21 @@ class Mult extends Base {
         return this.#right;
     }
 
+    isExpanded() {
+        if (!this.left.isExpanded() || !this.right.isExpanded()) {
+            return false;
+        }
+        if (this.left instanceof Scalar && this.right instanceof Scalar) {
+            return false;
+        }
+        if (this.left instanceof Add || this.right instanceof Add
+            || this.left instanceof Minus || this.right instanceof Minus
+        ) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * si un nom est précisé, renvoie true si le nœud dépend de la variable,
      * sinon renvoie la liste des variables dont dépend le noeud
@@ -155,6 +171,13 @@ class Div extends Base {
 
     get right() {
         return this.#right;
+    }
+
+    isExpanded() {
+        if (!this.left.isExpanded() || !this.right.isExpanded()) {
+            return false;
+        }
+        return true;
     }
 
     /**

@@ -31,6 +31,15 @@ class Base {
     }
 
     /**
+     * Test simple qui vérifie qu'au moins les calcul type
+     * nombre + nombre ou nombre * nombre son développés
+     * @returns {boolean}
+     */
+    isExpanded() {
+        return true;
+    }
+
+    /**
      * renvoie une représentation tex
      * @returns {string}
      */

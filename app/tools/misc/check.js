@@ -4,8 +4,9 @@
 
 import nerdamer from 'nerdamer';
 import 'nerdamer/all';
+import Parser from '../parser/parser.js';
 
-function checkNumericExpression(expr) {
+/*function checkNumericExpression(expr) {
     try {
         const allowedSymbols = ['pi', 'e'];
         const parsed = nerdamer(String(expr));
@@ -17,9 +18,26 @@ function checkNumericExpression(expr) {
         // parsing error => pas numérique
         return "Expression invalide.";
     }
+}*/
+function checkNumericExpression(expr) {
+    try {
+        const objMath = Parser.build(expr);
+        const variables = objMath.isFunctionOf();
+        if (variables.length > 0) {
+            return `L'expression contient des inconnues (${variables.join(', ')}).`;
+        }
+        // on souhaite également que l'expression soit développée
+        return objMath.isExpanded() ? true : "Vous devez simplifier.";
+    } catch (e) {
+        // parsing error => pas numérique
+        return "Expression invalide.";
+    }
 }
 
+
+
 function checkFormat(expr, format) {
+    console.log(format)
     if (format === 'numeric') {
         return checkNumericExpression(expr);
     }
