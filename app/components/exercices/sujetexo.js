@@ -8,7 +8,8 @@ const Item = MyModel.extend({
     keywords: "",
     options: "",
     code: "",
-    init: ""
+    init: "",
+    published: false,
   },
 
   toString() {
@@ -24,6 +25,9 @@ const Item = MyModel.extend({
     data.keywords = data.keywords || "";
     data.init = data.init || "";
     data.code = data.code || "";
+    if (data.published !== undefined) {
+      data.published = Boolean(data.published);
+    }
     return data;
   },
 });

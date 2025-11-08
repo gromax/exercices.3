@@ -32,7 +32,12 @@ const NoExerciceView = View.extend({
 
 const ExerciceItemView = View.extend({
   tagName: "a",
-  className: "list-group-item",
+  className() {
+    if (!this.model.get('published')) {
+      return "list-group-item list-group-item-warning";
+    }
+    return "list-group-item";
+  },
   template: exercice_item_view_tpl,
   triggers: {
     "click": "sujet:exercice:show"

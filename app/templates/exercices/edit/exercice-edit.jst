@@ -10,6 +10,11 @@
         <div class="invalid-feedback">
             Le titre est requis.
         </div>
+        <div class="checkbox">
+            <label>
+              <input type="checkbox" name="published" <% if (published) { %> checked <% } %> > Publié
+            </label>
+        </div>
     </div>
     <div class="col-6">
         <label for="exercice-keywords" class="form-label">Mots-clés</label>

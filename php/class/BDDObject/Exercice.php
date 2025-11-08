@@ -19,6 +19,7 @@ final class Exercice extends Item
             'options' => ['def' => "", 'type'=> 'string'],   // options de l'exercice (json)
             'init' => ['def' => "", 'type'=> 'string'],      // code d'initialisation (json)
             'code' => ['def' => "", 'type'=> 'string'],      // code de l'exercice (json)
+            'published' => ['def' => false, 'type'=> 'boolean'],      // publié ou non
         ];
     }
 
