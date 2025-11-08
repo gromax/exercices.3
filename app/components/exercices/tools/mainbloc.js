@@ -7,6 +7,9 @@ import InputBloc from "./inputbloc.js";
 import FormBloc from "./FormBloc.js";
 import Parameter from "./parameter.js";
 import Option from "./option.js";
+import Halt from "./halt.js";
+
+const TRYNUMBER = 100;
 
 class MainBloc extends Bloc {
     /*
@@ -28,13 +31,16 @@ class MainBloc extends Bloc {
             params = JSON.parse(params);
         }
         const main = MainBloc._parse(code);
-        for (let attempt = 1; attempt <= 50; attempt++) {
-            const result = main._getInit(params, options);
+        for (let attempt = 1; attempt <= TRYNUMBER; attempt++) {
+            // Important : il faut envoyer une copie de params à chaque tentative
+            // sans quoi une tentative ratée modifierait les paramètres pour la suivante
+            const result = main._getInit({...params}, options);
             if (result !== null) {
+                // réussite, on peut donc récupérer les params
                 return result;
             }
         }
-        throw new Error("Impossible d'initialiser les paramètres de l'exercice après 50 essais.");
+        throw new Error(`Impossible d'initialiser les paramètres de l'exercice après ${TRYNUMBER} essais.`);
     }
 
     static runCode(code, params, options) {
@@ -99,6 +105,12 @@ class MainBloc extends Bloc {
                 continue;
             }
 
+            const halt = Halt.parse(trimmed);
+            if (halt) {
+                stack[stack.length-1].push(halt);
+                continue;
+            }
+
             const parameter = Parameter.parse(trimmed);
             if (parameter) {
                 stack[stack.length-1].push(parameter);
@@ -113,11 +125,11 @@ class MainBloc extends Bloc {
 
             const bloc = MainBloc.parseBloc(trimmed);
             if (bloc) {
-                if (!bloc.closed) {
+                if (bloc.closed) {
+                    stack[stack.length-1].push(bloc);
+                } else {
                     stack.push(bloc);
-                    continue;
                 }
-                stack[stack.length-1].push(bloc);
                 continue;
             }
             
@@ -139,8 +151,6 @@ class MainBloc extends Bloc {
             stack[stack.length-1].push(new TextNode(trimmed));
         }
         if (stack.length !== 1) {
-            console.log(content);
-            console.log(stack);
             throw new Error("Erreur de syntaxe : blocs non fermés");
         }
         mainBlock.close();
@@ -183,9 +193,14 @@ class MainBloc extends Bloc {
      * @returns {object|null} un objet de paramètres ou null si échec
      */
     _getInit(params, options) {
+        const saved = Object.keys(params);
         let program = [...this.children].reverse();
         while (program.length > 0) {
           let item = program.pop();
+          if (item instanceof Halt) {
+              // arrêt de l'initialisation
+              return params;
+          }
           if (item instanceof TextNode) {
             continue;
           }
@@ -201,7 +216,7 @@ class MainBloc extends Bloc {
           if (!(item instanceof Affectation)) {
             throw new Error("L'initialisation ne doit contenir que des conditions et des affectations.");
           }
-          item.doAffectation(params, options);
+          item.doAffectation(params, options, saved);
         }
         // Filtrage des noms en _nom
         return params;
@@ -243,6 +258,10 @@ class MainBloc extends Bloc {
         this._children = [];
         while (pile.length > 0) {
             let item = pile.pop();
+            if (item instanceof Halt) {
+                // arrêt de l'exécution
+                break;
+            }
             const runned = item.run(parameters, this);
             if (runned === null) {
                 continue;
