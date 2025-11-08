@@ -17,15 +17,24 @@ class Affectation {
         this._value = value;
     }
 
-    doAffectation(params, protectedParams) {
-        if (!(this._tag in params) && (this._operator === '=')) {
-            throw new Error(`Vous devez utiliser = pour un paramètre déjà défini : ${this._tag}`);
+    /**
+     * Réalise l'affectation dans params
+     * protectedParams sont des paramètres protégés qui ne peuvent pas être modifiés
+     * saved est un tableau des paramètres précédemment définis
+     * il peuvent donc être écrasés seulement si on le force avec :=
+     * @param {object} params 
+     * @param {object} protectedParams 
+     * @param {array} saved 
+     */
+    doAffectation(params, protectedParams, saved = []) {
+        if (saved.includes(this._tag) && (this._operator === '=')) {
+            // fonctionnement normal, on ignore l'affectation si déjà défini
+            // ignoré si déjà défini et opérateur =
+            return;
         }
         if (this._tag in protectedParams) {
+            // situation anormale, on ne peut pas écraser un paramètre protégé
             throw new Error(`Le paramètre ${this._tag} est protégé et ne peut pas être redéfini.`);
-        }
-        if ((this._tag in params) && (this._operator === ':=')) {
-            return; // ne fait rien si le paramètre existe déjà
         }
         params[this._tag] = MyMath.evaluate(this._value, { ...params, ...protectedParams });
     }
