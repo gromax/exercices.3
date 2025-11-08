@@ -2,8 +2,8 @@ import MyMath from '@tools/mymath.js';
 
 function substituteExpressions(str, params) {
     return str.replace(/\{([^:]+):\s*([\w]*|\$)?\}/g, (match, expr, format) => {
-        const evaluation = MyMath.evaluate(expr, params, true);
-        return MyMath.evaluate(evaluation, format);
+        const evaluation = MyMath.getValue(expr, params)??MyMath.substituteLabels(expr, params, true);
+        return MyMath.toFormat(evaluation, format);
     });
 }
 
