@@ -44,7 +44,7 @@ class Operator {
 
 class SimpleCondition {
     static parse(expr) {
-        const regex = /^([\w@]+)\s*([=!]=)\s*([\w@]+)$/;
+        const regex = /^(.*)(==|<=?|>=?|!=)(.*)$/;
         const m = expr.match(regex);
         if (!m) {
             return null;
@@ -60,9 +60,7 @@ class SimpleCondition {
     }
 
     evaluate(params) {
-        const left = MyMath.evaluate(this.left, params);
-        const right = MyMath.evaluate(this.right, params);
-        return (left === right) === (this.operator === '==');
+        return MyMath.compare(this.left, this.right, this.operator, params);
     }
 
     toString() {
@@ -83,7 +81,7 @@ class IfBloc extends Bloc {
     _expression = null;
 
     static parse(line) {
-        const regex = /^<(if|elif|else|needed)\s*(\s[^>]+)?>$/;
+        const regex = /^<(if|elif|else|needed)(\s+.*)?>$/;
         const m = line.match(regex);
         if (!m) {
             return null;
@@ -96,7 +94,7 @@ class IfBloc extends Bloc {
         expr = expr.trim();
         const regex = /[^\s{}]+|\{|\}/g;
         const tokens = expr.match(regex)
-        // recoller les tokens qui ne sont pas des bouts de end
+        // recoller les tokens qui ne font pas partie de and, or, {, }
         for (let i = 0; i < tokens.length - 1; i++) {
             if (tokens[i] == 'and' || tokens[i] == 'or' || tokens[i] == '{' || tokens[i] == '}') {
                 continue;
