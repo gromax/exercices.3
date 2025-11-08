@@ -17,45 +17,46 @@ function parse(input) {
 }
 
 function executePile(pile) {
-  const operandes = [];
-  pile.reverse();
-  if (pile.length === 0) return null;
-  while (pile.length > 0) {
-      let top = pile.pop();
-      if (typeof top !== 'string') {
-          operandes.push(top);
-          continue;
-      }
-      if (!/^[A-Za-z_]+\.[A-Za-z_]+$/.test(top)) {
-        operandes.push(top);
-        continue;
-      }
-      if (top === '*') {
-        top = 'Calc.mult';
-      } else if (top === '+') {
-        top = 'Calc.add';
-      } else if (top === '-') {
-        top = 'Calc.sub';
-      }
-      const match = top.match(/^(\w+)\.(\w+)$/);
-      const moduleName = match[1];
-      const functionName = match[2];
-      const m = MODULES.find(mod => mod.name == moduleName);
-      if (!m) {
-        throw new Error(`Module ${moduleName} non trouvé`);
-      }
-      if (!m.hasOwnProperty(functionName)) {
-        throw new Error(`Fonction ${functionName} non trouvée dans le module ${moduleName}`);
-      }
-      const n = m[functionName].length;
-      if (operandes.length < n) {
-          throw new Error(`Pas assez d'opérandes pour l'opération ${top}`);
-      }
-      const args = operandes.splice(operandes.length - n, n);
-      const result = m[functionName](...args);
-      if (result !== undefined) {
-          operandes.push(result);
-      }
+    const operandes = [];
+    pile.reverse();
+    if (pile.length === 0) return null;
+    while (pile.length > 0) {
+        let top = pile.pop();
+        if (typeof top !== 'string') {
+            operandes.push(top);
+            continue;
+        }
+        if (top === '*') {
+            top = 'Calc.mult';
+        } else if (top === '+') {
+            top = 'Calc.add';
+        } else if (top === '-') {
+            top = 'Calc.sub';
+        }
+        if (!/^[A-Za-z_]+\.[A-Za-z_]+$/.test(top)) {
+            operandes.push(top);
+            continue;
+        }
+
+        const match = top.match(/^(\w+)\.(\w+)$/);
+        const moduleName = match[1];
+        const functionName = match[2];
+        const m = MODULES.find(mod => mod.name == moduleName);
+        if (!m) {
+            throw new Error(`Module ${moduleName} non trouvé`);
+        }
+        if (!m.hasOwnProperty(functionName)) {
+            throw new Error(`Fonction ${functionName} non trouvée dans le module ${moduleName}`);
+        }
+        const n = m[functionName].length;
+        if (operandes.length < n) {
+            throw new Error(`Pas assez d'opérandes pour l'opération ${top}`);
+        }
+        const args = operandes.splice(operandes.length - n, n);
+        const result = m[functionName](...args);
+        if (result !== undefined) {
+            operandes.push(result);
+        }
   }
   if (operandes.length !== 1) {
       throw new Error("La pile n'a pas été réduite à une seule valeur.");
@@ -70,13 +71,16 @@ function executePile(pile) {
  * @param {*} params 
  */
 function getValue(chaine, params) {
-    const m = chaine.match(/^@([A-Za-z_]\w*)\.([A-Za-z_]\w*)$/);
+    const m = chaine.match(/^@([A-Za-z_]\w*)(\.([A-Za-z_]\w*))?$/);
     if (!m) {
         return null;
     }
-    const [, name, sub] = m;
+    const [, name, , sub] = m;
     if (name in params) {
-        return params[name][sub];
+        if (sub !== undefined) {
+            return params[name][sub];
+        }
+        return params[name];
     }
     return null;
 }
@@ -95,7 +99,36 @@ function evaluate(expression, params) {
          return executePile(pile);
     }
     const substituted_expr = MyMath.substituteLabels(expr, params, true);
-    return nerdamer(substituted_expr).simplify().toString();
+    //console.log("Evaluating expression:", expression, "->", substituted_expr, "->", nerdamer(substituted_expr).toString());
+    return nerdamer(substituted_expr).toString();
+}
+
+/**
+ * Effectue une comparaison entre deux expressions selon l'opérateur donné
+ * @param {*} leftExpr doit pouvoir être converti en string puis nerdamer
+ * @param {*} rightExpr idem
+ * @param {string} operator parmi ==, !=, <, <=, >, >=
+ * @param {object} params permet de substituer des labels dans les expressions
+ * @returns {boolean} le résultat de la comparaison
+ */
+function compare(leftExpr, rightExpr, operator, params) {
+    const leftValue = String(MyMath.evaluate(leftExpr, params));
+    const rightValue = String(MyMath.evaluate(rightExpr, params));
+    switch (operator) {
+        case '==':
+            return nerdamer(leftValue).eq(nerdamer(rightValue));
+        case '!=':
+            return !nerdamer(leftValue).eq(nerdamer(rightValue));
+        case '<':
+            return nerdamer(leftValue).lt(nerdamer(rightValue));
+        case '<=':
+            return nerdamer(leftValue).lte(nerdamer(rightValue));
+        case '>':
+            return nerdamer(leftValue).gt(nerdamer(rightValue));
+        case '>=':
+            return nerdamer(leftValue).gte(nerdamer(rightValue));
+    }
+    return false;
 }
 
 /**
@@ -134,9 +167,6 @@ function toFormat(value, format) {
 
 function latex(expression) {
     //return String(parse(expression).toTex());
-    console.log('latex', expression);
-    console.log('nerdamer', nerdamer(expression).toString());
-    console.log('toTeX', nerdamer(expression).toTeX());
     return nerdamer(expression).toTeX();
 }
 
@@ -205,11 +235,13 @@ function substituteLabels(expr, params, forceParenthesis=false) {
 const MyMath = {
     parse,
     evaluate,
+    compare,
     toFormat,
     latex,
     areEqual,
     parseUser,
     substituteLabels,
+    getValue
 };
 
 export default MyMath
