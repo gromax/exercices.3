@@ -1,6 +1,8 @@
 import { MnObject, Region } from 'backbone.marionette'
 import { ListLayout, ExercicesPanel, ExercicesCollectionView } from './views.js'
 
+import renderMathInElement from "katex/contrib/auto-render";
+
 const Controller = MnObject.extend({
   channelName: "app",
   makeView(exercices, criterion, region) {
@@ -23,6 +25,16 @@ const Controller = MnObject.extend({
       layout.getRegion('itemsRegion').show(listExercicesView);
     });
     region.show(layout);
+
+    // Rendu de KaTeX dans la zone d'exercice
+    renderMathInElement(region.$el[0], {
+      delimiters: [
+        {left: "$", right: "$", display: false},
+        {left: "$$", right: "$$", display: true}
+      ],
+      throwOnError: false
+    });
+    
     return { listExercicesView, panel, layout };
   },
   
