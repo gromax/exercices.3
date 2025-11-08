@@ -25,5 +25,21 @@ class Calc {
         }
         return a - b;
     }
+
+    static abs(x) {
+        const a = Number(x);
+        if (isNaN(a)) {
+            return `abs(${a})`;
+        }
+        return Math.abs(a);
+    }
+
+    static sign(x) {
+        const a = Number(x);
+        if (isNaN(a)) {
+            return `sign(${a})`;
+        }
+        return Math.sign(a);
+    }
 }
 export default Calc;
