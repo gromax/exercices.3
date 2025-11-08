@@ -40,11 +40,11 @@ This is a modern JS skeleton with MarionetteJS for [Webpack](https://webpack.git
 * admin : interface de nettoyage
 * élève
 
-Important : désormais, on crée une asso exercice-devoir pour une répétition de l'exo dans le devoir. Si on veut que l'élève le fasse 5x alors il faut entrer 5 assoc.
+- j'ai l'idée pour un bloc graph de faire des sous-blocs qui seraient des éléments utiles. Par exemple <functiongraph:f> qui contiendrait des blocs comme <expression>, <color>... le <functiongraph> contiendrait lui même des params <xmin:value/> etc.
 
-La note de l'élève pour cette assoc est la meilleure réalisation.
 
-Pour une assoc, on reprend toujours le dernier essai enregistré tant qu'il n'est pas terminé.
+
+
 
 ## Arborescence des pages
 
@@ -148,19 +148,21 @@ En revanche, quand l'exercice est nouveau, il convient de sélectionner de nouve
 
 #### Première affection et autres affectations
 
-On dispose de deux types d'affectations :
+Pour tenir compte du cas où on exécute un exercice déjà initialisé et sauvegardé, il faut être capable de ne calculer les paramètres d'initialisation que s'ils n'existent pas déjà.
 
-```
-@x := 15
-```
-
-Dans ce cas c'est une première affectation. Si `x` est déjà défini car présent dans le bloc `init` d'un exercice que l'on rejoue, alors cette affectation est ignorée.
+On dispose donc de deux types d'affectations :
 
 ```
 @x = 15
 ```
 
-Cette affectation ne peut agir que sur un `x` déjà défini, soit avant dans l'essai sauvé en BDD. Cette affectation agit dans les deux cas.
+C'est l'affectation ordinaire. Elle n'agit pas si `x` a été reconnu comme ayant été préalablement enregistrés.
+
+```
+@x := 15
+```
+
+Les deux points permettent de forcer l'affectation **même si** `x` est un paramètre préalablement enregistré.
 
 Il est interdit de modifier les variables du bloc options.
 
