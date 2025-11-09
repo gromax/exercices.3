@@ -3,7 +3,7 @@
  * de rendu identifiés par une balise de type <tag param1 param2 ...>
  */
 
-import { UnknownView } from '../run/views.js';
+import { UnknownView, TableView } from '../run/views.js';
 
 class Bloc {
     constructor(tag, paramsString, closed) {
@@ -17,7 +17,19 @@ class Bloc {
     }
 
     setParam(key, value) {
-        this._params[key] = value;
+        console.log(`Setting param ${key} = ${value}`);
+        if (!key.endsWith('[]')) {
+            this._params[key] = value;
+            return;
+        }
+        // il s'agit d'un tableau
+        const realKey = key.slice(0, -2);
+        if (!(realKey in this._params)) {
+            this._params[realKey] = [];
+        } else if (!Array.isArray(this._params[realKey])) {
+            throw new Error(`Le paramètre ${realKey} n'est pas un tableau.`);
+        }
+        this._params[realKey].push(value);
     }
 
     get header() {
@@ -91,6 +103,14 @@ class Bloc {
         }
         if (typeof this._customView === 'function') {
             return this._customView(answers);
+        }
+        if (this._tag === 'table') {
+            console.log("Génération de la vue table avec params :", this._params);
+            return new TableView({
+                rows: this._params.rows || [],
+                rowheaders: this._params.rowheaders || null,
+                colheaders: this._params.colheaders || null
+            });
         }
         return new UnknownView({ name:this.tag, code: this.toString() });
     }
