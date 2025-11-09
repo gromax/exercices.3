@@ -142,35 +142,29 @@ Noter que, bien que `needed` soit un bloc singleton, il ne faut pas le fermer pa
 
 #### Nouveau ou sauvegarde
 
-Quand un exercice commence, puisque l'idée est de produire aléatoirement des exercices, il faut initialiser les paramètres. Dans certains cas, l'exercice que l'on exécute est un exercice précédemment créé et sauvegardé en BDD. Il faut donc que que dans ce cas là, on conserve bien les valeurs sauvegardées afin de rejouer l'exercice à l'identique.
+L'exécution d'un exercice peut se faire dans deux contextes :
 
-En revanche, quand l'exercice est nouveau, il convient de sélectionner de nouveaux paramètres.
+  * il s'agit d'une nouvelle exécution, il faut donc initialiser les paramètres utiles.
+  * Il s'agit de l'exécution d'un exercice préalablement initialisé et dont les paramètres ont été stocké en BDD.
 
-#### Première affection et autres affectations
+L'initialisation ne s'exécute que dans le premier cas.
 
-Pour tenir compte du cas où on exécute un exercice déjà initialisé et sauvegardé, il faut être capable de ne calculer les paramètres d'initialisation que s'ils n'existent pas déjà.
+#### Affection
 
-On dispose donc de deux types d'affectations :
+  * On annonce les variables en les faisant précéder par `@`.
+  * L'affectation d'une variable se fait avec un signe `=`
+  * Les variables dont le nom commence par `_`, par exemple `@_x`, ne seront pas sauvegardées et seront donc perdues au moment de l'exécution de l'exercice. Elles peuvent servir de variable intermédiaire pour faciliter la rédaction de l'init.
+
+Exemple :
 
 ```
-@x = 15
+@_x = 3
+@y = 3+2*@_x^2
 ```
-
-C'est l'affectation ordinaire. Elle n'agit pas si `x` a été reconnu comme ayant été préalablement enregistrés.
-
-```
-@x := 15
-```
-
-Les deux points permettent de forcer l'affectation **même si** `x` est un paramètre préalablement enregistré.
-
-Il est interdit de modifier les variables du bloc options.
-
-On peut créer des variables de forme `@_name`. Elles seront disponibles dans le bloc code mais ne seront pas sauvegardées en BDD (doivent donc pouvoir être recalculées à partir des données BDD)
 
 #### Évaluation d'une pile
 
-Si l'expression a évaluaer est entourée de `[ ]`, alors elle est comprise comme une pile. L'expression est alors splitée selon les espaces. Au début chaque bloc est un donc un élément texte.
+Si l'expression à évaluaer est entourée de `[ ]`, alors elle est comprise comme une pile. L'expression est alors splitée selon les espaces. Au début chaque bloc est un donc un élément texte.
 
 Les éléments de la pile subissent un prétraitement :
 

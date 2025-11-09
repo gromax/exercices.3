@@ -60,11 +60,7 @@ const Item = MyModel.extend({
     const output = _.clone(_.pick(this.attributes, "score", "idExoDevoir", "idUser"));
     output.id = this.get("idBDD");
     output.finished = this.get("finished") ? 1 : 0;
-    const init = this.get("init") || {};
-    const filteredInit = Object.fromEntries(
-      Object.entries(init).filter(([key]) => !key.startsWith('_'))
-    );
-    output.init = JSON.stringify(filteredInit);
+    output.init = JSON.stringify(this.get("init") || {});
     output.answers = JSON.stringify(this.get("answers") || {});
     return output;
   },

@@ -20,23 +20,16 @@ class MainBloc extends Bloc {
         return mainBlock._parseOptions();
     }
 
-    static parseParams(code, options, params) {
+    static parseParams(code, options) {
         code = code || "";
         options = options || {};
         if (typeof options === 'string') {
             options = JSON.parse(options);
         }
-        params = params || {};
-        if (typeof params === 'string') {
-            params = JSON.parse(params);
-        }
         const main = MainBloc._parse(code);
         for (let attempt = 1; attempt <= TRYNUMBER; attempt++) {
-            // Important : il faut envoyer une copie de params à chaque tentative
-            // sans quoi une tentative ratée modifierait les paramètres pour la suivante
-            const result = main._getInit({...params}, options);
+            const result = main._getInit(options);
             if (result !== null) {
-                // réussite, on peut donc récupérer les params
                 return result;
             }
         }
@@ -186,40 +179,41 @@ class MainBloc extends Bloc {
     }
 
     /**
-     * Tentative d'initialisation des paramètres tenant compte des options
-     * et des paramètres déjà initialisés
-     * @param {object} params 
+     * Tentative d'initialisation des paramètres
      * @param {object} options 
      * @returns {object|null} un objet de paramètres ou null si échec
      */
-    _getInit(params, options) {
-        const saved = Object.keys(params);
+    _getInit(options) {
+        const params = {};
         let program = [...this.children].reverse();
         while (program.length > 0) {
-          let item = program.pop();
-          if (item instanceof Halt) {
-              // arrêt de l'initialisation
-              return params;
-          }
-          if (item instanceof TextNode) {
-            continue;
-          }
-          if (item instanceof IfBloc) {
-            const ifChildren = item.run({ ...params, ...options });
-            if (ifChildren === null) {
-                return null;
+            let item = program.pop();
+            if (item instanceof Halt) {
+                // arrêt de l'initialisation
+                return params;
             }
-            program.push(...ifChildren.reverse());
-            continue;
-          }
-          // doit être une affectation
-          if (!(item instanceof Affectation)) {
-            throw new Error("L'initialisation ne doit contenir que des conditions et des affectations.");
-          }
-          item.doAffectation(params, options, saved);
+            if (item instanceof TextNode) {
+                continue;
+            }
+            if (item instanceof IfBloc) {
+                const ifChildren = item.run({ ...params, ...options });
+                if (ifChildren === null) {
+                    return null;
+                }
+                program.push(...ifChildren.reverse());
+                continue;
+            }
+            // doit être une affectation
+            if (!(item instanceof Affectation)) {
+                throw new Error("L'initialisation ne doit contenir que des conditions et des affectations.");
+            }
+            item.doAffectation(params, options);
         }
         // Filtrage des noms en _nom
-        return params;
+        const filtered = Object.fromEntries(
+            Object.entries(params).filter(([key]) => !key.startsWith('_'))
+        );
+        return filtered;
     }
 
     /**
