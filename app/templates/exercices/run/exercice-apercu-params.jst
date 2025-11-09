@@ -5,9 +5,9 @@
         <% if (!params || _.isEmpty(params)) { %>
             <em>Aucun paramètre défini.</em>
         <% } else { %>
-            <% _.each(params, function(value, key) { %>
-                <span class="badge bg-light text-dark m-1">
-                    <b><%- key %>:</b> <%- value %>
+            <% _.each(params, function(value, key) { const valueStr = String(value); %>
+                <span class="badge bg-light text-dark m-1" title="<%- valueStr %>">
+                    <b><%- key %>:</b> <% if (valueStr.length > 10) { %><%- valueStr.substring(0, 10) + '...' %><% } else { %><%- valueStr %><% } %>
                 </span>
             <% }); %>
         <% } %>
