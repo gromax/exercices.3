@@ -41,6 +41,9 @@ function checkFormat(expr, format) {
     if (format === 'numeric') {
         return checkNumericExpression(expr);
     }
+    if (/^round:[0-9]+$/.test(format)) {
+        return /^[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][+-]?\d+)?$/.test(expr) ? true : "Vous devez fournir un nombre éventuellement approximé.";
+    }
     // autres formats à ajouter ici
     return true;
 }
