@@ -28,6 +28,10 @@ class Affectation {
             // situation anormale, on ne peut pas écraser un paramètre protégé
             throw new Error(`Le paramètre ${this._tag} est protégé et ne peut pas être redéfini.`);
         }
+        if (this._tag.startsWith('__')) {
+            // situation anormale, on ne peut pas définir un paramètre réservé
+            throw new Error(`Le paramètre ${this._tag} est interdit (commence par __).`);
+        }
         if (this._repeater === undefined) {
             params[this._tag] = MyMath.evaluate(this._value, { ...params, ...protectedParams });
             return;
@@ -38,7 +42,7 @@ class Affectation {
         }
         const arr = [];
         for (let i = 0; i < n; i++) {
-            arr.push(MyMath.evaluate(this._value, { ...params, ...protectedParams, _index: i }));
+            arr.push(MyMath.evaluate(this._value, { ...params, ...protectedParams, __i: i }));
         }
         params[this._tag] = arr;
     }
