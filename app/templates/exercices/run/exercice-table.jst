@@ -1,8 +1,8 @@
 <table class="table">
-  <%if (headers) { %>
+  <%if (colheaders) { %>
     <thead>
     <tr>
-      <% _.each(headers, function(header) { %>
+      <% _.each(colheaders, function(header) { %>
         <th scope="col"><%= header %></th>
       <% }); %>
     </tr>
@@ -11,6 +11,9 @@
   <tbody>
     <% _.each(rows, function(row, index) { %>
       <tr>
+        <% if (rowheaders) { %>
+          <th scope="row"><%= rowheaders[index] %></th>
+        <% } %>
         <% _.each(row, function(cell) { %>
           <td><%= cell %></td>
         <% }); %>
