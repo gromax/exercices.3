@@ -12,6 +12,7 @@ import exercice_results_tpl from '@templates/exercices/run/exercice-results.jst'
 import exercice_input_tpl from '@templates/exercices/run/exercice-input.jst'
 import layout_tpl from '@templates/exercices/run/layout.jst'
 import graph_tpl from '@templates/exercices/run/exercice-graph.jst'
+import table_tpl from '@templates/exercices/run/exercice-table.jst'
 
 const KEYS = {
   'sqrt': '$\\sqrt{x}$',
@@ -284,6 +285,17 @@ const GraphView = View.extend({
   }
 });
 
+const TableView = View.extend({
+  template: table_tpl,
+  templateContext() {
+    return {
+      headers: this.getOption("headers"),
+      rows: this.getOption("rows")
+    };
+  }
+});
+
+
 export {
   OptionsView,
   ParamsView,
@@ -295,5 +307,6 @@ export {
   FormView,
   ResultsView,
   InputView,
-  LayoutView
+  LayoutView,
+  TableView
 };
