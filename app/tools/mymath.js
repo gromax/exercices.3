@@ -49,41 +49,15 @@ function executePile(pile) {
             throw new Error(`Pas assez d'opérandes pour l'opération ${top}`);
         }
         const args = operandes.splice(operandes.length - n, n);
-        // On doit vérifier si un des arguments est  un tableau
-        // Si c'est le cas, il faut vérifier que tous les autres sont soit
-        // des scalaires, soit des tableaux de même taille
-        const arrayArgs = args.filter(arg => Array.isArray(arg));
-        const arraySizes = arrayArgs.map(arg => arg.length);
-        if (arraySizes.length > 0) {
-            const s = Math.max(...arraySizes);
-            if (s !== Math.min(...arraySizes)) {
-                throw new Error(`Incohérence dans les tailles des tableaux : ${JSON.stringify(arraySizes)}`);
-            }
-            // On doit étendre les scalaires en tableaux
-            const argsAsArrays = args.map((arg, i) => {
-                if (!Array.isArray(arg)) {
-                    return Array(s).fill(arg);
-                }
-                return arg;
-            });
-            const resultArray = [];
-            for (let i = 0; i < s; i++) {
-                const elementArgs = argsAsArrays.map(arg => arg[i]);
-                const resultItem = m[functionName](...elementArgs);
-                resultArray.push(resultItem);
-            }
-            operandes.push(resultArray);
-        } else {
-            const result = m[functionName](...args);
-            if (result !== undefined) {
-                operandes.push(result);
-            }
+        const result = m[functionName](...args);
+        if (result !== undefined) {
+            operandes.push(result);
         }
-  }
-  if (operandes.length !== 1) {
-      throw new Error("La pile n'a pas été réduite à une seule valeur.");
-  }
-  return operandes[0];
+    }
+    if (operandes.length !== 1) {
+        throw new Error("La pile n'a pas été réduite à une seule valeur.");
+    }
+    return operandes[0];
 }
 
 /**
@@ -93,14 +67,25 @@ function executePile(pile) {
  * @param {*} params 
  */
 function getValue(chaine, params) {
-    const m = chaine.match(/^@([A-Za-z_]\w*)(\.([A-Za-z_]\w*))?$/);
+    const m = chaine.match(/^@([A-Za-z_]\w*)(\.([A-Za-z_]\w*)|\[\])?$/);
     if (!m) {
         return null;
     }
-    const [, name, , sub] = m;
+    const [, name, suffix, sub] = m;
     if (name in params) {
         if (sub !== undefined) {
             return params[name][sub];
+        } else if (suffix === '[]') {
+            if (!Array.isArray(params[name])) {
+                throw new Error(`Le paramètre ${name} n'est pas un tableau.`);
+            }
+            if (params.__i === undefined) {
+                throw new Error(`Pas d'index défini pour accéder à ${name}[]. Ajoutez <:n> à votre affectation.`);
+            }
+            if (params.__i >= params[name].length){
+                throw new Error(`L'index ${params.__i} est hors limites pour le tableau ${name} de taille ${params[name].length}.`);
+            }
+            return params[name][params.__i];
         }
         return params[name];
     }
@@ -230,22 +215,12 @@ function toTeXKeepDecimals(expr) {
  * @returns {string} une chaîne où les paramètres connus ont été remplacés par leur valeur
  */
 function substituteLabels(expr, params, forceParenthesis=false) {
-    return expr.replace(/@([A-Za-z_]\w*(\.[A-Za-z_]\w*)?)/g, (match, label,sub) => {
-        // match === "@x" ou "@user.name"
-        // label === "x" ou "user.name"
-        // sub === undefined ou ".name"
-        if (sub) {
-            label = label.split('.')[0];
-            sub = sub.slice(1); // enlever le point
+    return expr.replace(/@([A-Za-z_]\w*(\.[A-Za-z_]\w*|\[\])?)/g, (match) => {
+        const replacement = getValue(match, params);
+        if (replacement === null) {
+            return match;
         }
-        if (!params.hasOwnProperty(label)) {
-            throw new Error(`Le paramètre ${label} n'existe pas.`);
-        }
-        const value = sub
-          ? params[label][sub]
-          : params[label];
-        if (value === undefined) throw new Error(`Le paramètre ${match} n'existe pas.`);
-        return forceParenthesis ? `(${String(value)})` : String(value);
+        return forceParenthesis ? `(${String(replacement)})` : String(replacement);
     });
 }
 
