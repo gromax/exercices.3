@@ -102,6 +102,8 @@ key2 => label2
   * `key1` est une clé et doit être numérique. C'est elle qui sera stockée en BDD quand  l'utilisateur voudra indiquer l'option choisie.
   * `label1` est l'étiquette correspondante. Elle sera affichée dans le menu de chois des options.
 
+*Remarque : On refuse les noms d'options commençant par `_`.*
+
 **Important :** La première valeur de l'option est toujours la valeur par défaut.
 
 ### Contrôle de flux
@@ -162,6 +164,8 @@ Exemple :
 @y = 3+2*@_x^2
 ```
 
+*Remarque : On interdit les noms de variables commençant par `__`*.
+
 #### Évaluation d'une pile
 
 Si l'expression à évaluaer est entourée de `[ ]`, alors elle est comprise comme une pile. L'expression est alors splitée selon les espaces. Au début chaque bloc est un donc un élément texte.
@@ -180,21 +184,52 @@ On suite on passe à l'exécution de la pile :
     * Cette fonction a une certaine arité. Elle prendra donc les opérandes dans la pile des opérandes. Il faut qu'il y en ait asse.
     * Attention à l'ordre : l'opérande le plus haut sur la pile sera celui donné en dernier à la fonction.
     * Le résultat de l'exécution est placé sur la pile des opérandes.
-    
-  
 
+#### Évaluation d'expression
 
-#### Évaluation
+Quand on procède une évaluation et que l'epression n'est pas entourée par [ ], on en déduit qu'il s'agit d'une expression mathématique, en format textuel, qui sera interprétée par nerdamer.
 
-Runtime, les blocs de forme `@name` ou `@name.value` présents dans l'expression sont substitués par leur valeur. **Attention :** Cette substitution est textuelle. Suppose donc que le contenu de la variable pourra être l'objet d'une analyse ensuite.
+Les blocs de forme `@name` ou `@name.value` présents dans l'expression sont substitués par leur valeur.
 
-On peut donc avoir initialisé un attribut `@name` qui est un objet et accéder à ces propriétés. Par exemple on pourrait créer un point `@A` et accéder à ses coordonnées `@A.x` et `@A.y`.
+**Attention :** Cette substitution est textuelle. Suppose donc que le contenu de la variable pourra être l'objet d'une analyse ensuite.
 
-Comme une variable `@a` peut contenir une expression, par exemple `'3x+2'`, cette substitution se fait avec parenthèses. Par exemple : `@b = @a * 3` donnera `@b = (3x+2)*3'`.
+**Exemple :** On pourra écrire `@b = @a * 3 + 4` et alors si `@a` contient `x+2` alors on aura `@b = (x+2) * 3 + 4`. Cette évaluation force les parenthèses.
 
-Après la substitution, la partie de droite du `=` est soumise à évaluation avec `MyMath.evaluate`.
+#### Cas d'un tableau
 
-#### Cas d'une pile
+On peut procéder à une affectation de tableau.
+
+`@a <:3>= 5` va ainsi créer un tableau `[5, 5, 5]`.
+
+On dispose de la variable `@__i` qui représente l'index. Ainsi :
+
+`@a <:3>= 5 + @__i` va affecter `[5, 6, 7]`
+
+On peut également faire des calculs sur un tableau :
+
+`@b <:3>= @a[]^2` va affecter `[25, 36, 49]`.
+
+Attention, l'utilisation dans l'expression de `@a[]` lèvera une erreur...
+  * si on a pas précisé `<:3>` ou une autre taille avant le `=` pour indiquer que l'on fait un calcul sur tableau,
+  * si la taille indiquée excede la taille de `@a`.
+
+On peut aussi travailler avec une taille non connue à l'exécution. Ceci par exemple est autorisé :
+
+```
+@n = [3 10 Alea.entier]
+@a <:@n> = @__i^2
+```
+
+Ce qui créera une tableau de taille aléatoire.
+
+On peut naturellement utiliser ces affectatios dans le cas d'une pile.
+
+```
+@n = [3 10 Alea.entier]
+@a <:@n> = [0 100 Alea.entier]
+```
+
+Ce qui crée un tableau d'entiers aléatoires de taille aléatoire.
 
 
 
