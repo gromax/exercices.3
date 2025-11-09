@@ -38,7 +38,7 @@ class Affectation {
         }
         const arr = [];
         for (let i = 0; i < n; i++) {
-            arr.push(MyMath.evaluate(this._value, { ...params, ...protectedParams, "@index": i }));
+            arr.push(MyMath.evaluate(this._value, { ...params, ...protectedParams, _index: i }));
         }
         params[this._tag] = arr;
     }
