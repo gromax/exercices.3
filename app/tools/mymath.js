@@ -26,12 +26,8 @@ function executePile(pile) {
             operandes.push(top);
             continue;
         }
-        if (top === '*') {
-            top = 'Calc.mult';
-        } else if (top === '+') {
-            top = 'Calc.add';
-        } else if (top === '-') {
-            top = 'Calc.sub';
+        if (top in Calc.SHORTCUTS) {
+            top = Calc.SHORTCUTS[top];
         }
         if (!/^[A-Za-z_]+\.[A-Za-z_]+$/.test(top)) {
             operandes.push(top);
@@ -53,9 +49,35 @@ function executePile(pile) {
             throw new Error(`Pas assez d'opérandes pour l'opération ${top}`);
         }
         const args = operandes.splice(operandes.length - n, n);
-        const result = m[functionName](...args);
-        if (result !== undefined) {
-            operandes.push(result);
+        // On doit vérifier si un des arguments est  un tableau
+        // Si c'est le cas, il faut vérifier que tous les autres sont soit
+        // des scalaires, soit des tableaux de même taille
+        const arrayArgs = args.filter(arg => Array.isArray(arg));
+        const arraySizes = arrayArgs.map(arg => arg.length);
+        if (arraySizes.length > 0) {
+            const s = Math.max(...arraySizes);
+            if (s !== Math.min(...arraySizes)) {
+                throw new Error(`Incohérence dans les tailles des tableaux : ${JSON.stringify(arraySizes)}`);
+            }
+            // On doit étendre les scalaires en tableaux
+            const argsAsArrays = args.map((arg, i) => {
+                if (!Array.isArray(arg)) {
+                    return Array(s).fill(arg);
+                }
+                return arg;
+            });
+            const resultArray = [];
+            for (let i = 0; i < s; i++) {
+                const elementArgs = argsAsArrays.map(arg => arg[i]);
+                const resultItem = m[functionName](...elementArgs);
+                resultArray.push(resultItem);
+            }
+            operandes.push(resultArray);
+        } else {
+            const result = m[functionName](...args);
+            if (result !== undefined) {
+                operandes.push(result);
+            }
         }
   }
   if (operandes.length !== 1) {
@@ -98,7 +120,7 @@ function evaluate(expression, params) {
          );
          return executePile(pile);
     }
-    const substituted_expr = MyMath.substituteLabels(expr, params, true);
+    const substituted_expr = substituteLabels(expr, params, true);
     //console.log("Evaluating expression:", expression, "->", substituted_expr, "->", nerdamer(substituted_expr).toString());
     return nerdamer(substituted_expr).toString();
 }
@@ -112,8 +134,8 @@ function evaluate(expression, params) {
  * @returns {boolean} le résultat de la comparaison
  */
 function compare(leftExpr, rightExpr, operator, params) {
-    const leftValue = String(MyMath.evaluate(leftExpr, params));
-    const rightValue = String(MyMath.evaluate(rightExpr, params));
+    const leftValue = String(evaluate(leftExpr, params));
+    const rightValue = String(evaluate(rightExpr, params));
     switch (operator) {
         case '==':
             return nerdamer(leftValue).eq(nerdamer(rightValue));
@@ -178,11 +200,6 @@ function parseUser(expr) {
     return expr.replace(',', '.');
 }
 
-function areEqual(expr1, expr2) {
-    const res = nerdamer(`(${expr1}) - (${expr2})`).simplify().toString();
-    return String(res) === '0';
-}
-
 // solution à étudier pour conserver les décimaux dans le TeX
 function toTeXKeepDecimals(expr) {
     // map des tokens -> littéral décimal
@@ -222,12 +239,12 @@ function substituteLabels(expr, params, forceParenthesis=false) {
             sub = sub.slice(1); // enlever le point
         }
         if (!params.hasOwnProperty(label)) {
-            return match; // ne remplace pas si le paramètre n'existe pas
+            throw new Error(`Le paramètre ${label} n'existe pas.`);
         }
         const value = sub
           ? params[label][sub]
           : params[label];
-        if (value === undefined) return match;
+        if (value === undefined) throw new Error(`Le paramètre ${match} n'existe pas.`);
         return forceParenthesis ? `(${String(value)})` : String(value);
     });
 }
@@ -238,7 +255,6 @@ const MyMath = {
     compare,
     toFormat,
     latex,
-    areEqual,
     parseUser,
     substituteLabels,
     getValue
