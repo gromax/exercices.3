@@ -230,6 +230,9 @@ class MainBloc extends Bloc {
                 throw new Error("Le contenu des options ne peut contenir que des blocs <option>.");
             }
             const [key, defaultValue,values] = child.parseOption();
+            if (key.startsWith('_')) {
+                throw new Error(`Le nom d'option ${key} est invalide (ne doit pas commencer par _).`);
+            }
             options[key] = values;
             defaultsOptions[key] = defaultValue;
         }
