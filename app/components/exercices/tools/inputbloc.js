@@ -83,7 +83,7 @@ class InputTextBloc extends InputBloc {
             };
         }
         // C'est là qu'il faudra prévoir les divers vérifications
-        if (MyMath.areEqual(userValueParsed, solution)) {
+        if (MyMath.compare(userValueParsed, solution, '==', {})) {
             const message = `${userValueTag} est une bonne réponse.`;
             return {
                 name: name,
