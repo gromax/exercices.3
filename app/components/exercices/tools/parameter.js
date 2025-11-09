@@ -19,7 +19,7 @@ class Parameter {
 
     run(params, caller) {
         if (caller && typeof caller.setParam === 'function') {
-            this._param = MyMath.substituteLabels(this._param, params);
+            this._param = MyMath.getValue(this._param, params) ?? MyMath.substituteLabels(this._param, params);
             caller.setParam(this._tag, this._param);
         }
         return null;
