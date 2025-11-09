@@ -289,7 +289,8 @@ const TableView = View.extend({
   template: table_tpl,
   templateContext() {
     return {
-      headers: this.getOption("headers"),
+      rowheaders: this.getOption("rowheaders"),
+      colheaders: this.getOption("colheaders"),
       rows: this.getOption("rows")
     };
   }
