@@ -2,19 +2,21 @@ import MyMath from '@tools/mymath.js';
 
 class Affectation {
     static parse(line) {
-        const regex = /^@([a-zA-Z_][a-zA-Z0-9_]*)\s*(<:(.+)>)?=\s*(.+)$/;
+        const regex = /^@([a-zA-Z_][a-zA-Z0-9_]*)(\[\])?\s*(?:<:(.+)>)?=\s*(.+)$/;
         const m = line.match(regex);
         if (!m) {
             return null;
         }
-        const [, tag, , repeater, value] = m;
-        return new Affectation(tag, repeater, value);
+        const [, tag, brackets, repeater, value] = m;
+        const isArray = brackets !== undefined;
+        return new Affectation(tag, repeater, value, isArray);
     }
 
-    constructor(tag, repeater, value) {
+    constructor(tag, repeater, value, isArray) {
         this._tag = tag;
         this._value = value;
         this._repeater = repeater;
+        this._isArray = isArray;
     }
 
     /**
@@ -32,19 +34,44 @@ class Affectation {
             // situation anormale, on ne peut pas définir un paramètre réservé
             throw new Error(`Le paramètre ${this._tag} est interdit (commence par __).`);
         }
+        if (this._isArray && params[this._tag] !== undefined && !Array.isArray(params[this._tag])) {
+            throw new Error(`Le paramètre ${this._tag} doit être un tableau.`);
+        }
+        if (this._isArray && params[this._tag] !== undefined) {
+            params[this._tag] = [];
+        }
         if (this._repeater === undefined) {
-            params[this._tag] = MyMath.evaluate(this._value, { ...params, ...protectedParams });
+            const value = MyMath.evaluate(this._value, { ...params, ...protectedParams });
+            if (this._isArray) {
+                params[this._tag].push(value);
+            } else {
+                params[this._tag] = value;
+            }
             return;
         }
-        const n = Number(MyMath.evaluate(this._repeater, { ...params, ...protectedParams }));
-        if (!Number.isInteger(n) || n < 0) {
-            throw new Error(`La valeur de répétition pour le paramètre ${this._tag} doit être un entier positif.`);
-        }
+        const r = MyMath.getValue(this._repeater, { ...params, ...protectedParams }) ?? this._repeater;
         const arr = [];
-        for (let i = 0; i < n; i++) {
-            arr.push(MyMath.evaluate(this._value, { ...params, ...protectedParams, __i: i }));
+        if (Array.isArray(r)) {
+            // cas d'un répéteur tableau
+            for (let i = 0; i < r.length; i++) {
+                arr.push(MyMath.evaluate(this._value, { ...params, ...protectedParams, __v: r[i], __i: i }));
+            }
+        } else {
+            // cas d'un répéteur entier
+            const n = Number(r);
+            if (!Number.isInteger(n) || n < 0) {
+                throw new Error(`La valeur de répétition pour le paramètre ${this._tag} doit être un entier positif ou un tableau.`);
+            }
+            for (let i = 0; i < n; i++) {
+                arr.push(MyMath.evaluate(this._value, { ...params, ...protectedParams, __i: i }));
+            }
+
         }
-        params[this._tag] = arr;
+        if (this._isArray) {
+            params[this._tag].push(arr);
+        } else {
+            params[this._tag] = arr;
+        }
     }
 
     toString() {
