@@ -168,7 +168,7 @@ Exemple :
 
 #### Évaluation d'une pile
 
-Si l'expression à évaluaer est entourée de `[ ]`, alors elle est comprise comme une pile. L'expression est alors splitée selon les espaces. Au début chaque bloc est un donc un élément texte.
+Si l'expression à évaluaer est entourée de `<P: >`, alors elle est comprise comme une pile. L'expression est alors splitée selon les espaces. Au début chaque bloc est un donc un élément texte.
 
 Les éléments de la pile subissent un prétraitement :
 
@@ -216,8 +216,8 @@ Attention, l'utilisation dans l'expression de `@a[]` lèvera une erreur...
 On peut aussi travailler avec une taille non connue à l'exécution. Ceci par exemple est autorisé :
 
 ```
-@n = [3 10 Alea.entier]
-@a <:@n> = @__i^2
+@n = <P:3 10 Alea.entier>
+@a <:@n>= @__i^2
 ```
 
 Ce qui créera une tableau de taille aléatoire.
@@ -225,13 +225,30 @@ Ce qui créera une tableau de taille aléatoire.
 On peut naturellement utiliser ces affectatios dans le cas d'une pile.
 
 ```
-@n = [3 10 Alea.entier]
-@a <:@n> = [0 100 Alea.entier]
+@n = <P:3 10 Alea.entier>
+@a <:@n>= <P:0 100 Alea.entier>
 ```
 
 Ce qui crée un tableau d'entiers aléatoires de taille aléatoire.
 
+Le répéteur peut être un tableau. Par exemple :
 
+```
+@a <:5>= __i + 10
+@b <:@a>= __v^2 + __i + 1
+```
+
+Ainsi le tableau `b` est obtenu en parcourant les items de `@a`. On peut utiliser ces items dans le calcul grâce à la variable `__v` et les indices également avec la variables `__v`. Ici, `@a = [10, 11, 12, 13, 14]` et donc on prend chaque item, on l'élève au carré, on lui ajoute son indice et on ajoute `1` ce qui donne `@b = [101, 123, 147, 173, 201]`.
+
+
+On peut également définir un tableau par ajouts successifs :
+
+```
+@a[] = 3
+@a[] = 12
+```
+
+Crée un tableau contenant les valeurs `3` et `12`.
 
 
 
