@@ -1,7 +1,10 @@
-<table class="table">
+<table class="table table-striped">
   <%if (colheaders) { %>
     <thead>
     <tr>
+      <% if (rowheaders) { %>
+        <th scope="col"></th>
+      <% } %>
       <% _.each(colheaders, function(header) { %>
         <th scope="col"><%= header %></th>
       <% }); %>
