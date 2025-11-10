@@ -17,7 +17,6 @@ class Bloc {
     }
 
     setParam(key, value) {
-        console.log(`Setting param ${key} = ${value}`);
         if (!key.endsWith('[]')) {
             this._params[key] = value;
             return;
@@ -105,7 +104,6 @@ class Bloc {
             return this._customView(answers);
         }
         if (this._tag === 'table') {
-            console.log("Génération de la vue table avec params :", this._params);
             return new TableView({
                 rows: this._params.rows || [],
                 rowheaders: this._params.rowheaders || null,
