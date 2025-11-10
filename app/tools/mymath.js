@@ -2,10 +2,11 @@ import Parser from './parser/parser.js';
 import { build } from './parser/rpnbuilder.js';
 import Alea from './misc/alea.js';
 import Calc from './misc/calc.js';
+import Table from './misc/table.js';
 import nerdamer from 'nerdamer';
 import 'nerdamer/all';
 
-const MODULES = [Alea, Calc];
+const MODULES = [Alea, Calc, Table];
 
 /**
  * parse
@@ -37,7 +38,9 @@ function executePile(pile) {
         const match = top.match(/^(\w+)\.(\w+)$/);
         const moduleName = match[1];
         const functionName = match[2];
+        console.log(`Executing ${moduleName}.${functionName}`);
         const m = MODULES.find(mod => mod.name == moduleName);
+        console.log(m);
         if (!m) {
             throw new Error(`Module ${moduleName} non trouvé`);
         }
@@ -117,9 +120,9 @@ function _getValueInternal(name, sub, index, params) {
 
 function evaluate(expression, params) {
     let expr = expression.trim();
-    if (/^\[.*\]$/.test(expr)) {
+    if (/^<P:.*>$/.test(expr)) {
         // expression commence par [ et finit par ]
-        let pile = expr.slice(1, -1).trim().split(/\s+/).map(
+        let pile = expr.slice(3, -1).trim().split(/\s+/).map(
             s => {
                 const trimmed = s.trim();
                 return getValue(trimmed, params) ?? substituteLabels(trimmed, params, true);
