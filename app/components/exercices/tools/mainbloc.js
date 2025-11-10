@@ -141,6 +141,9 @@ class MainBloc extends Bloc {
                 stack[stack.length-1].push(item);
                 continue;
             }
+            if (/^<.*:.*\/?>$/.test(trimmed)) {
+                throw new Error(`Erreur de syntaxe : bloc non reconnu ${trimmed}`);
+            }
             stack[stack.length-1].push(new TextNode(trimmed));
         }
         if (stack.length !== 1) {
