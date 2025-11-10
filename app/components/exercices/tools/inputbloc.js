@@ -69,7 +69,6 @@ class InputTextBloc extends InputBloc {
     verification(data) {
         const name = this.header;
         const userValue = data[name] || '';
-        const userValueParsed = MyMath.parseUser(userValue);
         const userValueTag = userValue.includes('\\') ? `$${userValue}$` : userValue;
         const solution = this.params.solution;
         const tag = this.params.tag;
@@ -83,7 +82,8 @@ class InputTextBloc extends InputBloc {
             };
         }
         // C'est là qu'il faudra prévoir les divers vérifications
-        if (MyMath.compare(userValueParsed, solution, '==', {})) {
+        // solution pourrait être un tableau et alors il suffit qu'une valeur convienne
+        if (this._verify(MyMath.parseUser(userValue), solution)) {
             const message = `${userValueTag} est une bonne réponse.`;
             return {
                 name: name,
@@ -93,7 +93,9 @@ class InputTextBloc extends InputBloc {
             };
         } else {
             const message = `${userValueTag} est une Mauvaise réponse.`;
-            const complement = `La réponse attendue était : $${MyMath.latex(solution)}$.`;
+            const complement = Array.isArray(solution)
+                ? `La réponse attendue était : $${MyMath.latex(solution)}$.`
+                : `Les bonnes réponses possibles étaient : $${solution.map(MyMath.latex).join('$, $')}$.`;
             return {
                 name: name,
                 success: false,
@@ -101,6 +103,13 @@ class InputTextBloc extends InputBloc {
                 score: 0
             };
         }
+    }
+
+    _verify(userValue, solution) {
+        if (Array.isArray(solution)) {
+            return solution.some(sol => this._verify(userValue, sol));
+        }
+        return MyMath.compare(userValue, solution, '==', {});
     }
 }
 
