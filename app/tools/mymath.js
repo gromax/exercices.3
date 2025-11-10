@@ -67,30 +67,52 @@ function executePile(pile) {
  * @param {*} params 
  */
 function getValue(chaine, params) {
-    const m = chaine.match(/^@([A-Za-z_]\w*)(\.([A-Za-z_]\w*)|\[\])?$/);
+    const m = chaine.match(/^@([A-Za-z_]\w*)(?:\.([A-Za-z_]\w*)|\[((?:@[A-Za-z_]\w*|[0-9]+)?)\])?$/);
     if (!m) {
         return null;
     }
-    const [, name, suffix, sub] = m;
-    if (name in params) {
-        if (sub !== undefined) {
-            return params[name][sub];
-        } else if (suffix === '[]') {
-            if (!Array.isArray(params[name])) {
-                throw new Error(`Le paramètre ${name} n'est pas un tableau.`);
-            }
-            if (params.__i === undefined) {
-                throw new Error(`Pas d'index défini pour accéder à ${name}[]. Ajoutez <:n> à votre affectation.`);
-            }
-            if (params.__i >= params[name].length){
-                throw new Error(`L'index ${params.__i} est hors limites pour le tableau ${name} de taille ${params[name].length}.`);
-            }
-            return params[name][params.__i];
-        }
+    const [, name, sub, index] = m;
+    return _getValueInternal(name, sub, index, params);
+}
+
+/**
+ * Fonction interne pour obtenir la valeur d'un paramètre
+ * @param {string} name nom du paramètre
+ * @param {string|undefined} sub nom éventuel d'un attribut (.sub)
+ * @param {string|undefined} index indice éventuel ([index])
+ * @param {object} params 
+ * @returns {*} la valeur du paramètre
+ */
+function _getValueInternal(name, sub, index, params) {
+    if (params[name] === undefined) {
+        throw new Error(`@${name} n'est pas défini.`);
+    }
+    if (sub === undefined && index === undefined) {
         return params[name];
     }
-    return null;
+    if (sub !== undefined) {
+        if (params[name][sub] === undefined) {
+            throw new Error(`@${name}.${sub} n'est pas défini.`);
+        }
+        return params[name][sub];
+    }
+    if (!Array.isArray(params[name])) {
+        throw new Error(`Le paramètre ${name} n'est pas un tableau.`);
+    }
+    if (index === "" && params.__i === undefined) {
+        throw new Error(`Pas d'index défini pour accéder à ${name}[]. Ajoutez <:n> à votre affectation.`);
+    }
+    const idx = index === ""
+        ? params.__i
+        : (/[0-9]+/.test(index) ? parseInt(index, 10) : getValue(index, params));
+    if (idx >= params[name].length){
+        throw new Error(`L'index ${idx} est hors limites pour le tableau ${name} de taille ${params[name].length}.`);
+    }
+    return params[name][idx];
 }
+
+
+
 
 
 function evaluate(expression, params) {
@@ -215,8 +237,8 @@ function toTeXKeepDecimals(expr) {
  * @returns {string} une chaîne où les paramètres connus ont été remplacés par leur valeur
  */
 function substituteLabels(expr, params, forceParenthesis=false) {
-    return expr.replace(/@([A-Za-z_]\w*(\.[A-Za-z_]\w*|\[\])?)/g, (match) => {
-        const replacement = getValue(match, params);
+    return expr.replace(/@([A-Za-z_]\w*)(?:\.([A-Za-z_]\w*)|\[((?:@[A-Za-z_]\w*|[0-9]+)?)\])?/g, (match, name, sub, index) => {
+        const replacement = _getValueInternal(name, sub, index, params);
         if (replacement === null) {
             return match;
         }
