@@ -19,7 +19,8 @@ const ExercicesPanel = View.extend({
   behaviors: [FilterPanel],
   templateContext() {
     return {
-      filterCriterion: this.getOption("filterCriterion")
+      filterCriterion: this.getOption("filterCriterion"),
+      showAddButton: this.getOption("showAddButton")
     };
   }
 });
