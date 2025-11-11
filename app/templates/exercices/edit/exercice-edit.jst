@@ -1,6 +1,10 @@
-<h1>Exercice <i class="fa-solid fa-hashtag"></i> <%= id %></h1>
+<%if (typeof id === "undefined") { %>
+<h3>Nouvel exercice</h3>
+<% } else { %>
+<h3>Exercice <i class="fa-solid fa-hashtag"></i> <%- id %></h3>
+<% } %>
 <% if (nomOwner !== undefined) { %>
-<p class="text-muted">Propriétaire <%= nomOwner %></p>
+<p class="text-muted">Propriétaire <%- nomOwner %></p>
 <% } %>
 
 <form class="row g-3 needs-validation" novalidate>
