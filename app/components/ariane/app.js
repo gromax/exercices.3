@@ -46,15 +46,12 @@ const ArianeApp = MnObject.extend({
   show() {
     const channel = this.getChannel();
     const view = new ArianeView({ collection: collection });
-    view.on("navigation", function(event_name, data) {
-      channel.trigger(event_name, data);
-    });
     new Region({ el: '#ariane' }).show(view);
   },
 
   purgeFragile() {
     const toRemove = collection.filter(m => m.get('fragile') === true);
-    if (toRemove.length) {
+    if (toRemove.length > 0) {
       collection.remove(toRemove);
     }
   },
@@ -65,7 +62,7 @@ const ArianeApp = MnObject.extend({
     const existing = collection.findWhere({ link: model.get("link") });
     if (existing) {
       const idx = collection.indexOf(existing);
-      if (idx !== -1 && idx < collection.length -1) {
+      if (idx !== -1 && idx < collection.length) {
         collection.remove(collection.models.slice(idx));
       }
       collection.add(model);
