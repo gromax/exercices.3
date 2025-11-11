@@ -3,10 +3,11 @@
 const webpack = require('webpack');
 const packageJson = require('./package.json');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const path = require('path');
 const { merge } = require('webpack-merge');
-const { proxy } = require('jquery');
 
 const webpackCommon = {
   entry: {
@@ -31,7 +32,7 @@ const webpackCommon = {
       {
         test: /\.css$/,
         use: [
-          MiniCssExtractPlugin.loader,
+          'style-loader',
           'css-loader'
         ]
       }
@@ -43,16 +44,26 @@ const webpackCommon = {
     publicPath: '/'
   },
   plugins: [
-    new MiniCssExtractPlugin({ filename: 'app.css' }),
     new CopyWebpackPlugin({
       patterns:[
-        { from: './app/assets/index.html', to: './index.html' },
         { from: './app/assets/.htaccess', to: './.htaccess' },
         { from: './app/assets/favicon.ico', to: './favicon.ico' },
         { from: './app/assets/api.php', to: './api.php' },
         { from: './app/assets/ajax.gif', to: './ajax.gif' },
         { from: './app/assets/install.php', to: './install.php' }
       ]
+    }),
+    // Génère le fichier index.html dans /public avec les bons liens vers les fichiers CSS et JS
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, 'app/assets/index.html'),
+      filename: 'index.html',
+      inject: 'body',
+      minify: process.env.npm_lifecycle_event === 'build' ? {
+        collapseWhitespace: true,
+        removeComments: true,
+        removeRedundantAttributes: true,
+        useShortDoctype: true
+      } : false
     }),
     new webpack.ProvidePlugin({
       $: 'jquery',
@@ -100,6 +111,40 @@ switch (process.env.npm_lifecycle_event) {
       }
     });
     break;
+  case 'build':
+    // production build : minified, hashed filenames, split chunks, source-map
+    module.exports = merge(webpackCommon, {
+      mode: 'production',
+      devtool: false, // pas de source-map en production pour l'instant
+      output: {
+        filename: 'app.[contenthash].js',
+        path: path.join(__dirname, './public'),
+        publicPath: '/'
+      },
+      optimization: {
+        minimize: true,
+        splitChunks: false
+      },
+      module: {
+        rules: [
+          {
+            test: /\.css$/,
+            use: [
+              MiniCssExtractPlugin.loader,
+              'css-loader'
+            ]
+          }
+        ]
+      },
+      plugins: [
+        new CleanWebpackPlugin(),
+        // override CSS filename for production
+        new MiniCssExtractPlugin({ filename: '[name].[contenthash].css', chunkFilename: '[id].[contenthash].css' }),
+        new webpack.DefinePlugin({ 'process.env.NODE_ENV': JSON.stringify('production') })
+      ]
+    });
+    break;
+
   default:
     module.exports = merge(webpackCommon, {
       devtool: 'source-map'
