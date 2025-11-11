@@ -113,7 +113,7 @@ const Controller = MnObject.extend({
 
       channel.trigger("ariane:push", { text: "Ajouter des exercices", link: `devoir:${id}/addexo` });
 
-      require("./editexos/controller.js").controller.showAddExo(devoir, collecAssocs, sujetsexercices, "");
+      require("./editexos/controller.js").controller.showAddExo(devoir, collecAssocs, sujetsexercices);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {
