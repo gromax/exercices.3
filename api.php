@@ -1,17 +1,16 @@
 <?php
 use ErrorController as EC;
 
-// Pour le dev
-// Afficher les erreurs à l'écran
-if (DEV_MODE) ini_set('display_errors', 1);
-// Enregistrer les erreurs dans un fichier de log
-ini_set('log_errors', 1);
-// Nom du fichier qui enregistre les logs (attention aux droits à l'écriture)
-ini_set('error_log', dirname(__file__) . '/log_error_php.txt');
-// Afficher les erreurs et les avertissements
-if (DEV_MODE) error_reporting(E_ALL);
-
 require_once "./php/constantes.php";
+
+// Pour le dev
+if (DEV_MODE) ini_set('display_errors', 1); // afficher erreurs à l'écran
+ini_set('log_errors', 1); // enregistrer erreurs dans un fichier de log
+ini_set('error_log', dirname(__file__) . '/log_error_php.txt');
+if (DEV_MODE) error_reporting(E_ALL); // Afficher les erreurs et les avertissements
+
+require_once './vendor/autoload.php';
+
 require_once "./php/classAutoLoad.php";
 require_once "./php/routes.php";
 
