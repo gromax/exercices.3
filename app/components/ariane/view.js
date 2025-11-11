@@ -31,22 +31,7 @@ const ItemView = View.extend({
     );
   },
   triggers: {
-    "click a.js-next" : "ariane:next",
-    "click a.js-prev" : "ariane:prev"
   },
-  /*
-  onArianePrev() {
-    const event_name = this.model.get("e");
-    const data = this.model.get("prev");
-    this.trigger("navigation", event_name, data);
-  },
-  onArianeNext() {
-    const event_name = this.model.get("e");
-    const data = this.model.get("next");
-    this.trigger("navigation", event_name, data);
-  }
-
-    */
 });
 
 const ArianeView = CollectionView.extend({
