@@ -22,11 +22,11 @@
 
     if (file_exists("../php/config/rootConfig.php"))
     {
-        require_once("../php/config/rootConfig.php");
+        define("ROOT_CONFIG","../php/config/rootConfig.php");
     }
     else
     {
-        require_once("../php/default.config/rootConfig.php");
+        define("ROOT_CONFIG","../php/default.config/rootConfig.php");
     }
 
     // Utilisateurs
