@@ -54,7 +54,7 @@ const Controller = MnObject.extend({
         channel.trigger("not:found");
         return;
       }
-      channel.trigger("ariane:push", { text: sujetExo.get("title"), link: `exercice:${id}` });
+      channel.trigger("ariane:push", { text: sujetExo.get("title"), link: `sujet-exercice:${id}` });
       require("./show/controller.js").controller.show(sujetExo);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
@@ -84,6 +84,25 @@ const Controller = MnObject.extend({
     }).always(() => {
       channel.trigger("loading:down");
     });
+  },
+
+  sujetExerciceNew() {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    if (!logged.isAdmin() && !logged.isProf()) {
+      channel.trigger("not:found");
+      return;
+    }
+    const SujetExo = require("./sujetexo.js").Item;
+    const newSujetExo = new SujetExo({
+      title: "Nouvel exercice",
+      description: "Description de l'exercice",
+      published: false,
+      idOwner: logged.get("id"),
+      nomOwner: logged.get("nom")
+    });
+    channel.trigger("ariane:push", { text:"Création", link:`exercice/new`, fragile:true });
+    require("./edit/controller.js").controller.edit(newSujetExo);
   },
 
   exoDevoirRun(idExoDevoir, idExo, idDevoir, idUser) {
@@ -132,6 +151,7 @@ const Router = Backbone.Router.extend({
     "exercices(/filter/criterion::criterion)": "exercicesList",
     "sujet-exercice::id": "sujetExerciceShow",
     "sujet-exercice::id/edit": "sujetExerciceEdit",
+    "sujet-exercice/new": "sujetExerciceNew",
     "exodevoir::id/:id/:id/:id/run": "exoDevoirRun"
   },
 
@@ -143,6 +163,9 @@ const Router = Backbone.Router.extend({
   },
   sujetExerciceEdit(id) {
     controller.sujetExerciceEdit(id);
+  },
+  sujetExerciceNew() {
+    controller.sujetExerciceNew();
   },
   exoDevoirRun(idExoDevoir, idExo, idDevoir, idUser) {
     controller.exoDevoirRun(idExoDevoir, idExo, idDevoir, idUser);
