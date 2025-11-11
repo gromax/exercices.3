@@ -46,7 +46,7 @@ const webpackCommon = {
   plugins: [
     new CopyWebpackPlugin({
       patterns:[
-        { from: './app/assets/.htaccess', to: './.htaccess' },
+        { from: path.resolve(__dirname, 'app/assets/.htaccess'), to: '.htaccess', toType: 'file' }, // copie le fichier .htaccess (pb à cause du .)
         { from: './app/assets/favicon.ico', to: './favicon.ico' },
         { from: './app/assets/api.php', to: './api.php' },
         { from: './app/assets/ajax.gif', to: './ajax.gif' },
