@@ -20,7 +20,8 @@ const Controller = MnObject.extend ({
     if (!logged) {
       return;
     }
-    this.showUser(logged.get("id"));
+    Backbone.history.navigate(`user:${logged.id}`, {});
+    this.showUser(logged.id);
   },
 
   onUsersClasseShow(idClasse) {
