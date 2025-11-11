@@ -50,7 +50,8 @@ const webpackCommon = {
         { from: './app/assets/.htaccess', to: './.htaccess' },
         { from: './app/assets/favicon.ico', to: './favicon.ico' },
         { from: './app/assets/api.php', to: './api.php' },
-        { from: './app/assets/ajax.gif', to: './ajax.gif' }
+        { from: './app/assets/ajax.gif', to: './ajax.gif' },
+        { from: './app/assets/install.php', to: './install.php' }
       ]
     }),
     new webpack.ProvidePlugin({
