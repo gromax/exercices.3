@@ -81,7 +81,7 @@ const Controller = MnObject.extend({
     this.showLayoutView(devoir, assosExos, channel.request("region:main"));
   },
 
-  showAddExo(devoir, assosExos, sujetsexercices, criterion) {
+  showAddExo(devoir, assosExos, sujetsexercices) {
     const channel = this.getChannel();
     if (!devoir) {
       channel.trigger("popup:error", "Devoir indéfini.");
@@ -96,7 +96,6 @@ const Controller = MnObject.extend({
 
     const { listExercicesView } = require('../../exercices/list/controller.js').controller.makeView(
       sujetsexercices,
-      criterion,
       twocolsLayout.getRegion('right')
     );
     listExercicesView.on("item:sujet:exercice:show", (childView) => {
