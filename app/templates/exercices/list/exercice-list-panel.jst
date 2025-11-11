@@ -1,8 +1,11 @@
 <form id="filter-form" class="form-search form-inline" style="margin-bottom: 10px;">
-	<div class="input-group">
-		<input type="text" class="form-control search-query js-filter-criterion" placeholder="Filtrer..." value="<%- filterCriterion %>">
-		<span class="input-group-btn">
-			<button class="btn btn-primary" type="submit"><i class="fa fa-search"></i></button>
-		</span>
-	</div>
+    <div class="input-group">
+        <input type="text" class="form-control search-query js-filter-criterion" placeholder="Filtrer..." value="<%- filterCriterion %>">
+        <span class="input-group-btn">
+            <button class="btn btn-outline-primary" type="submit"><i class="fa fa-search"></i></button>
+            <%if (showAddButton){ %>
+            <a href="#sujet-exercice/new" class="btn btn-outline-primary" type="button" title="Nouveau sujet"><i class="fa-solid fa-plus"></i></a>
+            <% } %>
+        </span>
+    </div>
 </form>
