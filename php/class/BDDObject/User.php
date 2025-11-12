@@ -9,11 +9,11 @@ class User extends Item
 {
   protected static $BDDName = "users";
 
-  const  RANK_ROOT="root";
-  const  RANK_ADMIN="admin";
-  const  RANK_PROF="prof";
-  const  RANK_ELEVE="eleve";
-  const  RANK_DISCONNECTED="off";
+  const  RANK_ROOT=3;
+  const  RANK_ADMIN=2;
+  const  RANK_PROF=1;
+  const  RANK_ELEVE=0;
+  const  RANK_DISCONNECTED=-1;
 
   ##################################### METHODES STATIQUES #####################################
 
@@ -23,7 +23,7 @@ class User extends Item
       'nom' => ['def' => "", 'type'=> 'string'],         // nom de la classe
       'prenom' => ['def' => "", 'type'=> 'string'],      // prénom de l'utilisateur
       'email' => ['def' => "", 'type'=> 'string'],       // email de l'utilisateur
-      'rank' => ['def' => self::RANK_DISCONNECTED, 'type'=> 'string'], // rang de l'utilisateur
+      'rank' => ['def' => self::RANK_DISCONNECTED, 'type'=> 'int'], // rang de l'utilisateur
       'idClasse' => ['def' => 0, 'type'=> 'int'],         // id de la classe
       'pref' => ['def' => "", 'type'=> 'string'], // JSON préférences
       'date' => ['def' => date('Y-m-d'), 'type'=> 'date'], // date de création
