@@ -187,16 +187,6 @@ class User extends Item
     return true;
   }
 
-  public function identifiant()
-  {
-    return $this->get('email');
-  }
-
-  public function getName()
-  {
-    return $this->get('nom');
-  }
-
   public function isRoot ()
   {
     return ( $this->get('rank') == self::RANK_ROOT );
@@ -216,6 +206,12 @@ class User extends Item
   {
     return ( $this->get('rank') == self::RANK_ELEVE );
   }
+
+  public function isOff()
+  {
+    return $this->get("rank") === self::RANK_DISCONNECTED;
+  }
+
 
   public function isStronger(User $user)
   {
@@ -273,7 +269,6 @@ class User extends Item
     }
     return null;
   }
-
 }
 
 
