@@ -1,4 +1,5 @@
 import { MyModel, MyCollection } from "../common/entity";
+import Ranks from "../common/ranks";
 
 const Item = MyModel.extend ({
   urlRoot: "api/users",
@@ -7,7 +8,7 @@ const Item = MyModel.extend ({
     nom: "",
     email: "",
     nomClasse: "N/A",
-    rank: "Off",
+    rank: Ranks.DISCONNECTED,
     pref: { mathquill: true }
   },
   
@@ -41,6 +42,10 @@ const Item = MyModel.extend ({
     } else {
       data.pref = { mathquill: true };
     }
+    if (typeof data.rank != "undefined" ){
+      data.rank = Number(data.rank);
+    }
+
     return data;
   },
 
