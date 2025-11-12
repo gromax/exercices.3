@@ -2,8 +2,6 @@
   // C'est la classe de l'utilisateur connecté
 
 namespace BDDObject;
-use PDO;
-use PDOException;
 use ErrorController as EC;
 use SessionController as SC;
 
@@ -78,13 +76,6 @@ class Logged extends User
     return new Logged(array_key_first($users));
   }
 
-  ##################################### METHODES #####################################
-
-  public function __construct($params=array())
-  {
-    parent::__construct($params);
-  }
-
   public static function getFullData()
   {
     $uLog = Logged::getFromToken();
@@ -105,16 +96,11 @@ class Logged extends User
     return new Logged($result);
   }
 
-  public function dataForToken()
+  ##################################### METHODES #####################################
+
+  public function __construct($params=array())
   {
-    return [
-      'id' => $this->getId(),
-      'nom' => $this->get('nom'),
-      'prenom' => $this->get('prenom'),
-      'idClasse' => $this->get('idClasse'),
-      'email' => $this->get('email'),
-      'rank' => $this->get('rank')
-    ];
+    parent::__construct($params);
   }
 
 }
