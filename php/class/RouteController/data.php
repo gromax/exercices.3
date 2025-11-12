@@ -32,8 +32,8 @@ class data
     public function fetchMe()
     {
         // Renvoie les données de l'utilisateur connecté
-        $uLog =Logged::getConnectedUser();
-        if (!$uLog->connexionOk())
+        $uLog =Logged::getFullData();
+        if ($uLog->isOff())
         {
             EC::addError("Déconnecté !");
             EC::set_error_code(401);
@@ -46,8 +46,8 @@ class data
     {
         // Renvoie les données demandées
 
-        $uLog =Logged::getConnectedUser();
-        if (!$uLog->connexionOk())
+        $uLog =Logged::getFromToken();
+        if ($uLog->isOff())
         {
             EC::addError("Déconnecté !");
             EC::set_error_code(401);

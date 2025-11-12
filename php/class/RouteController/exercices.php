@@ -22,8 +22,8 @@ class exercices
 
   public function insert()
   {
-    $uLog=Logged::getConnectedUser();
-    if (!$uLog->connexionOk())
+    $uLog=Logged::getFromToken();
+    if ($uLog->isOff())
     {
       EC::set_error_code(401);
       return false;
@@ -54,8 +54,8 @@ class exercices
 
   public function update()
   {
-    $uLog=Logged::getConnectedUser();
-    if (!$uLog->connexionOk())
+    $uLog=Logged::getFromToken();
+    if ($uLog->isOff())
     {
       EC::set_error_code(401);
       return false;
@@ -118,8 +118,8 @@ class exercices
 
   public function delete()
   {
-    $uLog=Logged::getConnectedUser();
-    if (!$uLog->connexionOk())
+    $uLog=Logged::getFromToken();
+    if ($uLog->isOff())
     {
       EC::set_error_code(401);
       return false;

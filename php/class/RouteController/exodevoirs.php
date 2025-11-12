@@ -27,8 +27,8 @@ class exodevoirs
 
     public function fetch()
     {
-      $uLog =Logged::getConnectedUser();
-      if (!$uLog->connexionOk())
+      $uLog =Logged::getFromToken();
+      if ($uLog->isOff())
       {
         EC::addError("Utilisateur non connecté.");
         EC::set_error_code(401);
@@ -56,8 +56,8 @@ class exodevoirs
     }
 
     private function fetchItem($id) {
-      $uLog =Logged::getConnectedUser();
-      if (!$uLog->connexionOk())
+      $uLog =Logged::getFromToken();
+      if ($uLog->isOff())
       {
         EC::addError("Utilisateur non connecté.");
         EC::set_error_code(401);
@@ -81,8 +81,8 @@ class exodevoirs
 
     public function delete()
     {
-        $uLog=Logged::getConnectedUser();
-        if (!$uLog->connexionOk())
+        $uLog=Logged::getFromToken();
+        if ($uLog->isOff())
         {
             EC::addError("Utilisateur non connecté");
             EC::set_error_code(401);
@@ -119,8 +119,8 @@ class exodevoirs
 
     public function insert()
     {
-        $uLog=Logged::getConnectedUser();
-        if (!$uLog->connexionOk())
+        $uLog=Logged::getFromToken();
+        if ($uLog->isOff())
         {
             EC::addError("Utilisateur non connecté.");
             EC::set_error_code(401);
@@ -173,8 +173,8 @@ class exodevoirs
 
     public function update()
     {
-        $uLog=Logged::getConnectedUser();
-        if (!$uLog->connexionOk())
+        $uLog=Logged::getFromToken();
+        if ($uLog->isOff())
         {
             EC::addError("Utilisateur non connecté.");
             EC::set_error_code(401);

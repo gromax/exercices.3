@@ -23,8 +23,8 @@ class notesexos
 
   public function fetch()
   {
-    $uLog =Logged::getConnectedUser();
-    if (!$uLog->connexionOk())
+    $uLog =Logged::getFromToken();
+    if ($uLog->isOff())
     {
       EC::addError("Utilisateur non connecté.");
       EC::set_error_code(401);
@@ -52,8 +52,8 @@ class notesexos
   }
 
   private function fetchItem($id) {
-    $uLog =Logged::getConnectedUser();
-    if (!$uLog->connexionOk())
+    $uLog =Logged::getFromToken();
+    if ($uLog->isOff())
     {
       EC::addError("Utilisateur non connecté.");
       EC::set_error_code(401);

@@ -24,8 +24,8 @@ class trials
 
     public function delete()
     {
-        $uLog=Logged::getConnectedUser();
-        if (!$uLog->connexionOk())
+        $uLog=Logged::getFromToken();
+        if ($uLog->isOff())
         {
             EC::addError("Utilisateur non connecté");
             EC::set_error_code(401);
@@ -58,8 +58,8 @@ class trials
 
     public function insert()
     {
-        $uLog=Logged::getConnectedUser();
-        if (!$uLog->connexionOk())
+        $uLog=Logged::getFromToken();
+        if ($uLog->isOff())
         {
             EC::addError("Utilisateur non connecté.");
             EC::set_error_code(401);
@@ -98,8 +98,8 @@ class trials
 
     public function update()
     {
-        $uLog=Logged::getConnectedUser();
-        if (!$uLog->connexionOk())
+        $uLog=Logged::getFromToken();
+        if ($uLog->isOff())
         {
             EC::addError("Utilisateur non connecté.");
             EC::set_error_code(401);

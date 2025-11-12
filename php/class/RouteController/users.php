@@ -25,8 +25,8 @@ class users
 
   public function fetch()
   {
-    $uLog =Logged::getConnectedUser();
-    if (!$uLog->connexionOk())
+    $uLog =Logged::getFromToken();
+    if ($uLog->isOff())
     {
       EC::addError("Utilisateur non connecté.");
       EC::set_error_code(401);
@@ -55,8 +55,8 @@ class users
 
   public function fetchList()
   {
-    $uLog =Logged::getConnectedUser();
-    if (!$uLog->connexionOk())
+    $uLog =Logged::getFromToken();
+    if ($uLog->isOff())
     {
       EC::addError("Utilisateur non connecté.");
       EC::set_error_code(401);
@@ -99,8 +99,8 @@ class users
   }
 
   private function fetchItem($id) {
-    $uLog =Logged::getConnectedUser();
-    if (!$uLog->connexionOk())
+    $uLog =Logged::getFromToken();
+    if ($uLog->isOff())
     {
       EC::addError("Utilisateur non connecté.");
       EC::set_error_code(401);
@@ -126,8 +126,8 @@ class users
 
   public function delete()
   {
-    $uLog=Logged::getConnectedUser();
-    if (!$uLog->connexionOk())
+    $uLog=Logged::getFromToken();
+    if ($uLog->isOff())
     {
       EC::addError("Utilisateur non connecté.");
       EC::set_error_code(401);
@@ -166,8 +166,8 @@ class users
   public function insert()
   {
     $data = json_decode(file_get_contents("php://input"),true);
-    $uLog=Logged::getConnectedUser();
-    if (!$uLog->connexionOk())
+    $uLog=Logged::getFromToken();
+    if ($uLog->isOff())
     {
       // Il peut s'agir d'une inscription
       if (!isset($data["idClasse"]) || !isset($data["classeMdp"]))
@@ -254,8 +254,8 @@ class users
 
   public function update()
   {
-    $uLog=Logged::getConnectedUser();
-    if (!$uLog->connexionOk())
+    $uLog=Logged::getFromToken();
+    if ($uLog->isOff())
     {
       EC::addError("Utilisateur non connecté.");
       EC::set_error_code(401);
@@ -355,7 +355,7 @@ class users
         //Recipients
         $mail->setFrom(EMAIL_FROM, PSEUDO_FROM);
         $arrUser = $user->toArray();
-        $mail->addAddress($user->identifiant(), $arrUser['prenom']." ".$arrUser['nom']);   // Add a recipient
+        $mail->addAddress($user->get('email'), $arrUser['prenom']." ".$arrUser['nom']);   // Add a recipient
         //$mail->addReplyTo('info@example.com', 'Information');
         //$mail->addCC('cc@example.com');
         //$mail->addBCC('bcc@example.com');
@@ -376,8 +376,8 @@ class users
         EC::set_error_code(501);
         return false;
       }
-      $uLog=Logged::getConnectedUser();
-      if ($uLog->isAdmin() || $user->isMyTeacher($uLog)){
+      $uLog=Logged::getFromToken();
+      if ($uLog->isAdmin() || $user->get("idTeacher") === $uLog->getId()){
         return array("message"=>"Email envoyé.", "key"=>$key);
       } else {
         return array("message"=>"Email envoyé.");

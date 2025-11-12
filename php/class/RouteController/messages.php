@@ -24,8 +24,8 @@ class messages
 
     public function delete()
     {
-        $uLog=Logged::getConnectedUser();
-        if (!$uLog->connexionOk())
+        $uLog=Logged::getFromToken();
+        if ($uLog->isOff())
         {
             EC::set_error_code(401);
             return false;
@@ -56,8 +56,8 @@ class messages
 
     public function insert()
     {
-        $uLog=Logged::getConnectedUser();
-        if (!$uLog->connexionOk())
+        $uLog=Logged::getFromToken();
+        if ($uLog->isOff())
         {
             EC::set_error_code(401);
             return false;
@@ -126,8 +126,8 @@ class messages
 
     public function setLu()
     {
-        $uLog=Logged::getConnectedUser();
-        if (!$uLog->connexionOk())
+        $uLog=Logged::getFromToken();
+        if ($uLog->isOff())
         {
             EC::set_error_code(401);
             return false;
