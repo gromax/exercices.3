@@ -15,7 +15,7 @@ try
   `nom` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'nom de l''utilisateur',
   `prenom` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'prénom de l''utilisateur',
   `email` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'email et identifiant',
-  `rank` varchar(10) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'rang : root, admin, prof ou eleve',
+  `rank` TINYINT NOT NULL DEFAULT '0' COMMENT 'rang',
   `idClasse` int DEFAULT NULL COMMENT 'identifiant de la classe, null si pas élève',
   `date` datetime NOT NULL COMMENT 'date de la dernière connexion',
   `pref` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'préférences',
