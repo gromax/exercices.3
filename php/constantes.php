@@ -29,6 +29,15 @@
         define("ROOT_CONFIG","../php/default.config/rootConfig.php");
     }
 
+    if (file_exists("../php/config/jwtConfig.php"))
+    {
+        define("JWT_CONFIG","../php/config/jwtConfig.php");
+    }
+    else
+    {
+        define("JWT_CONFIG","../php/default.config/jwtConfig.php");
+    }
+
     // Utilisateurs
     define("PSEUDO_MIN_SIZE", 6);
     define("PSEUDO_MAX_SIZE", 20);
