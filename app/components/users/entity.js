@@ -25,6 +25,27 @@ const Item = MyModel.extend ({
     return output;
   },
 
+  isRoot() {
+    /* Renvoie true si l'utilisateur est root */
+    return (this.get("rank") === Ranks.ROOT);
+  },
+
+  isAdmin() {
+    /* Renvoie true si l'utilisateur est admin (ou root) */
+    let rank = this.get("rank");
+    return (rank === Ranks.ROOT) || (rank === Ranks.ADMIN);
+  },
+
+  isProf() {
+    /* Renvoie true si l'utilisateur est prof (et pas eleve ni off) */
+    return (this.get("rank") === Ranks.PROF);
+  },
+
+  isEleve() {
+    /* Renvoie true si l'utilisateur est eleve (et pas prof ni off) */
+    return (this.get("rank") === Ranks.ELEVE);
+  },
+
   parse(data) {
     if (data.id) {
       data.id = Number(data.id);
