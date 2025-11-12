@@ -10,7 +10,7 @@ final class SessionController
 
     ##################################### METHODES STATIQUES #####################################
 
-    public static function make_token($data)
+    public static function makeToken($data)
     {
         $payload = array(
             "iat" => time(),                   // Heure d'émission
@@ -34,7 +34,8 @@ final class SessionController
         }
         try {
             $decoded = JWT::decode($token, new Key(SECRET_KEY, 'HS256'));
-            return $decoded->data;
+            $arr = json_decode(json_encode($decoded), true);
+            return $arr['data'];
         } catch (Exception $e) {
             return null;
         }
