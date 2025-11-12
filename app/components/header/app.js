@@ -2,7 +2,6 @@ import { MnObject, Region } from 'backbone.marionette';
 import { HeaderView } from './view.js';
 
 const navbar = new HeaderView();
-const headerRegion = new Region({ el: '#header-region' });
 
 const HeaderApp = MnObject.extend({
   channelName: "app",
@@ -23,7 +22,8 @@ const HeaderApp = MnObject.extend({
   },
 
   show() {
-    headerRegion.show(navbar);
+    const region = this.getChannel().request("region:header");
+    region.show(navbar);
   },
 
   onLoadingDown() {
