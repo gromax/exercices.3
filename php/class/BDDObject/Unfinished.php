@@ -1,9 +1,6 @@
 <?php
 
 namespace BDDObject;
-use PDO;
-use PDOException;
-use ErrorController as EC;
 
 final class Unfinished extends Trial
 {
