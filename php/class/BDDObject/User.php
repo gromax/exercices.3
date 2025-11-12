@@ -137,6 +137,18 @@ class User extends Item
     return true;
   }
 
+  public function dataForToken()
+  {
+    return array(
+      'id' => $this->getId(),
+      'nom' => $this->get('nom'),
+      'prenom' => $this->get('prenom'),
+      'idClasse' => $this->get('idClasse'),
+      'email' => $this->get('email'),
+      'rank' => $this->get('rank')
+    );
+  }
+
   ##################################### METHODES #####################################
 
   protected function __construct($options = array())
