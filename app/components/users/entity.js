@@ -7,7 +7,7 @@ const Item = MyModel.extend ({
     prenom: "",
     nom: "",
     email: "",
-    nomClasse: "N/A",
+    nomClasse: "",
     rank: Ranks.DISCONNECTED,
     pref: { mathquill: true }
   },
@@ -18,7 +18,7 @@ const Item = MyModel.extend ({
   },
 
   toJSON() {
-    const output = _.clone(_.omit(this.attributes, "pref"));
+    const output = _.clone(_.omit(this.attributes, "pref", "rankName"));
     if (this.attributes.pref !== false) {
       output.pref = JSON.stringify(this.attributes.pref);
     }
@@ -44,6 +44,7 @@ const Item = MyModel.extend ({
     }
     if (typeof data.rank != "undefined" ){
       data.rank = Number(data.rank);
+      data.rankName = Ranks.getLabel(data.rank);
     }
 
     return data;
