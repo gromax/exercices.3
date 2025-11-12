@@ -259,7 +259,9 @@ class data
             "exodevoirs"=>[
                 'orderby' => 'exodevoirs.num ASC'
             ],
-            "users"=>array("ranks"=>$ranks),
+            "users"=> [
+                'wheres' => ["rank"=>['<', User::RANK_ADMIN]],
+            ],
             "classes"=>[],
             "notesexos"=>[
                 'orderby' => 'exodevoirs.num ASC'
