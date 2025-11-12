@@ -32,7 +32,7 @@ class session
             return array_merge(
                 $data,
                 [
-                    "token" => SC::make_token($uLog->dataForToken())
+                    "token" => SC::makeToken($uLog->dataForToken())
                 ]
             );
         }
@@ -65,7 +65,7 @@ class session
         }
         $logged->updateTime();
 
-        $jwt = SC::make_token($logged->dataForToken());
+        $jwt = SC::makeToken($logged->dataForToken());
         return array(
             "logged" => $logged->toArray(),
             "unread" => Message::unReadNumber($logged->getId()),
@@ -102,11 +102,7 @@ class session
                 $userToConnect->toArray(),
                 array("unread"=>Message::unReadNumber($userToConnect->getId())),
             ),
-            "token" => SC::make_token(
-                $userToConnect->getId(),
-                $userToConnect->get('email'),
-                $userToConnect->get('rank')
-            )
+            "token" => SC::makeToken($userToConnect->dataForToken())
         ];
     }
 
