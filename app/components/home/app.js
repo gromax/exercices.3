@@ -45,7 +45,7 @@ const HomeApp = MnObject.extend({
   showLogin() {
     const channel = this.getChannel();
     const logged = this.getChannel().request("logged:get");
-    if (logged.get("logged_in")) {
+    if (!logged.isOff()) {
       this.showHome();
     } else {
       channel.trigger("ariane:reset", [{text:"Connexion", link:"login"}]);
@@ -60,7 +60,7 @@ const HomeApp = MnObject.extend({
   logout() {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
-    if(logged.get("logged_in")) {
+    if (!logged.isOff()) {
       channel.trigger("session:logout");
     }
   },
@@ -68,7 +68,7 @@ const HomeApp = MnObject.extend({
   forgotten(key) {
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
-    if (logged.get("logged_in")) {
+    if (!logged.isOff()) {
       channel.trigger("notFound");
     } else {
       channel.trigger("ariane:reset", [{text:"Réinitialisation de mot de passe"}]);
