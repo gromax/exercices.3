@@ -1,10 +1,10 @@
 <td><span class="badge rounded-pill bg-primary"><%- id %></span></td>
 <td><%= nom %> <%= prenom %><br/><small class="text-info"><i class="fa fa-envelope fa-1"></i><%= email %></small></td>
 <% if (showClasse) { %>
-	<td><a class="js-classe" href="#users/classe:<%- idClasse %>"><%- nomClasse %></a></td>
+	<td><% if (idClasse) { %><a href="#users/classe:<%- idClasse %>"><%- nomClasse %></a><% } %></td>
 <% } %>
 <td><%= date %></td> <!-- à parser -->
-<td><%= rank %></td>
+<td><%= rankName %></td>
 <td align="right">
 	<div class="btn-group" role="group">
 		<!-- Bouton suppression -->
