@@ -9,7 +9,7 @@ const NewUserView = View.extend ({
   title: "Nouvel Utilisateur",
   showPWD: true,
   showPref: true,
-  ranks: 1,
+  ranks: false,
   editorIsAdmin: true,
   template: edit_user_tpl,
   behaviors: [Form],

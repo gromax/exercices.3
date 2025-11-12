@@ -38,14 +38,15 @@
     <%}%>
 
     <% if (ranks!==false){%>
-        <%if (ranks==1) {%>
-            <input name="rank" type="hidden" value=""/>
-        <%} else {%>
+        <% if (ranks.length==1) {%>
+    <input name="rank" type="hidden" value="<%- ranks[0][1] %>"/>
+        <%} else  if (ranks.length>1) {%>
     <div class="form-group">
         <label for="user-rank">Rang :</label>
         <select class="form-select" id="user-rank" name="rank" aria-label="Sélections du rang">
-            <option value="Prof">Professeur</option>
-            <option value="Admin">Administrateur</option>
+            <% ranks.forEach(function(rankOption) { %>
+                <option value="<%- rankOption[1] %>" <% if (rank==rankOption[1]) { %>selected<% } %>><%- rankOption[0] %></option>
+            <% }); %>
         </select>
     </div>
         <%}%>
