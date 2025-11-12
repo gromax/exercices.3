@@ -246,9 +246,10 @@ abstract class Item
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       $stmt = $pdo->prepare("$select $where $groupby $orderby");
       foreach ($wheres as $k => $v) {
+        $val = is_array($v) ? $v[1] : $v;
         $stmt->bindValue(
           ":".str_replace(".", "_", $k),
-          (string) $v
+          (string) $val
         );
       }
       $stmt->execute();
