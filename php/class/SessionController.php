@@ -21,13 +21,13 @@ final class SessionController
                 "rank" => $rank
             )
         );
-        require_once BDD_CONFIG;
+        require_once JWT_CONFIG;
         return JWT::encode($payload, SECRET_KEY, 'HS256');
     }
 
     public static function verify_token()
     {
-        require_once BDD_CONFIG;
+        require_once JWT_CONFIG;
         $headers = getallheaders();
         if (isset($headers['Authorization'])) {
             $token = str_replace('Bearer ', '', $headers['Authorization']);
