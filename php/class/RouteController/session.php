@@ -24,19 +24,15 @@ class session
 
     public function fetch()
     {
-        $uLog = Logged::getConnectedUser();
+        $uLog = Logged::getFromToken();
         $data = $this->getData($uLog);
         // ajout du token si l'utilisateur est connecté
-        if ($uLog->connexionOk())
+        if (!$uLog->isOff())
         {
             return array_merge(
                 $data,
                 [
-                    "token" => SC::make_token(
-                        $uLog->getId(),
-                        $uLog->get('email'),
-                        $uLog->get('rank')
-                    )
+                    "token" => SC::make_token($uLog->dataForToken())
                 ]
             );
         }
@@ -67,9 +63,9 @@ class session
                 "identifiant" => array("Identifiant ou mot de passe incorrect")
             ) );
         }
+        $logged->updateTime();
 
-        $data = $logged->toArray();
-        $jwt = SC::make_token($data['id'], $data['email'], $data['rank']);
+        $jwt = SC::make_token($logged->dataForToken());
         return array(
             "logged" => $logged->toArray(),
             "unread" => Message::unReadNumber($logged->getId()),
@@ -79,7 +75,7 @@ class session
 
     public function sudo()
     {
-        $uLog = Logged::getConnectedUser();
+        $uLog = Logged::getFromToken();
         if (!$uLog->isAdmin())
         {
             EC::addError("Vous n'avez pas les droits pour exécuter un sudo.");
@@ -114,45 +110,31 @@ class session
         ];
     }
 
-    public function logged()
+    protected function getData($log = null)
     {
-        $uLog = Logged::getConnectedUser();
-        if ($uLog === null) $uLog = Logged::getConnectedUser();
-        # On teste seulement si l'utilisateur est connecté
-        # sans remettre à jour son time
-        return array( "logged"=>$uLog->connexionOk() );
-    }
-
-
-    protected function getData($uLog = null)
-    {
-        if ($uLog === null) $uLog = Logged::getConnectedUser();
-        if ($uLog->connexionOk()) {
-            return [
-                "logged"=>array_merge(
-                    $uLog->toArray(),
-                    array("unread"=>Message::unReadNumber($uLog->getId()) )
-                ),
-                "messages"=>EC::messages()
-            ];
+        $uLog = $log === null ? Logged::getFullData() : $log;
+        if ($uLog->isOff()) {
+            return [ "logged"=>$uLog->toArray() ];
         }
-        return [ "logged"=>$uLog->toArray() ];
+        return [
+            "logged"=>array_merge(
+                $uLog->toArray(),
+                array("unread"=>Message::unReadNumber($uLog->getId()) )
+            ),
+            "messages"=>EC::messages()
+        ];
     }
 
     public function reinitMDP()
     {
         $key = $this->params["key"];
-        Logged::tryConnexionOnInitMDP($key);
-        $uLog = Logged::getConnectedUser();
-        if ($uLog->connexionOk())
-        {
-            return $data = $this->getData($uLog);
-        }
-        else
+        $uLog = Logged::tryConnexionOnInitMDP($key);
+        if ($uLog === null)
         {
             EC::set_error_code(401);
             return false;
         }
+        return $this->getData($uLog);
     }
 }
 ?>
