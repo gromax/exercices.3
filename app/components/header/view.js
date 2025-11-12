@@ -23,16 +23,15 @@ const HeaderView = View.extend({
   },
 
   templateContext() {
-    let logged = _.clone(Radio.channel("app").request("logged:get").attributes);
-
+    const logged = Radio.channel("app").request("logged:get");
     return {
-      isAdmin: (logged.isAdmin === true),
-      isProf: (logged.isProf === true),
-      isEleve: (logged.isEleve === true),
-      isOff: (logged.isOff === true),
-      nomComplet: logged.isOff ? "Déconnecté" : `${logged.prenom} ${logged.nom}`,
-      unread: (logged.unread || 0),
-      version: APP_VERSION
+      isRoot: logged.isRoot(),
+      isAdmin: logged.isAdmin(),
+      isProf: logged.isProf(),
+      isEleve: logged.isEleve(),
+      isOff: logged.isOff(),
+      nomComplet: logged.get("nomComplet"),
+      unread: (logged.unread || 0)
     };
   },
 
