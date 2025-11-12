@@ -1,5 +1,6 @@
 import { MyModel } from '../common/entity.js'
 import Radio from 'backbone.radio'
+import Ranks from '../common/ranks.js'
 
 const channel = Radio.channel('app');
 
@@ -8,6 +9,9 @@ const Session = MyModel.extend({
 
     defaults: {
         isOff: true,
+        nomComplet: "Déconnecté",
+        rank: Ranks.DISCONNECTED,
+        unread: 0,
         age: 0
     },
 
@@ -40,17 +44,11 @@ const Session = MyModel.extend({
             logged.nomClasse = "N/A";
         }
         logged.unread = Number(logged.unread || 0);
-        logged.isRoot = (logged.rank === "root")
-        logged.isAdmin = (logged.rank === "root") || (logged.rank === "admin");
-        logged.isProf = (logged.rank === "prof");
-        logged.isEleve = (logged.rank === "eleve");
-        logged.logged_in = (logged.rank !== "off");
-        if (logged.logged_in) {
+        if (logged.rank !== Ranks.DISCONNECTED) {
             logged.nomComplet = `${logged.prenom} ${logged.nom}`;
         } else {
-            logged.nomComplet = "";
+            logged.nomComplet = "Déconnecté";
         }
-        logged.isOff = ! logged.logged_in;
         if ((typeof logged.pref === "string") && (logged.pref !== "")){
             logged.pref = JSON.parse(logged.pref);
         } else {
@@ -95,28 +93,28 @@ const Session = MyModel.extend({
     
     isRoot() {
         /* Renvoie true si l'utilisateur est root */
-        return (this.get("rank") === "root");
+        return (this.get("rank") === Ranks.ROOT);
     },
 
     isAdmin() {
         /* Renvoie true si l'utilisateur est admin (ou root) */
         let rank = this.get("rank");
-        return (rank === "root") || (rank === "admin");
+        return (rank === Ranks.ROOT) || (rank === Ranks.ADMIN);
     },
 
     isProf() {
         /* Renvoie true si l'utilisateur est prof (et pas eleve ni off) */
-        return (this.get("rank") === "prof");
+        return (this.get("rank") === Ranks.PROF);
     },
 
     isEleve() {
         /* Renvoie true si l'utilisateur est eleve (et pas prof ni off) */
-        return (this.get("rank") === "eleve");
+        return (this.get("rank") === Ranks.ELEVE);
     },
 
     isOff() {
         /* Renvoie true si l'utilisateur est off (et pas prof ni eleve) */
-        return this.get("isOff");
+        return this.get("rank") === Ranks.DISCONNECTED;
     },
 
     sudo(id) {
@@ -142,50 +140,6 @@ const Session = MyModel.extend({
             defer.reject(response);
         });
         return defer.promise();
-    },
-
-    mapItem(itemsList){
-        /* Renvoie l'item de la liste correspondant au rang de l'utilisateur
-        itemsList doit être un objet avec des clés "root", "admin", "prof", "eleve", "off" et "def"
-        Si la clé correspondant au rang n'existe pas, on renvoie l'item "def"
-        Si le rang est inconnu, on renvoie l'item "off" ou "def" s'il n'existe pas
-        */
-        itemsList = itemsList || {};
-        let rank = this.get("rank");
-        switch (rank) {
-            case "root":
-                if (_.has(itemsList,"root")) {
-                    return itemsList["root"]
-                } else if (_.has(itemsList,"admin")) {
-                    return itemsList["admin"];
-                } else {
-                    return itemsList.def;
-                }
-            case "admin":
-                if (_.has(itemsList,"admin")) {
-                    return itemsList["admin"];
-                } else {
-                    return itemsList.def;
-                }
-            case "prof":
-                if (_.has(itemsList,"prof")) {
-                    return itemsList["prof"];
-                } else {
-                    return itemsList.def;
-                }
-            case "eleve":
-                if (_.has(itemsList,"eleve")) {
-                    return itemsList["eleve"];
-                } else {
-                    return itemsList.def;
-                }
-            default:
-                if (_.has(itemsList,"off")) {
-                    return itemsList["off"];
-                } else {
-                    return itemsList.def;
-                }
-        }
     },
 
     kill() {
