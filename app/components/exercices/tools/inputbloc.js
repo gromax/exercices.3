@@ -94,8 +94,8 @@ class InputTextBloc extends InputBloc {
         } else {
             const message = `${userValueTag} est une Mauvaise réponse.`;
             const complement = Array.isArray(solution)
-                ? `La réponse attendue était : $${MyMath.latex(solution)}$.`
-                : `Les bonnes réponses possibles étaient : $${solution.map(MyMath.latex).join('$, $')}$.`;
+                ? `Les bonnes réponses possibles étaient : $${solution.map(MyMath.latex).join('$, $')}$.`
+                :`La réponse attendue était : $${MyMath.latex(solution)}$.`;
             return {
                 name: name,
                 success: false,
