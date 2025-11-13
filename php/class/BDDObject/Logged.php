@@ -126,7 +126,7 @@ class Logged extends User
 
   public function isAdmin()
   {
-    return $this->get("rank") === User::RANK_ROOT || (($this->get("rank") === User::RANK_ADMIN) && $this->_isInAdminMode);
+    return ($this->get("rank") === User::RANK_ROOT) || (($this->get("rank") === User::RANK_ADMIN) && $this->_isInAdminMode);
   }
 
   public function isProf()
