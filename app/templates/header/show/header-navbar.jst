@@ -20,8 +20,11 @@
       </ul>
       <% } else { %>
       <div class="d-flex align-items-center">
-        <% if (isAdmin){ %> <span class="badge bg-danger">Compte Admin</span><% } %>
-        <% if (isRoot){ %> <span class="badge bg-danger">Compte Root</span><% } %>
+        <% if (isRoot){ %>
+          <span class="badge bg-danger">Compte Root</span>
+        <% } else if (isAdmin){ %>
+          <span class="badge bg-danger">Compte Admin</span>
+        <% } %>
         <span class="js-spinner"></span>
       </div>
       <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
