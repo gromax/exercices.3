@@ -71,7 +71,7 @@ class data
         if ($uLog->isAdmin()) {
             return $this->adminCustomFetch($asks, $uLog);
         }
-
+        EC::addError("Erreur inconnue.");
         EC::set_error_code(403);
         return false;
     }
