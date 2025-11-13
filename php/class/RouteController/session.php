@@ -39,6 +39,36 @@ class session
         return $data;
     }
 
+    public function promoteAdmin()
+    {
+        $uLog = Logged::getFromToken();
+        if (!$uLog->promotable())
+        {
+            EC::addError("Cette commande ne s'applique pas à cet utilisateur, dans son état actuel.");
+            EC::set_error_code(404);
+            return false;
+        }
+        $uLog->setAdminMode(true);
+        return [
+            "token" => SC::makeToken($uLog->dataForToken())
+        ];
+    }
+
+    public function demoteFromAdmin()
+    {
+        $uLog = Logged::getFromToken();
+        if (!$uLog->isAdmin() || $uLog->isRoot())
+        {
+            EC::addError("Cette commande ne s'applique pas à cet utilisateur, dans son état actuel.");
+            EC::set_error_code(404);
+            return false;
+        }
+        $uLog->setAdminMode(false);
+        return [
+            "token" => SC::makeToken($uLog->dataForToken())
+        ];
+    }
+
     public function insert()
     {
         $data = json_decode(file_get_contents("php://input"),true);
