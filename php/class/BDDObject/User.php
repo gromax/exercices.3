@@ -209,9 +209,9 @@ class User extends Item
     return (( $this->get('rank') == self::RANK_ROOT ) || ( $this->get('rank') == self::RANK_ADMIN ));
   }
 
-  public function isProf ($orBetter = false)
+  public function isProf ()
   {
-    return ( ($this->get('rank') == self::RANK_PROF ) || ($orBetter && ( ($this->get('rank') == self::RANK_ROOT ) || ($this->get('rank') == self::RANK_ADMIN ) ) ) );
+    return ( $this->get('rank') == self::RANK_PROF );
   }
 
   public function isEleve ()
@@ -227,10 +227,7 @@ class User extends Item
 
   public function isStronger(User $user)
   {
-    if ($user->isRoot()) return false;
-    if ($user->isAdmin()) return $this->isRoot();
-    if ($user->isProf()) return $this->isAdmin();
-    return $this->isProf(true);
+    return $this->get("rank") > $user->get("rank");
   }
 
   public function okToDelete()
