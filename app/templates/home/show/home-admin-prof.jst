@@ -6,4 +6,10 @@
   <a type="button" class="list-group-item list-group-item-action" href="#classes"><i class="fa fa-graduation-cap"></i>&nbsp; <% if (adminMode) { %>Classes<% } else { %>Vos classes<% } %></a>
   <a type="button" class="list-group-item list-group-item-action" href="#exercices"><i class="fa-solid fa-dumbbell"></i>&nbsp; Exercices</a>
   <a type="button" class="list-group-item list-group-item-action" href="#devoirs"><i class="fa-solid fa-paperclip"></i>&nbsp;  <% if (adminMode) { %>Devoirs<% } else { %>Vos devoirs<% } %></a>
+  <% if (showPromoteButton) { %>
+    <a type="button" class="list-group-item list-group-item-warning list-group-item-action js-promote" href="#promote"><i class="fa fa-arrow-up"></i>&nbsp; Passer en mode administrateur</a>
+  <% } %>
+  <% if (showDemoteButton) { %>
+    <a type="button" class="list-group-item list-group-item-warning list-group-item-action js-demote" href="#demote"><i class="fa fa-arrow-down"></i>&nbsp; Passer en mode professeur</a>
+  <% } %>
 </div>

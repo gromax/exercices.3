@@ -13,18 +13,29 @@ const Controller = MnObject.extend({
   },
   showAdminHome() {
     const channel = this.getChannel();
+    const logged = this.getChannel().request("logged:get");
     channel.trigger("ariane:reset", []);
     let unread = this.getChannel().request("logged:get").get("unread");
-    const view = new AdminProfPanel({adminMode:true, unread:unread});
-    view.on("show:list", (cible)=> this.getChannel().trigger(`${cible}:list`));
+    const view = new AdminProfPanel({
+      showDemoteButton: logged.demotable(),
+      adminMode:true,
+      unread:unread
+    });
+    view.on("session:demote", () => this.getChannel().trigger("session:demote"));
     channel.request("region:main").show(view);
   },
 
   showProfHome() {
     const channel = this.getChannel();
+    const logged = this.getChannel().request("logged:get");
     channel.trigger("ariane:reset", []);
     let unread = this.getChannel().request("logged:get").get("unread");
-    const view = new AdminProfPanel({adminMode:false, unread:unread});
+    const view = new AdminProfPanel({
+      showPromoteButton: logged.promotable(),
+      adminMode:false,
+      unread:unread
+    });
+    view.on("session:promote", () => this.getChannel().trigger("session:promote"));
     channel.request("region:main").show(view);
   },
 
