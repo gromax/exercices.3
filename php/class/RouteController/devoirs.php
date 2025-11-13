@@ -81,7 +81,7 @@ class devoirs
             EC::set_error_code(401);
             return false;
         }
-        if (!$uLog->isProf(true))
+        if ($uLog->isEleve())
         {
             EC::addError("Interdit aux élèves.");
             EC::set_error_code(403);
