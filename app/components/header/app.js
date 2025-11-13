@@ -8,7 +8,8 @@ const HeaderApp = MnObject.extend({
   radioEvents: {
     'loading:up': 'onLoadingUp',
     'loading:down': 'onLoadingDown',
-    'logged:changed': 'onLoggedChanged'
+    'logged:changed': 'onLoggedChanged',
+    'header:refresh': 'onRefresh'
   },
   ajaxCount: 0,
 
@@ -24,6 +25,10 @@ const HeaderApp = MnObject.extend({
   show() {
     const region = this.getChannel().request("region:header");
     region.show(navbar);
+  },
+
+  onRefresh() {
+    navbar.render();
   },
 
   onLoadingDown() {
