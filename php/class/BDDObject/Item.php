@@ -465,7 +465,7 @@ abstract class Item
     try {
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $champs = implode(", ", array_keys($toInsert));
+      $champs = implode(", ", array_map(function($k){ return "`$k`"; }, array_keys($toInsert)));
       $tokens_values = implode(", ", array_map(function($k){ return ":$k"; }, array_keys($toInsert)));
       $stmt = $pdo->prepare("INSERT INTO ".PREFIX_BDD.static::$BDDName." ( $champs ) VALUES ( $tokens_values )");
       foreach ($toInsert as $k => $v) {
@@ -481,6 +481,7 @@ abstract class Item
       $stmt->execute();
     } catch(PDOException $e) {
       EC::addBDDError($e->getMessage(), static::$BDDName."/insert");
+      EC::addError(" Requete : ".$stmt->queryString);
       return null;
     }
     $this->id=$pdo->lastInsertId();
