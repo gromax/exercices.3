@@ -9,6 +9,7 @@ class Logged extends User
 {
   const TIME_OUT = 5400; // durée d'inactivité avant déconnexion = 90min
   const SAVE_CONNEXION_ATTEMPTS_IN_BDD = true;
+  protected $_isInAdminMode;
 
   ##################################### METHODES STATIQUES #####################################
 
@@ -101,6 +102,44 @@ class Logged extends User
   public function __construct($params=array())
   {
     parent::__construct($params);
+    if (!isset($params['adminMode'])) {
+      $params['adminMode'] = false;
+    }
+    $this->_isInAdminMode = $params['adminMode'];
+  }
+
+  public function dataForToken()
+  {
+    $data = parent::dataForToken();
+    if ($this->get("rank") === User::RANK_ADMIN) {
+      $data['adminMode'] = $this->_isInAdminMode;
+    }
+    return $data;
+  }
+
+  public function setAdminMode($mode)
+  {
+    if ($this->get("rank") === User::RANK_ADMIN) {
+      $this->_isInAdminMode = (bool) $mode;
+    }
+  }
+
+  public function isAdmin()
+  {
+    return $this->get("rank") === User::RANK_ROOT || (($this->get("rank") === User::RANK_ADMIN) && $this->_isInAdminMode);
+  }
+
+  public function isProf()
+  {
+    return ($this->get("rank") === User::RANK_PROF) || (($this->get("rank") === User::RANK_ADMIN) && !$this->_isInAdminMode);
+  }
+
+  /**
+   * Indique si l'utilisateur peut être promu en admin
+   */
+  public function promotable()
+  {
+    return $this->get("rank") === User::RANK_ADMIN && !$this->_isInAdminMode;
   }
 
 }
