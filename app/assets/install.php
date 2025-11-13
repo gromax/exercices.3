@@ -10,7 +10,7 @@ try
 
     // users
     // FK vers classes en attente
-    $pdo->prepare("CREATE TABLE IF NOT EXISTS `exo_users` (
+    $pdo->prepare("CREATE TABLE IF NOT EXISTS `".PREFIX_BDD."users` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nom` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'nom de l''utilisateur',
   `prenom` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'prénom de l''utilisateur',
@@ -21,8 +21,8 @@ try
   `pref` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'préférences',
   `hash` char(60) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT 'hash du mot de passe',
   PRIMARY KEY (`id`),
-  KEY `FK_users_classes` (`idClasse`),
-) ENGINE=InnoDB AUTO_INCREMENT=1521 DEFAULT CHARSET=utf8mb3 COMMENT='Liste des utilisateurs';
+  KEY `FK_users_classes` (`idClasse`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COMMENT='Liste des utilisateurs';
     ")->execute();
 
     // classes
@@ -39,7 +39,7 @@ try
   PRIMARY KEY (`id`),
   KEY `FK_classes_users` (`idOwner`),
   CONSTRAINT `FK_classes_users` FOREIGN KEY (`idOwner`) REFERENCES `".PREFIX_BDD."users` (`id`) ON DELETE CASCADE
-  ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COMMENT='Liste des classes';"
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COMMENT='Liste des classes';"
     )->execute();
 
     // FK circulaires entre classes et users
@@ -80,7 +80,7 @@ try
   PRIMARY KEY (`id`),
   KEY `FK_exercices_users` (`idOwner`),
   CONSTRAINT `FK_exercices_users` FOREIGN KEY (`idOwner`) REFERENCES `".PREFIX_BDD."users` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='contient les sujets d''exercices disponibles';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COMMENT='contient les sujets d''exercices disponibles';
     ")->execute();
 
     // exodevoirs
@@ -110,7 +110,7 @@ try
   KEY `FK_noteexos_users` (`idUser`),
   CONSTRAINT `FK_noteexos_exodevoirs` FOREIGN KEY (`idExoDevoir`) REFERENCES `".PREFIX_BDD."exodevoirs` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_noteexos_users` FOREIGN KEY (`idUser`) REFERENCES `".PREFIX_BDD."users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Garde le résutlat du max des notes des essais pour une paire (idExoDevoir, idUser)';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='Garde le résutlat du max des notes des essais pour une paire (idExoDevoir, idUser)';
     ")->execute();
 
     // trials
@@ -161,7 +161,7 @@ try
   CONSTRAINT `FK_messages_trials` FOREIGN KEY (`idTrial`) REFERENCES `".PREFIX_BDD."trials` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_messages_users` FOREIGN KEY (`idDest`) REFERENCES `".PREFIX_BDD."users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_messages_users_2` FOREIGN KEY (`idOwner`) REFERENCES `".PREFIX_BDD."users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='messages entre prof et élèves';
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb3 COMMENT='messages entre prof et élèves';
     ")->execute();
 
 
@@ -188,7 +188,7 @@ try
     else
     {
         echo "Création de l'utilisateur root...<br>";
-        $stmt=$pdo->prepare("INSERT INTO `".PREFIX_BDD."users` (nom,prenom,email,rank,hash,date,pref) VALUES ('root','',:email,'root',:hash,NOW(),'{}')");
+        $stmt=$pdo->prepare("INSERT INTO `".PREFIX_BDD."users` (nom,prenom,email,rank,hash,date,pref) VALUES ('root','',:email,3,:hash,NOW(),'{}')");
         $stmt->bindValue('email', ROOT_LOGIN, PDO::PARAM_STR);
         $stmt->bindValue('hash', $hashRoot, PDO::PARAM_STR);
         $stmt->execute();
