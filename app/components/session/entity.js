@@ -44,6 +44,12 @@ const Session = MyModel.extend({
             logged.nomClasse = "N/A";
         }
         logged.unread = Number(logged.unread || 0);
+        if (typeof logged.rank != "undefined" ){
+            logged.rank = Number(logged.rank);
+        } else {
+            logged.rank = Ranks.DISCONNECTED;
+        }
+        logged.rankName = Ranks.getLabel(logged.rank);
         if (logged.rank !== Ranks.DISCONNECTED) {
             logged.nomComplet = `${logged.prenom} ${logged.nom}`;
         } else {
@@ -55,6 +61,10 @@ const Session = MyModel.extend({
             logged.pref = {
                 mathquill:true
             };
+        }
+        logged.adminMode = false; // ne sert que pour un utilisateur admin, pas root
+        if (logged.rank == Ranks.ADMIN){
+            logged.adminMode = Boolean(data.adminMode || false);
         }
         return logged;
     },
@@ -99,12 +109,12 @@ const Session = MyModel.extend({
     isAdmin() {
         /* Renvoie true si l'utilisateur est admin (ou root) */
         let rank = this.get("rank");
-        return (rank === Ranks.ROOT) || (rank === Ranks.ADMIN);
+        return (rank === Ranks.ROOT) || ((rank === Ranks.ADMIN) && this.get("adminMode"));
     },
 
     isProf() {
         /* Renvoie true si l'utilisateur est prof (et pas eleve ni off) */
-        return (this.get("rank") === Ranks.PROF);
+        return (this.get("rank") === Ranks.PROF) || (this.get("rank") === Ranks.ADMIN && !this.get("adminMode"));
     },
 
     isEleve() {
@@ -118,7 +128,6 @@ const Session = MyModel.extend({
     },
 
     sudo(id) {
-        let that = this;
         let defer = $.Deferred();
         if (!this.isAdmin()){
             defer.reject({status:403});
@@ -145,7 +154,18 @@ const Session = MyModel.extend({
     kill() {
         this.unset("id");
         localStorage.removeItem('jwt');
+    },
+
+    promotable() {
+        /* Indique si l'utilisateur peut être promu en admin */
+        return this.get("rank") === Ranks.ADMIN && !this.get("adminMode");
+    },
+
+    demotable() {
+        /* Indique si l'utilisateur peut quitter le mode admin */
+        return this.get("rank") === Ranks.ADMIN && this.get("adminMode");
     }
+
 });
 
 export { Session };
