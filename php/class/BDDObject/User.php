@@ -24,8 +24,7 @@ class User extends Item
       'prenom' => ['def' => "", 'type'=> 'string'],      // prénom de l'utilisateur
       'email' => ['def' => "", 'type'=> 'string'],       // email de l'utilisateur
       'rank' => ['def' => self::RANK_DISCONNECTED, 'type'=> 'integer'], // rang de l'utilisateur
-      'idClasse' => ['def' => 0, 'type'=> 'integer'],         // id de la classe
-      'pref' => ['def' => "", 'type'=> 'string'], // JSON préférences
+      'idClasse' => ['def' => NULL, 'type'=> 'integer'],         // id de la classe
       'date' => ['def' => date('Y-m-d'), 'type'=> 'date'], // date de création
       'nomClasse' => ['def' => "", 'type'=> 'string', 'foreign'=>'classes.nom'], // nom de la classe
       'idTeacher' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'classes.idOwner'], // id du professeur
@@ -151,7 +150,7 @@ class User extends Item
 
   ##################################### METHODES #####################################
 
-  protected function __construct($options = array())
+  public function __construct($options = array())
   {
     parent::__construct($options);
     if (isset($options['pwd']))
