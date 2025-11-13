@@ -8,6 +8,8 @@ $router->addRule('api/session/:id', 'session', 'insert', 'PUT'); // reconnexion
 $router->addRule('api/session', 'session', 'insert', 'POST'); // Tentative de connexion
 $router->addRule('api/session/sudo/:id', 'session', 'sudo', 'POST'); // Connecter en tant que
 $router->addRule('api/session/test', 'session', 'logged', 'GET'); // Vérifie l'état de connexion
+$router->addRule('api/session/promote', 'session', 'promoteAdmin', 'GET'); // Passe en mode administrateur
+$router->addRule('api/session/demote', 'session', 'demoteFromAdmin', 'GET'); // Quitte le mode administrateur
 
 // users
 //$router->addRule('api/users/:id', 'users', 'fetch', 'GET');
