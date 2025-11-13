@@ -18,19 +18,19 @@ final class NoteExo extends Item
   {
     return [
       'id' => ['def' => "", 'type'=> 'string', 'alias'=>"id", "sub" => "CONCAT(users.id,'_',exodevoirs.id)"], // identifiant unique de la note exercice
-      'idUser' => ['def' => 0, 'type'=> 'int', 'foreign'=>'users.id'],      // id de l'utilisateur (élève)
+      'idUser' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'users.id'],      // id de l'utilisateur (élève)
       'nom' => ['def' => "", 'type'=> 'string', 'alias' => 'nomUser'], // nom de l'utilisateur
       'prenom' => ['def' => "", 'type'=> 'string', 'alias' => 'prenomUser'], // prénom de l'utilisateur
-      'idClasse' => ['def' => 0, 'type'=> 'int', 'foreign'=>'classes.id'],    // id de la classe à laquelle l'exercice a été assigné
-      'idOwner' => ['def' => 0, 'type'=> 'int', 'foreign'=>'classes.idOwner'],    // id du propriétaire (professeur)
-      'idDevoir' => ['def' => 0, 'type'=> 'int', 'foreign'=>'devoirs.id'],      // id du devoir associé
-      'idExo' => ['def' => 0, 'type'=> 'int', 'foreign'=>'exercices.id'],       // id de l'exercice associé
-      'idExoDevoir' => ['def' => 0, 'type'=> 'int', 'foreign'=>'exodevoirs.id'], // id de l'exercice dans le devoir
+      'idClasse' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'classes.id'],    // id de la classe à laquelle l'exercice a été assigné
+      'idOwner' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'classes.idOwner'],    // id du propriétaire (professeur)
+      'idDevoir' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'devoirs.id'],      // id du devoir associé
+      'idExo' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'exercices.id'],       // id de l'exercice associé
+      'idExoDevoir' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'exodevoirs.id'], // id de l'exercice dans le devoir
       'title' => ['def' => "", 'type'=> 'string', 'foreign'=>'exercices.title'],    // titre de l'exercice
       'description' => ['def' => "", 'type'=> 'string', 'foreign'=>'exercices.description'], // description de l'exercice
-      'num' => ['def' => 0, 'type'=> 'int', 'foreign'=>'exodevoirs.num'],        // numéro d'ordre dans le devoir
-      'note' => ['def' => 0, 'type'=> 'int', 'foreign'=>'noteexos.note'],        // note obtenue pour cet exercice
-      'trials' => ['def' => 0, 'type'=> 'int', 'foreign'=>'noteexos.trials'] // nombre d'essais
+      'num' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'exodevoirs.num'],        // numéro d'ordre dans le devoir
+      'note' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'noteexos.note'],        // note obtenue pour cet exercice
+      'trials' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'noteexos.trials'] // nombre d'essais
     ] ;
   }
 

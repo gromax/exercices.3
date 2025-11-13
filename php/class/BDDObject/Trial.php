@@ -14,9 +14,9 @@ class Trial extends Item
   protected static function champs()
   {
     return [
-      'idExoDevoir' => ['def' => 0, 'type'=> 'int'],     // id de l'exercice associé
-      'idUser' => ['def' => 0, 'type'=> 'int'],     // id de l'utilisateur
-      'score' => ['def' => 0, 'type'=> 'int'],        // score de l'essai
+      'idExoDevoir' => ['def' => 0, 'type'=> 'integer'],     // id de l'exercice associé
+      'idUser' => ['def' => 0, 'type'=> 'integer'],     // id de l'utilisateur
+      'score' => ['def' => 0, 'type'=> 'integer'],        // score de l'essai
       'init' => ['def' => "", 'type'=> 'string'], // JSON des intialisations de l'exercice
       'answers' => ['def' => "", 'type'=> 'string'], // JSON des réponses de l'utilisateur
       'date' => ['def' => date('Y-m-d'), 'type'=> 'date'], // date de l'essai

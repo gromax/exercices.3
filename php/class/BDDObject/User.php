@@ -23,12 +23,12 @@ class User extends Item
       'nom' => ['def' => "", 'type'=> 'string'],         // nom de la classe
       'prenom' => ['def' => "", 'type'=> 'string'],      // prénom de l'utilisateur
       'email' => ['def' => "", 'type'=> 'string'],       // email de l'utilisateur
-      'rank' => ['def' => self::RANK_DISCONNECTED, 'type'=> 'int'], // rang de l'utilisateur
-      'idClasse' => ['def' => 0, 'type'=> 'int'],         // id de la classe
+      'rank' => ['def' => self::RANK_DISCONNECTED, 'type'=> 'integer'], // rang de l'utilisateur
+      'idClasse' => ['def' => 0, 'type'=> 'integer'],         // id de la classe
       'pref' => ['def' => "", 'type'=> 'string'], // JSON préférences
       'date' => ['def' => date('Y-m-d'), 'type'=> 'date'], // date de création
       'nomClasse' => ['def' => "", 'type'=> 'string', 'foreign'=>'classes.nom'], // nom de la classe
-      'idTeacher' => ['def' => 0, 'type'=> 'int', 'foreign'=>'classes.idOwner'], // id du professeur
+      'idTeacher' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'classes.idOwner'], // id du professeur
     ] ;
   }
 

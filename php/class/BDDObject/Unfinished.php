@@ -11,14 +11,14 @@ final class Unfinished extends Trial
   {
     return [
       'id' => ['def' =>'', 'type' => 'string', "sub" =>"CONCAT(idUser,'_',idExoDevoir)"],
-      'idExoDevoir' => ['def' => 0, 'type'=> 'int'],     // id de l'exercice associé
-      'idUser' => ['def' => 0, 'type'=> 'int'],     // id de l'utilisateur
-      'score' => ['def' => 0, 'type'=> 'int'],        // score de l'essai
+      'idExoDevoir' => ['def' => 0, 'type'=> 'integer'],     // id de l'exercice associé
+      'idUser' => ['def' => 0, 'type'=> 'integer'],     // id de l'utilisateur
+      'score' => ['def' => 0, 'type'=> 'integer'],        // score de l'essai
       'init' => ['def' => "", 'type'=> 'string'], // JSON des intialisations de l'exercice
       'answers' => ['def' => "", 'type'=> 'string'], // JSON des réponses de l'utilisateur
       'date' => ['def' => date('Y-m-d'), 'type'=> 'date'], // date de l'essai
       'finished' => ['def' => false, 'type'=> 'bool'], // si l'essai est terminé
-      'idBDD' => ['def' => 0, 'type'=> 'int', 'foreign' => 'trials.id'] // identifiant dans la table trials
+      'idBDD' => ['def' => 0, 'type'=> 'integer', 'foreign' => 'trials.id'] // identifiant dans la table trials
     ] ;
   }
 

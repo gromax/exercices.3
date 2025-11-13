@@ -16,7 +16,7 @@ final class Classe extends Item
   {
     return [
       'nom' => ['def' => "", 'type'=> 'string'],         // nom de la classe
-      'idOwner' => ['def' => 0, 'type'=> 'int'],         // id du propriétaire de la classe
+      'idOwner' => ['def' => 0, 'type'=> 'integer'],         // id du propriétaire de la classe
       'nomOwner' => ['def' => "", 'type'=> 'string', 'foreign'=>'users.nom'], // nom du propriétaire de la classe
       'description' => ['def' => "", 'type'=> 'string'], // descriptif de la classe
       'pwd' => ['def' => "", 'type'=> 'string'],         // mot de passe pour entrer dans la classe

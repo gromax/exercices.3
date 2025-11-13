@@ -14,14 +14,14 @@ final class ExoDevoir extends Item
   protected static function champs()
   {
     return [
-      'idExo' => ['def' => 0, 'type'=> 'int'],       // id de l'exercice associé
+      'idExo' => ['def' => 0, 'type'=> 'integer'],       // id de l'exercice associé
       'title' => ['def' => "", 'type'=> 'string', 'foreign'=>'exercices.title'],    // titre de l'exercice
       'description' => ['def' => "", 'type'=> 'string', 'foreign'=>'exercices.description'],    // description de l'exercice
-      'idDevoir' => ['def' => 0, 'type'=> 'int'],      // id du devoir associé
+      'idDevoir' => ['def' => 0, 'type'=> 'integer'],      // id du devoir associé
       'options' => ['def' => "", 'type'=> 'string'],   // options de l'exercice, JSON
-      'idOwner' => ['def' => 0, 'type'=> 'int', 'foreign'=>'devoirs.idOwner'],    // id du propriétaire (professeur)
-      'idClasse' => ['def' => 0, 'type'=> 'int', 'foreign'=>'devoirs.idClasse'],    // id de la classe à laquelle l'exercice a été assigné
-      'num' => ['def' => 0, 'type'=> 'int'],        // numéro d'ordre dans le devoir
+      'idOwner' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'devoirs.idOwner'],    // id du propriétaire (professeur)
+      'idClasse' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'devoirs.idClasse'],    // id de la classe à laquelle l'exercice a été assigné
+      'num' => ['def' => 0, 'type'=> 'integer'],        // numéro d'ordre dans le devoir
     ] ;
   }
 

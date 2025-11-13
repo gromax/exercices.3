@@ -14,7 +14,7 @@ final class InitKey extends Item
   {
     return [
       'initKey' => ['def' => "", 'type'=> 'string'],    // clé de réinitialisation
-      'idUser' => ['def' => 0, 'type'=> 'int'],         // id de l'utilisateur
+      'idUser' => ['def' => 0, 'type'=> 'integer'],         // id de l'utilisateur
     ] ;
   }
 

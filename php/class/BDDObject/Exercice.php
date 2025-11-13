@@ -11,7 +11,7 @@ final class Exercice extends Item
     protected static function champs()
     {
         return [
-            'idOwner' => ['def' => 0, 'type'=> 'int'],       // id du propriétaire de l'exercice
+            'idOwner' => ['def' => 0, 'type'=> 'integer'],       // id du propriétaire de l'exercice
             'nomOwner' => ['def' => "", 'type'=> 'string', 'foreign' => 'users.nom'], // nom du propriétaire de l'exercice
             'title' => ['def' => "", 'type'=> 'string'],        // nom de l'exercice
             'keywords' => ['def' => "", 'type'=> 'string'],   // mots-clés de l'exercice

@@ -11,8 +11,8 @@ final class Devoir extends Item
   {
     return [
       'nom' => ['def' => "", 'type'=> 'string'],         // nom du devoir
-      'idOwner' => ['def' => 0, 'type'=> 'int'],         // id du propriétaire du devoir
-      'idClasse' => ['def' => 0, 'type'=> 'int'],        // id de la classe associée
+      'idOwner' => ['def' => 0, 'type'=> 'integer'],         // id du propriétaire du devoir
+      'idClasse' => ['def' => 0, 'type'=> 'integer'],        // id de la classe associée
       'nomClasse' => ['def' => "", 'type'=> 'string', 'foreign'=>'classes.nom'], // nom de la classe associée
       'nomOwner' => ['def' => "", 'type'=> 'string', 'foreign'=>'users.nom'], // nom du propriétaire du devoir
       'description' => ['def' => "", 'type'=> 'string'], // descriptif du devoir

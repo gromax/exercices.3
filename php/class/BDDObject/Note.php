@@ -20,20 +20,20 @@ final class Note extends Item
   {
     return [
       'id' => ['def' => 0, 'type'=> 'string', 'alias'=>"id", "sub"=>"CONCAT(users.id, '_', devoirs.id)"], // identifiant unique du devoir
-      'idUser' => ['def' => 0, 'type'=> 'int', "foreign"=>'users.id'],        // id de l'élève
-      'idDevoir' => ['def' => 0, 'type'=> 'int', "foreign"=>'devoirs.id'],        // id du devoir associé
+      'idUser' => ['def' => 0, 'type'=> 'integer', "foreign"=>'users.id'],        // id de l'élève
+      'idDevoir' => ['def' => 0, 'type'=> 'integer', "foreign"=>'devoirs.id'],        // id du devoir associé
       'nom' => ['def' => "", 'type'=> 'string', "foreign"=>'devoirs.nom'],         // nom du devoir
       'description' => ['def' => "", 'type'=> 'string', "foreign"=>'devoirs.description'], // description du devoir
-      'idOwner' => ['def' => 0, 'type'=> 'int', "foreign"=>'devoirs.idOwner'],         // id du propriétaire du devoir
+      'idOwner' => ['def' => 0, 'type'=> 'integer', "foreign"=>'devoirs.idOwner'],         // id du propriétaire du devoir
       'nomOwner' => ['def' => "", 'type'=> 'string', 'foreign'=>'owners.nom'], // nom du propriétaire du devoir
-      'idClasse' => ['def' => 0, 'type'=> 'int'],        // id de la classe associée
+      'idClasse' => ['def' => 0, 'type'=> 'integer'],        // id de la classe associée
       'nomClasse' => ['def' => "", 'type'=> 'string', 'foreign'=>'classes.nom'], // nom de la classe associée
       'nomUser' => ['def' => "", 'type'=> 'string', 'foreign'=>'users.nom'], // nom de l'élève
       'prenomUser' => ['def' => "", 'type'=> 'string', 'foreign'=>'users.prenom'], // prénom de l'élève
       'dateDebut' => ['def' => date('Y-m-d'), 'type'=> 'date', "foreign"=>'devoirs.dateDebut'], // date de début
       'dateFin' => ['def' => date('Y-m-d', strtotime('+1 month')), 'type'=> 'date', "foreign"=>'devoirs.dateFin'], // date de fin
-      'note' => ['def' => 0, 'type'=> 'int', 'foreign'=>'noteexos.note', 'sub'=>'CEIL(AVG(COALESCE(noteexos.note,0)))'],        // note obtenue pour ce devoir
-      'exosCount' => ['def' => 0, 'type'=> 'int', 'foreign'=>'exodevoirs.id', 'agregation'=>'COUNT'] // nombre d'exercices liés
+      'note' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'noteexos.note', 'sub'=>'CEIL(AVG(COALESCE(noteexos.note,0)))'],        // note obtenue pour ce devoir
+      'exosCount' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'exodevoirs.id', 'agregation'=>'COUNT'] // nombre d'exercices liés
     ] ;
   }
 
