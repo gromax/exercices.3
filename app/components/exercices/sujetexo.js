@@ -28,6 +28,9 @@ const Item = MyModel.extend({
     if (data.published !== undefined) {
       data.published = Boolean(data.published);
     }
+    if (typeof data.idOwner !== "undefined") {
+      data.idOwner = Number(data.idOwner);
+    }
     return data;
   },
 });
