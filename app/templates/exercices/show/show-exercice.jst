@@ -1,9 +1,12 @@
-<h1><%= title %></h1>
-<p><strong>Mots-clés :</strong> <%= keywords %></p>
+<h3><%= title %></h3>
 
-<p><strong>description :</strong> <%= description %></p>
-<p><strong>Professeur :</strong> <%= nomOwner %></p>
+<p><%- description %></p>
+<p class="text-muted"><small><i class="fa-solid fa-user"></i> <em><%- nomOwner %></em></small></p>
 
 <div class="btn-group" role="group">
-<a href="#sujet-exercice:<%- id %>/edit" class="btn btn-success" role="button"><i class="fa fa-pencil" title="Modifier"></i> Modifier</a>
+    <% if (showModButton) { %>
+    <a href="#sujet-exercice:<%- id %>/edit" class="btn btn-success" role="button"><i class="fa fa-pencil" title="Modifier"></i> Modifier</a>
+    <% } %>
 </div>
+
+<div class="js-exercice"></div>
