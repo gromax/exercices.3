@@ -1,4 +1,9 @@
 class Alea {
+    static NAME = 'Alea';
+    static METHODS = {
+        'entier': Alea.entier,
+        'signe': Alea.signe
+    };
     static entier(min, max) {
         const a = Number(min);
         const b = Number(max);

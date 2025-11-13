@@ -1,4 +1,11 @@
 class Table {
+    static NAME = 'Table';
+    static METHODS = {
+        'indice': Table.indice,
+        'indices': Table.indices,
+        'size': Table.size,
+        'sum': Table.sum
+    };
     static indice(val, arr) {
         if (!Array.isArray(arr)) {
             throw new Error(`Le second argument de Table.indice doit être un tableau.`);

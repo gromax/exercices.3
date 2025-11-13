@@ -6,7 +6,11 @@ import Table from './misc/table.js';
 import nerdamer from 'nerdamer';
 import 'nerdamer/all';
 
-const MODULES = [Alea, Calc, Table];
+const MODULES = {
+    'Alea': Alea,
+    'Calc': Calc,
+    'Table': Table
+};
 
 /**
  * parse
@@ -38,21 +42,20 @@ function executePile(pile) {
         const match = top.match(/^(\w+)\.(\w+)$/);
         const moduleName = match[1];
         const functionName = match[2];
-        console.log(`Executing ${moduleName}.${functionName}`);
-        const m = MODULES.find(mod => mod.name == moduleName);
-        console.log(m);
+        const m = MODULES[moduleName];
         if (!m) {
             throw new Error(`Module ${moduleName} non trouvé`);
         }
-        if (!m.hasOwnProperty(functionName)) {
+        if (!m.METHODS[functionName]) {
             throw new Error(`Fonction ${functionName} non trouvée dans le module ${moduleName}`);
         }
-        const n = m[functionName].length;
+        const f = m.METHODS[functionName];
+        const n = f.length;
         if (operandes.length < n) {
             throw new Error(`Pas assez d'opérandes pour l'opération ${top}`);
         }
         const args = operandes.splice(operandes.length - n, n);
-        const result = m[functionName](...args);
+        const result = f(...args);
         if (result !== undefined) {
             operandes.push(result);
         }

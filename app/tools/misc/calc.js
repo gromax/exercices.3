@@ -1,4 +1,13 @@
 class Calc {
+    static NAME = 'Calc';
+    static METHODS = {
+        'mult': Calc.mult,
+        'divide': Calc.divide,
+        'add': Calc.add,
+        'sub': Calc.sub,
+        'abs': Calc.abs,
+        'sign': Calc.sign
+    };
     static SHORTCUTS = {
         'abs': 'Calc.abs',
         '*': 'Calc.mult',
