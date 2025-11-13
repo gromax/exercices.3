@@ -4,7 +4,6 @@ import edit_user_tpl from '@templates/users/edit/user-form.jst'
 import edit_pwd_user_tpl from '@templates/users/edit/userpwd-form.jst'
 
 const EditUserView = View.extend ({
-  showPref: true,
   showPWD: false,
   ranks: false,
   editorIsAdmin: false,
@@ -17,7 +16,6 @@ const EditUserView = View.extend ({
     return {
       title: this.getOption("title"),
       showPWD: this.getOption("showPWD"),
-      showPref: this.getOption("showPref"),
       ranks: this.getOption("ranks"),
       editorIsAdmin: this.getOption("editorIsAdmin")
     };

@@ -51,14 +51,5 @@
     </div>
         <%}%>
     <%}%>
-
-    <% if (showPref) {%>
-    <h4>Préférences</h4>
-    <div class="form-check">
-        <input type="checkbox" class="form-check-input" name="pref[mathquill]" id="mathquillCheck" <% if (!pref || pref.mathquill) { %>Checked<% } %> >
-        <label class="form-check-label" for="mathquillCheck">Champs de saisie intuitifs</label>
-    </div>
-    <%}%>
-
     <button class="btn btn-success js-submit">Enregistrer</button>
 </form>

@@ -18,7 +18,6 @@ try
   `rank` TINYINT NOT NULL DEFAULT '0' COMMENT 'rang',
   `idClasse` int DEFAULT NULL COMMENT 'identifiant de la classe, null si pas élève',
   `date` datetime NOT NULL COMMENT 'date de la dernière connexion',
-  `pref` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'préférences',
   `hash` char(60) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL COMMENT 'hash du mot de passe',
   PRIMARY KEY (`id`),
   KEY `FK_users_classes` (`idClasse`)
@@ -188,7 +187,7 @@ try
     else
     {
         echo "Création de l'utilisateur root...<br>";
-        $stmt=$pdo->prepare("INSERT INTO `".PREFIX_BDD."users` (nom,prenom,email,rank,hash,date,pref) VALUES ('root','',:email,3,:hash,NOW(),'{}')");
+        $stmt=$pdo->prepare("INSERT INTO `".PREFIX_BDD."users` (nom,prenom,email,rank,hash,date) VALUES ('root','',:email,3,:hash,NOW())");
         $stmt->bindValue('email', ROOT_LOGIN, PDO::PARAM_STR);
         $stmt->bindValue('hash', $hashRoot, PDO::PARAM_STR);
         $stmt->execute();

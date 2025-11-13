@@ -8,7 +8,6 @@ import change_classe_tpl from '@templates/users/edit/eleve-classe-change.jst'
 const NewUserView = View.extend ({
   title: "Nouvel Utilisateur",
   showPWD: true,
-  showPref: true,
   ranks: false,
   editorIsAdmin: true,
   template: edit_user_tpl,
@@ -16,7 +15,6 @@ const NewUserView = View.extend ({
   templateContext() {
     return {
       showPWD: this.getOption("showPWD"),
-      showPref: this.getOption("showPref"),
       ranks: this.getOption("ranks"),
       editorIsAdmin: this.getOption("editorIsAdmin"),
       title: this.getOption("title")

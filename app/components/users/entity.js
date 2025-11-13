@@ -8,8 +8,7 @@ const Item = MyModel.extend ({
     nom: "",
     email: "",
     nomClasse: "",
-    rank: Ranks.DISCONNECTED,
-    pref: { mathquill: true }
+    rank: Ranks.DISCONNECTED
   },
   
   toString() {
@@ -18,11 +17,7 @@ const Item = MyModel.extend ({
   },
 
   toJSON() {
-    const output = _.clone(_.omit(this.attributes, "pref", "rankName"));
-    if (this.attributes.pref !== false) {
-      output.pref = JSON.stringify(this.attributes.pref);
-    }
-    return output;
+    return _.pick(this.attributes, "nom", "prenom", "email", "rank", "idClasse", "pwd");
   },
 
   isRoot() {
@@ -58,11 +53,6 @@ const Item = MyModel.extend ({
     }
     data.nomComplet = `${data.nom} ${data.prenom}`;
     data.isEleve = (data.rank === "eleve");
-    if (typeof data.pref === "string" && data.pref !== "") {
-      data.pref = JSON.parse(data.pref);
-    } else {
-      data.pref = { mathquill: true };
-    }
     if (typeof data.rank != "undefined" ){
       data.rank = Number(data.rank);
       data.rankName = Ranks.getLabel(data.rank);
