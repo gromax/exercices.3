@@ -42,6 +42,9 @@ const OptionsView = View.extend({
 
 const ParamsView = View.extend({
   template: params_tpl,
+  triggers: {
+    'click .js-recycle': 'recycle'
+  },
   templateContext() {
     return {
       params: this.getOption("params")

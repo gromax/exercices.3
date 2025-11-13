@@ -137,6 +137,10 @@ const Controller = MnObject.extend ({
           params: trial.get("init")
         });
         layoutView.showChildView('initParams', paramsView);
+        paramsView.on("recycle", () => {
+          const ntrial = this.newTrial(sujet, trial.get("options"), null, null);
+          this.showTrial(sujet, ntrial, layoutView);
+        });
       }
       layoutView.getRegion('run').empty();
       const mainPile = MainBloc.runCode(
