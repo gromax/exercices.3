@@ -41,6 +41,33 @@ class Misc {
     }
     return nowToFin;
   }
+
+  /**
+   * Convertit une date YYYY-MM-DD en format français : "Lun 12 Mars 2025"
+   * @param {string} dateStr Date au format 'yyyy-mm-dd'
+   * @returns {string} Date formatée en français
+   */
+  static formatDateFrench(dateStr) {
+    if (!dateStr) return '';
+    
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const date = new Date(y, m - 1, d); // mois 0-indexé
+    
+    // Noms des jours et mois en français
+    const jours = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+    const mois = [
+      'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin',
+      'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'
+    ];
+    
+    const jour = jours[date.getDay()];
+    const numeroJour = date.getDate();
+    const nomMois = mois[date.getMonth()];
+    const annee = date.getFullYear();
+    
+    return `${jour} ${numeroJour} ${nomMois} ${annee}`;
+  }
+
 }
 
 export default Misc;
