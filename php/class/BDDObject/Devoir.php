@@ -32,6 +32,18 @@ final class Devoir extends Item
   }
 
   ##################################### METHODES #####################################
+  public function clone()
+  {
+    $newDevoir = new Devoir([
+      "nom" => $this->get("nom"),
+      "idOwner" => $this->get("idOwner"),
+      "idClasse" => $this->get("idClasse"),
+      "description" => $this->get("description"),
+      "dateDebut" => $this->get("dateDebut"),
+      "dateFin" => $this->get("dateFin")
+    ]);
+    return $newDevoir;
+  }
 }
 
 ?>
