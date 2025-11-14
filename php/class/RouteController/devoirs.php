@@ -3,6 +3,7 @@
 namespace RouteController;
 use ErrorController as EC;
 use BDDObject\Devoir;
+use BDDObject\ExoDevoir;
 use BDDObject\Logged;
 
 class devoirs
@@ -108,6 +109,62 @@ class devoirs
         }
         EC::set_error_code(501);
         return false;
+    }
+
+    public function clone()
+    {
+        $uLog=Logged::getFromToken();
+        if ($uLog->isOff())
+        {
+            EC::addError("Utilisateur non connecté.");
+            EC::set_error_code(401);
+            return false;
+        }
+        if ($uLog->isEleve()) {
+            // Interdit pour élève
+            EC::addError("Interdit aux élèves.");
+            EC::set_error_code(403);
+            return false;
+        }
+        $id = (integer) $this->params['id'];
+        $devoir=Devoir::getObject($id);
+        if ($devoir === null)
+        {
+            EC::set_error_code(404);
+            return false;
+        }
+        if (!$uLog->isAdmin() && $devoir->get("idOwner") !== $uLog->getId())
+        {
+            // pas propriétaire ni admin
+            EC::addError("Tentative de clonage d'un devoir sans autorisation.");
+            EC::set_error_code(403);
+            return false;
+        }
+        $newDevoir = $devoir->clone();
+        $responseDevoir = $newDevoir->insert();
+        if ($responseDevoir ===null)
+        {
+            EC::set_error_code(501);
+            return false;
+        }
+        $exoDevoirs = ExoDevoir::getList([
+            'wheres' => ['idDevoir' => $devoir->getId()]
+        ]);
+        foreach ($exoDevoirs as $exoDevoir) {
+            $oExoDevoir = new ExoDevoir($exoDevoir);
+            $newExoDevoir = new ExoDevoir([
+                'idDevoir' => $newDevoir->getId(),
+                'idExo' => $oExoDevoir->get('idExo'),
+                'options' => $oExoDevoir->get('options'),
+                'num' => $oExoDevoir->get('num')
+            ]);
+            $responseExoDevoir = $newExoDevoir->insert();
+            if ($responseExoDevoir === null) {
+                EC::set_error_code(501);
+                return false;
+            }
+        }
+        return $newDevoir->toArray();
     }
 
     public function insert()
