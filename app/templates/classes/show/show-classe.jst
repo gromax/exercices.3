@@ -1,4 +1,7 @@
-<h1><%- nom %></h1>
+<h3><%- nom %></h3>
+
+<%if (dead) { %><h4><span class="text-danger">Classe expirée <i class="fa-solid fa-skull"></i></span></h4><% } %>
+
 
 <p><strong>description :</strong> <%- description %></p>
 <p><strong>Professeur :</strong> <%- nomOwner %></p>
@@ -7,8 +10,8 @@
 <% } else { %>
 <p><strong>Fermée</strong></p>
 <% } %>
-<p><strong>Date de création :</strong> <%- date %></p>
-<p><strong>Date d'expiration :</strong> <%- expiration %></p>
+<p><strong>Date de création :</strong> <%- dateFr %></p>
+<p><strong>Date d'expiration :</strong> <%- expirationFr %></p>
 <p><strong>Mot de passe :</strong> <%- pwd %></p>
 
 <div class="btn-group" role="group">
