@@ -1,4 +1,5 @@
 import { MyModel, MyCollection } from "../common/entity";
+import Misc from "../common/misc.js";
 
 const d = new Date();
 const today = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -26,6 +27,9 @@ const Item = MyModel.extend ({
       data.ouverte = (Number(data.ouverte) === 1);
     }
     data.idOwner = Number(data.idOwner);
+    data.dateFr = Misc.formatDateFrench(data.date);
+    data.expirationFr = Misc.formatDateFrench(data.expiration);
+    data.dead = (Misc.computeTimeFromNowToDate(data.expiration, true) <= 0);
     return data;
   },
 
