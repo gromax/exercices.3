@@ -58,6 +58,7 @@ const Controller = MnObject.extend ({
 
   classeSignin(classe) {
     const channel = this.getChannel();
+    const logged = channel.request("logged:get");
     if (!classe) {
       channel.trigger("popup:error", { title: "Erreur", message: "Données manquantes pour rejoindre la classe." });
       return;
