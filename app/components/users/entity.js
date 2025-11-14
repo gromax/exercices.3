@@ -17,7 +17,7 @@ const Item = MyModel.extend ({
   },
 
   toJSON() {
-    return _.pick(this.attributes, "nom", "prenom", "email", "rank", "idClasse", "pwd");
+    return _.pick(this.attributes, "nom", "prenom", "email", "rank", "idClasse", "pwd", "classeMdp");
   },
 
   isRoot() {
