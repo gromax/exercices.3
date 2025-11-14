@@ -73,7 +73,10 @@ class classes
   {
     // Renvoie la liste des classes ouvertes à l'inscription
     return Classe::getList([
-        "wheres" => ['ouverte' => true],
+        "wheres" => [
+          'ouverte' => true,
+          'expiration' => ['>=', date('Y-m-d') ]
+        ],
         "hideCols" => ['pwd']
     ]);
   }
