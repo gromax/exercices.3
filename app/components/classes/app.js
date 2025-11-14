@@ -125,8 +125,7 @@ const Controller = MnObject.extend ({
     }
     const fetchingClasses = channel.request("classes:tojoin:fetch");
     channel.trigger("loading:up");
-    $.when(fetchingClasses).done( (data) => {
-      const { classes } = data;
+    $.when(fetchingClasses).done( (classes) => {
       channel.trigger("ariane:push", { text: "Classes ouvertes", link: "classes/signin" });
       require("./signin/controller.js").controller.showSigninClasses(classes, channel.request("region:main"));
     }).fail( (response) => {
