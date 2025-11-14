@@ -1,12 +1,12 @@
-<h3><%= title %></h3>
+<h3>
+    <%if (showId) { %><span class="badge rounded-pill bg-primary"><%= id %></span> <% } %>
+    <%= title %>
+    <% if (showModButton) { %>
+    <a href="#sujet-exercice:<%- id %>/edit" class="btn btn-success btn-sm" role="button"><i class="fa fa-pencil" title="Modifier"></i> Modifier</a>
+    <% } %>
+</h3>
 
 <p><%- description %></p>
 <p class="text-muted"><small><i class="fa-solid fa-user"></i> <em><%- nomOwner %></em></small></p>
-
-<div class="btn-group" role="group">
-    <% if (showModButton) { %>
-    <a href="#sujet-exercice:<%- id %>/edit" class="btn btn-success" role="button"><i class="fa fa-pencil" title="Modifier"></i> Modifier</a>
-    <% } %>
-</div>
 
 <div class="js-exercice"></div>
