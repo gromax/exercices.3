@@ -1,4 +1,4 @@
-import { MnObject, Region } from 'backbone.marionette'
+import { MnObject } from 'backbone.marionette'
 import { EditExerciceView } from './views.js'
 import { TwoColsView } from '../../common/views.js';
 import { Item as SujetExercice } from '../sujetexo.js';
@@ -6,8 +6,8 @@ import { Item as SujetExercice } from '../sujetexo.js';
 const Controller = MnObject.extend ({
   channelName: "app",
   edit(sujetExercice) {
+    const isNew = { "value":sujetExercice.get('id') == null };
     const channel = this.getChannel();
-
     if (!sujetExercice) {
       channel.trigger("popup:error", "Exercice introuvable.");
       return;
@@ -20,6 +20,10 @@ const Controller = MnObject.extend ({
     });
 
     view.on("success", function (model, data) {
+      if (isNew.value) {
+        channel.trigger("data:collection:additem", "sujetsexercices", model);
+        isNew.value = false;
+      }
       //channel.trigger("exercice:show", id);
     });
 
