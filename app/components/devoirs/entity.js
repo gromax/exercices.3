@@ -11,8 +11,8 @@ const Item = MyModel.extend ({
     nomClasse: "",
     nom: "",
     description: "",
-    dateDebut: "2000-01-01",
-    dateFin: "2000-02-01",
+    dateDebut: new Date().toISOString().split('T')[0],
+    dateFin: new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split('T')[0],
     timeleft:null,
     actif: true,
   },
@@ -28,11 +28,26 @@ const Item = MyModel.extend ({
 
   parse(data) {
     if (data.id) data.id = Number(data.id);
+    const timeToEnd = Misc.computeTimeFromNowToDate(data.dateFin, true);
+    const timeToBegin = Misc.computeTimeFromNowToDate(data.dateDebut, false);
+    data.notStarted = (timeToBegin > 0);
+    data.notEnded = (timeToEnd > 0);
     data.timeleft = Misc.computeTimeLeft(data.dateDebut, data.dateFin);
     data.actif = (data.timeleft !== null);
     data.idOwner = Number(data.idOwner);
     data.idClasse = Number(data.idClasse);
+    data.dateDebutFr = Misc.formatDateFrench(data.dateDebut);
+    data.dateFinFr = Misc.formatDateFrench(data.dateFin);
     return data;
+  },
+
+  clone() {
+    const token = localStorage.getItem('jwt');
+    return $.ajax(`api/devoirs/clone/${this.get("id")}`, {
+      method:'POST',
+      dataType:'json',
+      headers: token ? { Authorization: 'Bearer ' + token } : {}
+    });
   },
 
   validate(attrs, options) {
