@@ -1,7 +1,7 @@
 <%if (typeof id === "undefined") { %>
 <h3>Nouvel exercice</h3>
 <% } else { %>
-<h3>Exercice <i class="fa-solid fa-hashtag"></i> <%- id %></h3>
+<h3><span class="badge rounded-pill bg-primary"><%= id %></span> <%- title %></h3>
 <% } %>
 <% if (nomOwner !== undefined) { %>
 <p class="text-muted">Propriétaire <%- nomOwner %></p>
