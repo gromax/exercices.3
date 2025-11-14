@@ -14,6 +14,9 @@ const NoItemView = View.extend({
 
 const ItemView = View.extend({
   tagName: "tr",
+  className() {
+    return this.model.get('dead') ? "table-danger" : "";
+  },
   template: item_view_tpl,
   behaviors: [
     DestroyWarn,
