@@ -77,8 +77,8 @@ const Controller = MnObject.extend({
       channel.trigger("popup:error", "Devoir indéfini.");
       return;
     }
-    
-    this.showLayoutView(devoir, assosExos, channel.request("region:main"));
+    const region = channel.request("region:main");
+    this.showLayoutView(devoir, assosExos, region);
   },
 
   showAddExo(devoir, assosExos, sujetsexercices) {
@@ -142,7 +142,7 @@ const Controller = MnObject.extend({
       exoDevoir,
       twocolsLayout.getRegion('right')
     );
-    assosExosView.on("item:destroy", (childView) => {
+    assosExosView.on("item:delete:success", (childView) => {
       const model = childView.model;
       if (model.get("id") === exoDevoir.id) {
         channel.trigger("devoir:dashboard", devoir.id);
