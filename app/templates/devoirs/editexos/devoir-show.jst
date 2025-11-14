@@ -1,7 +1,15 @@
 <h1><%- nom %></h1>
 
+<%if (notStarted) { %>
+    <h4><span class="text-warning">Devoir pas encore commencé.</span></h4>
+<% } else if (notEnded) { %>
+    <h4><span class="text-success">Devoir en cours.</span></h4>
+<% } else { %>
+    <h4><span class="text-danger">Devoir terminé.</span></h4>
+<% } %>
+
 <p><strong>description :</strong> <%- description %></p>
 
-<p><strong>Début :</strong> <%- dateDebut %></p>
-<p><strong>Fin :</strong> <%- dateFin %></p>
+<p><strong>Début :</strong> <%- dateDebutFr %></p>
+<p><strong>Fin :</strong> <%- dateFinFr %></p>
 <p><strong>Classe :</strong> <%- nomClasse %></p>
