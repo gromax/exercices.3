@@ -40,13 +40,22 @@ const NoDevoirView = View.extend({
 const DevoirItemView = View.extend({
   adminMode: false,
   tagName: "tr",
+  className() {
+    return this.model.get('notStarted')
+      ? "table-warning"
+      : (this.model.get('notEnded') ? "" : "table-danger");
+  },
   template: devoir_item_tpl,
   errorCode: "021",
   behaviors: [
     DestroyWarn,
     FlashItem
   ],
-  
+
+  triggers: {
+    "click .js-clone": "clone"
+  },
+
   templateContext() {
     return {
       showNomOwner: this.getOption("showNomOwner")
