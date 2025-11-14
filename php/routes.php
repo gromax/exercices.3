@@ -32,6 +32,7 @@ $router->addRule('api/classes/:id/test', 'classes', 'testMDP', 'GET');
 //$router->addRule('api/devoirs/:id', 'devoirs', 'fetch', 'GET');
 //$router->addRule('api/devoirs', 'devoirs', 'fetch', 'GET');
 $router->addRule('api/devoirs/:id', 'devoirs', 'delete', 'DELETE');
+$router->addRule('api/devoirs/clone/:id', 'devoirs', 'clone', 'POST');
 $router->addRule('api/devoirs/:id', 'devoirs', 'update', 'PUT');
 $router->addRule('api/devoirs', 'devoirs', 'insert', 'POST');
 
