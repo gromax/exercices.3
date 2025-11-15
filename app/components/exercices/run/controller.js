@@ -1,5 +1,11 @@
 import { MnObject, Region } from 'backbone.marionette'
-import { OptionsView, ParamsView, Finished_View, LayoutView } from './views.js'
+import {
+  OptionsView,
+  ParamsView,
+  Finished_View,
+  LayoutView,
+  PanelEleveView
+} from './views.js'
 import { Item as ExerciceTry } from '../trial.js'
 import MainBloc from '../tools/mainbloc.js';
 
@@ -71,27 +77,41 @@ const Controller = MnObject.extend ({
     }
   },
 
-  runExoDevoirForEleve(exoDevoir, sujet, devoir, user, trial, region) {
+  runExoDevoirForEleve(noteexo, sujet, note, user, trial, region) {
     const channel = this.getChannel();
-    if (!exoDevoir||!devoir||!sujet||!user) {
+    const logged = channel.request("logged:get");
+    if (!noteexo||!note||!sujet||!user) {
       channel.trigger("popup:error", "Données de l'exercice ou du devoir incorrectes.");
       return;
     }
     try {
       const {options, defaultsOptions} = MainBloc.parseOptions(sujet.get("options"));
-      const optionsSelected = { ...defaultsOptions, ...exoDevoir.get("options") };
+      const optionsSelected = { ...defaultsOptions, ...noteexo.get("options") };
       if (trial) {
         trial.set("options", optionsSelected);
-        trial.set("idDevoir", devoir.id);
+        trial.set("idDevoir", note.get("idDevoir"));
       } else {
-        trial = this.newTrial(sujet, optionsSelected, exoDevoir.id, exoDevoir.idDevoir);
+        trial = this.newTrial(sujet, optionsSelected, noteexo.get("idExoDevoir"), noteexo.get("idDevoir"));
         trial.save();
         channel.trigger("data:update:trials:count", trial);
       }
       trial.setNeedSave();
-
       const layoutView = new LayoutView();
       region.show(layoutView);
+      if (logged.isEleve()) {
+        const panelView = new PanelEleveView({
+          model: noteexo,
+          total: note.get("exosCount"),
+          num: note.get("num")
+        });
+        panelView.on("prev", () => {
+          channel.trigger("exodevoir:run:bynumber", note.get("idDevoir"), noteexo.get("num")-1);
+        });
+        panelView.on("next", () => {
+          channel.trigger("exodevoir:run:bynumber", note.get("idDevoir"), noteexo.get("num")+1);
+        });
+        layoutView.showChildView('panel', panelView);
+      }
       this.showTrial(sujet, trial, layoutView);
     } catch (error) {
       console.error(error);
