@@ -7,17 +7,6 @@ import item_admin_view_tpl from '@templates/users/list/user-list-admin-item.jst'
 import item_prof_view_tpl from '@templates/users/list/user-list-prof-item.jst';
 import users_admin_view_tpl from '@templates/users/list/user-list-admin.jst';
 import users_prof_view_tpl from '@templates/users/list/user-list-prof.jst';
-import user_list_layout_tpl from '@templates/users/list/user-list-layout.jst';
-import { template } from 'underscore';
-
-const ListLayout = View.extend ({
-  template: user_list_layout_tpl,
-  regions: {
-    panelRegion: "#panel-region",
-    itemsRegion: "#items-region"
-  }
-});
-
 
 const UsersPanel = View.extend ({
   template: users_panel_tpl,
@@ -96,4 +85,4 @@ const UsersCollectionView = CollectionView.extend ({
   }
 });
 
-export { UsersPanel, UsersCollectionView, ListLayout }
+export { UsersPanel, UsersCollectionView }

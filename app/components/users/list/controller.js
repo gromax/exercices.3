@@ -1,5 +1,6 @@
 import { MnObject, Region } from 'backbone.marionette';
-import { UsersPanel, UsersCollectionView, ListLayout } from './views.js';
+import { UsersPanel, UsersCollectionView } from './views.js';
+import { LayoutView } from '../../common/views.js';
 
 const Controller = MnObject.extend ({
   channelName: 'app',
@@ -7,7 +8,7 @@ const Controller = MnObject.extend ({
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
     const that = this;
-    const usersListLayout = new ListLayout();
+    const usersListLayout = new LayoutView( { panelRight: true } );
     const usersListPanel = new UsersPanel({
       filterCriterion: "",
       showAddButton: logged.isAdmin()
@@ -24,7 +25,7 @@ const Controller = MnObject.extend ({
 
     usersListLayout.on("render", () => {
       usersListLayout.getRegion('panelRegion').show(usersListPanel);
-      usersListLayout.getRegion('itemsRegion').show(usersListView);
+      usersListLayout.getRegion('contentRegion').show(usersListView);
     });
 
     /*usersListPanel.on("user:new", () => {

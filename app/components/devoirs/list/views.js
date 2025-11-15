@@ -6,15 +6,8 @@ import panel_tpl from '@templates/devoirs/list/devoirs-list-panel.jst'
 import no_devoir_tpl from '@templates/devoirs/list/devoir-list-none.jst'
 import devoir_item_tpl from '@templates/devoirs/list/devoir-list-item.jst'
 import devoirs_list_tpl from '@templates/devoirs/list/devoir-list.jst'
-import devoirs_list_layout_tpl from '@templates/devoirs/list/devoirs-list-layout.jst'
 
-const ListLayout = View.extend ({
-  template: devoirs_list_layout_tpl,
-  regions: {
-    panelRegion: "#panel-region",
-    itemsRegion: "#items-region"
-  }
-});
+
 
 
 const DevoirsPanel = View.extend({
@@ -46,7 +39,6 @@ const DevoirItemView = View.extend({
       : (this.model.get('notEnded') ? "" : "table-danger");
   },
   template: devoir_item_tpl,
-  errorCode: "021",
   behaviors: [
     DestroyWarn,
     FlashItem
@@ -86,4 +78,8 @@ const DevoirsCollectionView = CollectionView.extend({
   }
 });
 
-export { DevoirsPanel, DevoirsCollectionView, ListLayout }
+
+export {
+  DevoirsPanel,
+  DevoirsCollectionView
+};

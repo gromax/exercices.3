@@ -4,15 +4,6 @@ import { FilterList, FilterPanel } from '../../behaviors.js'
 import panel_tpl from 'templates/exercices/list/exercice-list-panel.jst'
 import no_exercice_view_tpl from 'templates/exercices/list/exercice-list-none.jst'
 import exercice_item_view_tpl from 'templates/exercices/list/exercice-list-item.jst'
-import exercices_list_layout_tpl from '@templates/exercices/list/exercices-list-layout.jst';
-
-const ListLayout = View.extend ({
-  template: exercices_list_layout_tpl,
-  regions: {
-    panelRegion: "#panel-region",
-    itemsRegion: "#items-region"
-  }
-});
 
 const ExercicesPanel = View.extend({
   template: panel_tpl,
@@ -57,4 +48,4 @@ const ExercicesCollectionView = CollectionView.extend({
   filterKeys: ["title", "description", "keywords"]
 });
 
-export { ListLayout, ExercicesPanel, ExercicesCollectionView }
+export { ExercicesPanel, ExercicesCollectionView }

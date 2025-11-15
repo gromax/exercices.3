@@ -1,5 +1,6 @@
 import { MnObject, Region } from 'backbone.marionette'
-import { NotesExosCollectionView, PanelView, LayoutView } from './views.js';
+import { NotesExosCollectionView, PanelView } from './views.js';
+import { LayoutView } from '../../common/views.js';
 
 const Controller = MnObject.extend({
   channelName: 'app',
@@ -29,7 +30,7 @@ const Controller = MnObject.extend({
         );
       });
     }
-    layoutView.getRegion('itemsRegion').show(notesView);
+    layoutView.getRegion('contentRegion').show(notesView);
   }
 });
 

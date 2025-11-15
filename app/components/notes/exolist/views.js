@@ -2,7 +2,6 @@ import { View, CollectionView } from 'backbone.marionette'
 import item_tpl from '@templates/notes/exolist/item.jst'
 import noitem_tpl from '@templates/notes/exolist/noitem.jst'
 import panel_tpl from '@templates/notes/exolist/panel.jst'
-import layout_tpl from '@templates/notes/exolist/layout.jst'
 
 const PanelView = View.extend({
     template: panel_tpl,
@@ -35,12 +34,4 @@ const NotesExosCollectionView = CollectionView.extend({
     childViewEventPrefix: "item",
 });
 
-const LayoutView = View.extend({
-    template: layout_tpl,
-    regions: {
-        panelRegion: ".js-panel",
-        itemsRegion: ".js-items",
-    },
-});
-
-export { PanelView, NotesExosCollectionView, LayoutView }
+export { PanelView, NotesExosCollectionView }
