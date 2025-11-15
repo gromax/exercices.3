@@ -76,20 +76,16 @@ const Controller = MnObject.extend({
       return;
     }
     channel.trigger("loading:up");
-    const fetching = channel.request("custom:entities", ["notesexos", "notes", `users:${idUser}`]);
+    const fetching = channel.request("custom:entities", ["notesexos", `notes:${idUser}_${idDevoir}`, `users:${idUser}`]);
     $.when(fetching).done( (data) => {
       // récupérer le bon devoir
-      idDevoir = Number(idDevoir);
-      idUser = Number(idUser);
-      const {notesexos, notes} = data;
-      const note = notes.find(d =>  d.get('idDevoir') === idDevoir);
-      const user = data[`users:${idUser}`];
+      const {notesexos, [`notes:${idUser}_${idDevoir}`]: note, [`users:${idUser}`]: user} = data;
       if (!note || !user) {
         channel.trigger("not:found");
         return;
       }
       // si un user peut charger le devoir, c'est qu'il a le droit de le voir
-      const notesExosDuDevoirUser = notesexos.filter(a => a.get('idDevoir') === idDevoir && a.get('idUser') === idUser);
+      const notesExosDuDevoirUser = notesexos.filter(a => a.get('idDevoir') === Number(idDevoir) && a.get('idUser') === Number(idUser));
       const collecNotesExo = new notesexos.constructor(notesExosDuDevoirUser);
       if (user.get('id') !== logged.get('id')) {
         // prof / admin qui regarde les notes d'un élève
