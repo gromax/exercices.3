@@ -1,5 +1,5 @@
-import { MnObject, Region } from 'backbone.marionette'
-import { NotesCollectionView } from './views.js';
+import { MnObject } from 'backbone.marionette'
+import { NotesCollectionView, NotesCollectionViewForEleve } from './views.js';
 
 const Controller = MnObject.extend({
   channelName: 'app',
@@ -28,13 +28,8 @@ const Controller = MnObject.extend({
     const channel = this.getChannel();
     const logged = channel.request("logged:get");
     
-    const notesView = new NotesCollectionView({
-      ncols: 4,
+    const notesView = new NotesCollectionViewForEleve({
       collection: collecNotes,
-      showUser: false,
-      showDevoir: true,
-      showNomOwner: false,
-      showTimeLeft: true
     });
     notesView.on("item:show", (childView) => {
       const model = childView.model;
