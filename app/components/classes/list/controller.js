@@ -9,7 +9,6 @@ const Controller = MnObject.extend({
     // classes peuvent être filtrées si on est dans le contexte d'un prof
     // mais dans ce cas, pas de add possible
     const channel = this.getChannel();
-
     const logged = channel.request("logged:get");
     const listItemsLayout = new LayoutView( { panelRight: true } )
     const listItemsPanel = new ClassesPanel({
@@ -25,13 +24,18 @@ const Controller = MnObject.extend({
     });
 
     listItemsLayout.on("render", () => {
-      listItemsLayout.getRegion('panelRegion').show(listItemsPanel);
-      listItemsLayout.getRegion('contentRegion').show(listItemsView);
+      listItemsLayout.showChildView('panelRegion', listItemsPanel);
+      listItemsLayout.showChildView('contentRegion', listItemsView);
     });
 
     listItemsView.on("item:show", (childView) => {
       const model = childView.model;
       channel.trigger("classe:show", model.get("id"));
+    });
+
+    listItemsView.on("item:users", (childView) => {
+      const model = childView.model;
+      channel.trigger("users:classe:show", model.get("id"));
     });
 
     if (!prof && logged.isAdmin()) {
@@ -43,7 +47,6 @@ const Controller = MnObject.extend({
     listItemsView.on("item:edit", (childView) => {
       channel.trigger("classe:edit", childView.model.get("id"));
     });
-
     region.show(listItemsLayout);
   }
 });
