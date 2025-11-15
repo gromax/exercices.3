@@ -1,18 +1,24 @@
 import { MnObject } from 'backbone.marionette'
-import { NotesCollectionView, NotesCollectionViewForEleve } from './views.js';
+import { NotesCollectionView, NotesCollectionViewForEleve, PanelDevoirView } from './views.js';
+import { LayoutView } from '../../common/views.js';
 
 const Controller = MnObject.extend({
   channelName: 'app',
   showNotesListForDevoir(devoir, collecNotes) {
+    if (!devoir) {
+      console.warn("Controller NotesList: devoir est requis.");
+      return;
+    }
     const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    const layout = new LayoutView();
+    const panelView = new PanelDevoirView({
+      model: devoir,
+      showOwner: logged.isAdmin(),
+    });
 
     const notesView = new NotesCollectionView({
-      ncols: 2,
       collection: collecNotes,
-      showUser: true,
-      showDevoir: false,
-      showNomOwner: false,
-      showTimeLeft: false
     });
     notesView.on("item:show", (childView) => {
       const model = childView.model;
@@ -20,7 +26,12 @@ const Controller = MnObject.extend({
       const idUser = model.get('idUser');
       channel.trigger("notes:devoir:user:show", idDevoir, idUser);
     });
-    channel.request("region:main").show(notesView);
+
+    layout.on("render", () => {
+      layout.showChildView('panelRegion', panelView);
+      layout.showChildView('contentRegion', notesView);
+    });
+    channel.request("region:main").show(layout);
   },
 
   showNotesListForEleve(eleve, collecNotes) {
