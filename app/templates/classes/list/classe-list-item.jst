@@ -1,11 +1,21 @@
 <td><span class="badge rounded-pill bg-primary"><%- id %></span></td>
-<td><%- nom %></td><% if (showProfName) {%>
-<td><%if (linkProf) {%><a href="#classes/prof:<%- idOwner%>" class="js-classe-prof"><%- nomOwner %></a><% } else { %><%- nomOwner %><% } %></td><% } %>
+<td><a href="#users/classe:<%- id %>" class="js-users"><%- nom %></a></td>
+<% if (showProfName) {%>
+  <td>
+    <%if (linkProf) {%>
+      <a href="#classes/prof:<%- idOwner%>" class="js-classe-prof"><%- nomOwner %></a>
+    <% } else { %>
+      <%- nomOwner %>
+    <% } %>
+  </td>
+<% } %>
 <td><% if(ouverte) {%><span class="text-success">Ouverte</span><%} else {%><span class="text-danger">Fermée</span><%}%></td>
 <td><%- dateFr %></td> <!-- à parser -->
 <td><%- expirationFr %></td> <!-- à parser -->
 <td align="right">
   <div class="btn-group" role="group">
+    <!-- Bouton accès aux élèves -->
+     <button type="button" class="btn btn-outline-primary btn-sm js-users"><i class="fa-solid fa-users"></i></button>
     <!-- Bouton suppression -->
     <button type="button" class="btn btn-outline-danger btn-sm js-delete"><i class="fa fa-trash" aria-hidden="true" title="Supprimer"></i></button>
   </div>
