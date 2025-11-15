@@ -146,7 +146,10 @@ class data
                 'wheres' => ['id'=> $uLog->get('id') ]
             ],
             "devoirs" => [
-                'wheres' => ['idClasse'=> $uLog->get('idClasse') ]
+                'wheres' => [
+                    'idClasse'=> $uLog->get('idClasse'),
+                    'dateDebut' => ['<=', date('Y-m-d')]
+                ]
             ],
             "exodevoirs" => [
                 'wheres' => ['devoirs.idClasse' => $uLog->get('idClasse') ],
@@ -157,11 +160,17 @@ class data
                 'hideCols' => ['pwd']
             ],
             "notesexos" => [
-                'wheres' => ['users.id'=> $uLog->get('id') ],
+                'wheres' => [
+                    'users.id'=> $uLog->get('id'),
+                    'devoirs.dateDebut' => ['<=', date('Y-m-d')]
+                ],
                 'orderby' => 'exodevoirs.num ASC'
             ],
             "notes" => [
-                'wheres' => ['users.id'=> $uLog->get('id') ],
+                'wheres' => [
+                    'users.id'=> $uLog->get('id'),
+                    'devoirs.dateDebut' => ['<=', date('Y-m-d')]
+                ],
             ],
             "unfinished" => [
                 'wheres' => ['idUser'=> $uLog->get('id'), "finished"=> false ]
