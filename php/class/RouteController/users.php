@@ -179,7 +179,7 @@ class users
       // Il s'agit d'une inscription
       $idClasse = (integer) $data['idClasse'];
       $classe = Classe::getObject($idClasse);
-      if ($classe === null)
+      if ($classe === null || $classe->get('dateFin') < date('Y-m-d'))
       {
         EC::addError("Classe introuvable.");
         EC::set_error_code(404);
