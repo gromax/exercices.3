@@ -35,8 +35,14 @@ const Item = MyModel.extend ({
     data.note = Number(data.note);
     data.actif = Boolean(data.actif);
     data.exoCount = Number(data.exoCount);
+    const timeToEnd = Misc.computeTimeFromNowToDate(data.dateFin, true);
+    const timeToBegin = Misc.computeTimeFromNowToDate(data.dateDebut, false);
+    data.notStarted = (timeToBegin > 0);
+    data.notEnded = (timeToEnd > 0);
     data.timeLeft = Misc.computeTimeLeft(data.dateDebut, data.dateFin);
     data.actif = (data.timeLeft !== null);
+    data.dateDebutFr = Misc.formatDateFrench(data.dateDebut);
+    data.dateFinFr = Misc.formatDateFrench(data.dateFin);
     return data;
   },
 });
