@@ -1,0 +1,13 @@
+<h3><%- title %></h3>
+<h5>
+  <%if (num>1) { %>
+    <a href="#" role="button" class="btn btn-sm btn-outline-primary js-prev" title="Exercice précédent"><i class="fa-solid fa-chevron-left"></i></a>
+  <% } %>
+  Exercice <%- num %>/<%- total %>
+  <% if (num<total) { %>
+    <a role="button" href="#" class="btn btn-sm btn-outline-primary js-next" title="Exercice suivant"><i class="fa-solid fa-chevron-right"></i></a>
+  <% } %>
+</h5>
+<p class="text-muted"><em>Tentative <%- trials %>. Note actuelle : <%- note %></em></p>
+<p><%- description %></p>
+

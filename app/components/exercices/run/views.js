@@ -13,6 +13,7 @@ import exercice_input_tpl from '@templates/exercices/run/exercice-input.jst'
 import layout_tpl from '@templates/exercices/run/layout.jst'
 import graph_tpl from '@templates/exercices/run/exercice-graph.jst'
 import table_tpl from '@templates/exercices/run/exercice-table.jst'
+import panel_eleve_tpl from '@templates/exercices/run/panel-eleve.jst'
 
 const KEYS = {
   'sqrt': '$\\sqrt{x}$',
@@ -257,9 +258,10 @@ const Finished_View = View.extend({
 const LayoutView = View.extend({
   template: layout_tpl,
   regions: {
-    optionsSet: ".options-set",
-    initParams: ".initparams",
-    run: ".run"
+    panel: ".js-exercice-panel",
+    optionsSet: ".js-options-set",
+    initParams: ".js-initparams",
+    run: ".js-run"
   }
 });
 
@@ -296,9 +298,54 @@ const TableView = View.extend({
       colheaders: this.getOption("colheaders"),
       rows: this.getOption("rows")
     };
-  }
+  },
+
+  onRender() {
+    // debounced version pour éviter les boucles
+    const debouncedCheck = _.debounce(() => this.checkOverflow(), 100);
+    
+    const resizeObserver = new ResizeObserver(() => {
+      // utiliser requestAnimationFrame pour sortir du cycle de resize
+      requestAnimationFrame(() => debouncedCheck());
+    });
+    
+    const tableContainer = this.el.querySelector('.table-responsive');
+    if (tableContainer) {
+      resizeObserver.observe(tableContainer);
+      this.on('before:destroy', () => resizeObserver.disconnect());
+      
+      // vérification initiale
+      this.checkOverflow();
+    }
+  },
+
+  checkOverflow() {
+    const container = this.el.querySelector('.table-responsive');
+    const hint = this.el.querySelector('.overflow-hint');
+    
+    if (container && hint) {
+      const isOverflowing = container.scrollWidth > container.clientWidth;
+      // utiliser classList.toggle pour éviter les modifications inutiles
+      const shouldShow = isOverflowing;
+      if ((hint.style.display !== 'none') !== shouldShow) {
+        hint.style.display = shouldShow ? 'block' : 'none';
+      }
+    }
+  },
 });
 
+const PanelEleveView = View.extend({
+  template: panel_eleve_tpl,
+  triggers: {
+    'click .js-prev': 'prev',
+    'click .js-next': 'next'
+  },
+  templateContext() {
+    return {
+      total: this.getOption("total"),
+    };
+  }
+});
 
 export {
   OptionsView,
@@ -312,5 +359,6 @@ export {
   ResultsView,
   InputView,
   LayoutView,
-  TableView
+  TableView,
+  PanelEleveView
 };
