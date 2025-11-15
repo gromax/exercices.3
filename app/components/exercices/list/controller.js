@@ -1,5 +1,6 @@
-import { MnObject, Region } from 'backbone.marionette'
-import { ListLayout, ExercicesPanel, ExercicesCollectionView } from './views.js'
+import { MnObject } from 'backbone.marionette'
+import { ExercicesPanel, ExercicesCollectionView } from './views.js'
+import { LayoutView } from '../../common/views.js'
 
 import renderMathInElement from "katex/contrib/auto-render";
 
@@ -8,7 +9,7 @@ const Controller = MnObject.extend({
   makeView(exercices, region, options) {
     options = options || {};
     const channel = this.getChannel();
-    const layout = new ListLayout();
+    const layout = new LayoutView( { panelRight: true } );
     const panel = new ExercicesPanel({
       filterCriterion: options.criterion || "",
       showAddButton: options.showAddButton || false
@@ -25,7 +26,7 @@ const Controller = MnObject.extend({
 
     layout.on("render", () => {
       layout.getRegion('panelRegion').show(panel);
-      layout.getRegion('itemsRegion').show(listExercicesView);
+      layout.getRegion('contentRegion').show(listExercicesView);
     });
     region.show(layout);
 
