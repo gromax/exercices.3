@@ -18,8 +18,8 @@ const LayoutView = View.extend ({
     };
   },
   regions: {
-    panelRegion: ".js-panel",
-    contentRegion: ".js-content"
+    panelRegion: ".js-layout-panel",
+    contentRegion: ".js-layout-content"
   }
 });
 
