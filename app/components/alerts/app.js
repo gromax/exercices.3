@@ -1,5 +1,6 @@
 import { MnObject, Region } from 'backbone.marionette';
 import { AlertView, PopupView } from './views.js'
+import Backbone from 'backbone';
 
 const messageRegion = new Region({
   el: '#message-region'
@@ -84,6 +85,7 @@ const Controller = MnObject.extend({
     }
   },
   notFound() {
+    Backbone.history.navigate('notfound', {});
     const channel = this.getChannel();
     const view = new AlertView({
       message: "Page introuvable",
