@@ -1,5 +1,8 @@
-<% if (showUser) { %><td><%- prenomUser %> <%- nomUser %></td><% } %>
-<% if (showDevoir) { %><td><%- nom %></td><% } %>
-<td><%- note %></td>
-<% if (showNomOwner) { %><td><%- nomOwner %></td><% } %>
-<% if (showTimeLeft) { %><td><%- timeLeft %></td><% } %>
+<td><%- prenomUser %> <%- nomUser %></td>
+<td>
+    <%if (note === 0) { %>
+        <strong><span class="text-danger"><%- note %></span></strong>
+    <% } else { %>
+        <strong><%- note %></strong>
+    <% } %>
+</td>

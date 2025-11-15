@@ -1,0 +1,12 @@
+<h3><%- nom %></h3>
+<% if (notStarted) { %>
+    <p class="text-warning"><em>Ce devoir commence le <%- dateDebutFr %>.</em></p>
+<% } else if (notEnded) { %>
+    <p class="text-success"><em>Ce devoir est en cours jusqu'au <%- dateFinFr %>.</em></p>
+<% } else { %>
+    <p class="text-danger"><em>Ce devoir est terminé depuis le <%- dateFinFr %>.</em></p>
+<% } %>
+<p><%- description %></p>
+<% if (showOwner) { %>
+    <p class="text-muted"><i class="fa-regular fa-user"></i> <%- nomOwner %></p>
+<% } %>
