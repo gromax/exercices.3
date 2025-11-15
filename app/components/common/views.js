@@ -10,12 +10,17 @@ const TwoColsView = View.extend({
   }
 });
 
-const ListLayout = View.extend ({
+const LayoutView = View.extend ({
   template: layout_tpl,
+  templateContext() {
+    return {
+      panelRight: this.getOption('panelRight') || false
+    };
+  },
   regions: {
     panelRegion: ".js-panel",
-    itemsRegion: ".js-items"
+    contentRegion: ".js-content"
   }
 });
 
-export { TwoColsView, ListLayout };
+export { TwoColsView, LayoutView };
