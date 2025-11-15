@@ -1,4 +1,17 @@
 <!-- Devoir <%- idDevoir %> -->
-<h1><%- nom %></h1>
-<h2>Notes de <%- nomComplet %><% if(nomClasse) { %> &mdash; <%- nomClasse %><% } %></h2>
+<h3><%- nom %></h3>
+<%if (notStarted) { %>
+    <p class="text-warning"><em>Commence le <%- dateDebutFr %>.</em></p>
+<% } else if (notEnded) { %>
+    <p class="text-success"><em>En cours jusqu'au <%- dateFinFr %> inclus.</em></p>
+<% } else { %>
+    <p class="text-danger"><em>Terminé depuis le <%- dateFinFr %>.</em></p>
+<% } %>
+
 <p><%- description %></p>
+
+<% if (modeEleve) { %>
+    <p>Votre note : <strong><%- note %> %</strong></p>
+<% } else { %>
+    <p>Note de <%- nomComplet %><% if(nomClasse) { %> &mdash; <%- nomClasse %><% } %> : <strong><%- note %> %</strong></p>
+<% } %>

@@ -1,4 +1,4 @@
-import { MnObject, Region } from 'backbone.marionette'
+import { MnObject } from 'backbone.marionette'
 import { NotesExosCollectionView, PanelView } from './views.js';
 import { LayoutView } from '../../common/views.js';
 
@@ -12,6 +12,7 @@ const Controller = MnObject.extend({
     const panelView = new PanelView({
       model: note,
       nomComplet: user.get('nomComplet'),
+      modeEleve: logged.isEleve(),
     });
     layoutView.getRegion('panelRegion').show(panelView);
 
