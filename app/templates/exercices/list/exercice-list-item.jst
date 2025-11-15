@@ -1,6 +1,11 @@
 <h5 class="list-group-item-heading">
-    <span class="badge rounded-pill bg-primary"><%= id %></span>
+    <span class="badge rounded-pill bg-primary"><%- id %></span>
     <% if (!published) {%><i class="fa-solid fa-person-digging"></i><% } %>
-    <%= title %>
+    <%- title %>
 </h5>
-<p class="list-group-item-text"><%= description %></p>
+<p class="list-group-item-text">
+    <% if (showOwner) { %>
+        <span class="badge bg-light text-dark"><small><i class="fa-regular fa-user"></i> <%- nomOwner %></small></span> 
+    <% } %>
+    <%- description %>
+</p>

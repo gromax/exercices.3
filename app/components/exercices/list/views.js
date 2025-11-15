@@ -4,6 +4,7 @@ import { FilterList, FilterPanel } from '../../behaviors.js'
 import panel_tpl from 'templates/exercices/list/exercice-list-panel.jst'
 import no_exercice_view_tpl from 'templates/exercices/list/exercice-list-none.jst'
 import exercice_item_view_tpl from 'templates/exercices/list/exercice-list-item.jst'
+import { template } from 'underscore'
 
 const ExercicesPanel = View.extend({
   template: panel_tpl,
@@ -24,6 +25,7 @@ const NoExerciceView = View.extend({
 
 const ExerciceItemView = View.extend({
   tagName: "a",
+  currentid: -1,
   className() {
     if (!this.model.get('published')) {
       return "list-group-item list-group-item-warning";
@@ -31,6 +33,11 @@ const ExerciceItemView = View.extend({
     return "list-group-item";
   },
   template: exercice_item_view_tpl,
+  templateContext() {
+    return {
+      showOwner: this.getOption("showOwner") && this.model.get("idOwner") != this.options.currentid || false
+    };
+  },
   triggers: {
     "click": "sujet:exercice:show"
   },
@@ -45,7 +52,13 @@ const ExercicesCollectionView = CollectionView.extend({
   childView: ExerciceItemView,
   childViewEventPrefix: "item",
   behaviors: [FilterList],
-  filterKeys: ["title", "description", "keywords"]
+  childViewOptions() {
+    return {
+      showOwner: this.getOption("showOwner") || false,
+      currentid: this.getOption("currentid") || -1
+    };
+  },
+  filterKeys: ["title", "description", "keywords", "nomOwner"]
 });
 
 export { ExercicesPanel, ExercicesCollectionView }

@@ -9,6 +9,7 @@ const Controller = MnObject.extend({
   makeView(exercices, region, options) {
     options = options || {};
     const channel = this.getChannel();
+    const logged = channel.request("logged:get");
     const layout = new LayoutView( { panelRight: true } );
     const panel = new ExercicesPanel({
       filterCriterion: options.criterion || "",
@@ -16,12 +17,13 @@ const Controller = MnObject.extend({
     });
     const listExercicesView = new ExercicesCollectionView({
       collection: exercices,
+      currentid: logged.id,
+      showOwner: !logged.isEleve(),
       filterCriterion: options.criterion || ""
     });
 
     panel.on("items:filter", (filterCriterion) => {
       listExercicesView.trigger("set:filter:criterion", filterCriterion, { preventRender: false });
-      channel.trigger("exercices:filter", filterCriterion);
     });
 
     layout.on("render", () => {
