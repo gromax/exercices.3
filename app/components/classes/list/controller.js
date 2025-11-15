@@ -1,6 +1,6 @@
-import { MnObject, Region } from 'backbone.marionette'
+import { MnObject } from 'backbone.marionette'
 import { ClassesCollectionView, ClassesPanel } from './views.js'
-import { ListLayout } from '../../common/views.js'
+import { LayoutView } from '../../common/views.js'
 
 const Controller = MnObject.extend({
   channelName: 'app',
@@ -11,7 +11,7 @@ const Controller = MnObject.extend({
     const channel = this.getChannel();
 
     const logged = channel.request("logged:get");
-    const listItemsLayout = new ListLayout()
+    const listItemsLayout = new LayoutView( { panelRight: true } )
     const listItemsPanel = new ClassesPanel({
       addToProf: prof ? prof.get("nomComplet") : false,
       showAddButton: prof ? true : logged.isProf()
@@ -26,7 +26,7 @@ const Controller = MnObject.extend({
 
     listItemsLayout.on("render", () => {
       listItemsLayout.getRegion('panelRegion').show(listItemsPanel);
-      listItemsLayout.getRegion('itemsRegion').show(listItemsView);
+      listItemsLayout.getRegion('contentRegion').show(listItemsView);
     });
 
     listItemsView.on("item:show", (childView) => {
