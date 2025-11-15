@@ -10,6 +10,8 @@
 *~
 *.sass-cache
 
+*.coffee
+
 # OS or Editor folders
 .DS_Store
 .cache
@@ -34,3 +36,4 @@ debug/
 curl.md
 data.json
 log_error_php.txt
+bdd.sql
