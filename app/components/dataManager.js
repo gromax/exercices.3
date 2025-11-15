@@ -270,7 +270,7 @@ const Controller = MnObject.extend({
     if (!notes) {
       return;
     }
-    const note = this.notes.get(`${idUser}_${idDevoir}`);
+    const note = notes.get(`${idUser}_${idDevoir}`);
     if (!note) {
       // pas en cache pas de mise à jour possible
       return;
