@@ -16,7 +16,7 @@ const Controller = MnObject.extend ({
     const isAdmin = channel.request("logged:get").isAdmin();
     const OView = pwd === true ? EditPwdUserView : EditUserView;
     const isMe = (logged.id === user.id);
-    const titleMdp = isMe ? "Modification de votre mot de passe" : `Modification du mot de passe de ${user.get('nomComplet')}`;
+    const titleMdp = isMe ? "Modification de votre mot de passe" : "Modification du mot de passe";
     const titleInfo = isMe ? "Modification de vos informations" : `Modification des informations de ${user.get('nomComplet')}`;
     const ranks = user.isEleve() || !logged.isRoot()
       ? false
