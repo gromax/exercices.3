@@ -1,16 +1,13 @@
-<div class="container"></div>
+<div class="container">
   <div class="row align-items-center">
-    <div class="col-10">
+    <div class="col-12">
       <h5>Exercice <%- num+1 %> : <%- title %></h5>
       <p><%- description %></p>
       <% if (trials == 0) { %>
-        <p class="text-danger">Vous n'avez pas encore fait cet exercice.</p>
+        <p><span class="badge bg-danger">note : <%- note %></span> <span class="text-danger">Vous n'avez pas encore fait cet exercice.</span></p>
       <% } else { %>
-        <p class="text-secondary">Vous avez déjà fait cet exercice <%- trials %> fois.</p>
+        <p><span class="badge bg-success">note : <%- note %></span> <span class="text-secondary">Vous avez déjà fait cet exercice <%- trials %> fois.</span></p>
       <% } %>
-    </div>
-    <div class="col-2">
-      <h3><span class="badge bg-success"><%- note %> <i class="fa-solid fa-percent"></i></span></h3>
     </div>
   </div>
 </div>
