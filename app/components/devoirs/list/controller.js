@@ -32,7 +32,7 @@ const Controller = MnObject.extend({
             channel.trigger("loading:up");
             $.when(cloning).done((newDevoir) => {
                 channel.trigger("data:purge", "exodevoirs");
-                devoirs.add(newDevoir);
+                devoirs.add(newDevoir, {parse: true});
             }).fail((response) => {
                 console.warn("Erreur clonage devoir", response.responseJSON);
                 channel.trigger("popup:error", "Erreur lors du clonage du devoir.");
