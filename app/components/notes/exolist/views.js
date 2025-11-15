@@ -8,6 +8,7 @@ const PanelView = View.extend({
     templateContext() {
         return {
             nomComplet: this.getOption('nomComplet'),
+            modeEleve: this.getOption('modeEleve'),
         };
     }
 });
