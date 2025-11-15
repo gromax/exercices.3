@@ -1,0 +1,22 @@
+<div class="container">
+  <div class="row align-items-center">
+    <div class="col-10">
+      <h5><%- nom %></h5>
+      <p><%- description %></p>
+      <% if (notEnded) {%>
+        <p class="text-muted">jusqu'au <%- dateFinFr %> inclus</p>
+        <% } else { %>
+          <p class="text-secondary">Devoir terminé</p>
+        <% } %>
+    </div>
+    <div class="col-2">
+      <% if (note === 0) { %>
+        <h3><span class="badge bg-danger"><%- note %> <i class="fa-solid fa-percent"></i></span></h3>
+      <% } else if (note <= 50) { %>
+        <h3><span class="badge bg-warning"><%- note %> <i class="fa-solid fa-percent"></i></span></h3>
+      <% } else { %>
+        <h3><span class="badge bg-success"><%- note %> <i class="fa-solid fa-percent"></i></span></h3>
+      <% } %>
+    </div>
+  </div>
+</div>
