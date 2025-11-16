@@ -5,7 +5,7 @@ class Alea {
     static METHODS = {
         'entier': Alea.entier,
         'signe': Alea.signe,
-        'laplacePolynome': Alea.laplacePolynome
+        'lagrangePolynome': Alea.lagrangePolynome
     };
     static entier(min, max) {
         const a = Number(min);
@@ -19,7 +19,7 @@ class Alea {
         return Math.random() < 0.5 ? -1 : 1;
     }
 
-    static laplacePolynome(xmin, ymin, xmax, ymax, n) {
+    static lagrangePolynome(xmin, ymin, xmax, ymax, n) {
         xmin = Number(xmin);
         ymin = Number(ymin);
         xmax = Number(xmax);
