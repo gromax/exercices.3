@@ -369,6 +369,7 @@ Un champ input se traduira par une zone de saisie dans laquelle on peut entrer d
 * format : le format attendu.
   * numeric : on veut une expression dans laquelle il n'y a aucune variable et cette expression doit être développée un minimum. On n'acceptera pas `(1+2)/3`.
   * round:2 : on veut un nombre arrondi, dans cet exemple à deux chiffres après la virgule.
+  * erreur:0.2 : demande un nombre. Sa valeur ne doit pas excéder une erreur de 0.2 dans l'exemple.
 * keyboard: permet d'ajouter un bouton pour des expressions mathématiques comme `sqrt`
   * power
   * sqrt
