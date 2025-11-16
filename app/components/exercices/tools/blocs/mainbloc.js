@@ -8,6 +8,7 @@ import FormBloc from "./FormBloc.js";
 import Parameter from "./parameter.js";
 import Option from "./option.js";
 import Halt from "./halt.js";
+import GraphBloc from "./graphbloc.js";
 
 const TRYNUMBER = 100;
 
@@ -169,6 +170,9 @@ class MainBloc extends Bloc {
         }
         if (FormBloc.LABELS.includes(label)) {
             return new FormBloc(label, paramsString);
+        }
+        if (GraphBloc.LABELS.includes(label)) {
+            return new GraphBloc(label, paramsString);
         }
         return new Bloc(label, paramsString, false);
     }
