@@ -239,7 +239,22 @@ function toTeXKeepDecimals(expr) {
  * @returns {string} une chaîne où les paramètres connus ont été remplacés par leur valeur
  */
 function substituteLabels(expr, params, forceParenthesis=false) {
+    const aleas = {};
     return expr.replace(/@([A-Za-z_]\w*)(?:\.([A-Za-z_]\w*)|\[((?:@[A-Za-z_]\w*|[0-9]+)?)\])?/g, (match, name, sub, index) => {
+        // on envisage que le tag soit de la forme __a._10
+        // dans ce cas on remplace par une valeur aléatoire constante
+        if (name=== '__a') {
+            const nStr = sub ? sub.slice(1) : '';
+            const n = Number(nStr);
+            if (isNaN(n) || !Number.isInteger(n) || n < 0) {
+                throw new Error(`Index invalide pour un paramètre aléatoire : ${match}`);
+            }
+            if (aleas[sub] === undefined) {
+                const value = Math.floor(Math.random()*n);
+                aleas[sub] = value;
+            }
+            return String(aleas[sub]);
+        }
         const replacement = _getValueInternal(name, sub, index, params);
         if (replacement === null) {
             return match;
