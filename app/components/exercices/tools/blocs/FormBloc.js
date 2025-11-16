@@ -2,7 +2,7 @@ import Bloc from "./bloc";
 import FormView from "../blocsviews/formview.js";
 import ResultsView from "../blocsviews/resultsview.js";
 import InputBloc from "./inputbloc";
-import formatCheck from "../maths/misc/check.js";
+import { checkFormat } from "../maths/misc/check.js";
 
 /* Il faut vérifier les answers dans entity et choisir si on affiche
    le formulaire ou pas. */
@@ -56,7 +56,7 @@ class FormBloc extends Bloc {
             }
             if (child.params.format) {
                 const userValue = data[name] || '';
-                const v = formatCheck(userValue, child.params.format);
+                const v = checkFormat(userValue, child.params.format);
                 if (v!==true) {
                     errors[name] = v;
                 }
