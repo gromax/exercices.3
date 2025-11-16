@@ -2,6 +2,7 @@ import Bloc from "./bloc";
 import RadioView from "../blocsviews/radioview.js";
 import InputView from "../blocsviews/inputview.js";
 import MyMath from '../maths/mymath.js';
+import { checkValue } from '../maths/misc/check.js';
 
 /**
  * Bloc représentant un champ de saisie (input, radio...)
@@ -110,7 +111,7 @@ class InputTextBloc extends InputBloc {
         if (Array.isArray(solution)) {
             return solution.some(sol => this._verify(userValue, sol));
         }
-        return MyMath.compare(userValue, solution, '==', {});
+        return checkValue(userValue, solution);
     }
 }
 
