@@ -1,4 +1,4 @@
-import MyMath from '@tools/mymath.js';
+import MyMath from '../mathstools/mymath.js';
 
 class Option {
     static REGEX = /^([\w]+)\s*=>(.*)/;

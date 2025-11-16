@@ -1,7 +1,7 @@
 import Bloc from "./bloc";
 import { FormView, ResultsView } from "../run/views";
 import InputBloc from "./inputbloc";
-import formatCheck from "@tools/misc/check.js";
+import formatCheck from "../mathstools/misc/check.js";
 
 /* Il faut vérifier les answers dans entity et choisir si on affiche
    le formulaire ou pas. */

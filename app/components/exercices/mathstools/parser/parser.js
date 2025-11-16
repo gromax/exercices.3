@@ -1,8 +1,8 @@
-import { TNumber } from './tokens/number';
-import { TFunction } from './tokens/function';
-import { TOperator } from './tokens/operator';
-import { TParenthesis } from './tokens/parenthesis';
-import { TSymbol } from './tokens/symbol';
+import { TNumber } from './tokens/number.js';
+import { TFunction } from './tokens/function.js';
+import { TOperator } from './tokens/operator.js';
+import { TParenthesis } from './tokens/parenthesis.js';
+import { TSymbol } from './tokens/symbol.js';
 import { build } from './rpnbuilder.js';
 
 const TOKENS = [TNumber, TFunction, TOperator, TParenthesis, TSymbol];

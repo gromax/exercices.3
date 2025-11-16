@@ -1,4 +1,4 @@
-import MyMath from '@tools/mymath.js';
+import MyMath from '../mathstools/mymath.js';
 
 function substituteExpressions(str, params) {
     return str.replace(/\{([^:]+):\s*([\w]*|\$)?\}/g, (match, expr, format) => {

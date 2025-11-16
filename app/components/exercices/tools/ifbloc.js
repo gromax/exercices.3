@@ -1,5 +1,5 @@
 import Bloc from './bloc.js';
-import MyMath from '@tools/mymath.js';
+import MyMath from '../mathstools/mymath.js';
 
 class Operator {
     constructor(symbol, priority) {
