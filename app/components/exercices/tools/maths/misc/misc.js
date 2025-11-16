@@ -13,4 +13,13 @@ function variablesInExpression(expr) {
     }
 }
 
-export { variablesInExpression };
+function expressionToFloat(expression) {
+    try {
+        return parseFloat(nerdamer(expression).text('decimals'));
+    } catch (e) {
+        console.warn(`Erreur lors de la conversion de ${expression} en nombre décimal :`, e);
+        return NaN;
+    }
+}
+    
+export { variablesInExpression, expressionToFloat };
