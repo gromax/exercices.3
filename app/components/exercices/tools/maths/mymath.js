@@ -117,10 +117,6 @@ function _getValueInternal(name, sub, index, params) {
     return params[name][idx];
 }
 
-
-
-
-
 function evaluate(expression, params) {
     let expr = expression.trim();
     if (/^<P:.*>$/.test(expr)) {
@@ -252,6 +248,16 @@ function substituteLabels(expr, params, forceParenthesis=false) {
     });
 }
 
+function expressionToFloat(expression, params) {
+    try {
+        const substituted_expr = substituteLabels(expression, params, true);
+        return parseFloat(nerdamer(substituted_expr).text('decimals'));
+    } catch (e) {
+        console.warn(`Erreur lors de la conversion de ${expression} en nombre décimal :`, e);
+        return 0;
+    }
+}
+
 const MyMath = {
     parse,
     evaluate,
@@ -260,6 +266,7 @@ const MyMath = {
     latex,
     parseUser,
     substituteLabels,
+    expressionToFloat,
     getValue
 };
 
