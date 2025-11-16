@@ -1,6 +1,7 @@
 import Bloc from "./bloc";
-import { RadioView, InputView, UnknownView } from "../run/views";
-import MyMath from '../mathstools/mymath.js';
+import RadioView from "../blocsviews/radioview.js";
+import InputView from "../blocsviews/inputview.js";
+import MyMath from '../maths/mymath.js';
 
 /**
  * Bloc représentant un champ de saisie (input, radio...)

@@ -1,6 +1,6 @@
 import Bloc from './bloc.js';
-import TextNode from './textnode.js';
-import { TextView, HelpView } from '../run/views.js';
+import TextView from '../blocsviews/textview.js';
+import HelpView from '../blocsviews/helpview.js';
 
 class TextBloc extends Bloc {
     static LABELS = ['text', 'texte', 'warning', 'aide', 'info', 'help'];

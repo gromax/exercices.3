@@ -2,8 +2,8 @@
  * L'objectif de cette classe est de gérer des blocs
  * de rendu identifiés par une balise de type <tag param1 param2 ...>
  */
-
-import { UnknownView, TableView } from '../run/views.js';
+import UnknownView from '../blocsviews/unknownview.js';
+import TableView from '../blocsviews/tableview.js';
 
 class Bloc {
     constructor(tag, paramsString, closed) {

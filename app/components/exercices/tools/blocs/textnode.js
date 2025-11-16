@@ -1,4 +1,4 @@
-import MyMath from '../mathstools/mymath.js';
+import MyMath from '../maths/mymath.js';
 import { substituteExpressions } from './misc.js';
 
 class TextNode {

@@ -7,7 +7,7 @@ import {
   PanelEleveView
 } from './views.js'
 import { Item as ExerciceTry } from '../trial.js'
-import MainBloc from '../tools/mainbloc.js';
+import MainBloc from '../tools/blocs/mainbloc.js';
 
 import renderMathInElement from "katex/contrib/auto-render";
 
