@@ -17,7 +17,6 @@ This is a modern JS skeleton with MarionetteJS for [Webpack](https://webpack.git
 
 * La coche préférence ne fonctionne pas pour les utilisateurs
 * J'ai réglé le problème des calculs à virgule avec nerdamer. Toutefois, si le concepteur de l'exo écrit par ex 0,5, nerdamer va peut être butter sur la virgule et il va mettre 1/2. Il faudrait donc trouver moyen de dire à nerdamer de ne pas faire cela, ou bien trouver un autre moteur de rendu tex. copilot m'a proposé une fonction pour conserver les décimaux.
-* pour un bloc jsxgraph il faudrait pouvoir mettre des paramètres `<courbe:formule et détails>` et du coup il faudrait modifier le setParam de ce bloc afin que l'on puisse cumuler des courbes.
 * pour un bloc de mises en correspondances d'items, les enfant pourraient être comme dans un bloc radio du genre 0=>a:b et ensuite ce n'est qu'un problème de rendu. 
 
 ## à faire
@@ -249,6 +248,272 @@ On peut également définir un tableau par ajouts successifs :
 ```
 
 Crée un tableau contenant les valeurs `3` et `12`.
+
+#### Alea entier
+
+On dispose de la fonction Alea.entier mais cela nécessite de passer par la pile. Ainsi, quand on veut créer un nombre entier aléatoire entre `0` et `5` compris par exemple, il faut écrire :
+
+```
+@x = <P: 0 5 Alea.entier >
+```
+
+Cela peut sembler un peu lourd. Alors on a la possibilité d'utiliser une variable réservée : `@__a._6` qui crée un nombre entier aléatoire de `0` à `6` **exclus**.
+
+```
+@x = @__a._6
+```
+
+Naturellement on peut choisir n'importe quel nombre entier strictement positif.
+
+De plus, si un même aléa est présent plusieurs fois dans une expression, alors ce sera le même à chaque fois.
+
+```
+@x = @__a._6 + @__a._10 + @__a._6
+```
+
+Le premier et le dernier nombre aléatoire, choisi dans $[0;6[$, sont les mêmes ! Mais le nombre aléatoire choisi dans $[0;10[$ est différent.
+
+
+### Les blocs constitant un exercice
+
+#### Forme générale
+
+Un bloc est déclaré de la façon suivante :
+
+```
+<nombloc:titre>
+...
+</nombloc>
+```
+
+Certains type de blocs auront un comportement particulier comme les blocs `form`, `texte`, `input`, `graph`, ...
+
+Un bloc peut contenir des sous blocs. Par exemple un bloc `form` peut contenir des blocs `input` ou `text`. Un bloc `graph` peut contenir des blocs `point` ou `function`...
+
+Un bloc peut également recevoir des paramètres.
+
+```
+<nomparam:value/>
+```
+
+Bien noter le `/` final qui indique un bloc autofermant. Ce format de balise indique que l'on ajoute un paramètre au bloc.
+
+Certains paramètres sont essentiels au fonctionnement. Par exemple :
+
+```
+<input:x>
+<tag:$x$/>
+<solution:3>
+</input>
+```
+
+On renseigne ici que le bloc `<input>` aura un paramètre `solution` égal à 3 et une étiquette `$x$` qui sert à l'affichage.
+
+Il est d'ailleurs possible de traiter ces paramètres en tableaux :
+
+```
+<param[]:1/>
+<param[]:7/>
+```
+
+Ainsi on a un paramètre de nom `param` qui est le tableau `[1, 7]`.
+
+#### Bloc de texte
+
+```
+<texte:header>
+...
+</texte>
+```
+
+Le plus simple, sert à afficher du texte. `header` permet d'indiquer un titre mais n'est pas requis.
+
+Au lieu de `texte` on dispose de quelques variantes :
+
+  * `texte` ou `text`, bloc ordinaire
+  * `warning` pour un formatage d'alerte
+  * `info` pour un formatage d'info
+  * `help` ou `aide` pour un bloc d'aide qui se replie. Il faut appuyer le bouton pour afficher l'aide.
+
+#### Bloc formulaire
+
+```
+<form:header>
+...
+</form>
+```
+
+Ce bloc est essentiel pour le déroulement des exercices car c'est lui qui prend en charge les questions / réponses.
+
+En effet, quand l'exercice s'affiche, il affiche les blocs dans l'ordre et quandd il arrive à un formulaire il s'arrête en attendant que l'utilisateur réponde aux questions. Quand l'utilisateur a répondu, l'affichage se met à jour et l'exercicce se poursuit.
+
+S'il s'agit d'un exercice qui a déjà été exécuté et que l'on rejoue, les réponses sont déjà données. Le formulaire le détecte et affiche directement la suite.
+
+Un formulaire contiendra donc des input divers et des blocs de texte.
+
+#### Bloc input
+
+Il s'agit de l'input de base.
+
+```
+<input:name>
+...
+</input>
+```
+
+Un champ input se traduira par une zone de saisie dans laquelle on peut entrer du texte. Les paramètres sont ici très importants, il faut détailler.
+
+* header : c'est l'identifiant de la réponse telle qu'elle sera sauvée dans la BDD. Il faut donc que tous les input en ait un différent. De plus, cet identifiant ne devrait pas rentrer en conflit avec ceux déjà déclaré avec `@` dans l'initialisation et les options.
+* tag : ce qui sera affiché pour représenter la valeur demandée. Un affichage Tex est possible. Par exemple $x_A$.
+* solution : la valeur attendue. Il est possible de fournir un tableau. Dans ce cas, la réponse sera considére valide du moment qu'elle correspond à au moins un item de solution.
+* format : le format attendu.
+  * numeric : on veut une expression dans laquelle il n'y a aucune variable et cette expression doit être développée un minimum. On n'acceptera pas `(1+2)/3`.
+  * round:2 : on veut un nombre arrondi, dans cet exemple à deux chiffres après la virgule.
+* keyboard: permet d'ajouter un bouton pour des expressions mathématiques comme `sqrt`
+  * power
+  * sqrt
+  * square
+
+Ainsi un bloc typique serait :
+
+```
+<input:x>
+<tag:$x$/>
+<solution:@gx/>
+<format:numeric/>
+<keyboard:sqrt/>
+</input>
+```
+
+#### Bloc Radio
+
+Utiliser pour une question à choix multiple. Une seule réponse possible.
+
+Voici un exemple :
+
+```
+<radio:n>
+0 => aucune solution
+1 => une solution
+2 => deux solutions
+<solution:@gn/>
+</radio>
+```
+
+Ici `@gn` qui aura été préalablement initialisé, contiendra une valeur parmi 0, 1, 2.
+
+À l'affichage, les différentes possibilités sont mélangées, mais bien sûr, chaque réponse reste convenablement associée à sa clé.
+
+#### Bloc Table
+
+```
+<table>
+...
+</table>
+```
+
+Permet d'afficher une table.
+
+Il faudra lui fournir un paramètre `rows` qui est un tableau de tableaux.
+
+On pourra lui fournir des tableaux `rowheaders` et `colheaders`.
+
+Voici un exemple d'initialisation.
+
+```
+# init
+# tableau a = [0, ..., 9]
+@a <:10>= @__i
+# tablau b = [a[i]*2 + alea]
+@b <:@a>= <P:@__v 2 * 0 5 Alea.entier +>
+
+# affichage de la table
+<table>
+<rowheaders[]:$x$/>
+<rows[]:@a/>
+<rowheaders[]:$f(x)$/>
+<rows[]:@b/>
+</table>
+```
+
+#### Bloc Graph
+
+Permet de tracer un graphique avec **jsxGraph**.
+
+```
+<graph>
+...
+</graph>
+```
+
+Le bloc a lui-même quelques paramètres :
+  * xmin: bord gauche, par défaut à -5
+  * xmax: bord droit, par défaut à +5
+  * ymin: bord bas, par défaut à -5
+  * ymax: bord haut, par défaut à +5
+  * zoom: autorise ou non le zoom. Par défaut à false.
+  * pan: autorise ou non le déplacement de la vue. Par défaut à false.
+  * axis: affiche ou non les axes. Par défaut à true.
+
+Ensuite, on peut ajouter des sous-blocs pour les différents objets.
+
+##### point
+
+```
+<point:name>
+...
+</point>
+```
+
+On dispose des paramètres :
+  * x
+  * y
+  * name: pour l'affichage d'un nom
+  * on: alors le point est un glider qui glisse sur un objet. Il faut choisir le nom d'un objet graphique défini préalablement.
+  * color: on peut choisir une couleur standard comme blue, red...
+  * size: pour la taille du point
+  * fixed: par défaut le point est mobile. On peut le fixer avec `fixed:true`
+
+##### function
+
+```
+<function:name>
+...
+</function>
+```
+
+On dispose des paramètres :
+  * expression: l'expression de la fonction
+  * xmin: par défaut le bord gauche de la fenêtre
+  * xmax: par défaut le bord droit de la fenêtre
+  * color
+  * strokeWidth: épaisseur du trait
+  * dash: pointillé. Par exemple `dash:2`
+
+Voici deux exemples : Dans le premier on crée la courbe d'une fonction affine et un point mobile sur cette courbe.
+
+```
+<function:f>
+<expression:3x+12/>
+</function>
+<point:A>
+<on:f/>
+</point>
+```
+
+Dans ce 2e exemple, on crée une expression aléatoire d'un polynome de degré 3.
+
+La fonction `Alea.lagrangePolynome` tire `n+1` points au hasard, à coordonnées entières et dans le rectangle défini par xmin, ymin, xmax, ymax. Avec ces points elle calcule le polynome d'interpolation de Lagrange.
+
+```
+@p = <P:-2 -5 5 5 3 Alea.lagrangePolynome>
+<graph>
+  <xmin:-2/>
+  <function:g>
+    <expression:@p/>
+  </function>
+</graph>
+```
 
 
 
