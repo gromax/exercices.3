@@ -5,6 +5,7 @@
 import nerdamer from 'nerdamer';
 import 'nerdamer/all';
 import Parser from '../parser/parser.js';
+import { expressionToFloat } from './misc.js';
 
 /*function checkNumericExpression(expr) {
     try {
@@ -37,15 +38,47 @@ function checkNumericExpression(expr) {
 
 
 function checkFormat(expr, format) {
-    console.log(format)
     if (format === 'numeric') {
         return checkNumericExpression(expr);
     }
     if (/^round:[0-9]+$/.test(format)) {
         return /^[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][+-]?\d+)?$/.test(expr) ? true : "Vous devez fournir un nombre éventuellement approximé.";
     }
+    if (/^erreur:(?:[0-9]+(?:\.[0-9]+)?)|(?:\.[0-9]+)$/.test(format)) {
+        return /^[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][+-]?\d+)?$/.test(expr) ? true : "Vous devez fournir un nombre éventuellement approximé.";
+    }
     // autres formats à ajouter ici
     return true;
 }
 
-export default checkFormat;
+function checkValue(userValue, expectedValue, format) {
+    const checkFormatResult = checkFormat(userValue, format);
+    if (checkFormatResult !== true) {
+        return false;
+    }
+    // je traite d'abord les cas où le format devrait être numérique
+    if (format === "numeric") {
+        // numérique mais exacte. Une comparaison directe suffit
+        return nerdamer(userValue).eq(nerdamer(expectedValue));
+    }
+    if (format.startsWith("round:") || format.startsWith("erreur:")) {
+        // Il faut une évaluation float des deux valeurs
+        const userFloat = expressionToFloat(userValue);
+        const expectedFloat = expressionToFloat(expectedValue);
+        if (isNaN(userFloat) || isNaN(expectedFloat)) {
+            return false;
+        }
+        const param = Number(format.split(':')[1]);
+        if (format.startsWith("round:")) {
+            const factor = Math.pow(10, param);
+            return Math.round(userFloat * factor) === Math.round(expectedFloat * factor);
+        } else if (format.startsWith("erreur:")) {
+            const tolerance = param;
+            return Math.abs(userFloat - expectedFloat) <= tolerance;
+        }
+    }
+    // autres formats à ajouter ici
+    return nerdamer(userValue).eq(nerdamer(expectedValue));
+}
+    
+export { checkFormat, checkValue };
