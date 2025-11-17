@@ -142,6 +142,15 @@ class Logged extends User
     return $this->get("rank") === User::RANK_ADMIN && !$this->_isInAdminMode;
   }
 
+  public function toArray()
+  {
+    $data = parent::toArray();
+    if ($this->get("rank") === User::RANK_ADMIN) {
+      $data['adminMode'] = $this->_isInAdminMode;
+    }
+    return $data;
+  }
+
 }
 
 ?>
