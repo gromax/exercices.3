@@ -59,7 +59,7 @@ const Controller = MnObject.extend({
     switch(xhr.status) {
       case 401:
         alert("Vous devez vous (re)connecter !");
-        channel.trigger("home:logout");
+        channel.trigger("session:logout");
         break;
       case 404:
         const mView = new MissingView();
