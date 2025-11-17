@@ -62,9 +62,10 @@ const Session = MyModel.extend({
                 mathquill:true
             };
         }
-        logged.adminMode = false; // ne sert que pour un utilisateur admin, pas root
-        if (logged.rank == Ranks.ADMIN){
-            logged.adminMode = Boolean(data.adminMode || false);
+        if (typeof logged.adminMode !== "undefined"){
+            logged.adminMode = Boolean(logged.adminMode);
+        } else if ((typeof logged.adminMode === "undefined") && (logged.rank === Ranks.ADMIN)) {
+            logged.adminMode = false;
         }
         return logged;
     },
