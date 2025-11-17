@@ -279,7 +279,7 @@ class users
       EC::set_error_code(403);
       return false;
     }
-    if ($oUser->isEleve() && !$uLog->isAdmin() && $oUser->get("idTeacher") !== $uLog->getId()){
+    if ($oUser->isEleve() && !$uLog->isAdmin() && $oUser->get("idTeacher") !== $uLog->getId() && $oUser->getId() !== $uLog->getId()){
       EC::addError("Vous n'avez pas le droit de modifier cet élève.");
       EC::set_error_code(403);
       return false;
