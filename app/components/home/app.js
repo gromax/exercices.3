@@ -6,7 +6,6 @@ const HomeApp = MnObject.extend({
     "home:show": "onShow",
     "home:login": "onLogin",
     "home:relogin":"onRelogin",
-    "home:logout":"onLogout"
   },
 
   onShow() {
@@ -21,11 +20,6 @@ const HomeApp = MnObject.extend({
 
   onRelogin(options) {
     this.showReLogin(options);
-  },
-
-  onLogout() {
-    this.logout();
-    this.getChannel().trigger("home:show");
   },
 
   showHome() {
