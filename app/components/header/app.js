@@ -18,7 +18,7 @@ const HeaderApp = MnObject.extend({
     navbar.on("home:show", () => { channel.trigger("home:show"); });
     navbar.on("home:editme", () => { channel.trigger("user:show:me"); });
     navbar.on("home:login", () => { channel.trigger("home:login"); });
-    navbar.on("home:logout", () => { channel.trigger("home:logout"); });
+    navbar.on("home:logout", () => { channel.trigger("session:logout"); });
     navbar.on("messages:list", () => { channel.trigger("messages:show:list"); });
   },
 
