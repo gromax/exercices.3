@@ -28,6 +28,7 @@ class User extends Item
       'date' => ['def' => date('Y-m-d'), 'type'=> 'date'], // date de création
       'nomClasse' => ['def' => "", 'type'=> 'string', 'foreign'=>'classes.nom'], // nom de la classe
       'idTeacher' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'classes.idOwner'], // id du professeur
+      'hash' => ['def' => "", 'type' => 'string', 'private' => true] // hash du mot de passe
     ] ;
   }
 
