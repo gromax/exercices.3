@@ -10,7 +10,7 @@ const HeaderView = View.extend({
     "click a.js-home": "home:show",
     "click a.js-edit-me": "home:editme",
     "click a.js-login": "home:login",
-    "click a.js-logout": "home:logout",
+    "click a.js-logout": "logout",
     "click a.js-message": "messages:list",
   },
 
