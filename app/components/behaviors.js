@@ -95,15 +95,9 @@ const ToggleItemValue = Behavior.extend({
       }).fail( function(response) {
         if (response.status === 401) {
           alert("Vous devez vous (re)connecter !");
-          radioApp.trigger("home:logout");
+          radioApp.trigger("session:logout");
         } else {
-          let errorCode = self.view.getOption("errorCode");
-          if (errorCode) {
-            errorCode = `/${errorCode}`
-          } else {
-            errorCode = ""
-          }
-          alert(`Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}${errorCode}]`);
+          alert(`Erreur inconnue. Essayez à nouveau ou prévenez l'administrateur [code ${response.status}]`);
         }
       }).always( function(){
         radioApp.trigger("loading:down");
