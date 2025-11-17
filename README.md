@@ -516,5 +516,31 @@ La fonction `Alea.lagrangePolynome` tire `n+1` points au hasard, à coordonnées
 </graph>
 ```
 
+### Les fonctions disponibles
+
+#### Module Alea
+
+  * `Alea.entier` reçoit `xmin` et `xmax` et renvoie un entier aléatoire entre `xmin` et `xmax` compris.
+  * `Alea.signe` renvoie `-1` ou `1` aléatoirement
+  * `Alea.lagrangePolynom` reçoit `xmin`, `ymin`, `xmax`, `ymax` et `n`. Renvoie un polynome de degré `n` interpolant `n+1` points de coordonnées entières pris dans le cadre.
+
+#### Module table
+
+  * `Table.indice` reçoit `val` et `tableau`. Renvoie l'indice de la première occurence de `val` dans `tableau`. `-1` si absent.
+  * `Table.indices` reçoit `val` et `tableau`. Renvoie un tableau contenant tous les indices des occurences de `val` dans `tableau`
+  * `Table.size` reçoit `tableau` et renvoie la taille du tableau.
+  * `Table.sum` renvoie la somme des éléments du tableau
+  * `Table.product` reçoit `tab1` et `tab2` qui doivent être de même taille et renvoie un tableau des `it1*it2`
+  * `Table.average` reçoit `tableau` et renvoie la moyenne des éléments du tableau. Erreur si tableau vide.
+  * `Table.average2` reçoit les tableaux `values` et `effectifs`, de même taille, et renvoie la moyenne.
+  * `Table.variance` reçoit `tableau` et renvoie la variance des éléments du tableau. Erreur si tableau vide.
+  * `Table.variance2` reçoit les tableaux `values` et `effectifs`, de même taille, et renvoie la variance.
+  * `Table.std` reçoit `tableau` et renvoie l'écart-type des éléments du tableau. Erreur si tableau vide.
+  * `Table.std2` reçoit les tableaux `values` et `effectifs`, de même taille, et renvoie l'écart-type.
+  * `Table.mediane` reçoit `tableau` et renvoie la médiane des éléments du tableau. Erreur si tableau vide.
+  * `Table.mediane2` reçoit les tableaux `values` et `effectifs`, de même taille, et renvoie la médiane.
+  * `Table.quantile` reçoit `tableau` et `q` et renvoie la quantile `q` des éléments du tableau. Erreur si tableau vide.
+  * `Table.quantile2` reçoit les tableaux `values` et `effectifs`, de même taille, et `q`, et renvoie la quantile.
+
 
 
