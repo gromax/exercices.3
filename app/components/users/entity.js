@@ -1,3 +1,4 @@
+import { type } from "jquery";
 import { MyModel, MyCollection } from "../common/entity";
 import Ranks from "../common/ranks";
 
@@ -69,13 +70,20 @@ const Item = MyModel.extend ({
       if (typeof attrs.pwd !== "undefined" && typeof attrs.pwdConfirm !== "undefined" && attrs.pwd !== attrs.pwdConfirm) {
         errors.pwdConfirm = "Les mots de passe sont différents.";
       }
-      if (!attrs.prenom) {
-        errors.prenom = "Ne doit pas être vide";
+      if (typeof attrs.email !== "undefined") {
+        if (attrs.email === "") {
+          errors.email = "Ne doit pas être vide";
+        }
+        if (!attrs.prenom) {
+          errors.prenom = "Ne doit pas être vide";
+        }
       }
-      if (!attrs.nom) {
-        errors.nom = "Ne doit pas être vide";
-      } else if (attrs.nom.length < 2) {
-        errors.nom = "Trop court";
+      if (typeof attrs.nom !== "undefined") {
+        if (attrs.nom === "") {
+          errors.nom = "Ne doit pas être vide";
+        } else if (attrs.nom.length < 2) {
+          errors.nom = "Trop court";
+        }
       }
     }
     if (attrs.pwd && attrs.pwdConfirm && (attrs.pwd != attrs.pwdConfirm)) {
