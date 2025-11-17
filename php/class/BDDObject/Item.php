@@ -88,6 +88,7 @@ abstract class Item
     }
     foreach ($champs as $key => $val) {
       if (in_array($key,$hideCols)) continue;
+      if (isset($val['private']) && $val['private'] === true) continue;
       if (isset($val['alias'])) {
         $alias = $val['alias'];
       } else {
