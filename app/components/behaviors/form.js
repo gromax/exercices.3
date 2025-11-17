@@ -113,7 +113,7 @@ const Form = Behavior.extend({
           case 401:
             radioApp.trigger("popup:alert", "Vous devez vous (re)connecter !");
             view.trigger("dialog:close");
-            radioApp.trigger("home:logout");
+            radioApp.trigger("session:logout");
             break;
           default:
             let errorCode= view.getOption("errorCode");
