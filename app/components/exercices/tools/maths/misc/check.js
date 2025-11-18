@@ -51,7 +51,7 @@ function checkFormat(expr, format) {
     return true;
 }
 
-function checkValue(userValue, expectedValue, format) {
+function checkValue(userValue, expectedValue, format = "none") {
     const checkFormatResult = checkFormat(userValue, format);
     if (checkFormatResult !== true) {
         return false;
