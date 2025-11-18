@@ -9,6 +9,7 @@ import Parameter from "./parameter.js";
 import Option from "./option.js";
 import Halt from "./halt.js";
 import GraphBloc from "./graphbloc.js";
+import { ChoiceList, ChoiceForm } from "./choice.js";
 
 const TRYNUMBER = 100;
 
@@ -173,6 +174,12 @@ class MainBloc extends Bloc {
         }
         if (GraphBloc.LABELS.includes(label)) {
             return new GraphBloc(label, paramsString);
+        }
+        if (ChoiceList.LABELS.includes(label)) {
+            return new ChoiceList(label, paramsString);
+        }
+        if (ChoiceForm.LABELS.includes(label)) {
+            return new ChoiceForm(label, paramsString);
         }
         return new Bloc(label, paramsString, false);
     }

@@ -1,0 +1,27 @@
+<% if ((typeof button !== "undefined") && button) { %>
+    <button type="button" class="list-group-item list-group-item-action js-choice-button">
+        <i class="fa-solid fa-<%- picto %> fa-2x" style="color:<%- color %>; ; vertical-align: middle;"></i> <%- caption %>
+    </button>
+<% } else if ((typeof good !== "undefined") && (good)) { %>
+    <li class="list-group-item list-group-item-success">
+        <span class="fa-stack">
+            <i class="fa-solid fa-<%- picto %> fa-stack-2x" style="color:<%- color %>;"></i>
+            <i class="fa-solid fa-check fa-stack-1x fa-inverse"></i>
+        </span>
+        &emsp;<%- caption %>
+    </li>
+<% } else if ((typeof good !== "undefined") && (!good)) { %>
+    <li class="list-group-item list-group-item-danger">
+        <span class="fa-stack">
+            <i class="fa-solid fa-<%- picto %> fa-stack-2x" style="color:<%- color %>;"></i>
+            <i class="fa-solid fa-xmark fa-stack-1x fa-inverse"></i>
+        </span>
+        &emsp;<i class="fa-solid fa-<%- goodpicto %> fa-2x" style="color:<%- goodcolor %>; vertical-align: middle;"></i>
+        &emsp;<%- caption %>
+    </li>
+<% } else { %>
+    <li class="list-group-item">
+        <i class="fa-solid fa-<%- picto %> fa-2x" style="color:<%- color %>; vertical-align: middle;"></i>
+        &emsp;<%- caption %>
+    </li>
+<% } %>
