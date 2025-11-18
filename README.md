@@ -405,6 +405,64 @@ Ici `@gn` qui aura été préalablement initialisé, contiendra une valeur parmi
 
 À l'affichage, les différentes possibilités sont mélangées, mais bien sûr, chaque réponse reste convenablement associée à sa clé.
 
+#### Bloc Liste de choix
+
+```
+<choix>
+1 => Le choix 1
+2 => Le choix 2
+3 => Le choix 3
+<\choix>
+```
+
+Ce bloc permet d'afficher une liste d'items associés à un pictogramme coloré dépendant de l'index indiqué. L'index doit être entre 1 et 7 inclus.
+
+On dispose des paramètres :
+  * `shuffle:true` qui permet de mélanger à l'affichage (pas mélangé par défaut)
+  * `onlysquares:true` pour demander à n'avoir que des carrés
+
+Les pictogrammes peuvent servir pour les daltoniens. On peut donc choisir de ne pas utiliser les pictogrammes.
+
+#### Formulaire liste de choix
+
+```
+<formchoix:name>
+1 => valeur 1
+2 => valeur 2
+1 => valeur 3
+</formchoix>
+```
+
+Il s'agit d'un formulaire, donc d'un bloc attendant une validation. `name` est l'identifiant de la réponse.
+
+Ce formulaire se présentera comme une liste de choix avec des pictogrammes colorés. Chaque item est un bouton. Quand on clique, on change le pictogramme et la couleur.
+
+Voyons un exemple d'utilisation :
+
+```
+<choix>
+1 => $\mathcal{N}$
+2 => $\mathcal{Z}$
+3 => $\mathcal{D}$
+</choix>
+
+<formchoix:a>
+2 => -5
+1 => 8
+1 => 0
+3 => 5,4
+2 => -1
+</formchoix>
+```
+
+Le premier bloc définit les couleurs (et donc indices) associées aux ensembles. On demande ensuite à l'élève de choisir. Il devra choisir 2 pour $-5$, 1 pour $8$, etc.
+
+**Remarque :** les indices peuvent se répéter dans `formchoix` car plusieurs items peuvent avoir la même réponse. Ici, $8$ et $0$ sont tous deux des entiers naturels.
+
+On dispose là encore de paramètres :
+  * `shuffle:false` pour le mélange (mélangé par défaut)
+  * `onlysquares:true` pour ne pas utiliser les pictogrammes
+
 #### Bloc Table
 
 ```
