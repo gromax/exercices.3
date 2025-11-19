@@ -1,4 +1,5 @@
 import { MyModel, MyCollection } from "../common/entity";
+import Misc from "../common/misc";
 
 const Item = MyModel.extend({
   urlRoot: "api/exercices",
@@ -26,7 +27,7 @@ const Item = MyModel.extend({
     data.init = data.init || "";
     data.code = data.code || "";
     if (data.published !== undefined) {
-      data.published = Boolean(data.published);
+      data.published = Misc.parseBoolean(data.published);
     }
     if (typeof data.idOwner !== "undefined") {
       data.idOwner = Number(data.idOwner);

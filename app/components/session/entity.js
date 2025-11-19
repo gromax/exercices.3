@@ -1,6 +1,7 @@
 import { MyModel } from '../common/entity.js'
 import Radio from 'backbone.radio'
 import Ranks from '../common/ranks.js'
+import Misc from '../common/misc.js';
 
 const channel = Radio.channel('app');
 
@@ -63,7 +64,7 @@ const Session = MyModel.extend({
             };
         }
         if (typeof logged.adminMode !== "undefined"){
-            logged.adminMode = Boolean(logged.adminMode);
+            logged.adminMode = Misc.parseBoolean(logged.adminMode);
         } else if ((typeof logged.adminMode === "undefined") && (logged.rank === Ranks.ADMIN)) {
             logged.adminMode = false;
         }
@@ -72,7 +73,6 @@ const Session = MyModel.extend({
 
     load(callBack) {
         /* Charge la session depuis le serveur */
-        const that = this;
         this.fetch({
             success: function(){
                 console.log("Session loaded");

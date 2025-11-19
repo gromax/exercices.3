@@ -68,6 +68,21 @@ class Misc {
     return `${jour} ${numeroJour} ${nomMois} ${annee}`;
   }
 
+  /**
+   * Parse une valeur en booléen (gère les strings de BDD)
+   * @param {any} value - Valeur à parser
+   * @returns {boolean}
+   */
+  static parseBoolean(value) {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value !== 0;
+    if (typeof value === 'string') {
+      const lower = value.toLowerCase().trim();
+      return lower === '1' || lower === 'true' || lower === 'yes' || lower === 'on';
+    }
+    return Boolean(value);
+  }
+
 }
 
 export default Misc;

@@ -24,7 +24,7 @@ const Item = MyModel.extend ({
   
   parse(data) {
     if (typeof data.ouverte === "string") {
-      data.ouverte = (Number(data.ouverte) === 1);
+      data.ouverte = Misc.parseBoolean(data.ouverte);
     }
     data.idOwner = Number(data.idOwner);
     data.dateFr = Misc.formatDateFrench(data.date);

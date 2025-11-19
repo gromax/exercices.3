@@ -3,6 +3,7 @@
  */
 
 import { MyModel, MyCollection } from '../common/entity.js'
+import Misc from '../common/misc.js';
 
 const Item = MyModel.extend({
   urlRoot: "api/trials",
@@ -47,7 +48,7 @@ const Item = MyModel.extend({
       data.answers = JSON.parse(data.answers);
     }
     data.score = Number(data.score);
-    data.finished = Boolean(data.finished);
+    data.finished = Misc.parseBoolean(data.finished);
     data.idExercice = Number(data.idExercice);
     if (data.idDevoir !== undefined) {
       data.idDevoir = Number(data.idDevoir);
