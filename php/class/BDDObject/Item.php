@@ -303,14 +303,19 @@ abstract class Item
     return $toInsert;
   }
   
-  protected static function filterUpdate($params)
+  protected static function filterUpdate($params, $current)
   {
     $toUpdate = array_intersect_key($params, static::champs());
     unset($toUpdate['id']);
+    $parsed = static::parse($params);
     $champs = static::champs();
-    foreach ($champs as $key => $value) {
-      if ($value['foreign'] ?? false) {
+    foreach ($toUpdate as $key => $value) {
+      if ($champs[$key]['foreign'] ?? false) {
         // champ de jointure, on ne l'insère pas
+        unset($toUpdate[$key]);
+      }
+      $parsedValue = $parsed[$key] ?? null;
+      if ($parsedValue === $current->get($key)) {
         unset($toUpdate[$key]);
       }
     }
@@ -322,24 +327,7 @@ abstract class Item
     return true;
   }
 
-  ##################################### METHODES #####################################
-
-  public function __construct($options=array())
-  {
-    $this->values = $this->parse($options);
-    $arr = static::champs();
-    foreach ($arr as $key => $val) {
-      if (!array_key_exists($key,$this->values)) {
-        $this->values[$key] = $val["def"];
-      }
-    }
-    if (isset($options["id"])) {
-      $this->id = (integer) $options["id"];
-      $this->values["id"] = $this->id;
-    }
-  }
-
-  public function parse($params=array())
+  public static function parse($params=array())
   {
     $values = array();
     foreach ( $params as $key => $value) {
@@ -366,6 +354,23 @@ abstract class Item
       }
     }
     return $values;
+  }
+
+  ##################################### METHODES #####################################
+
+  public function __construct($options=array())
+  {
+    $this->values = static::parse($options);
+    $arr = static::champs();
+    foreach ($arr as $key => $val) {
+      if (!array_key_exists($key,$this->values)) {
+        $this->values[$key] = $val["def"];
+      }
+    }
+    if (isset($options["id"])) {
+      $this->id = (integer) $options["id"];
+      $this->values["id"] = $this->id;
+    }
   }
 
   public function __toString()
@@ -511,12 +516,11 @@ abstract class Item
     if ($valid !== true) {
       return array("errors" => $valid);
     }
-
     // filtre les modifications
-    $params = static::filterUpdate($params);
+    $params = static::filterUpdate($params, $this);
     if (count($params) === 0) {
       EC::add(static::$BDDName."/update : Aucune modification.");
-      return false;
+      return $this->onUpdateSuccess();
     }
     // applique les modifications à l'objet
     $this->values = array_merge($this->values, $params);
@@ -528,7 +532,7 @@ abstract class Item
     try{
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $modifications = implode(", ", array_map(function($k){ return "$k=:$k"; }, array_keys($params)));
+      $modifications = implode(", ", array_map(function($k){ return "`$k`=:$k"; }, array_keys($params)));
       $stmt = $pdo->prepare("UPDATE ".PREFIX_BDD.static::$BDDName." SET $modifications WHERE id = :id");
       foreach ($params as $k => $v) {
         $stmt->bindValue(":$k", $v, static::$TYPES[static::champs()[$k]['type']] ?? PDO::PARAM_STR);
@@ -540,8 +544,7 @@ abstract class Item
       return false;
     }
     EC::add(static::$BDDName."/update : Succès.");
-    $this->onUpdateSuccess();
-    return true;
+    return $this->onUpdateSuccess();
   }
 
   public function getId()
@@ -567,7 +570,14 @@ abstract class Item
 
   public function toArray()
   {
-    return $this->values;
+    $champs = static::champs();
+    return array_filter(
+      $this->values,
+      function($key) use ($champs) {
+        return !isset($champs[$key]) || !isset($champs[$key]['private']) || $champs[$key]['private'] !== true;
+      },
+      ARRAY_FILTER_USE_KEY
+    );
   }
 }
 ?>
