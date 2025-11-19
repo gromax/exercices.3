@@ -62,9 +62,9 @@ class User extends Item
     return $toInsert;
   }
 
-  protected static function filterUpdate($values)
+  protected static function filterUpdate($values, $current)
   {
-    $toUpdate = parent::filterUpdate($values);
+    $toUpdate = parent::filterUpdate($values, $current);
     // Le mot de passe doit être hashé
     if (isset($values['pwd']))
     {
@@ -163,11 +163,6 @@ class User extends Item
   protected function updateValidation($params)
   {
     $errors = [];
-    if (isset($params['rank']))
-    {
-      $errors['rank'] = "Le rang ne peut pas être modifié.";
-    }
-
     if (isset($params['email']) && $params['email'] != $this->get('email'))
     {
       $email_errors = [];
