@@ -285,9 +285,27 @@ class users
       return false;
     }
     $data = json_decode(file_get_contents("php://input"),true);
-    unset($data['rank']); // on ne peut pas modifier son rang ici
+    if (isset($data['rank']))
+    {
+      // seul un root peut modifier prof -> admin ou admin -> prof
+      $rank = (integer) $data['rank'];
+      if (
+        $rank !== $oUser->get("rank") &&
+        (
+          !$uLog->isRoot() ||
+          !($oUser->isProf() && $rank === User::RANK_ADMIN) &&
+          !($oUser->isAdmin() && $rank === User::RANK_PROF)
+        )
+      )
+      {
+        EC::addError("Vous n'avez pas le droit de modifier le rang de cet utilisateur.");
+        EC::set_error_code(403);
+        return false;
+      }
+    }
+    
     $response = $oUser->update($data);
-    if ($response ===null)
+    if ($response ===false)
     {
       EC::addError("Erreur lors de la modification de l'utilisateur.");
       EC::set_error_code(501);
