@@ -1,4 +1,4 @@
-import MyMath from '../maths/mymath.js';
+import { substituteLabels } from '../maths/misc/substitution.js';
 
 class Parameter {
     static REGEX = /^<(\w+(?:\[\])?)\s*:(.*)\/>$/;
@@ -19,7 +19,7 @@ class Parameter {
 
     run(params, caller) {
         if (caller && typeof caller.setParam === 'function') {
-            this._param = MyMath.getValue(this._param, params) ?? MyMath.substituteLabels(this._param, params);
+            this._param = substituteLabels(this._param, params);
             caller.setParam(this._tag, this._param);
         }
         return null;
