@@ -1,3 +1,4 @@
+import { getValue } from '../maths/misc/substitution.js';
 import MyMath from '../maths/mymath.js';
 
 class Affectation {
@@ -49,7 +50,7 @@ class Affectation {
             }
             return;
         }
-        const r = MyMath.getValue(this._repeater, { ...params, ...protectedParams }) ?? this._repeater;
+        const r = getValue(this._repeater, { ...params, ...protectedParams }) ?? this._repeater;
         const arr = [];
         if (Array.isArray(r)) {
             // cas d'un répéteur tableau
