@@ -1,5 +1,6 @@
 import Bloc from './bloc.js';
 import MyMath from '../maths/mymath.js';
+import MyNerd from '../maths/mynerd.js';
 
 class Operator {
     constructor(symbol, priority) {
@@ -60,7 +61,7 @@ class SimpleCondition {
     }
 
     evaluate(params) {
-        return MyMath.compare(this.left, this.right, this.operator, params);
+        return MyNerd.compare(this.left, this.right, this.operator, params);
     }
 
     toString() {
