@@ -2,24 +2,10 @@
  * Check if the userValue matches the expected format.
  */
 
-import nerdamer from 'nerdamer';
-import 'nerdamer/all';
 import Parser from '../parser/parser.js';
-import { expressionToFloat } from './misc.js';
+import MyNerd from '../mynerd.js';
 
-/*function checkNumericExpression(expr) {
-    try {
-        const allowedSymbols = ['pi', 'e'];
-        const parsed = nerdamer(String(expr));
-        // nerdamer(...).variables() renvoie les symboles non numériques trouvés
-        const vars = typeof parsed.variables === 'function' ? parsed.variables() : [];
-        const unknown = vars.filter(v => !allowedSymbols.includes(v));
-        return unknown.length === 0 ? true : `L'expression contient des inconnues (${unknown.join(', ')}).`;
-    } catch (e) {
-        // parsing error => pas numérique
-        return "Expression invalide.";
-    }
-}*/
+
 function checkNumericExpression(expr) {
     try {
         const objMath = Parser.build(expr);
@@ -34,8 +20,6 @@ function checkNumericExpression(expr) {
         return "Expression invalide.";
     }
 }
-
-
 
 function checkFormat(expr, format) {
     if (format === 'numeric') {
@@ -59,12 +43,12 @@ function checkValue(userValue, expectedValue, format = "none") {
     // je traite d'abord les cas où le format devrait être numérique
     if (format === "numeric") {
         // numérique mais exacte. Une comparaison directe suffit
-        return nerdamer(userValue).eq(nerdamer(expectedValue));
+        return MyNerd.parseUser(userValue).compare(expectedValue, "==");
     }
     if (format.startsWith("round:") || format.startsWith("erreur:")) {
         // Il faut une évaluation float des deux valeurs
-        const userFloat = expressionToFloat(userValue);
-        const expectedFloat = expressionToFloat(expectedValue);
+        const userFloat = MyNerd.parseUser(userValue).toFloat();
+        const expectedFloat = MyNerd.toFloat(expectedValue);
         if (isNaN(userFloat) || isNaN(expectedFloat)) {
             return false;
         }
@@ -78,7 +62,7 @@ function checkValue(userValue, expectedValue, format = "none") {
         }
     }
     // autres formats à ajouter ici
-    return nerdamer(userValue).eq(nerdamer(expectedValue));
+    return MyNerd.parseUser(userValue).compare(expectedValue, "==");
 }
-    
+
 export { checkFormat, checkValue };
