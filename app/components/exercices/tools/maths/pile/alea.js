@@ -59,6 +59,8 @@ class Alea {
             }, 1);
             expression += ` + (${poids})*${monomes}`;
         }
+        // étant donnée la nature de l'expression, il n'y a pas de problème
+        // de preprocessing avec nerdamer dans ce cas
         return nerdamer(expression).expand().toString(); 
     }
 }
