@@ -1,8 +1,6 @@
 import Bloc from "./bloc.js";
 import GraphView from "../blocsviews/graphview";
-import MyMath from "../maths/mymath.js";
-import { variablesInExpression } from "../maths/misc/misc.js";
-import nerdamer from "nerdamer";
+import MyNerd from "../maths/mynerd.js";
 
 class GraphBloc extends Bloc {
     static LABELS = ['graph', 'graphe'];
@@ -69,7 +67,7 @@ class GraphBloc extends Bloc {
         const xmin = item.params.xmin !== undefined ? Number(item.params.xmin) : this.xmin;
         const xmax = item.params.xmax !== undefined ? Number(item.params.xmax) : this.xmax;
         const options = _.pick(item.params, ['strokeColor', 'strokeWidth', 'dash', 'color']);
-        const func = nerdamer(expressionStr).buildFunction();
+        const func = MyNerd.buildFunction(expressionStr);
         const f = function(g, graphObjects) {
             return g.create('functiongraph', [func, xmin, xmax], options);
         }
@@ -83,14 +81,15 @@ class GraphBloc extends Bloc {
             return Number(coordString.replace(',', '.'));
         }
         // si c'est une expression, il faut savoir si elle dépend d'autre objets
-        const vars = variablesInExpression(coordString);
+        const n = new MyNerd(coordString);
+        const vars = n.variables;
         if (vars.length === 0) {
             // pas de dépendance, on évalue directement
-            return MyMath.expressionToFloat(coordString, {});
+            return n.toFloat();
         }
         if ((vars.length === 1) && (vars[0].length === 1)) {
             // fonction simple
-            return nerdamer(coordString).buildFunction();
+            return n.processed.buildFunction();
         }
         return 0;
 
@@ -117,7 +116,7 @@ class GraphBloc extends Bloc {
         });
         if (labels.length === 0) {
             // pas de dépendance, on évalue directement
-            return MyMath.expressionToFloat(coordString, {});
+            return MyNerd.toFloat(coordString);
         }
         // il y a des dépendances, on crée une fonction
         const func = nerdamer(subCoordString).buildFunction(labels);
