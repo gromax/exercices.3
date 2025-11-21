@@ -1,7 +1,7 @@
 import Bloc from "./bloc";
 import RadioView from "../blocsviews/radioview.js";
 import InputView from "../blocsviews/inputview.js";
-import MyMath from '../maths/mymath.js';
+import MyNerd from '../maths/mynerd.js'
 import { checkValue } from '../maths/misc/check.js';
 
 /**
@@ -85,7 +85,7 @@ class InputTextBloc extends InputBloc {
         }
         // C'est là qu'il faudra prévoir les divers vérifications
         // solution pourrait être un tableau et alors il suffit qu'une valeur convienne
-        if (this._verify(MyMath.parseUser(userValue), solution)) {
+        if (this._verify(userValue, solution)) {
             const message = `${userValueTag} est une bonne réponse.`;
             return {
                 name: name,
@@ -96,8 +96,8 @@ class InputTextBloc extends InputBloc {
         } else {
             const message = `${userValueTag} est une Mauvaise réponse.`;
             const complement = Array.isArray(solution)
-                ? `Les bonnes réponses possibles étaient : $${solution.map(MyMath.latex).join('$, $')}$.`
-                :`La réponse attendue était : $${MyMath.latex(solution)}$.`;
+                ? `Les bonnes réponses possibles étaient : $${solution.map(MyNerd.latex).join('$, $')}$.`
+                :`La réponse attendue était : $${MyNerd.latex(solution)}$.`;
             return {
                 name: name,
                 success: false,
