@@ -1,5 +1,4 @@
-import MyMath from '../maths/mymath.js';
-import { substituteExpressions } from './misc.js';
+import MyNerd from '../maths/mynerd.js';
 
 class TextNode {
   constructor(text) {
@@ -11,12 +10,21 @@ class TextNode {
   }
 
   run(params, caller) {
-    const text = substituteExpressions(this._text, params);
-    return MyMath.substituteLabels(text, params);
+    return this._substituteExpressions(this._text, params);
   }
 
   get text() {
     return this._text;
+  }
+  
+  /**
+   * remplace les expressions de la forme {expression:format}
+   * par la valeur évaluée de l'expression au format spécifié
+   */
+  _substituteExpressions(str, params) {
+      return str.replace(/\{([^:]+):\s*([\w]*|\$)?\}/g, (match, expr, format) => {
+          return MyNerd.make(expr, params).toFormat(format);
+      });
   }
 }
 
