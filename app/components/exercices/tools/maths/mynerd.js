@@ -16,6 +16,23 @@ import { build } from './parser/rpnbuilder.js';
 import { substituteLabels, getValue } from './misc/substitution.js';
 
 class MyNerd {
+    static parseFloat(value) {
+        if (typeof value === 'number') {
+            return value;
+        }
+        if (typeof value !== 'string') {
+            value = String(value);
+        }
+        if (value.includes(',')) {
+            value = value.replace(',', '.');
+        }
+        if (value.includes('%')) {
+            value = value.replace('%', '');
+            return parseFloat(value) / 100;
+        }
+        return parseFloat(value);
+    }
+
     static make(expression, params = {}) {
         return new MyNerd(expression, params);
     }
@@ -196,6 +213,11 @@ class MyNerd {
                 return this._processed.gte(right.processed);
         }
         return false;
+    }
+
+    expand() {
+        this._processed = this._processed.expand();
+        return this;
     }
 
 }
