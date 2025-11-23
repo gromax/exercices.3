@@ -3,6 +3,7 @@ class Table {
     static METHODS = {
         'indice': Table.indice,
         'indices': Table.indices,
+        'sortFreqs': Table.sortFreqs,
         'size': Table.size,
         'sum': Table.sum,
         'product': Table.product,
@@ -14,7 +15,11 @@ class Table {
         'std2': Table.std2,
         'mediane2': Table.mediane2,
         'quantile2': Table.quantile2,
+        'max': Table.max,
+        'min': Table.min,
+        'ECC2': Table.ECC2,
     };
+
     static indice(val, arr) {
         if (!Array.isArray(arr)) {
             throw new Error(`Le second argument de Table.indice doit être un tableau.`);
@@ -32,6 +37,33 @@ class Table {
             }
             return acc;
         }, []);
+    }
+
+    /**
+     * Trie les valeurs : renvoie une liste de valeurs (croissantes)
+     * et leurs effectifs associés
+     * @param {Array} arr 
+     * @return {Array<Array,Array>} [valeurs, effectifs]
+     */
+    static sortFreqs(arr) {
+        if (!Array.isArray(arr)) {
+            throw new Error(`L'argument de Table.sortFreqs doit être un tableau.`);
+        }
+        const arrCopy = arr.slice();
+        arrCopy.sort((a, b) => a - b);
+        const valeurs = [];
+        const effectifs = [];
+        let currentValue = null;
+        for (const val of arrCopy) {
+            if (val !== currentValue) {
+                valeurs.push(val);
+                effectifs.push(1);
+                currentValue = val;
+            } else {
+                effectifs[effectifs.length - 1]++;
+            }
+        }
+        return [valeurs, effectifs];
     }
 
     static size(arr) {
@@ -93,13 +125,13 @@ class Table {
     }
 
     static variance2(values, effectifs) {
-        const m = Table.average(values, effectifs);
+        const m = Table.average2(values, effectifs);
         const squaredDiffs = values.map((val) => (val - m) ** 2);
-        return Table.average(squaredDiffs, effectifs);
+        return Table.average2(squaredDiffs, effectifs);
     }
 
     static std2(values, effectifs) {
-        return Math.sqrt(Table.variance(values, effectifs));
+        return Math.sqrt(Table.variance2(values, effectifs));
     }
 
     static mediane2(values, effectifs) {
@@ -125,6 +157,14 @@ class Table {
         }
     }
 
+    static max(values) {
+        return Math.max(...values);
+    }
+
+    static min(values) {
+        return Math.min(...values);
+    }
+
     static quantile2(values, effectifs, q) {
         if (!Array.isArray(values) || !Array.isArray(effectifs)) {
             throw new Error(`Les arguments de Table.quantile doivent être des tableaux.`);
@@ -143,6 +183,31 @@ class Table {
                 return values[i];
             }
         }
+    }
+
+    /**
+     * Renvoie l'effectif des individus ayant une valeur
+     * <= value
+     * @param {Array} values 
+     * @param {Array} effectifs 
+     * @param {number} value 
+     * @returns 
+     */
+    static ECC2(values, effectifs, value) {
+        if (!Array.isArray(values) || !Array.isArray(effectifs)) {
+            throw new Error(`Les arguments de Table.quantile doivent être des tableaux.`);
+        }
+        if (values.length !== effectifs.length) {
+            throw new Error(`Les tableaux passés à Table.quantile doivent avoir la même taille.`);
+        }
+        let cumulative = 0;
+        for (let i = 0; i < effectifs.length; i++) {
+            if (values[i] > value) {
+                return cumulative;
+            }
+            cumulative += effectifs[i];
+        }
+        return cumulative;
     }
 }
 
