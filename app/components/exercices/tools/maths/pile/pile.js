@@ -1,12 +1,14 @@
 import Alea from './alea.js';
-import Table from './table.js';
+import Table from './table.js'; // Tables et stats
 import Calc from './calc.js';
+import Dist from './dist.js'; // Distributions
 import { getValue, substituteLabels } from '../misc/substitution.js';
 
 const MODULES = {
     'Alea': Alea,
     'Calc': Calc,
-    'Table': Table
+    'Table': Table,
+    'Dist': Dist,
 };
 
 function tryAsPile(expression, params) {
@@ -36,11 +38,10 @@ function _executePile(pile) {
         if (top in Calc.SHORTCUTS) {
             top = Calc.SHORTCUTS[top];
         }
-        if (!/^[A-Za-z_]+\.[A-Za-z_]+$/.test(top)) {
+        if (!/^[A-Za-z_]+\.[A-Za-z_]\w*$/.test(top)) {
             operandes.push(top);
             continue;
         }
-
         const match = top.match(/^(\w+)\.(\w+)$/);
         const moduleName = match[1];
         const functionName = match[2];
