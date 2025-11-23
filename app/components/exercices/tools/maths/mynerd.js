@@ -186,14 +186,46 @@ class MyNerd {
             return this.latex();
         }
         if (format === 'f') {
-            return String(this.toFloat()).replace('.', ',');
+            return this._toFormatDecimal(-1);
         }
-        const m = format.match(/^([1-9][0-9]*)f$/);
+        if (format === 'f$') {
+            return this._toTexDecimal(-1);
+        }
+        const m = format.match(/^([1-9][0-9]*)f(\$)?$/);
         if (m) {
             const n = parseInt(m[1], 10);
-            return this._processed.text('decimals', n+1).replace('.', ',');
+            if (m[2]) {
+                return this._toTexDecimal(n+1);
+            }
+            return this._toFormatDecimal(n+1);
         }
         return this.toString();
+    }
+
+    /**
+     * renvoie au format décimal avec n chiffres après la virgule
+     * @param {number} n -1 si pas de limite
+     * @returns {string}
+     */
+    _toFormatDecimal(n) {
+        if (n >= 0) {
+            return MyNerd.denormalization(this._processed.text('decimals', n));
+        }
+        return MyNerd.denormalization(this._processed.text('decimals'));
+    }
+
+    /**
+     * renvoie au format décimal pour TeX
+     * @param {number} n -1 si pas de limite
+     * @returns {string}
+     */
+    _toTexDecimal(n) {
+        const expr = this._toFormatDecimal(n);
+        // ensuite on veut générer du TeX
+        // J'utilise mon parser
+        const parsed = new Parser(expr);
+        const b = build(parsed.rpn);
+        return b.toTex();
     }
 
     compare(rightExpr, operator, params = {}) {
