@@ -21,23 +21,21 @@ This is a modern JS skeleton with MarionetteJS for [Webpack](https://webpack.git
 
 ## à faire
 
+* une fonction permettant l'évaluation d'une fonction
+* une fonction s'appuyant sur le solve de nerdamer, qui extrait le tableau et enlève les éventuels résultats complexes
+* ce serait bien de cibler l'erreur sur une ligne si possible
+* il semble que "publié" se coche plus ou moins tout seul (sans doute à la créa ?) même quand on touche un autre exo ! Le pb est que "0" est parsé true ! En effet Boolean("0") renvoie true.
+* prévoir une petite calculatrice
+
 * les cas de réponse attendue dans le cas input
-  * possibilité d'ajouter plusieurs expected dans un cas un dans une liste
   * cas ensemble
   * développé
-  * approx...
 * cas d'interface
-  * jsxgraph : dans ce cas le setparam pourrait devoir être adapté
-  * tableau
-  * association avec couleurs
-  * boutons de clavier
   * zonee d'édit intelligente
   * sauvegarde sur aperçu
 * chargement d'une classe à la algoPython ?
-* interface devoir pour prof
-  * clonage de devoir
 * admin : interface de nettoyage
-* élève
+* mélanger les couleurs
 
 - j'ai l'idée pour un bloc graph de faire des sous-blocs qui seraient des éléments utiles. Par exemple <functiongraph:f> qui contiendrait des blocs comme <expression>, <color>... le <functiongraph> contiendrait lui même des params <xmin:value/> etc.
 
@@ -335,6 +333,30 @@ Au lieu de `texte` on dispose de quelques variantes :
   * `info` pour un formatage d'info
   * `help` ou `aide` pour un bloc d'aide qui se replie. Il faut appuyer le bouton pour afficher l'aide.
 
+##### Formatage
+
+À l'intérieur du texte, on est susceptible d'ajouter une formule. On peut alors écrire un bloc de formatage `{expr:}`. Ce bloc indique que l'on veut formater l'expresson selon un certain formatage. Bien sûr on peut vouloir afficher le contenu d'une variable : `{@x:}`. Il existe divers formages.
+
+  * `{@x:}` pas de formatage particulier
+  * `{@x:$}` formaté en latex. Attention, ce formatage se contente de produire le code latex. Si on souhaite en plus que ce code soit identifié comme du latex et soit rendu en tant que tel, il faudra ajouter les `$`, donc écrire `${@x:$}`
+  * `{@x:f}` ou `{@x:3f}` pour un affichage approximé. Si on ne précise pas de nombre de chiffres après la virgules, alors le nombre est écrit en entier.
+
+  > Attention : nerdamer qui est utilisé pour les calculs remplace automatiquement les nombres décimaux en fractions. Ainsi, si on écrit `2.1`, on aura `21/10`. Cela peut être gênant dans une expression. Le format `float` permet alors de convertir les nombres fractionnaires en approximations à virgule.
+
+  * `{@x:f$}` pour float et latex. En effet, comme précisé dans la note ci-dessus, nerdamer convertit les nombres décimaux en fractions. Alors on est ennuyé si on veut un affichage avec nombres décimaux et en rendu latex. Ce format est là pour cela. On peut préciser un niveau d'approx, par exemple `{@x:3f$}`.
+
+Supposons que l'on ait produit un trinome de forme $a\cdot x^2 + b \cdot x + c$ et que l'on ait stocké dans des variables `@a`, `@b`, `@c` les valeurs des coefficients, générés aléatoirement pour les besoins de l'exercice. On pourrait croire qu'il suffit d'écrire $@a x^2 + @b x + @c$ pour obtenir une représentation correcte du trinome. Mais cette méthode est mauvaise car `@a` pourrait être égal à `1` et `@b` pourrait être nul ou négatif... C'est pour cette raison qu'il convient d'utiliser le formatage. L'expression sera convenablement interprétée par nerdamer qui produire une représentation adéquat.
+
+##### Utilisation de expand
+
+Une difficulté est que nerdamer voudra probablement travailler la forme de l'objet numérique. Avec un trinome, il voudra automatiquement le développer. Que faire si nous désirons une forme développée ?
+
+On peut utiliser la fonction `expand`. Avec l'exemple précédent, on pourra par exemple écrire :
+
+`${expand(@a*x^2 + @b*x + @c):$}$`
+
+L'expression est analysée de sorte que si `@b == 0`, le terme en `x` n'apparaîtra pas. `expand` force un affichage développé.
+
 #### Bloc formulaire
 
 ```
@@ -599,6 +621,10 @@ La fonction `Alea.lagrangePolynome` tire `n+1` points au hasard, à coordonnées
   * `Table.mediane2` reçoit les tableaux `values` et `effectifs`, de même taille, et renvoie la médiane.
   * `Table.quantile` reçoit `tableau` et `q` et renvoie la quantile `q` des éléments du tableau. Erreur si tableau vide.
   * `Table.quantile2` reçoit les tableaux `values` et `effectifs`, de même taille, et `q`, et renvoie la quantile.
+  * `Table.ECC2` reçoit les tableaux `values` et `effectifs` et une `valeur`. Renvoie l'effectif total de tous les individus dont la valeur est inférieure ou égale à `valeur`
+  * `Table.min` reçoit un tableau et renvoie la valeur minimum.
+  * `Table.max` reçoit un tableau et renvoie la valeur maximum.
+  * `Table.sortFreqs` reçoit un tableau et renvoie un tableau de tableau `t` avec `t[0]` contenant la liste des valeurs en ordre croissant et `t[1]` la liste des effectifs.
 
 
 
