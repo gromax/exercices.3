@@ -1,4 +1,4 @@
-import IfBloc from "./ifbloc.js";
+import { IfBloc, CondBloc } from "./ifbloc.js";
 import Affectation from "./affectation.js";
 import Bloc from "./bloc.js";
 import TextNode from "./textnode.js";
@@ -62,18 +62,21 @@ class MainBloc extends Bloc {
             if (trimmed === '</main>') {
                 throw new Error("Erreur de syntaxe : fin de bloc main interdite");
             }
-            const condition = IfBloc.parse(trimmed);
-            if (condition) {
-                if (condition.tag === IfBloc.NEEDED) {
-                   stack[stack.length-1].push(condition);
-                   continue;
-                }
+
+            if (CondBloc.isElse(trimmed)) {
+                stack[stack.length-1].closeIfBranch();
+                continue;
+            }
+            const condition = CondBloc.tryParse(trimmed);
+            if (CondBloc.isNeeded(condition)) {
+                stack[stack.length-1].push(condition);
+                continue;
+            } else if (CondBloc.isUntil(condition)) {
+                stack.push(condition);
+                continue;
+            } else if (condition !== null) {
                 if ((condition.tag !== IfBloc.IF)&&(!(stack[stack.length-1] instanceof IfBloc))) {
                     throw new Error(`Erreur de syntaxe : ${condition.tag} sans if ou elif préalable`);
-                }
-                if (condition.tag === IfBloc.ELSE) {
-                    stack[stack.length-1].closeIfBranch();
-                    continue;
                 }
                 if (condition.tag === IfBloc.ELIF) {
                     stack[stack.length-1].closeIfBranch();
@@ -209,11 +212,21 @@ class MainBloc extends Bloc {
             if (item instanceof TextNode) {
                 continue;
             }
-            if (item instanceof IfBloc) {
-                const ifChildren = item.run({ ...params, ...options });
-                if (ifChildren === null) {
+            if (CondBloc.isNeeded(item)) {
+                if (item.run({ ...params, ...options }) === null) {
                     return null;
                 }
+                continue;
+            }
+            if (CondBloc.isUntil(item)) {
+                const success = item.doAffectations(params, options);
+                if (!success) {
+                    return null;
+                }
+                continue;
+            }
+            if (item instanceof IfBloc) {
+                const ifChildren = item.run({ ...params, ...options });
                 program.push(...ifChildren.reverse());
                 continue;
             }
