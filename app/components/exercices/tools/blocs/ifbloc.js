@@ -1,6 +1,6 @@
 import Bloc from './bloc.js';
-import MyMath from '../maths/mymath.js';
 import MyNerd from '../maths/mynerd.js';
+import Affectation from './affectation.js';
 
 class Operator {
     constructor(symbol, priority) {
@@ -55,9 +55,9 @@ class SimpleCondition {
     }
 
     constructor(left, operator, right) {
-        this.left = left;
+        this.left = left.trim();
         this.operator = operator;
-        this.right = right;
+        this.right = right.trim();
     }
 
     evaluate(params) {
@@ -69,26 +69,33 @@ class SimpleCondition {
     }
 }
 
-class IfBloc extends Bloc {
-    static END = '<endif>'
-    static ENDIF = 'endif'
-    static IF = 'if'
-    static ELSE = 'else'
-    static ELIF = 'elif'
-    static NEEDED = 'needed'
-
-    _ifClosed = false;
-    _elseChildren = [];
-    _expression = null;
-
-    static parse(line) {
-        const regex = /^<(if|elif|else|needed)(\s+.*)?>$/;
+class CondBloc {
+    static tryParse(line) {
+        const regex = /^<(if|elif|needed|until)(\s+.*)?>$/;
         const m = line.match(regex);
         if (!m) {
             return null;
         }
         const [, tag, paramsString] = m;
+        if (tag === 'needed') {
+            return new Needed(tag, paramsString);
+        }
+        if (tag === 'until') {
+            return new Until(tag, paramsString);
+        }
         return new IfBloc(tag, paramsString);
+    }
+
+    static isElse(line) {
+        return /^<\s*else\s*>$/.test(line);
+    }
+
+    static isNeeded(item) {
+        return (item !== null && item instanceof Needed);
+    }
+
+    static isUntil(item) {
+        return (item !== null && item instanceof Until);
     }
 
     static parseExpression(expr) {
@@ -150,30 +157,80 @@ class IfBloc extends Bloc {
         }
         return stack.pop();
     }
+}
 
-    /** Fonction qui teste une condition sur un ensemble de paramètres
-     * @param {object} condition  { left: string, right: string, operator:string }
-     * @param {object} params 
-     * @returns {boolean}
-     */
-    static testSingleCondition(condition, params) {
-        const left = MyMath.evaluate(condition.left, params);
-        const right = MyMath.evaluate(condition.right, params);
-        return (left === right) === (condition.operator === '==');
+class Until extends Bloc {
+    MAXITERATIONS = 100;
+    constructor(tag, paramsString) {
+        super(tag, paramsString, false);
+        this._expression = CondBloc.parseExpression(paramsString);
     }
+    
+    toString() {
+        return `<until ${this._expression.toString()} ${this.closed ? '' : '*'}>`;
+    }
+
+    push(child) {
+        if (this.closed) {
+            throw new Error("Impossible d'ajouter un enfant à un bloc fermé");
+        }
+        // until ne peut avoir que des affectations comme enfants
+        if (this.tag === IfBloc.UNTIL && !(child instanceof Affectation)) {
+            throw new Error("Un bloc <until> ne peut contenir que des affectations.");
+        }
+        this._children.push(child);
+    }
+
+    run(params, caller) {
+        throw new Error("<until> ne peut être placé que dans le bloc init.");
+    }
+
+    doAffectations(params, options) {
+        let iterations = 0;
+        do {
+            for (const child of this._children) {
+                child.doAffectation(params, options);
+            }
+            iterations++;
+        } while (!this._expression.evaluate(params) && (iterations < this.MAXITERATIONS));
+        return iterations < this.MAXITERATIONS;
+    }
+}
+
+
+class Needed extends Bloc {
+    constructor(tag, paramsString) {
+        super(tag, paramsString, true);
+        this._expression = CondBloc.parseExpression(paramsString);
+    }
+    toString() {
+        return `<needed ${this._expression.toString()}>`;
+    }
+
+    run(params, caller) {
+        return this._expression.evaluate(params) ? [] : null;
+    }
+}
+
+class IfBloc extends Bloc {
+    static END = '<endif>'
+    static ENDIF = 'endif'
+    static IF = 'if'
+    static ELIF = 'elif'
+
+    _ifClosed = false;
+    _elseChildren = [];
+    _expression = null;
 
     constructor(tag, paramsString) {
         super(tag, paramsString, false);
-        if (this.tag === IfBloc.ELSE && paramsString) {
-            throw new Error("Erreur de syntaxe : else ne doit pas avoir de condition");
-        }
-        if (this.tag == IfBloc.NEEDED) {
-            this.close();
-        }
-        this._expression = paramsString?IfBloc.parseExpression(paramsString):null;
+        this._expression = paramsString?CondBloc.parseExpression(paramsString):null;
     }
 
     closeIfBranch() {
+        if (this.tag !== IfBloc.IF && this.tag !== IfBloc.ELIF) {
+            throw new Error("Seuls les blocs if et elif peuvent être fermés avec une branche else");
+        }
         if (this._ifClosed) {
             throw new Error("La branche if est déjà fermée. Vérifiez l'enchaînement de vos if, elif, else.");
         }
@@ -215,12 +272,9 @@ class IfBloc extends Bloc {
 
     run(params, caller) {
         const result = this._evaluateCondition(params);
-        if (this.tag === IfBloc.NEEDED && !result) {
-            return null;
-        }
         const ifChildren = result ? this._children : this._elseChildren;
         return ifChildren;
     }
 }
 
-export default IfBloc;
+export { IfBloc, CondBloc};
