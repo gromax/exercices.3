@@ -111,6 +111,20 @@ Dans le bloc d'initialisation ou le bloc de code de l'exercice, le concepteur a 
 
 On peut énoncer des conditions de la forme `a == b` ou `a != b`. On peut les associer avec des opérateurs `and` et `or`.
 
+#### conditions somme et all
+
+Si un paramètre est un tableau, il est possible de faire  un test sur l'ensemble. Par exemple, si `@a = [1, 4, 5, 10]` on pourra faire une comparaison pour savoir si un des éléments est égal à 5 ou encore si tous les éléments sont égaux à 5.
+
+```
+# un élément égal à 5
+<if some(@a)==5>
+
+# tous les éléments égaux à 5
+<if all(@a)==5>
+```
+
+Cela fonctionne également avec les symboles d'inégalité.
+
 #### if
 
 ```
@@ -136,6 +150,20 @@ L'idée est d'initialiser aléatoirement et de « relancer les dés » jusqu'à 
 ```
 
 Noter que, bien que `needed` soit un bloc singleton, il ne faut pas le fermer par `/>`.
+
+#### until
+
+Ne peut être placé que dans le bloc init et ne peut contenir que des affectations.
+
+```
+<until @a > 0>
+@a = @__a._10 - 3
+</until>
+```
+
+Répète les affectations **jusqu'à** ce que la condition soit vraie. La condition n'est évaluée qu'à la fin. Pertinent quand on veut intialiser une valeur aléatoire en respectant une condition sans pour autant tout redémarrer comme avec needed.
+
+Pour éviter une situation bloquante, `until` n'est répété au plus que 100x. Ainsi, si le professeur indique une condition trop contraignante ou impossible, la tentative d'exécution échoue et un message est affiché.
 
 ### Initialisation
 
@@ -315,6 +343,8 @@ Il est d'ailleurs possible de traiter ces paramètres en tableaux :
 ```
 
 Ainsi on a un paramètre de nom `param` qui est le tableau `[1, 7]`.
+
+Un paramètre peut aussi être un texte avec formatage. Par exemple `<param:image de {@x:}/>`
 
 #### Bloc de texte
 
