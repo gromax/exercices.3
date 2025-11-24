@@ -22,6 +22,9 @@ function getValue(chaine, params) {
  * @returns {*} la valeur du paramètre
  */
 function _getValueInternal(name, sub, index, params) {
+    if (name === '__a') {
+        return _getAlea(sub);
+    }
     if (params[name] === undefined) {
         throw new Error(`@${name} n'est pas défini.`);
     }
@@ -62,16 +65,7 @@ function substituteLabels(expr, params) {
         // on envisage que le tag soit de la forme __a._10
         // dans ce cas on remplace par une valeur aléatoire constante
         if (name=== '__a') {
-            const nStr = sub ? sub.slice(1) : '';
-            const n = Number(nStr);
-            if (isNaN(n) || !Number.isInteger(n) || n < 0) {
-                throw new Error(`Index invalide pour un paramètre aléatoire : ${match}`);
-            }
-            if (aleas[sub] === undefined) {
-                const value = Math.floor(Math.random()*n);
-                aleas[sub] = value;
-            }
-            return String(aleas[sub]);
+            return String(_getAlea(sub, aleas));
         }
         const replacement = _getValueInternal(name, sub, index, params);
         if (replacement === null) {
@@ -79,6 +73,19 @@ function substituteLabels(expr, params) {
         }
         return `(${String(replacement)})`;
     });
+}
+
+function _getAlea(sub, aleas = {}) {
+    const nStr = sub ? sub.slice(1) : '';
+    const n = Number(nStr);
+    if (isNaN(n) || !Number.isInteger(n) || n < 0) {
+        throw new Error(`Index invalide pour un paramètre aléatoire : ${match}`);
+    }
+    if (aleas[sub] === undefined) {
+        const value = Math.floor(Math.random()*n);
+        aleas[sub] = value;
+    }
+    return aleas[sub];
 }
 
 
