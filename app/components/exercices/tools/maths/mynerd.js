@@ -102,8 +102,23 @@ class MyNerd {
      * @returns {boolean} le résultat de la comparaison
      */
     static compare(leftExpr, rightExpr, operator, params = {}) {
-        const left = MyNerd.make(leftExpr, params);
-        return left.compare(rightExpr, operator, params);
+        // L'expression de gauche pourrait être some(...) ou all(...)
+        // avec un tableau en paramètre
+        const regex = /^(some|all)\((.+)\)$/;
+        const m = leftExpr.match(regex);
+        if (m) {
+            const func = m[1];
+            const left = MyNerd.make(m[2], params);
+            const results = left.compare(rightExpr, operator, params);
+            if (func === 'some') {
+                return results.some(r => r === true);
+            } else { // all
+                return results.every(r => r === true);
+            }
+        } else {
+            const left = MyNerd.make(leftExpr, params);
+            return left.compare(rightExpr, operator, params);
+        }
     }
 
     static normalization(expression) {
@@ -127,6 +142,19 @@ class MyNerd {
             
     }
 
+    /**
+     * remplace les expressions de la forme {expression:format}
+     * par la valeur évaluée de l'expression au format spécifié
+     */
+    static substituteExpressions(texte, params) {
+        return texte.replace(/\{([^:]+):\s*([\w]*(?:\$)?)?\}/g, (match, expr, format) => {
+            return MyNerd.make(expr, params).toFormat(format);
+        });
+    }
+
+
+    // Méthodes d'instance
+
     constructor(expression, params = {}) {
         if (typeof expression !== 'string') {
             expression = String(expression);
@@ -134,6 +162,11 @@ class MyNerd {
         this._expression = expression.includes('@')
           ? getValue(expression, params) ?? substituteLabels(expression, params)
           : expression;
+        this._children = null;
+        if (Array.isArray(this._expression)) {
+            this._children = this._expression.map(expr => new MyNerd(expr, params));
+            return;
+        }
         this._normalized = MyNerd.normalization(this._expression);
         try {
             this._processed = nerdamer(this._normalized);
@@ -144,20 +177,32 @@ class MyNerd {
     }
 
     get expression() {
+        if (this._children !== null) {
+            return this._children.map(child => child.expression);
+        }
         return this._expression;
     }
 
     get processed() {
+        if (this._children !== null) {
+            return this._children.map(child => child.processed);
+        }
         return this._processed;
     }
 
     get variables() {
+        if (this._children !== null) {
+            return this._children.map(child => child.variables);
+        }
         return this._processed.variables();
     }
 
     toFloat() {
+        if (this._children !== null) {
+            return this._children.map(child => child.toFloat());
+        }
         try {
-            return parseFloat(this._processed.text('decimals'));
+            return parseFloat(this._processed.evaluate().text('decimals'));
         } catch (e) {
             console.warn(`Erreur lors de la conversion de ${this._expression} en nombre décimal :`, e);
             return NaN;
@@ -165,10 +210,16 @@ class MyNerd {
     }
 
     toString() {
+        if (this._children !== null) {
+            return this._children.map(child => child.toString());
+        }
         return MyNerd.denormalization(this._processed.toString());
     }
 
     latex() {
+        if (this._children !== null) {
+            return this._children.map(child => child.latex());
+        }
         return MyNerd.denormalization(this._processed.toTeX());
     }
 
@@ -181,6 +232,9 @@ class MyNerd {
      * @returns {string} la valeur formatée
      */
     toFormat(format) {
+        if (this._children !== null) {
+            return this._children.map(child => child.toFormat(format));
+        }
         format = (format || '').trim();
         if (format === '$') {
             return this.latex();
@@ -209,9 +263,11 @@ class MyNerd {
      */
     _toFormatDecimal(n) {
         if (n >= 0) {
-            return MyNerd.denormalization(this._processed.text('decimals', n));
+            return MyNerd.denormalization(this._processed.evaluate().text('decimals', n));
         }
-        return MyNerd.denormalization(this._processed.text('decimals'));
+        // Si on a une expression comme "4.3 + sqrt(4.5)", nerdamer ne va pas
+        // exécuter la fonction. Dans ce cas il me semble plus pertinent d'évaluer
+        return MyNerd.denormalization(this._processed.evaluate().text('decimals'));
     }
 
     /**
@@ -229,6 +285,9 @@ class MyNerd {
     }
 
     compare(rightExpr, operator, params = {}) {
+        if (this._children !== null) {
+            return this._children.map(child => child.compare(rightExpr, operator, params));
+        }
         const right = MyNerd.make(rightExpr, params);
         switch (operator) {
             case '==':
@@ -248,6 +307,12 @@ class MyNerd {
     }
 
     expand() {
+        if (this._children !== null) {
+            for (const child of this._children) {
+                child.expand();
+            }
+            return this;
+        }
         this._processed = this._processed.expand();
         return this;
     }
