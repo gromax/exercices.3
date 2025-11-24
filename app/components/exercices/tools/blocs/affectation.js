@@ -38,7 +38,7 @@ class Affectation {
         if (this._isArray && params[this._tag] !== undefined && !Array.isArray(params[this._tag])) {
             throw new Error(`Le paramètre ${this._tag} doit être un tableau.`);
         }
-        if (this._isArray && params[this._tag] !== undefined) {
+        if (this._isArray && params[this._tag] === undefined) {
             params[this._tag] = [];
         }
         if (this._repeater === undefined) {
