@@ -117,13 +117,19 @@ Si un paramètre est un tableau, il est possible de faire  un test sur l'ensembl
 
 ```
 # un élément égal à 5
-<if some(@a)==5>
+<if some {@a==5}>
 
 # tous les éléments égaux à 5
-<if all(@a)==5>
+<if all {@a==5}>
 ```
 
-Cela fonctionne également avec les symboles d'inégalité.
+Cela fonctionne également avec les symboles d'inégalité. On peut articuler `some` et `all` avec des `and` et des `or`.
+
+Ainsi on peut écrire :
+
+```
+<if all {@a>-5 and @a<-5}>
+```
 
 #### if
 
@@ -655,6 +661,23 @@ La fonction `Alea.lagrangePolynome` tire `n+1` points au hasard, à coordonnées
   * `Table.min` reçoit un tableau et renvoie la valeur minimum.
   * `Table.max` reçoit un tableau et renvoie la valeur maximum.
   * `Table.sortFreqs` reçoit un tableau et renvoie un tableau de tableau `t` avec `t[0]` contenant la liste des valeurs en ordre croissant et `t[1]` la liste des effectifs.
+  * `Table.filter` reçoit un tableau, un opérateur parmi `==, !=, <, <=, >, >=`, et une valeur. Renvoie le tableau des items satisfaisant le test.
 
+#### Module Calc
+
+  * `*` fait une multiplication. Attention, en notation polonaise inversée donc par ex `<P:3 5 *>` pour faire $3\times 5$
+  * `-`, `+`, `/` : idem
+  * `float` pour obtenir un float
+  * `abs` pour valeur absolue
+  * `sign` renvoie `-1` pour un négatif et `+1` pour un positif
+  * `solve` reçoit `left`, `right` (deux membres de l'équation) et `name` nom de la variable. Renvoie les solutions
+  * `sub` reçoit `expression`, `name` et `value` et renvoie l'expression où on substitué `name` pour `value`. Permet en particulier de calculer $f(x)$.
+
+#### Module Dist
+
+  * `Dist.binomial` reçoit `n` et `p` et simule un aléa $\mathcal{B}(n;p)$
+  * `Dist.binList` reçoit `count`, `n` et `p` et renvoie un tableau de `count` simulations de $\mathcal{B}(n;p)$
+  * `Dist.binCDF` reçoit `k`, `n` et `p` et renvoie la probabilité $p(X\leqsant k)$ avec $X$ suivant $\mathcal{B}(n;p)$
+  * `Dist.binPDF` reçoit `k`, `n` et `p` et renvoie la probabilité $p(X = k)$ avec $X$ suivant $\mathcal{B}(n;p)$
 
 
