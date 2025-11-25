@@ -72,6 +72,30 @@ class BinaryLogicalOperator {
         }
         const left = this._left.evaluate(params);
         const right = this._right.evaluate(params);
+        if (Array.isArray(left)) {
+            if (Array.isArray(right)) {
+                if (left.length !== right.length) {
+                    throw new Error("Erreur d'évaluation de l'expression conditionnelle : tailles incompatibles");
+                }
+                if (this.symbol === 'and') {
+                    return left.map((v, i) => v && right[i]);
+                } else {
+                    return left.map((v, i) => v || right[i]);
+                }
+            } else {
+                if (this.symbol === 'and') {
+                    return left.map(v => v && right);
+                } else {
+                    return left.map(v => v || right);
+                }
+            }
+        } else if (Array.isArray(right)) {
+            if (this.symbol === 'and') {
+                return right.map(v => left && v);
+            } else {
+                return right.map(v => left || v);
+            }
+        }
         if (this.symbol === 'and') {
             return left && right;
         } else {
