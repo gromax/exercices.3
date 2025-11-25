@@ -49,6 +49,7 @@ class Dist {
         if (isNaN(count) || count <= 0) {
             throw new Error('Paramètre count invalide pour binomialList');
         }
+        p = MyNerd.parseFloat(p);
         return Array.from({ length: count }, () => Dist.binomial(n, p));
     }
 
@@ -69,8 +70,13 @@ class Dist {
         
         // Approximation normale pour grands n
         let x;
+        let counter = 0;
         do {
-            x = Math.round(mean + stddev * Dist._normal(mean, stddev));
+            x = Math.round(Dist._normal(mean, stddev));
+            counter++;
+            if (counter > 10) {
+                throw new Error("Trop d'itérations dans _binomialBTPE");
+            }
         } while (x < 0 || x > n);
         return flip ? n - x : x;
     }
