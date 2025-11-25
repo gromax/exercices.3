@@ -2,9 +2,50 @@ import Bloc from './bloc.js';
 import MyNerd from '../maths/mynerd.js';
 import Affectation from './affectation.js';
 
-class Operator {
+class UnaryLogicalOperator {
+    static SYMBOLS = ['some', 'all'];
     constructor(symbol, priority) {
-        if (symbol !== 'and' && symbol !== 'or') {
+        if (!UnaryLogicalOperator.SYMBOLS.includes(symbol)) {
+            throw new Error(`Opérateur inconnu : ${symbol}`);
+        }
+        this.symbol = symbol;
+        this.priority = priority+0.7;
+        this._operand = null;
+    }
+    getCondFromStack(stack) {
+        if (stack.length < 1) {
+            throw new Error("Erreur de syntaxe dans l'expression conditionnelle");
+        }
+        this._operand = stack.pop();
+        if (!(this._operand instanceof SimpleCondition || this._operand instanceof BinaryLogicalOperator)) {
+            throw new Error("Erreur de syntaxe dans l'expression conditionnelle");
+        }
+        stack.push(this);
+    }
+    evaluate(params) {
+        if (this._operand === null) {
+            throw new Error("Erreur d'évaluation de l'expression conditionnelle");
+        }
+        const result = this._operand.evaluate(params);
+        if (!Array.isArray(result)) {
+            return result;
+        }
+        if (this.symbol === 'some') {
+            return result.some(v => v);
+        } else {
+            return result.every(v => v);
+        }
+    }
+    toString() {
+        return `${this.symbol} (${this._operand.toString()})`;
+    }
+}
+
+
+class BinaryLogicalOperator {
+    static SYMBOLS = ['and', 'or'];
+    constructor(symbol, priority) {
+        if (!BinaryLogicalOperator.SYMBOLS.includes(symbol)) {
             throw new Error(`Opérateur inconnu : ${symbol}`);
         }
         this.symbol = symbol;
@@ -98,16 +139,17 @@ class CondBloc {
         return (item !== null && item instanceof Until);
     }
 
+    static _isLogicalToken(token) {
+        return BinaryLogicalOperator.SYMBOLS.includes(token) || UnaryLogicalOperator.SYMBOLS.includes(token) || token === '{' || token === '}';
+    }
+
     static parseExpression(expr) {
         expr = expr.trim();
         const regex = /[^\s{}]+|\{|\}/g;
         const tokens = expr.match(regex)
         // recoller les tokens qui ne font pas partie de and, or, {, }
         for (let i = 0; i < tokens.length - 1; i++) {
-            if (tokens[i] == 'and' || tokens[i] == 'or' || tokens[i] == '{' || tokens[i] == '}') {
-                continue;
-            }
-            if (tokens[i + 1] == 'and' || tokens[i + 1] == 'or' || tokens[i + 1] == '{' || tokens[i + 1] == '}') {
+            if (CondBloc._isLogicalToken(tokens[i]) || CondBloc._isLogicalToken(tokens[i + 1])) {
                 continue;
             }
             tokens[i] = tokens[i] + ' ' + tokens[i + 1];
@@ -129,8 +171,10 @@ class CondBloc {
                 }
                 continue;
             }
-            if ((token == "and") || (token == "or")) {
-                const operator = new Operator(token, level);
+            if (CondBloc._isLogicalToken(token)) {
+                const operator = UnaryLogicalOperator.SYMBOLS.includes(token)
+                    ? new UnaryLogicalOperator(token, level)
+                    : new BinaryLogicalOperator(token, level);
                 if ((opStack.length > 0) && (opStack[opStack.length - 1].priority >= operator.priority)) {
                     const op = opStack.pop();
                     op.getCondFromStack(stack);
