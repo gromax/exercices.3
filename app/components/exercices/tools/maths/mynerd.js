@@ -9,28 +9,23 @@
 
 import nerdamer from 'nerdamer';
 import 'nerdamer/all';
-import Parser from './parser/parser.js';
-import { build } from './parser/rpnbuilder.js';
+import Parser from './parser/parser';
+import { build } from './parser/rpnbuilder';
+import { substituteLabels, getValue } from './misc/substitution';
 
-
-import { substituteLabels, getValue } from './misc/substitution.js';
 
 class MyNerd {
     static parseFloat(value) {
         if (typeof value === 'number') {
             return value;
         }
+        if (value instanceof MyNerd) {
+            return value.toFloat();
+        }
         if (typeof value !== 'string') {
             value = String(value);
         }
-        if (value.includes(',')) {
-            value = value.replace(',', '.');
-        }
-        if (value.includes('%')) {
-            value = value.replace('%', '');
-            return parseFloat(value) / 100;
-        }
-        return parseFloat(value);
+        return MyNerd.toFloat(value);
     }
 
     static make(expression, params = {}) {
@@ -102,23 +97,8 @@ class MyNerd {
      * @returns {boolean} le résultat de la comparaison
      */
     static compare(leftExpr, rightExpr, operator, params = {}) {
-        // L'expression de gauche pourrait être some(...) ou all(...)
-        // avec un tableau en paramètre
-        const regex = /^(some|all)\((.+)\)$/;
-        const m = leftExpr.match(regex);
-        if (m) {
-            const func = m[1];
-            const left = MyNerd.make(m[2], params);
-            const results = left.compare(rightExpr, operator, params);
-            if (func === 'some') {
-                return results.some(r => r === true);
-            } else { // all
-                return results.every(r => r === true);
-            }
-        } else {
-            const left = MyNerd.make(leftExpr, params);
-            return left.compare(rightExpr, operator, params);
-        }
+        const left = MyNerd.make(leftExpr, params);
+        return left.compare(rightExpr, operator, params);
     }
 
     static normalization(expression) {
@@ -128,7 +108,8 @@ class MyNerd {
         return expression
             .replace(/,/g, '.')            // virgules → points décimaux
             .replace(/\blog\(/g, 'log10(') // log( → log10(
-            .replace(/\bln\(/g, 'log(');   // ln( → log(
+            .replace(/\bln\(/g, 'log(')    // ln( → log(
+            .replace(/%/g, '/100');        // % → /100
     }
 
     static denormalization(expression) {
@@ -286,7 +267,14 @@ class MyNerd {
 
     compare(rightExpr, operator, params = {}) {
         if (this._children !== null) {
-            return this._children.map(child => child.compare(rightExpr, operator, params));
+            if (Array.isArray(rightExpr)) {
+                if (rightExpr.length !== this._children.length) {
+                    throw new Error(`Les tableaux comparés n'ont pas la même taille.`);
+                }
+                return this._children.map((child, index) => child.compare(rightExpr[index], operator, params));
+            } else {
+                return this._children.map(child => child.compare(rightExpr, operator, params));
+            }
         }
         const right = MyNerd.make(rightExpr, params);
         switch (operator) {
@@ -302,8 +290,9 @@ class MyNerd {
                 return this._processed.gt(right.processed);
             case '>=':
                 return this._processed.gte(right.processed);
+            default:
+                throw new Error(`Opérateur de comparaison invalide : ${operator}`);
         }
-        return false;
     }
 
     expand() {
