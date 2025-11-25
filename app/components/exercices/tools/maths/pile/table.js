@@ -1,3 +1,5 @@
+import MyNerd from "../mynerd";
+
 class Table {
     static NAME = 'Table';
     static METHODS = {
@@ -18,6 +20,7 @@ class Table {
         'max': Table.max,
         'min': Table.min,
         'ECC2': Table.ECC2,
+        'filter': Table.filter,
     };
 
     static indice(val, arr) {
@@ -208,6 +211,22 @@ class Table {
             cumulative += effectifs[i];
         }
         return cumulative;
+    }
+
+    /**
+     * renvoie un tableau composé des éléments de values satisfaisant la condition
+     * @param {Array} values 
+     * @param {string} operator parmi ==, !=, <, <=, >, >=
+     * @param {*} value 
+     */
+    static filter(values, operator, value) {
+        if (!Array.isArray(values)) {
+            throw new Error(`Les arguments de Table.filter doivent être des tableaux.`);
+        }
+        if (!['==', '!=', '<', '<=', '>', '>='].includes(operator)) {
+            throw new Error(`L'opérateur ${operator} passé à Table.filter est invalide.`);
+        }
+        return values.filter((val) => MyNerd.compare(val, value, operator));
     }
 }
 
