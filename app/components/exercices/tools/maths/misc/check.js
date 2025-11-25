@@ -55,7 +55,7 @@ function checkValue(userValue, expectedValue, format = "none") {
         const param = Number(format.split(':')[1]);
         if (format.startsWith("round:")) {
             const factor = Math.pow(10, param);
-            return Math.round(userFloat * factor) === Math.round(expectedFloat * factor);
+            return userFloat * factor === Math.round(expectedFloat * factor);
         } else if (format.startsWith("erreur:")) {
             const tolerance = param;
             return Math.abs(userFloat - expectedFloat) <= tolerance;
