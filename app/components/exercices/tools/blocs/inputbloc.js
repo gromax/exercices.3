@@ -74,6 +74,7 @@ class InputTextBloc extends InputBloc {
         const userValueTag = userValue.includes('\\') ? `$${userValue}$` : userValue;
         const solution = this.params.solution;
         const tag = this.params.tag;
+        const format = this._params.format || '';
         const entete = tag?`${tag} : `:'';
         if (!solution) {
             return {
@@ -95,9 +96,11 @@ class InputTextBloc extends InputBloc {
             };
         } else {
             const message = `${userValueTag} est une Mauvaise réponse.`;
-            const complement = Array.isArray(solution)
-                ? `Les bonnes réponses possibles étaient : $${solution.map(MyNerd.latex).join('$, $')}$.`
-                :`La réponse attendue était : $${MyNerd.latex(solution)}$.`;
+            const solutionFormatted = this._format(solution, format);
+            
+            const complement = Array.isArray(solutionFormatted)
+                ? `Les bonnes réponses possibles étaient : ${solutionFormatted.join(', ')}.`
+                :`La réponse attendue était : ${solutionFormatted}.`;
             return {
                 name: name,
                 success: false,
@@ -105,6 +108,22 @@ class InputTextBloc extends InputBloc {
                 score: 0
             };
         }
+    }
+
+    _format(solution, format) {
+        if (Array.isArray(solution)) {
+            return solution.map(sol => this._format(sol, format));
+        }
+        if (/^round:[0-9]+$/.test(format)) {
+            const n = Number(format.split(':')[1]);
+            return MyNerd.make(solution).toFormat(`${n}f`);
+        }
+        if (/^erreur:(?:[0-9]+(?:\.[0-9]+)?)|(?:\.[0-9]+)$/.test(format)) {
+            const err = Number(format.split(':')[1]);
+            const n = Math.ceil(Math.log10(1 / err));
+            return `${MyNerd.make(solution).toFormat(`${n+1}f`)} ± ${String(err).replace('.', ',')}`;
+        }
+        return `$${MyNerd.make(solution).latex()}$`;
     }
 
     _verify(userValue, solution) {
