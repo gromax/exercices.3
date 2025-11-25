@@ -1,5 +1,5 @@
-import { getValue } from '../maths/misc/substitution.js';
-import MyMath from '../maths/mymath.js';
+import { getValue } from '../maths/misc/substitution';
+import evaluate from '../maths/pile/evaluation';
 
 class Affectation {
     static parse(line) {
@@ -42,7 +42,7 @@ class Affectation {
             params[this._tag] = [];
         }
         if (this._repeater === undefined) {
-            const value = MyMath.evaluate(this._value, { ...params, ...protectedParams });
+            const value = evaluate(this._value, { ...params, ...protectedParams });
             if (this._isArray) {
                 params[this._tag].push(value);
             } else {
@@ -55,7 +55,7 @@ class Affectation {
         if (Array.isArray(r)) {
             // cas d'un répéteur tableau
             for (let i = 0; i < r.length; i++) {
-                arr.push(MyMath.evaluate(this._value, { ...params, ...protectedParams, __v: r[i], __i: i }));
+                arr.push(evaluate(this._value, { ...params, ...protectedParams, __v: r[i], __i: i }));
             }
         } else {
             // cas d'un répéteur entier
@@ -64,7 +64,7 @@ class Affectation {
                 throw new Error(`La valeur de répétition pour le paramètre ${this._tag} doit être un entier positif ou un tableau.`);
             }
             for (let i = 0; i < n; i++) {
-                arr.push(MyMath.evaluate(this._value, { ...params, ...protectedParams, __i: i }));
+                arr.push(evaluate(this._value, { ...params, ...protectedParams, __i: i }));
             }
 
         }
