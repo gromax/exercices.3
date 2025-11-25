@@ -1,8 +1,9 @@
-import Alea from './alea.js';
-import Table from './table.js'; // Tables et stats
-import Calc from './calc.js';
-import Dist from './dist.js'; // Distributions
-import { getValue, substituteLabels } from '../misc/substitution.js';
+import Alea from './alea';
+import Table from './table'; // Tables et stats
+import Calc from './calc';
+import Dist from './dist'; // Distributions
+import MyNerd from '../mynerd';
+import { getValue, substituteLabels } from '../misc/substitution';
 
 const MODULES = {
     'Alea': Alea,
@@ -11,7 +12,7 @@ const MODULES = {
     'Dist': Dist,
 };
 
-function tryAsPile(expression, params) {
+function _tryAsPile(expression, params) {
     let expr = expression.trim();
     if (! /^<P:.*>$/.test(expr)) {
         return null;
@@ -69,4 +70,12 @@ function _executePile(pile) {
     return operandes[0];
 }
 
-export default tryAsPile;
+function evaluate(expression, params) {
+    const pileResult = _tryAsPile(expression, params);
+    if (pileResult !== null) {
+        return pileResult;
+    }
+    return MyNerd.make(expression, params).toString();
+}
+
+export default evaluate;
