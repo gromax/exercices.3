@@ -1,6 +1,7 @@
 import Bloc from "./bloc.js";
 import GraphView from "../blocsviews/graphview";
 import MyNerd from "../maths/mynerd.js";
+import { COLORS } from "../colors.js";
 
 class GraphBloc extends Bloc {
     static LABELS = ['graph', 'graphe'];
@@ -30,6 +31,13 @@ class GraphBloc extends Bloc {
     }
 
     _childToCreateFunction(item) {
+        if (typeof item.params.color !== 'undefined') {
+            const color = item.params.color;
+            const i = parseInt(color);
+            if (!isNaN(i)) {
+                item.params.color = COLORS[i % COLORS.length];
+            }
+        }
         switch (item.tag) {
             case 'point':
                 return this._pointToCeateFunction(item);
