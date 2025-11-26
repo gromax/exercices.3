@@ -21,9 +21,13 @@ class TextBloc extends Bloc {
         return this;
     }
 
+    isHelp() {
+        return this.tag === 'help' || this.tag === 'aide';
+    }
+
     _customView(answers) {
         const content = this._children;
-        if (this.tag == 'help' || this.tag == 'aide') {
+        if (this.isHelp()) {
             return new HelpView({
                 subtitle: this._params["header"] || this._params["subtitle"] || false,
                 paragraphs: content,
@@ -34,8 +38,8 @@ class TextBloc extends Bloc {
             subtitle: this._params["subtitle"] || false,
             paragraphs: content,
             footer: this._params["footer"] || false,
-            info: this.tag == "info",
-            warning: this.tag == 'warning',
+            info: this.tag === "info",
+            warning: this.tag === 'warning',
         });
     }
 }
