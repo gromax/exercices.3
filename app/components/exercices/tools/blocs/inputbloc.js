@@ -60,12 +60,39 @@ class InputBloc extends Bloc {
 
 class InputTextBloc extends InputBloc {
     _customView(answers) {
-        return new InputView({
+        // On peut accepter un bloc de texte de type aide
+        // D'autres enfants seront ignorés
+        const aideBlocs = this._children.filter(child => (typeof child.isHelp === 'function') && child.isHelp());
+        if (aideBlocs.length > 1) {
+            console.warn(`Le bloc <input:${this.header}> contient plusieurs blocs d'aide. Seul le premier sera pris en compte.`);
+        }
+        if (aideBlocs.length > 0) {
+            this.params.keyboard = this.params.keyboard ?? [];
+            if (!this.params.keyboard.includes('help')) {
+                this.params.keyboard.push('help');
+            }
+        }
+        const view =  new InputView({
             name: this.header,
             tag: this.params.tag || this.header,
             answer: answers[this.header] || null,
             keyboard: this.params.keyboard || []
         });
+
+        const helpViews = aideBlocs.map(bloc => {
+            const v = bloc._customView(answers);
+            v.options.showButton = false;
+            return v;
+        });
+
+        view.on("render", () => {
+            const el = view.el.querySelector('.js-help-region');
+            for (const hv of helpViews) {
+                el.appendChild(hv.el);
+                hv.render();
+            }
+        });
+        return view;
     }
 
     verification(data) {
