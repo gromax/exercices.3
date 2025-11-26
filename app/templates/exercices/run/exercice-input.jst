@@ -3,7 +3,7 @@
     <% if (keyboard && !_.isEmpty(keyboard)) { %>
     <div class="input-group mb-3">
         <% _.each(keyboard, (value, key) => { %>
-        <button type="button" class="btn btn-outline-primary js-<%- key %>"><%- value %></button>
+        <button type="button" class="btn btn-outline-primary js-<%- key %>"><%= value %></button>
         <% }) %>
         <input type="text" class="form-control" id="<%- name %>" name="<%- name %>" value="<%- answer %>" required>
     </div>
@@ -11,3 +11,4 @@
     <input type="text" class="form-control" id="<%- name %>" name="<%- name %>" value="<%- answer %>" required>
     <% } %>
 </div>
+<div class="js-help-region mb-3"></div>

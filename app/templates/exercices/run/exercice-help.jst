@@ -1,9 +1,17 @@
-<div class="card border-primary mb-3">
-  <div class="card-header bg-primary">
-    <button class="btn btn-primary js-collapse" type="button">Aide</button>
-  </div>
-  <div class="card-body collapse">
-    <% if(subtitle) {%><h5 class="card-title"><%- subtitle %></h5><% } %>
-    <% _.each(paragraphs, function(p) { %><p class="card-text"><%- p %></p><% }); %>
+<div class="mb-3">
+  <% if (showButton) { %>
+    <button class="btn btn-primary js-collapse collapse show" type="button">Aide</button>
+  <% } %>
+</div>
+<div class="card border-primary mb-3 collapse">
+  <div class="card-body">
+    <div class="d-flex align-items-start justify-content-between">
+      <div class="flex-grow-1">
+        <% if(subtitle) {%><h5 class="card-title"><%- subtitle %></h5><% } %>
+        <% _.each(paragraphs, function(p) { %><p class="card-text"><%- p %></p><% }); %>
+      </div>
+      <i class="fa-solid fa-2x fa-circle-info ms-3 text-primary"></i>
+      <button type="button" class="btn-close js-close ms-1" aria-label="Close"></button>
+    </div>
   </div>
 </div>

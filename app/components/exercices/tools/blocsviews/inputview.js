@@ -5,6 +5,7 @@ const KEYS = {
   'sqrt': '$\\sqrt{x}$',
   'power': '$x^y$',
   'square': '$x^2$',
+  'help': '<i class="fa-solid fa-question"></i>'
 }
 
 const InputView = View.extend({
@@ -21,7 +22,13 @@ const InputView = View.extend({
     'click .js-sqrt': 'keyboard:sqrt',
     'click .js-power': 'keyboard:power',
     'click .js-square': 'keyboard:square',
+    'click .js-help': 'keyboard:help',
   },
+
+  regions: {
+    helpRegion: '.js-help-region'
+  },
+
   onKeyboardSqrt() {
     const {start, end, value} = this._getInputSelection();
     const newValue = value.slice(0, start) + 'sqrt(' + value.slice(start,end) + ')' + value.slice(end);
@@ -45,6 +52,12 @@ const InputView = View.extend({
       : value.slice(0, start) + '(' + value.slice(start,end) + ')^' + value.slice(end);
     const input = this.el.querySelector('input[name="' + this.getOption("name") + '"]');
     input.value = newValue;
+  },
+
+  onKeyboardHelp() {
+    const helpRegionEl = this.el.querySelector('.js-help-region');
+    const cards = helpRegionEl.querySelectorAll('.card');
+    cards.forEach(card => card.classList.toggle('show'));
   },
 
   _getInputSelection() {
