@@ -9,7 +9,7 @@ const Item = MyModel.extend({
   urlRoot: "api/trials",
   _needSave: false,
   defaults: {
-    idExercice: null,
+    idExo: null,
     idUser:null,
     options: {},
     init: {},
@@ -49,7 +49,7 @@ const Item = MyModel.extend({
     }
     data.score = Number(data.score);
     data.finished = Misc.parseBoolean(data.finished);
-    data.idExercice = Number(data.idExercice);
+    data.idExo = Number(data.idExo);
     if (data.idDevoir !== undefined) {
       data.idDevoir = Number(data.idDevoir);
     }
