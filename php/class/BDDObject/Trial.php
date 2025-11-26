@@ -20,8 +20,16 @@ class Trial extends Item
       'init' => ['def' => "", 'type'=> 'string'], // JSON des intialisations de l'exercice
       'answers' => ['def' => "", 'type'=> 'string'], // JSON des réponses de l'utilisateur
       'date' => ['def' => date('Y-m-d'), 'type'=> 'date'], // date de l'essai
-      'finished' => ['def' => false, 'type'=> 'bool'] // si l'essai est terminé
+      'finished' => ['def' => false, 'type'=> 'bool'], // si l'essai est terminé
+      'idExo' => ['def' => 0, 'type'=> 'integer', 'foreign' => 'exodevoirs.idExo'], // id du sujet
     ] ;
+  }
+
+  protected static function joinedTables()
+  {
+    return [
+      'inner' => ['exodevoirs' => 'trials.idExoDevoir = exodevoirs.id']
+    ];
   }
 
   public static function insertAllowed($idExoDevoir, $idUser)
