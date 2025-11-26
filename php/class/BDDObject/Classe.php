@@ -93,7 +93,7 @@ final class Classe extends Item
 
   protected function updateValidation($params)
   {
-    return static::insertionValidation($params);
+    return static::insertValidation($params);
   }
 
   public function hasUser($user)
