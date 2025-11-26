@@ -28,6 +28,15 @@ class MyNerd {
         return MyNerd.toFloat(value);
     }
 
+    static parseInt(value) {
+        const f = MyNerd.parseFloat(value);
+        const n = Math.trunc(f);
+        if (f !== n) {
+            throw new Error(`La valeur ${value} ne peut pas être convertie en entier.`);
+        }
+        return n;
+    }
+
     static make(expression, params = {}) {
         return new MyNerd(expression, params);
     }
