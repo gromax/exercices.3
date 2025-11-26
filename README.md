@@ -37,8 +37,6 @@ This is a modern JS skeleton with MarionetteJS for [Webpack](https://webpack.git
 * admin : interface de nettoyage
 * mélanger les couleurs
 
-- j'ai l'idée pour un bloc graph de faire des sous-blocs qui seraient des éléments utiles. Par exemple <functiongraph:f> qui contiendrait des blocs comme <expression>, <color>... le <functiongraph> contiendrait lui même des params <xmin:value/> etc.
-
 
 
 
@@ -587,7 +585,7 @@ On dispose des paramètres :
   * y
   * name: pour l'affichage d'un nom
   * on: alors le point est un glider qui glisse sur un objet. Il faut choisir le nom d'un objet graphique défini préalablement.
-  * color: on peut choisir une couleur standard comme blue, red...
+  * color: on peut choisir une couleur standard comme blue, red... ou un indice ce qui choisira parmi les couleurs des blocs choice
   * size: pour la taille du point
   * fixed: par défaut le point est mobile. On peut le fixer avec `fixed:true`
 
@@ -603,7 +601,7 @@ On dispose des paramètres :
   * expression: l'expression de la fonction
   * xmin: par défaut le bord gauche de la fenêtre
   * xmax: par défaut le bord droit de la fenêtre
-  * color
+  * color, idem que pour point
   * strokeWidth: épaisseur du trait
   * dash: pointillé. Par exemple `dash:2`
 
@@ -662,6 +660,7 @@ La fonction `Alea.lagrangePolynome` tire `n+1` points au hasard, à coordonnées
   * `Table.max` reçoit un tableau et renvoie la valeur maximum.
   * `Table.sortFreqs` reçoit un tableau et renvoie un tableau de tableau `t` avec `t[0]` contenant la liste des valeurs en ordre croissant et `t[1]` la liste des effectifs.
   * `Table.filter` reçoit un tableau, un opérateur parmi `==, !=, <, <=, >, >=`, et une valeur. Renvoie le tableau des items satisfaisant le test.
+  * `Table.toBrut` reçoit les tableaux `valeurs` et `effectifs` et reconstitue la série brute, dans l'ordre.
 
 #### Module Calc
 
@@ -672,6 +671,7 @@ La fonction `Alea.lagrangePolynome` tire `n+1` points au hasard, à coordonnées
   * `sign` renvoie `-1` pour un négatif et `+1` pour un positif
   * `solve` reçoit `left`, `right` (deux membres de l'équation) et `name` nom de la variable. Renvoie les solutions
   * `sub` reçoit `expression`, `name` et `value` et renvoie l'expression où on substitué `name` pour `value`. Permet en particulier de calculer $f(x)$.
+  * `round` reçoit une valeur `x` et un `entier`. Arrondi à n digits.
 
 #### Module Dist
 
