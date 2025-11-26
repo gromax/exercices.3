@@ -1,9 +1,8 @@
 import { Model, Collection } from 'backbone'
 import Bloc from "./bloc";
 import { COLORS, PICTOS } from "../colors.js";
-
-
 import { ChoicesView, ChoiceFormLayout } from "../blocsviews/choice.js";
+import renderMathInElement from "katex/contrib/auto-render";
 
 class Choice extends Bloc {
     constructor(label, paramsString) {
@@ -23,7 +22,7 @@ class Choice extends Bloc {
     _makeCollection() {
         this._collection = new Collection();
         const showIndex = this instanceof ChoiceForm ? 0 : index;
-        const squareOnly = (typeof this._params.onlysquares !== 'undefined') && Boolean(this._params.onlysquares);
+        const squareOnly = (typeof this._params.onlysquares === 'undefined') || Boolean(this._params.onlysquares);
         for (const {index, value} of this._options) {
             this._valuemax = Math.max(this._valuemax, index);
             const m = new Model({
@@ -118,6 +117,15 @@ class ChoiceForm extends Choice {
                 this._notshuffledCollection.map(m => m.get('index')).join('')
             );
             childView.render();
+            renderMathInElement(childView.el, {
+                delimiters: [
+                {left: "$", right: "$", display: false},
+                {left: "$$", right: "$$", display: true}
+                ],
+                throwOnError: false
+            });
+
+
         });
         layout.on('render', function() {
             const container = this.el.querySelector('.js-content');
