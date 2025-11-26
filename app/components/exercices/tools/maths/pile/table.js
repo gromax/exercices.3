@@ -6,6 +6,7 @@ class Table {
         'indice': Table.indice,
         'indices': Table.indices,
         'sortFreqs': Table.sortFreqs,
+        'toBrut': Table.toBrut,
         'size': Table.size,
         'sum': Table.sum,
         'product': Table.product,
@@ -67,6 +68,28 @@ class Table {
             }
         }
         return [valeurs, effectifs];
+    }
+
+    /**
+     * partant d'un tableau de valeurs et d'effectifs,
+     * reconstitue le tableau brut
+     * @param {Array} values 
+     * @param {Array} effectifs 
+     */
+    static toBrut(values, effectifs) {
+        if (!Array.isArray(values) || !Array.isArray(effectifs)) {
+            throw new Error(`Les arguments de Table.toBrut doivent être des tableaux.`);
+        }
+        if (values.length !== effectifs.length) {
+            throw new Error(`Les tableaux passés à Table.toBrut doivent avoir la même taille.`);
+        }
+        const result = [];
+        for (let i = 0; i < values.length; i++) {
+            for (let j = 0; j < effectifs[i]; j++) {
+                result.push(values[i]);
+            }
+        }
+        return result;
     }
 
     static size(arr) {
@@ -203,6 +226,7 @@ class Table {
         if (values.length !== effectifs.length) {
             throw new Error(`Les tableaux passés à Table.quantile doivent avoir la même taille.`);
         }
+        value = MyNerd.parseFloat(value);
         let cumulative = 0;
         for (let i = 0; i < effectifs.length; i++) {
             if (values[i] > value) {
@@ -223,6 +247,7 @@ class Table {
         if (!Array.isArray(values)) {
             throw new Error(`Les arguments de Table.filter doivent être des tableaux.`);
         }
+        value = MyNerd.parseFloat(value);
         if (!['==', '!=', '<', '<=', '>', '>='].includes(operator)) {
             throw new Error(`L'opérateur ${operator} passé à Table.filter est invalide.`);
         }
