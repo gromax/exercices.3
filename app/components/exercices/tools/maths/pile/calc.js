@@ -1,7 +1,7 @@
 import MyNerd from '../mynerd';
 
 class Calc {
-    static NAME = 'Calc';
+    static NAME = 'Calc'
     static METHODS = {
         'mult': Calc.mult,
         'divide': Calc.divide,
@@ -12,7 +12,8 @@ class Calc {
         'substitute': Calc.substitute,
         'solve': Calc.solve,
         'float': Calc.float,
-    };
+        'round': Calc.round
+    }
     static SHORTCUTS = {
         'abs': 'Calc.abs',
         '*': 'Calc.mult',
@@ -22,7 +23,8 @@ class Calc {
         '/': 'Calc.divide',
         'sub': 'Calc.substitute',
         'solve': 'Calc.solve',
-        'float': 'Calc.float'
+        'float': 'Calc.float',
+        'round': 'Calc.round'
     }
     static mult(x, y) {
         const a = Number(x);
@@ -69,6 +71,17 @@ class Calc {
             return `sign(${x})`;
         }
         return Math.sign(a);
+    }
+
+    static round(x, n) {
+        const a = Number(x);
+        const digits = MyNerd.parseInt(n);
+        if (isNaN(a)) {
+            return `round(${x}, ${n})`;
+        }
+        // Éviter les problèmes de précision floating point
+        const multiplier = Math.pow(10, digits);
+        return Math.round((a + Number.EPSILON) * multiplier) / multiplier;
     }
 
     /**
