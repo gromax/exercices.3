@@ -179,7 +179,7 @@ class users
       // Il s'agit d'une inscription
       $idClasse = (integer) $data['idClasse'];
       $classe = Classe::getObject($idClasse);
-      if ($classe === null || $classe->get('dateFin') < date('Y-m-d'))
+      if ($classe === null || $classe->get('expiration') < date('Y-m-d'))
       {
         EC::addError("Classe introuvable.");
         EC::set_error_code(404);
@@ -195,8 +195,8 @@ class users
       if (!$classe->testPwd($pwdClasse))
       {
         EC::addError("Mot de passe de la classe invalide.");
-        EC::set_error_code(403);
-        return false;
+        EC::set_error_code(422);
+        return ["errors"=>["classeMdp"=>"Mot de passe de la classe invalide."]];
       }
       // On procède à l'inscription
       $data['rank'] = User::RANK_ELEVE;
