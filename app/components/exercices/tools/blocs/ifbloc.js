@@ -260,7 +260,7 @@ class Until extends Bloc {
                 child.doAffectation(params, options);
             }
             iterations++;
-        } while (!this._expression.evaluate(params) && (iterations < this.MAXITERATIONS));
+        } while (!this._expression.evaluate({...params, ...options}) && (iterations < this.MAXITERATIONS));
         return iterations < this.MAXITERATIONS;
     }
 }
