@@ -77,11 +77,16 @@ class User extends Item
 
   protected static function checkPwd($pwd)
   {
+    if (strlen($pwd) < 6)
+    {
+      return ["Le mot de passe doit contenir au moins 6 caractères."];
+    }
     return true;
   }
 
   protected static function checkEMail($email)
   {
+    return strlen($email) > 5 && strlen($email) < 100;
     return preg_match("#^[a-zA-Z0-9_-]+(.[a-zA-Z0-9_-]+)*@[a-zA-Z0-9._-]{2,}\.[a-z]{2,4}$#", $email);
   }
 
@@ -103,7 +108,7 @@ class User extends Item
     return false;
   }
 
-  protected static function insertionValidation($params)
+  protected static function insertValidation($params)
   {
     $errors = [];
     if (isset($params['email']))
@@ -122,12 +127,12 @@ class User extends Item
         $errors['email'] = $email_errors;
       }
     }
-
     if (isset($params['pwd']))
     {
-      if (!self::checkPwd($params['pwd']))
+      $errorsPwd = self::checkPwd($params['pwd']);
+      if ($errorsPwd !== true)
       {
-        $errors["pwd"] = "Mot de passe invalide.";
+        $errors["pwd"] = $errorsPwd;
       }
     }
     if (count($errors)>0)

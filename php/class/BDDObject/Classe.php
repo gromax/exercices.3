@@ -71,7 +71,7 @@ final class Classe extends Item
     return array("error"=>"Mot de passe invalide.");
   }
 
-  protected static function insertionValidation($params)
+  protected static function insertValidation($params)
   {
     // vérifie si l'utilisateur peut-être inséré
     $errors = array();
