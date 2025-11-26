@@ -1,5 +1,10 @@
 <div class="card text-white bg-dark mb-3">
   <div class="card-body">
-    <p class="card-text">Exercice terminé. Score <%- score %> %</p>
+    <div class="d-flex justify-content-between align-items-center">
+      <p class="card-text">Exercice terminé. Score <%- score %> %</p>
+      <%if (restart) {%>
+        <button type="button" class="btn btn-sm btn-light js-restart">Recommencer</button>
+      <% } %>
+    </div>
   </div>
 </div>

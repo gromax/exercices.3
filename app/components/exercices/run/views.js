@@ -39,9 +39,13 @@ const ParamsView = View.extend({
 
 const Finished_View = View.extend({
   template: exercice_finished_tpl,
+  triggers: {
+    'click .js-restart': 'restart'
+  },
   templateContext() {
     return {
-      score: this.getOption("score")
+      score: this.getOption("score"),
+      restart: this.getOption("restart") || false
     };
   }
 });

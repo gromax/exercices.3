@@ -130,7 +130,7 @@ const Controller = MnObject.extend ({
     try {
       const initParams = MainBloc.parseParams(sujet.get("init"), options);
       return new ExerciceTry({
-        idExercice: sujet.id,
+        idExo: sujet.id,
         options: options,
         init: initParams,
         idUser: idUser,
@@ -244,7 +244,13 @@ const Controller = MnObject.extend ({
     if (!questionLeft) {
       trial.set("finished", true);
       const finishedView = new Finished_View({
-        score: trial.get("score")
+        score: trial.get("score"),
+        restart: trial.needSave()
+      });
+      finishedView.on("restart", () => {
+        console.log("Restarting exercice...");
+        console.log(trial.get("idExoDevoir"), trial.get("idExo"), trial.get("idDevoir"), trial.get("idUser"));
+        channel.trigger("exodevoir:run", trial.get("idExoDevoir"), trial.get("idExo"), trial.get("idDevoir"), trial.get("idUser"));
       });
       region.appendChild(finishedView.el);
       finishedView.render();
