@@ -103,14 +103,14 @@ const Controller = MnObject.extend({
     });
   },
 
-  addExo( idDevoir, idExercice, assosExosView ) {
+  addExo( idDevoir, idExo, assosExosView ) {
     const channel = this.getChannel();
     const nums = assosExosView.collection.pluck('num');
     const nextNum = nums.length === 0 ? 1 : (Math.max(...nums) + 1);
     const ExoDevoir = require('../exodevoir.js').Item;
     const exoDevoir = new ExoDevoir({
       idDevoir: idDevoir,
-      idExo: idExercice,
+      idExo: idExo,
       num: nextNum,
       options: {}
     });
