@@ -442,6 +442,8 @@ Ainsi un bloc typique serait :
 </input>
 ```
 
+Si vous ajoutez un bloc d'aide dans un input, alors il y aura un bouton d'aide directement dans le input.
+
 #### Bloc Radio
 
 Utiliser pour une question à choix multiple. Une seule réponse possible.
@@ -475,7 +477,7 @@ Ce bloc permet d'afficher une liste d'items associés à un pictogramme coloré 
 
 On dispose des paramètres :
   * `shuffle:true` qui permet de mélanger à l'affichage (pas mélangé par défaut)
-  * `onlysquares:true` pour demander à n'avoir que des carrés
+  * `onlysquares:true` pour demander à n'avoir que des carrés. Par défaut true.
 
 Les pictogrammes peuvent servir pour les daltoniens. On peut donc choisir de ne pas utiliser les pictogrammes.
 
