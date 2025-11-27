@@ -422,11 +422,32 @@ Un champ input se traduira par une zone de saisie dans laquelle on peut entrer d
 * header : c'est l'identifiant de la réponse telle qu'elle sera sauvée dans la BDD. Il faut donc que tous les input en ait un différent. De plus, cet identifiant ne devrait pas rentrer en conflit avec ceux déjà déclaré avec `@` dans l'initialisation et les options.
 * tag : ce qui sera affiché pour représenter la valeur demandée. Un affichage Tex est possible. Par exemple $x_A$.
 * solution : la valeur attendue. Il est possible de fournir un tableau. Dans ce cas, la réponse sera considére valide du moment qu'elle correspond à au moins un item de solution.
-* format : le format attendu.
+
+##### Format
+
+Le paramètre format permet d'indiquer le format attendu.
+
+Voici les formats reconnus :
+
   * numeric : on veut une expression dans laquelle il n'y a aucune variable et cette expression doit être développée un minimum. On n'acceptera pas `(1+2)/3`.
   * round:2 : on veut un nombre arrondi, dans cet exemple à deux chiffres après la virgule.
   * erreur:0.2 : demande un nombre. Sa valeur ne doit pas excéder une erreur de 0.2 dans l'exemple.
-* keyboard: permet d'ajouter un bouton pour des expressions mathématiques comme `sqrt`
+  * empty : indique que l'on accepte l'ensemble vide. On peut alors répondre par `'vide'` ou `'∅'`
+  * inf : indique que l'on accepte un infin comme `'+inf'` ou `'-∞'`. Le signe est obligatoire même pour +
+  * expand : indique que l'on attend une expression développée.
+
+Il ne serait pas logique de proposer à la fois numeric et round mais on peut demander empty et numeric par exemple.
+
+On pourra donc utiliser : `<format:numeric/>` dans le cas où on veut permettre divers types de réponses :
+
+```
+<format[]:numeric/>
+<format[]:empty/>
+```
+
+##### Clavier
+
+keyboard: permet d'ajouter un bouton pour des expressions mathématiques comme `sqrt`
   * power
   * sqrt
   * square
@@ -439,8 +460,11 @@ Ainsi un bloc typique serait :
 <solution:@gx/>
 <format:numeric/>
 <keyboard:sqrt/>
+<keyboard:power/>
 </input>
 ```
+
+Dans ce cas on ajoute deux boutons, un pour racine et l'autre pour la puissance.
 
 Si vous ajoutez un bloc d'aide dans un input, alors il y aura un bouton d'aide directement dans le input.
 
