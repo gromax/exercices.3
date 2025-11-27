@@ -21,7 +21,52 @@ function checkNumericExpression(expr) {
     }
 }
 
+function checkIfExpand(expr) {
+    try {
+        const objMath = Parser.build(expr);
+        return objMath.isExpanded() ? true : "Vous devez développer et simplifier.";
+    } catch (e) {
+        // parsing error => pas numérique
+        return "Expression invalide.";
+    }
+}
+
+function checkEmptyExpression(expr) {
+    return expr == 'vide' || expr == '∅'
+        ? true
+        : "Vous devez répondre 'vide' ou '∅' pour indiquer l'ensemble vide.";
+}
+
+function checkInfiniteExpression(expr) {
+    return /^[-+]\s*(?:∞|inf|infini)$/.test(expr)
+        ? true
+        : "Vous devez fournir une valeur infinie (ex: +inf, -∞).";
+}
+
+/**
+ * test if expr matches the expected format
+ * @param {string} expr 
+ * @param {Array|string} format 
+ * @returns {boolean|string} true if format is correct, error message otherwise
+ */
 function checkFormat(expr, format) {
+    // format peut être un tableau de formats acceptés
+    if (Array.isArray(format)) {
+        const reponses = format.map(f => checkFormat(expr, f));
+        if (reponses.includes(true)) {
+            return true;
+        }
+        return reponses.join(' OU ');
+    }
+
+    if (format === 'empty') {
+        return checkEmptyExpression(expr);
+    }
+
+    if (format === 'inf') {
+        return checkInfiniteExpression(expr);
+    }
+
     if (format === 'numeric') {
         return checkNumericExpression(expr);
     }
@@ -30,6 +75,9 @@ function checkFormat(expr, format) {
     }
     if (/^erreur:(?:[0-9]+(?:\.[0-9]+)?)|(?:\.[0-9]+)$/.test(format)) {
         return /^[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][+-]?\d+)?(?:\s*%)?$/.test(expr) ? true : "Vous devez fournir un nombre éventuellement approximé.";
+    }
+    if (format === 'expand') {
+        return checkIfExpand(expr);
     }
     // autres formats à ajouter ici
     return true;
@@ -40,7 +88,24 @@ function checkValue(userValue, expectedValue, format = "none") {
     if (checkFormatResult !== true) {
         return false;
     }
-    // je traite d'abord les cas où le format devrait être numérique
+
+    // je traite d'abord les cas particuliers
+    if (checkInfiniteExpression(expectedValue) === true) {
+        return checkInfiniteExpression(userValue) === true && expectedValue[0] === userValue[0];
+    }
+    if (checkEmptyExpression(expectedValue) === true) {
+        return checkEmptyExpression(userValue) === true;
+    }
+
+    // je traite ensuite les cas où le format devrait être numérique
+    // format pourrait être un tableau
+    // cela a un sens de mélanger "numeric" et "empty" par exemple
+    // mais pas d'avoir "numeric" et "round:x" dans le même tableau
+    // donc je prends le premier format non "empty" ou "inf" dans le tableau
+    if (Array.isArray(format)) {
+        format = format.find(f => f !== 'empty' && f !== 'inf') || 'none';
+    }
+
     if (format === "numeric") {
         // numérique mais exacte. Une comparaison directe suffit
         return MyNerd.parseUser(userValue).compare(expectedValue, "==");
