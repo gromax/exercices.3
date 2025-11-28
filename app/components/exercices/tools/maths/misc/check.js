@@ -11,7 +11,7 @@ function checkNumericExpression(expr) {
         const objMath = Parser.build(expr);
         const variables = objMath.isFunctionOf();
         if (variables.length > 0) {
-            return `L'expression contient des inconnues (${variables.join(', ')}).`;
+            return `Expression numérique attendue (pas de ${variables.join(', ')}).`;
         }
         // on souhaite également que l'expression soit développée
         return objMath.isExpanded() ? true : "Vous devez simplifier.";
@@ -125,6 +125,10 @@ function checkValue(userValue, expectedValue, format = "none") {
             const tolerance = param;
             return Math.abs(userFloat - expectedFloat) <= tolerance;
         }
+    }
+    if (format === "expand") {
+        // comparaison d'expressions algébriques
+        return MyNerd.parseUser(userValue).compare(`expand(${expectedValue})`, "==");
     }
     // autres formats à ajouter ici
     return MyNerd.parseUser(userValue).compare(expectedValue, "==");
