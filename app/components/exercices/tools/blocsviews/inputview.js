@@ -5,7 +5,9 @@ const KEYS = {
   'sqrt': '$\\sqrt{x}$',
   'power': '$x^y$',
   'square': '$x^2$',
-  'help': '<i class="fa-solid fa-question"></i>'
+  'help': '<i class="fa-solid fa-question"></i>',
+  'inf': '$\\infty$',
+  'empty': 'Ø'
 }
 
 const InputView = View.extend({
@@ -23,6 +25,8 @@ const InputView = View.extend({
     'click .js-power': 'keyboard:power',
     'click .js-square': 'keyboard:square',
     'click .js-help': 'keyboard:help',
+    'click .js-inf': 'keyboard:inf',
+    'click .js-empty': 'keyboard:empty'
   },
 
   regions: {
@@ -39,10 +43,11 @@ const InputView = View.extend({
   onKeyboardSquare() {
     const {start, end, value} = this._getInputSelection();
     const newValue = end-start <=1
-      ? value.slice(0, end) + '^2' + value.slice(end)
-      : value.slice(0, start) + '(' + value.slice(start,end) + ')^2' + value.slice(end);
+      ? value.slice(0, end) + '²' + value.slice(end)
+      : value.slice(0, start) + '(' + value.slice(start,end) + ')²' + value.slice(end);
     const input = this.el.querySelector('input[name="' + this.getOption("name") + '"]');
     input.value = newValue;
+    input.focus();
   },
 
   onKeyboardPower() {
@@ -58,6 +63,20 @@ const InputView = View.extend({
     const helpRegionEl = this.el.querySelector('.js-help-region');
     const cards = helpRegionEl.querySelectorAll('.card');
     cards.forEach(card => card.classList.toggle('show'));
+  },
+
+  onKeyboardInf() {
+    const {start, end, value} = this._getInputSelection();
+    const newValue = value.slice(0, start) + '∞' + value.slice(end);
+    const input = this.el.querySelector('input[name="' + this.getOption("name") + '"]');
+    input.value = newValue;
+  },
+
+  onKeyboardEmpty() {
+    const {start, end, value} = this._getInputSelection();
+    const newValue = value.slice(0, start) + '∅' + value.slice(end);
+    const input = this.el.querySelector('input[name="' + this.getOption("name") + '"]');
+    input.value = newValue;
   },
 
   _getInputSelection() {
