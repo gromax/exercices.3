@@ -295,14 +295,21 @@ Cela peut sembler un peu lourd. Alors on a la possibilité d'utiliser une variab
 
 Naturellement on peut choisir n'importe quel nombre entier strictement positif.
 
-De plus, si un même aléa est présent plusieurs fois dans une expression, alors ce sera le même à chaque fois.
+**Attention :** si un alea est plusieurs fois présent dans le même calcul, ce ne sera pas le même !
 
 ```
 @x = @__a._6 + @__a._10 + @__a._6
 ```
 
-Le premier et le dernier nombre aléatoire, choisi dans $[0;6[$, sont les mêmes ! Mais le nombre aléatoire choisi dans $[0;10[$ est différent.
+Le premier et le dernier nombre aléatoire, choisi dans $[0;6[$, ne sont pas les mêmes !
 
+Comme les mêmes besoins reviennent constamment, il existe divers formats de nombre aléatoire :
+
+  * `@__a._10` ou `@__a.i10`, alea entier de 0 à 10 exclu,
+  * `@__a.I10`, alea entier de 1 à 10 inclu,
+  * `@__a.f10`, alea flottant de 0 à 10 exclu
+  * `@__a.s10`, alea entier de -10 à 10 exclus (de -9 à 9)
+  * `@__a.S10`, alea entier de -10 à 10, inclus et sans le 0.
 
 ### Les blocs constitant un exercice
 
