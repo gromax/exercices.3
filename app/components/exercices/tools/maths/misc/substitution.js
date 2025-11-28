@@ -43,9 +43,9 @@ function _getValueInternal(name, sub, index, params) {
     if (index === "" && params.__i === undefined) {
         throw new Error(`Pas d'index défini pour accéder à ${name}[]. Ajoutez <:n> à votre affectation.`);
     }
-    const idx = index === ""
+    const idx = (index === "")
         ? params.__i
-        : (/[0-9]+/.test(index) ? parseInt(index, 10) : getValue(index, params));
+        : (/[0-9]+/.test(index) ? parseInt(index, 10) : parseInt(getValue(index, params), 10));
     if (idx >= params[name].length){
         throw new Error(`L'index ${idx} est hors limites pour le tableau ${name} de taille ${params[name].length}.`);
     }
@@ -60,12 +60,11 @@ function _getValueInternal(name, sub, index, params) {
  * @returns {string} une chaîne où les paramètres connus ont été remplacés par leur valeur
  */
 function substituteLabels(expr, params) {
-    const aleas = {};
     return expr.replace(/@([A-Za-z_]\w*)(?:\.([A-Za-z_]\w*)|\[((?:@[A-Za-z_]\w*|[0-9]+)?)\])?/g, (match, name, sub, index) => {
         // on envisage que le tag soit de la forme __a._10
         // dans ce cas on remplace par une valeur aléatoire constante
         if (name=== '__a') {
-            return String(_getAlea(sub, aleas));
+            return String(_getAlea(sub));
         }
         const replacement = _getValueInternal(name, sub, index, params);
         if (replacement === null) {
@@ -75,17 +74,35 @@ function substituteLabels(expr, params) {
     });
 }
 
-function _getAlea(sub, aleas = {}) {
+function _getAlea(sub) {
     const nStr = sub ? sub.slice(1) : '';
+    const aType = sub ? sub.charAt(0) : '';
+    // sub peut être de la forme
+    // i# ou _# où # es un entier >=0 -> alea entier entre 0 et # exclu
+    // I# ou _# où # es un entier >=0 -> alea entier entre 1 et # inclu
+    // f# où # es un entier >=0 -> alea flottant entre 0 et # exclu 
+    // s# où # es un entier >=0 -> alea entier entre -# et # exclu
+    // S# où # es un entier >=0 -> alea flottant entre -# et # inclus, sans 0
     const n = Number(nStr);
     if (isNaN(n) || !Number.isInteger(n) || n < 0) {
         throw new Error(`Index invalide pour un paramètre aléatoire : ${match}`);
     }
-    if (aleas[sub] === undefined) {
-        const value = Math.floor(Math.random()*n);
-        aleas[sub] = value;
+    switch (aType) {
+        case 'f':
+            return Math.random() * n;
+        case 's':
+            return Math.floor(Math.random() * (2 * n-1)) - (n-1);
+        case 'S':
+            let value = (Math.random() * (2 * n)) - n;
+            if (value >= 0) {
+                value += 1;
+            }
+            return value;
+        case 'I':
+            return Math.floor(Math.random() * n) + 1;
+        default:
+            return Math.floor(Math.random() * n);
     }
-    return aleas[sub];
 }
 
 
