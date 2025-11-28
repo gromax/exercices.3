@@ -2,17 +2,9 @@ import { Base } from "./base";
 import { Scalar } from "./scalar";
 import Decimal from "decimal.js";
 
-class Add extends Base {
-    #left;
-    #right;
-    #items;
-    #str;
-
-    /**
-     * constructeur
-     * @param {Base} left 
-     * @param {Base} right 
-     */
+class AddMinus extends Base {
+    _left;
+    _right;
     constructor(left, right) {
         super();
         if (!(left instanceof Base)) {
@@ -22,26 +14,78 @@ class Add extends Base {
             throw new Error("right invalide");
         }
 
-        this.#left = left;
-        this.#right = right;
-        let items = [];
-        if (left instanceof Add) {
-            items.push(...left.items);
-        } else {
-            items.push(left);
+        this._left = left;
+        this._right = right;
+    }
+
+    get left() {
+        return this._left;
+    }
+
+    get right() {
+        return this._right;
+    }
+
+    get priority() {
+        return 1;
+    }
+
+    isExpanded() {
+        if (!this._left.isExpanded() || !this._right.isExpanded()) {
+            return false;
         }
-        if (right instanceof Add) {
-            items.push(...right.items);
-        } else {
-            items.push(right);
+        if (this._left instanceof Scalar && this._right instanceof Scalar) {
+            return false;
         }
-        this.#items = items;
-        this.#str = `${String(this.#left)} + ${String(this.#right)}`;
+        const c = this.childrenSignatures();
+        if (new Set(c).size < c.length) {
+            return false;
+        }
+        return true;
+    }
+
+    childrenSignatures() {
+        // récupère les sinatures des enfants
+        const lefts = (this._left instanceof AddMinus)
+            ? this._left.childrenSignatures()
+            : [this._left.signature().join(',')];
+        const rights = (this._right instanceof AddMinus)
+            ? this._right.childrenSignatures()
+            : [this._right.signature().join(',')];
+        return [...lefts, ...rights];
     }
 
     /**
-     * 
-     * @param {Array} operandes 
+     * si un nom est précisé, renvoie true si le nœud dépend de la variable,
+     * sinon renvoie la liste des variables dont dépend le noeud
+     * @param {string|undefined} name 
+     * @returns {boolean|Array}
+     */
+    isFunctionOf(name){
+        if (typeof name == 'undefined') {
+            return _.uniq(this._left.isFunctionOf().concat(this._right.isFunctionOf()));
+        }
+        return this._left.isFunctionOf(name) || this._right.isFunctionOf(name);
+    }
+}
+
+
+class Add extends AddMinus {
+    #string;
+
+    /**
+     * constructeur
+     * @param {Base} left 
+     * @param {Base} right 
+     */
+    constructor(left, right) {
+        super(left, right);
+        this.#string = `${String(this._left)} + ${String(this._right)}`;
+    }
+
+    /**
+     * Produit une somme à partir d'une liste d'opérandes
+     * @param {Array<Base>} operandes 
      * @returns {Base}
      */
     static fromList(operandes) {
@@ -60,51 +104,12 @@ class Add extends Base {
         return node;
     }
 
-    get items() {
-        return [...this.#items];
-    }
-
     /**
      * transtypage -> string
      * @returns {string}
      */
     toString() {
-        return this.#str;
-    }
-
-    get priority() {
-        return 1;
-    }
-
-    get left() {
-        return this.#left;
-    }
-
-    get right() {
-        return this.#right;
-    }
-
-    isExpanded() {
-        if (!this.left.isExpanded() || !this.right.isExpanded()) {
-            return false;
-        }
-        if (this.left instanceof Scalar && this.right instanceof Scalar) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * si un nom est précisé, renvoie true si le nœud dépend de la variable,
-     * sinon renvoie la liste des variables dont dépend le noeud
-     * @param {string|undefined} name 
-     * @returns {boolean|Array}
-     */
-    isFunctionOf(name){
-        if (typeof name == 'undefined') {
-            return _.uniq(this.#left.isFunctionOf().concat(this.#right.isFunctionOf()));
-        }
-        return this.#left.isFunctionOf(name) || this.#right.isFunctionOf(name);
+        return this.#string;
     }
 
     /**
@@ -112,8 +117,8 @@ class Add extends Base {
      * @returns {string}
      */
     toTex() {
-        let texLeft = this.#left.toTex();
-        let texRight = this.#right.toTex();
+        let texLeft = this._left.toTex();
+        let texRight = this._right.toTex();
         return `${texLeft} + ${texRight}`;
     }
 
@@ -123,25 +128,19 @@ class Add extends Base {
      * @returns {Decimal}
      */
     toDecimal(values) {
-        let v = new Decimal(0);
-        for (let item of this.#items) {
-            v = v.plus(item.toDecimal(values));
-        }
-        return v;
+        let v = this._left.toDecimal(values);
+        return v.plus(this._right.toDecimal(values));
     }
 }
 
-
-class Minus extends Base {
-    #left;
-    #right;
+class Minus extends AddMinus {
     #string;
     constructor(left, right) {
-        super();
-        this.#left = left;
-        this.#right = right;
-        let strLeft = String(this.#left);
-        let strRight = this.#right.priority <= this.priority? `(${String(this.#right)})`:String(this.#right);
+        super(left, right);
+        const strLeft = String(this._left);
+        const strRight = this._right.priority <= this.priority
+            ? `(${String(this._right)})`
+            : String(this._right);
         this.#string = `${strLeft} - ${strRight}`;
     }
 
@@ -153,48 +152,15 @@ class Minus extends Base {
         return this.#string;
     }
 
-    get priority() {
-        return 1;
-    }
-
-    get left() {
-        return this.#left;
-    }
-
-    get right() {
-        return this.#right;
-    }
-
-    isExpanded() {
-        if (!this.left.isExpanded() || !this.right.isExpanded()) {
-            return false;
-        }
-        if (this.left instanceof Scalar && this.right instanceof Scalar) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * si un nom est précisé, renvoie true si le nœud dépend de la variable,
-     * sinon renvoie la liste des variables dont dépend le noeud
-     * @param {string|undefined} name 
-     * @returns {boolean|Array}
-     */
-    isFunctionOf(name){
-        if (typeof name == 'undefined') {
-            return _.uniq(this.#left.isFunctionOf().concat(this.#right.isFunctionOf()));
-        }
-        return this.#left.isFunctionOf(name) || this.#right.isFunctionOf(name);
-    }
-
     /**
      * renvoie une représentation tex
      * @returns {string}
      */
     toTex() {
-        let texLeft = this.#left.toTex();
-        let texRight = this.#right.priority <= this.priority? `\\left(${this.#right.toTex()})`:this.#right.toTex();
+        let texLeft = this._left.toTex();
+        let texRight = this._right.priority <= this.priority
+            ? `\\left(${this._right.toTex()})`
+            : this._right.toTex();
         return `${texLeft} - ${texRight}`;
     }
 
@@ -204,10 +170,11 @@ class Minus extends Base {
      * @returns {Decimal}
      */
     toDecimal(values) {
-        let left = this.#left.toDecimal(values);
-        let right = this.#right.toDecimal(values);
+        let left = this._left.toDecimal(values);
+        let right = this._right.toDecimal(values);
         return left.minus(right);
     }
+
 }
 
 export { Add, Minus};
