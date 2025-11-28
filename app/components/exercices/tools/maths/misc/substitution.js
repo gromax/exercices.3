@@ -93,7 +93,7 @@ function _getAlea(sub) {
         case 's':
             return Math.floor(Math.random() * (2 * n-1)) - (n-1);
         case 'S':
-            let value = (Math.random() * (2 * n)) - n;
+            let value = Math.floor(Math.random() * (2 * n)) - n;
             if (value >= 0) {
                 value += 1;
             }
