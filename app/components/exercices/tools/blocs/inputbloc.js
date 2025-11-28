@@ -3,7 +3,6 @@ import RadioView from "../blocsviews/radioview.js";
 import InputView from "../blocsviews/inputview.js";
 import MyNerd from '../maths/mynerd.js'
 import { checkValue } from '../maths/misc/check.js';
-import { type } from "jquery";
 
 /**
  * Bloc représentant un champ de saisie (input, radio...)
