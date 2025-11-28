@@ -3,6 +3,7 @@ import RadioView from "../blocsviews/radioview.js";
 import InputView from "../blocsviews/inputview.js";
 import MyNerd from '../maths/mynerd.js'
 import { checkValue } from '../maths/misc/check.js';
+import { type } from "jquery";
 
 /**
  * Bloc représentant un champ de saisie (input, radio...)
@@ -123,8 +124,9 @@ class InputTextBloc extends InputBloc {
             };
         } else {
             const message = `${userValueTag} est une Mauvaise réponse.`;
-            const solutionFormatted = this._format(solution, format);
-            
+            const solutionFormatted = (typeof this.params.tagSolution !== 'undefined')
+                ? this.params.tagSolution
+                : this._format(solution, format);
             const complement = Array.isArray(solutionFormatted)
                 ? `Les bonnes réponses possibles étaient : ${solutionFormatted.join(', ')}.`
                 :`La réponse attendue était : ${solutionFormatted}.`;
