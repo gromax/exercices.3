@@ -422,6 +422,20 @@ Un champ input se traduira par une zone de saisie dans laquelle on peut entrer d
 * header : c'est l'identifiant de la réponse telle qu'elle sera sauvée dans la BDD. Il faut donc que tous les input en ait un différent. De plus, cet identifiant ne devrait pas rentrer en conflit avec ceux déjà déclaré avec `@` dans l'initialisation et les options.
 * tag : ce qui sera affiché pour représenter la valeur demandée. Un affichage Tex est possible. Par exemple $x_A$.
 * solution : la valeur attendue. Il est possible de fournir un tableau. Dans ce cas, la réponse sera considére valide du moment qu'elle correspond à au moins un item de solution.
+* tagSolution : on peut désirer forcer un affichage de solution. On peut le faire avec tagSolution. Voici un exemple d'usage :
+
+```
+@f = (x+5)*(x+7)
+<form>
+<input:d>
+<tag:Développer ${@f:$}$/>
+<solution:@f/>
+<format:expand/>
+<keyboard:square/>
+<tagSolution:${expand(@f):$}$/>
+</input>
+</form>
+```
 
 ##### Format
 
