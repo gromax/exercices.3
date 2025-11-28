@@ -18,8 +18,8 @@ class TSymbol {
         return this.#name;
     }
 
-    static sREGEX = "[#∞πa-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*";
-    static REGEX = new RegExp("[#∞πa-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*", 'i');
+    static sREGEX = "[πa-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*";
+    static REGEX = new RegExp("[πa-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*", 'i');
 
     /**
      * renvoie le niveau de priorité
