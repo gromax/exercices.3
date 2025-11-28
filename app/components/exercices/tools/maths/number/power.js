@@ -93,6 +93,19 @@ class Power extends Base {
         let exposant = this.#exposant.toDecimal(values);
         return base.pow(exposant);
     }
+
+    signature() {
+        const expoStr = String(this.#exposant);
+        if (/^[+-]?\d+$/.test(expoStr)) {
+            // expo entier
+            const n = parseInt(expoStr, 10);
+            const b = n>0
+                ? this.#base.signature()
+                : this.#base.signature().map(s => `/${s}`);
+            return Array.from({length: Math.abs(n)}, () => b).flat().sort();
+        }
+        return this.toString();
+    }
 }
 
 export { Power }

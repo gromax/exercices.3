@@ -6,7 +6,6 @@ import Decimal from "decimal.js";
 class Mult extends Base {
     #left;
     #right;
-    #items;
     /** @type {string|null} représentation texte */
     #string = null;
 
@@ -17,27 +16,15 @@ class Mult extends Base {
      */
     constructor(left, right) {
         super();
-        if (typeof left == "undefined") {
+        if (!(left instanceof Base)) {
             throw new Error("left undefined");
         }
-        if (typeof right == "undefined") {
+        if (!(right instanceof Base)) {
             throw new Error("right undefined");
         }
 
         this.#left = left;
         this.#right = right;
-        let items = [];
-        if (left instanceof Mult) {
-            items.push(...left.items());
-        } else {
-            items.push(left);
-        }
-        if (right instanceof Mult) {
-            items.push(...right.items());
-        } else {
-            items.push(right);
-        }
-        this.#items = items;
     }
 
     /**
@@ -60,18 +47,18 @@ class Mult extends Base {
         return node;
     }
 
-    items() {
-        return [...this.#items];
-    }
-
     /**
      * transtypage -> string
      * @returns {string}
      */
     toString() {
         if (this.#string == null) {
-            let left = this.#left.priority < this.priority? `(${String(this.#left)})`:String(this.#left);
-            let right = this.#right.priority < this.priority? `(${String(this.#right)})`:String(this.#right);
+            let left = this.#left.priority < this.priority
+                ? `(${String(this.#left)})`
+                : String(this.#left);
+            let right = this.#right.priority < this.priority
+                ? `(${String(this.#right)})`
+                : String(this.#right);
             this.#string = `${left} * ${right}`;
         }
         return this.#string;
@@ -122,8 +109,12 @@ class Mult extends Base {
      * @returns {string}
      */
     toTex() {
-        let texLeft = this.#left.priority < this.priority? `\\left(${this.#left.toTex()}\\right)`:this.#left.toTex();
-        let texRight = this.#right.priority < this.priority? `\\left(${this.#right.toTex()}\\right)`:this.#right.toTex();
+        let texLeft = this.#left.priority < this.priority
+            ? `\\left(${this.#left.toTex()}\\right)`
+            : this.#left.toTex();
+        let texRight = this.#right.priority < this.priority
+            ? `\\left(${this.#right.toTex()}\\right)`
+            : this.#right.toTex();
         return `${texLeft} \\cdot ${texRight}`;
     }
 
@@ -133,11 +124,14 @@ class Mult extends Base {
      * @returns {Decimal}
      */
     toDecimal(values) {
-        let v = new Decimal(1);
-        for (let item of this.#items) {
-            v = v.mul(item.toDecimal(values));
-        }
-        return v;
+        let v = this.#left.toDecimal(values);
+        return v.mul(this.#right.toDecimal(values));
+    }
+
+    signature() {
+        const lefts = this.#left.signature();
+        const rights = this.#right.signature();
+        return [...lefts, ...rights].sort();
     }
 }
 
@@ -212,6 +206,25 @@ class Div extends Base {
         let left = this.#left.toDecimal(values);
         let right = this.#right.toDecimal(values);
         return left.dividedBy(right);
+    }
+
+    signature() {
+        const lefts = this.#left.signature();
+        const rights = this.#right.signature().map(s => `/${s}`);
+        const result = [];
+        for (let s of lefts) {
+            if (rights.includes(`/${s}`)) {
+                // simplification
+                const i = rights.indexOf(`/${s}`);
+                rights.splice(i, 1);
+                continue;
+            }
+            result.push(s);
+        }
+        for (let s of rights) {
+            result.push(s);
+        }
+        return result.sort();
     }
 
 }

@@ -164,6 +164,10 @@ class Scalar extends Base {
     toDecimal(values) {
         return this.#value;
     }
+
+    signature() {
+        return [];
+    }
 }
 
 /** @type {Scalar} */

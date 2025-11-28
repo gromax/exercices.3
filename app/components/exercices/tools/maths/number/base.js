@@ -55,6 +55,14 @@ class Base {
     toDecimal(values) {
         return Decimal(NaN);
     }
+
+    /**
+     * renvoie une signature représentant le contenu symbolique d'un noeud
+     * @returns {Array<string>}
+     */
+    signature() {
+        return [`(${this.toString()})`];
+    }
 }
 
 export { Base };

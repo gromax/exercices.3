@@ -132,6 +132,10 @@ class Symbol extends Base {
         }
         return v;
     }
+
+    signature() {
+        return [this.#name];
+    }
 }
 
 function makeSymbol(name) {

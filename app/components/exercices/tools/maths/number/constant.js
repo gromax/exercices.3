@@ -2,12 +2,11 @@ import { Base } from "./base";
 import Decimal from "decimal.js";
 
 class Constant extends Base {
-    static NAMES = ['e', 'i', 'pi', '∞', 'infini', 'π']
+    static NAMES = ['e', 'i', 'pi', 'π']
     static TEX = {
         'e': 'e',
         'π': '\\pi',
         'i': 'i',
-        '∞': '\\infty'
     }
     static #list = {};
     #name; /** @type{string} */

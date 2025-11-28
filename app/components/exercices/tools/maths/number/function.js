@@ -137,6 +137,10 @@ class Function extends Base {
         }
     }
 
+    signature() {
+        return [this.toString()];
+    }
+
 }
 
 export { Function };
