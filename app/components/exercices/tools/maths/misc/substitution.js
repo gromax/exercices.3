@@ -83,6 +83,14 @@ function _getAlea(sub) {
     // f# où # es un entier >=0 -> alea flottant entre 0 et # exclu 
     // s# où # es un entier >=0 -> alea entier entre -# et # exclu
     // S# où # es un entier >=0 -> alea flottant entre -# et # inclus, sans 0
+    // v# où # est une chaine représentant des variables -> choisit aléatoirement la variable
+    if (aType === 'v') {
+        if (nStr.length === 0) {
+            throw new Error("Liste de variables vide pour un paramètre aléatoire.");
+        }
+        const i = Math.floor(Math.random() * nStr.length);
+        return nStr.charAt(i);
+    }
     const n = Number(nStr);
     if (isNaN(n) || !Number.isInteger(n) || n < 0) {
         throw new Error(`Index invalide pour un paramètre aléatoire : ${match}`);
