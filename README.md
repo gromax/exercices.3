@@ -310,6 +310,7 @@ Comme les mêmes besoins reviennent constamment, il existe divers formats de nom
   * `@__a.f10`, alea flottant de 0 à 10 exclu
   * `@__a.s10`, alea entier de -10 à 10 exclus (de -9 à 9)
   * `@__a.S10`, alea entier de -10 à 10, inclus et sans le 0.
+  * `@__a.vxyz`, le `v` signale qu'une lettre sera choisi aléatoirement parmi `xyz`. Liste des variable au choix, par ex `@__a.vtAMnK`... Permet de varier les énoncés et de ne pas toujours utiliser `x` comme variable.
 
 ### Les blocs constitant un exercice
 
@@ -597,6 +598,77 @@ Voici un exemple d'initialisation.
 <rows[]:@b/>
 </table>
 ```
+
+#### Bloc tkztab
+
+Il s'agit d'un bloc pour tableau de variations ou de signe, nommé ainsi en relation avec le module tikz latex tkz-tab dont j'ai repris certaines notations.
+
+```
+<tkztab>
+<color:red/>
+<xlist:$1$,$a$,3,$+\infty$/>
+<sign:$A$:1:,+,z,-,z,+,/>
+<sign:$f(x)$:2:,-,d,+,z,-/>
+<var:$f(x)$:3:-/1,+D-/$x+3$/$-\infty$,+/0,-/$-\infty$/>
+</tkztab>
+```
+
+D'abord quelques paramètres :
+  * `xlist` est **obligatoire**. C'est un tableau ou un texte indiquant les valeurs des antécédents. On peut mettre des éléments latex qui seront transformés par katex. Naturellement, comme pour tous les params, on a le droit de placer des variables avec un formatage comme `${@a:$}$`.
+  * `color` pour choisir la couleur du tableau. On peut utiliser une couleur html standard comme `red` ou un numéro ce qui permet de faire le liens avec le bloc de choix.
+  * `tag` pour choisir l'entête de la première ligne. Par défaut, c'est `$x$`
+  * `espcl` pour choisir l'espacement entre les items, en pixels, dans la partie droite du tableau. 150 par défaut.
+  * `lgt` pour choisir la largeur du bloc d'entête, 100 par défaut
+  * `pixelsperline` pour choisir la hauteur d'une unité verticale, 40 par défaut
+  * `headerHeight` pour choisir la hauteur de la ligne d'entête, exprimée en unité
+
+Noter que le SVG s'ajuste à l'espace disponible en largeur.
+
+Ensuite viennent les contenus à proprement dit.
+
+##### Ligne tableau de signe
+
+La forme est `<sign:$f(x)$:2:,-,d,+,z,-/>`
+
+  * `sign` indique qu'il s'agit d'une ligne tableau de signe
+  * `$f(x)$` est l'entête (obligatoire)
+  * `2` est la hauteur de la ligne, en unité (obligatoire, minimum 1)
+  * vient ensuite le contenu `,-,d,+,z,-,` qui respecte la syntaxe tkz-tab
+
+La ligne sera tronquée ou complétée en fonction de la taille attendue avec le `xList` du parent. Si par exemple xList a 3 items, on aura donc 3 valeurs de x et deux intervalles, donc la ligne devrait avoir 5 éléments. Les éléments de rangs pairs correspondent aux valeurs de x et ceux de rang impair correspondent aux intervalles, donc aux signes.
+
+  * un signe peut être `+` ou `-` (autre ignoré)
+  * en face d'un x, on peut avoir `z` pour zéro, `d` pour interdit et `t` pour une cloison neutre (autre ignoré)
+
+Naturellement, comme pour tous les params, on a le droit de placer des variables avec un formatage comme `${@a:$}$`.
+
+##### Ligne tableau de variation
+
+Exemple `<var:$f(x)$:3:-/1,+D-/$x+3$/$-\infty$,+/0,-/$-\infty$/>`
+
+  * `var` signale que c'est une ligne de variations
+  * `$f(x)$` est l'entête (obligatoire)
+  * `3` est la hauteur en unités (obligaoire, minimum 3)
+  * vient ensuite le contenu `+D-/$x+3$/$-\infty$,+/0,-/$-\infty$` qui respecte la syntaxe tkz-tab.
+
+Le nombres d'items de la ligne doit correspondre à la taille du `xList` parent. Il est complété ou tronqué au besoin.
+
+Les items autorisés ont toujours la forme : `pos/tag/tag`. Les tags sont optionnels et selon les cas, une seul ou deux sont prises en compte.
+
+Chaque fois, `pos` permet d'indiquer la forme. On a les cas de tkz-tab :
+  * `-`, cas normal, en bas
+  * `+`, cas normal, en haut
+  * `-D`, valeur interdite avec une valeur en bas sur la gauche
+  * `+D`, valeur interdite avec une valeur en haut sur la gauche
+  * `D-`, valeur interdite avec une valeur en bas sur la droite
+  * `D+`, valeur interdite avec une valeur en haut sur la droite
+  * `-D-`,
+  * `-D+`,
+  * `+D-`,
+  * `+D+`,
+  * `R`, position igorée
+
+Naturellement, comme pour tous les params, on a le droit de placer des variables avec un formatage comme `${@a:$}$`.
 
 #### Bloc Graph
 
