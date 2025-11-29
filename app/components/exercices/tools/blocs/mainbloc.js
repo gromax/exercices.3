@@ -1,15 +1,16 @@
-import { IfBloc, CondBloc } from "./ifbloc.js";
-import Affectation from "./affectation.js";
-import Bloc from "./bloc.js";
-import TextNode from "./textnode.js";
-import TextBloc from "./textbloc.js";
-import InputBloc from "./inputbloc.js";
-import FormBloc from "./FormBloc.js";
-import Parameter from "./parameter.js";
-import Option from "./option.js";
-import Halt from "./halt.js";
-import GraphBloc from "./graphbloc.js";
-import { ChoiceList, ChoiceForm } from "./choice.js";
+import { IfBloc, CondBloc } from "./ifbloc";
+import Affectation from "./affectation";
+import Bloc from "./bloc";
+import TextNode from "./textnode";
+import TextBloc from "./textbloc";
+import InputBloc from "./inputbloc";
+import FormBloc from "./FormBloc";
+import Parameter from "./parameter";
+import Option from "./option";
+import Halt from "./halt";
+import GraphBloc from "./graphbloc";
+import TkzTabBloc from "./tkztabbloc";
+import { ChoiceList, ChoiceForm } from "./choice";
 
 const TRYNUMBER = 100;
 
@@ -183,6 +184,9 @@ class MainBloc extends Bloc {
         }
         if (ChoiceForm.LABELS.includes(label)) {
             return new ChoiceForm(label, paramsString);
+        }
+        if (TkzTabBloc.LABELS.includes(label)) {
+            return new TkzTabBloc(label, paramsString);
         }
         return new Bloc(label, paramsString, false);
     }
