@@ -38,7 +38,7 @@ function checkEmptyExpression(expr) {
 }
 
 function checkInfiniteExpression(expr) {
-    return /^[-+]\s*(?:∞|inf|infini)$/.test(expr)
+    return /^[-+]\s*(?:∞|inf|infini|infinity)$/.test(expr)
         ? true
         : "Vous devez fournir une valeur infinie (ex: +inf, -∞).";
 }
@@ -91,7 +91,7 @@ function checkValue(userValue, expectedValue, format = "none") {
 
     // je traite d'abord les cas particuliers
     if (checkInfiniteExpression(expectedValue) === true) {
-        return checkInfiniteExpression(userValue) === true && expectedValue[0] === userValue[0];
+        return checkInfiniteExpression(userValue) === true && ((expectedValue[0]==='-') === (userValue[0] === '-'));
     }
     if (checkEmptyExpression(expectedValue) === true) {
         return checkEmptyExpression(userValue) === true;
