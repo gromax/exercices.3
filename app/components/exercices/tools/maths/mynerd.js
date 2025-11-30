@@ -13,7 +13,6 @@ import Parser from './parser/parser';
 import { build } from './parser/rpnbuilder';
 import { substituteLabels, getValue } from './misc/substitution';
 
-
 class MyNerd {
     static parseFloat(value) {
         if (typeof value === 'number') {
@@ -24,6 +23,10 @@ class MyNerd {
         }
         if (typeof value !== 'string') {
             value = String(value);
+        }
+        value = value.trim()
+        if (/^[+-]?\s?inf(?:inity|ty|ini)?$/.test(value)) {
+            return value.startsWith('-') ? -Infinity : Infinity;
         }
         return MyNerd.toFloat(value);
     }
@@ -42,6 +45,9 @@ class MyNerd {
     }
 
     static latex(expression, params = {}) {
+        if (/^[+-]?\s*(?:∞|inf|infinity|infty|infini)?$/.test(expression)) {
+            return expression.startsWith('-') ? "-\\infty" : "+\\infty";
+        }
         const n = new MyNerd(expression, params);
         return n.latex();
     }
@@ -49,6 +55,9 @@ class MyNerd {
     static parseUser(expression) {
         // user ne va pas forcément respecter les * ou ce genre de détails
         // je vais donc preprocesser
+        if (/^[+-]?\s*(?:∞|inf|infinity|infty|infini)?$/.test(expression)) {
+            expression = expression.startsWith('-') ? "-infinity" : "infinity";
+        }
         try {
             const parsed = new Parser(expression);
             const b = build(parsed.rpn);
@@ -125,6 +134,9 @@ class MyNerd {
         if (typeof expression !== 'string') {
             expression = String(expression);
         }
+        if (expression === '\\infty') {
+            return '+\\infty';
+        }
         return expression
             .replace(/\./g, ',')            // points décimaux → virgules
             .replace(/\blog\(/g, 'ln(')     // log( → ln(
@@ -152,7 +164,12 @@ class MyNerd {
         this._expression = expression.includes('@')
           ? getValue(expression, params) ?? substituteLabels(expression, params)
           : expression;
-        this._children = null;
+        if (this._expression === Infinity || this._expression === "Infinity") {
+            this._expression = "infinity";
+        } else if (this._expression === -Infinity || this._expression === "-Infinity") {
+            this._expression = "-infinity";
+        }
+          this._children = null;
         if (Array.isArray(this._expression)) {
             this._children = this._expression.map(expr => new MyNerd(expr, params));
             return;
@@ -192,7 +209,13 @@ class MyNerd {
             return this._children.map(child => child.toFloat());
         }
         try {
-            return parseFloat(this._processed.evaluate().text('decimals'));
+            const txt = this._processed.evaluate().text('decimals');
+            if (txt === 'infinity') {
+                return Infinity;
+            } else if (txt === '-infinity') {
+                return -Infinity;
+            }
+            return parseFloat(txt);
         } catch (e) {
             console.warn(`Erreur lors de la conversion de ${this._expression} en nombre décimal :`, e);
             return NaN;
@@ -209,6 +232,12 @@ class MyNerd {
     latex() {
         if (this._children !== null) {
             return this._children.map(child => child.latex());
+        }
+        const txt = this._processed.text();
+        if (txt === 'infinity') {
+            return "+\\infty";
+        } else if (txt === '-infinity') {
+            return "-\\infty";
         }
         return MyNerd.denormalization(this._processed.toTeX());
     }
