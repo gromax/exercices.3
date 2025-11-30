@@ -71,8 +71,8 @@ const Item = MyModel.extend ({
         errors.pwdConfirm = "Les mots de passe sont différents.";
       }
       if (typeof attrs.email !== "undefined") {
-        if (attrs.email === "") {
-          errors.email = "Ne doit pas être vide";
+        if (attrs.email.length < 6) {
+          errors.email = "L'email / identifiant doit contenir au moins 6 caractères";
         }
         if (!attrs.prenom) {
           errors.prenom = "Ne doit pas être vide";
