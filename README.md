@@ -195,7 +195,7 @@ Exemple :
 
 *Remarque : On interdit les noms de variables commençant par `__`*.
 
-#### Évaluation d'une pile
+##### Évaluation d'une pile
 
 Si l'expression à évaluaer est entourée de `<P: >`, alors elle est comprise comme une pile. L'expression est alors splitée selon les espaces. Au début chaque bloc est un donc un élément texte.
 
@@ -214,7 +214,7 @@ On suite on passe à l'exécution de la pile :
     * Attention à l'ordre : l'opérande le plus haut sur la pile sera celui donné en dernier à la fonction.
     * Le résultat de l'exécution est placé sur la pile des opérandes.
 
-#### Évaluation d'expression
+##### Évaluation d'expression
 
 Quand on procède une évaluation et que l'epression n'est pas entourée par [ ], on en déduit qu'il s'agit d'une expression mathématique, en format textuel, qui sera interprétée par nerdamer.
 
@@ -224,7 +224,7 @@ Les blocs de forme `@name` ou `@name.value` présents dans l'expression sont sub
 
 **Exemple :** On pourra écrire `@b = @a * 3 + 4` et alors si `@a` contient `x+2` alors on aura `@b = (x+2) * 3 + 4`. Cette évaluation force les parenthèses.
 
-#### Cas d'un tableau
+##### Cas d'un tableau
 
 On peut procéder à une affectation de tableau.
 
@@ -279,7 +279,7 @@ On peut également définir un tableau par ajouts successifs :
 
 Crée un tableau contenant les valeurs `3` et `12`.
 
-#### Alea entier
+##### Alea entier
 
 On dispose de la fonction Alea.entier mais cela nécessite de passer par la pile. Ainsi, quand on veut créer un nombre entier aléatoire entre `0` et `5` compris par exemple, il faut écrire :
 
@@ -311,6 +311,19 @@ Comme les mêmes besoins reviennent constamment, il existe divers formats de nom
   * `@__a.s10`, alea entier de -10 à 10 exclus (de -9 à 9)
   * `@__a.S10`, alea entier de -10 à 10, inclus et sans le 0.
   * `@__a.vxyz`, le `v` signale qu'une lettre sera choisi aléatoirement parmi `xyz`. Liste des variable au choix, par ex `@__a.vtAMnK`... Permet de varier les énoncés et de ne pas toujours utiliser `x` comme variable.
+
+##### Création d'un tableau
+
+On peut affecter un tableau simple (pas un tableau de tableau) avec la syntaxe habituelle `[...]`.
+
+```
+@t = [1, 2, 3]
+@v = [@a, @c-2, 17]
+```
+
+##### Infini
+
+On peut gérer une quantité infini avec `infinity`.
 
 ### Les blocs constitant un exercice
 
