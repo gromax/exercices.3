@@ -87,7 +87,7 @@ class User extends Item
   protected static function checkEMail($email)
   {
     return strlen($email) > 5 && strlen($email) < 100;
-    return preg_match("#^[a-zA-Z0-9_-]+(.[a-zA-Z0-9_-]+)*@[a-zA-Z0-9._-]{2,}\.[a-z]{2,4}$#", $email);
+    //return preg_match("#^[a-zA-Z0-9_-]+(.[a-zA-Z0-9_-]+)*@[a-zA-Z0-9._-]{2,}\.[a-z]{2,4}$#", $email);
   }
 
   public static function emailExists($email)
