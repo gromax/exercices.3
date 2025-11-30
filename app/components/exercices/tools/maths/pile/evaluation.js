@@ -75,6 +75,11 @@ function evaluate(expression, params) {
     if (pileResult !== null) {
         return pileResult;
     }
+    if (expression.startsWith('[') && expression.endsWith(']')) {
+        // liste
+        const vals = expression.slice(1, -1).split(',').map(v => v.trim());
+        return vals.map(v => MyNerd.make(v, params));
+    }
     return MyNerd.make(expression, params).toString();
 }
 
