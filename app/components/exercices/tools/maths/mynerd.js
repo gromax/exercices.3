@@ -14,6 +14,25 @@ import { build } from './parser/rpnbuilder';
 import { substituteLabels, getValue } from './misc/substitution';
 
 class MyNerd {
+    static reverseOperator(operator) {
+        switch (operator) {
+            case '<':
+                return '>';
+            case '<=':
+                return '>=';
+            case '>':
+                return '<';
+            case '>=':
+                return '<=';
+            case '==':
+                return '==';
+            case '!=':
+                return '!=';
+            default:
+                throw new Error(`Opérateur inconnu : ${operator}`);
+        }
+    }
+
     static parseFloat(value) {
         if (typeof value === 'number') {
             return value;
@@ -177,9 +196,11 @@ class MyNerd {
         this._normalized = MyNerd.normalization(this._expression);
         try {
             this._processed = nerdamer(this._normalized);
+            this._processed_text = this._processed.text();
         } catch (e) {
             console.warn(`Erreur lors du traitement avec nerdamer de ${this._normalized}:`, e);
             this._processed = nerdamer("NaN");
+            this._processed_text = this._processed.text();
         }
     }
 
@@ -315,6 +336,11 @@ class MyNerd {
             }
         }
         const right = MyNerd.make(rightExpr, params);
+        if (this.isInfinity()) {
+            return this._compareInfinityCase(right, operator);
+        } else if (right.isInfinity()) {
+            return right._compareInfinityCase(this, MyNerd.reverseOperator(operator));
+        }
         switch (operator) {
             case '==':
                 return this._processed.eq(right.processed);
@@ -331,6 +357,37 @@ class MyNerd {
             default:
                 throw new Error(`Opérateur de comparaison invalide : ${operator}`);
         }
+    }
+
+    _compareInfinityCase(othervalue, operator) {
+        switch (operator) {
+            case '==':
+                return this._processed_text === othervalue._processed_text;
+            case '!=':
+                return this._processed_text !== othervalue._processed_text;
+            case '<':
+                return this.isMinusInfinity() && !othervalue.isMinusInfinity();
+            case '<=':
+                return this.isMinusInfinity();
+            case '>':
+                return this.isPlusInfinity() && !othervalue.isPlusInfinity();
+            case '>=':
+                return this.isPlusInfinity();
+            default:
+                throw new Error(`Opérateur de comparaison invalide : ${operator}`);
+        }
+    }
+
+    isInfinity() {
+        return this._children === null && (this._processed_text === 'infinity' || this._processed_text === '-infinity');
+    }
+
+    isPlusInfinity() {
+        return this._children === null && this._processed_text === 'infinity';
+    }
+
+    isMinusInfinity() {
+        return this._children === null && this._processed_text === '-infinity';
     }
 
     expand() {
