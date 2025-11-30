@@ -28,6 +28,7 @@ final class NoteExo extends Item
       'idExoDevoir' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'exodevoirs.id'], // id de l'exercice dans le devoir
       'title' => ['def' => "", 'type'=> 'string', 'foreign'=>'exercices.title'],    // titre de l'exercice
       'description' => ['def' => "", 'type'=> 'string', 'foreign'=>'exercices.description'], // description de l'exercice
+      'options' => ['def' => "", 'type'=> 'json', 'foreign'=>'exodevoirs.options'], // options spécifiques pour cet exercice dans le devoir
       'num' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'exodevoirs.num'],        // numéro d'ordre dans le devoir
       'note' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'noteexos.note'],        // note obtenue pour cet exercice
       'trials' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'noteexos.trials'] // nombre d'essais

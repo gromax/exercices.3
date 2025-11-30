@@ -16,7 +16,8 @@ const Item = MyModel.extend ({
     nomUser: "",
     prenomUser: "",
     note: 0,
-    trials: 0
+    trials: 0,
+    options: {},
   },
 
   toString() {
@@ -34,6 +35,7 @@ const Item = MyModel.extend ({
     data.num = Number(data.num);
     data.idOwner = Number(data.idOwner);
     data.idClasse = Number(data.idClasse);
+    data.options = data.options ? JSON.parse(data.options) : {};
     return data;
   },
 });
