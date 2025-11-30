@@ -48,6 +48,10 @@ const Controller = MnObject.extend ({
     usersListView.on("item:forgotten", (childView, e) => {
       const model = childView.model;
       const email = model.get("email");
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        channel.trigger("popup:alert", "L'utilisateur n'a pas d'email valide enregistré.");
+        return;
+      }
       if (confirm(`Envoyer un mail de réinitialisation à « ${model.get('nomComplet')} » ?`)) {
         channel.trigger("loading:up");
         const sendingMail = channel.request("forgotten:password", email);
