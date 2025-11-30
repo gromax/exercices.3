@@ -184,11 +184,13 @@ class Table {
     }
 
     static max(values) {
-        return Math.max(...values);
+        const vf = values.map(v => MyNerd.parseFloat(v));
+        return Math.max(...vf);
     }
 
     static min(values) {
-        return Math.min(...values);
+        const vf = values.map(v => MyNerd.parseFloat(v));
+        return Math.min(...vf);
     }
 
     static quantile2(values, effectifs, q) {
