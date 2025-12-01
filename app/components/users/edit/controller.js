@@ -77,9 +77,9 @@ const Controller = MnObject.extend ({
       });
     }
     channel.request("region:main").show(view);
-    view.on("success", (data) => {
+    view.on("success", (user) => {
       channel.trigger("popup:info", {
-        title: `Bienvenue ${data.prenom} ${data.nom}`,
+        title: `Bienvenue ${user.get("prenom")} ${user.get("nom")}`,
         message: `Vous avez rejoint la classe ${classe.get("nom")}. Vous devez vous connecter.`
       });
       if (logged.isEleve()) {
