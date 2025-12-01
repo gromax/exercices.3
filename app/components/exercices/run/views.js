@@ -62,6 +62,9 @@ const LayoutView = View.extend({
 
 const PanelEleveView = View.extend({
   template: panel_eleve_tpl,
+  modelEvents: {
+    'change': 'render' // re-render on model change
+  },
   triggers: {
     'click .js-prev': 'prev',
     'click .js-next': 'next'
