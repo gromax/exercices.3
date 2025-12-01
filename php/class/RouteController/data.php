@@ -79,15 +79,15 @@ class data
     protected function customFetchHelper($toLoad, $asks)
     {
         $objects = [
-            'sujetsexercices' => [Exercice::class, 'getList'],
-            'messages' => [Message::class, 'getList'],
-            'classes' => [Classe::class, 'getList'],
-            'devoirs' => [Devoir::class, 'getList'],
-            'users' => [User::class, 'getList'],
-            'exodevoirs' => [ExoDevoir::class, 'getList'],
-            'notesexos' => [NoteExo::class, 'getList'],
-            'notes' => [Note::class, 'getList'],
-            'unfinished' => [Unfinished::class, 'getList']
+            'sujetsexercices' => Exercice::class,
+            'messages' => Message::class,
+            'classes' => Classe::class,
+            'devoirs' => Devoir::class,
+            'users' => User::class,
+            'exodevoirs' => ExoDevoir::class,
+            'notesexos' => NoteExo::class,
+            'notes' => Note::class,
+            'unfinished' => Unfinished::class
         ];
 
         $output = [];
@@ -101,16 +101,16 @@ class data
             }
             if (!isset($toLoad[$key])) continue;
             $params = unserialize(serialize($toLoad[$key])); // copie profonde
-            $call = $objects[$key] ?? null;
-            if (!is_callable($call)) continue;
+            $class = $objects[$key] ?? null;
             if ($id !== null) {
                 // Chargement d'un seul objet
                 if (!isset($params['wheres'])) {
                     $params['wheres'] = [];
                 }
-                $params['wheres']['id'] = $id;
+                $ajout = $class::whereForId($id); // pour valider l'id
+                $params['wheres'] = array_merge($params['wheres'], $ajout);
             }
-            $answer = $call($params);
+            $answer = $class::getList($params);
             if (isset($answer["error"]) && $answer["error"])
             {
                 EC::addError($answer["message"]);
