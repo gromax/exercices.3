@@ -8,6 +8,7 @@ use ErrorController as EC;
 abstract class Item
 {
   protected $id = null;
+  protected static $idAttribute = ['id'];
   protected $values = null;
   protected static $BDDName = "Item";
   protected static $TYPES = array(
@@ -19,6 +20,11 @@ abstract class Item
   );
 
   ##################################### METHODES STATIQUES #####################################
+
+  protected static function idAttribute()
+  {
+    return [static::$BDDName.'.id'];
+  }
 
   protected static function keys()
   {
@@ -169,11 +175,21 @@ abstract class Item
         $whereItems[] = "$t1.`$c1` $operator :".str_replace(".","_",$key);
         continue;
       }
-      if (isset($champs[$key]) && isset($champs[$key]['foreign']))
+      if (isset($champs[$key]))
       {
-        // clé étrangère avec un alias
-        EC::addError("Ne pas créer de WHERE sur une clé étrangère avec alias : $key");
-        continue;
+        if (isset($champs[$key]['alias']))
+        {
+          $alias = $champs[$key]['alias'];
+          $whereItems[] = "`$alias` $operator :$key";
+          continue;
+        }
+        if (isset($champs[$key]['foreign']))
+        {
+          // clé étrangère
+          [$table, $col] = explode(".",$champs[$key]['foreign']);
+          $whereItems[] = "$table.`$col` $operator :$key";
+          continue;
+        }
       }
       $whereItems[] = static::$BDDName.".`$key` $operator :$key";
     }
@@ -221,6 +237,31 @@ abstract class Item
     return " GROUP BY ".implode(", ", $cols);
   }
 
+
+  public static function whereForId($id)
+  {
+    $idAttribute = static::idAttribute();
+    if (is_int($id) || ctype_digit($id)) {
+      if (count($idAttribute) == 1) {
+        return [$idAttribute[0] => (integer) $id];
+      } else {
+        EC::addError("whereForId : identifiant multiple attendu.");
+        return null;
+      }
+    } else {
+      $ids = explode("_", $id);
+      if (count($ids) != count($idAttribute)) {
+        EC::addError("whereForId : nombre d'identifiants incorrect.");
+        return null;
+      }
+      $wheres = [];
+      foreach ($idAttribute as $index => $col) {
+        $wheres[$col] = (integer) $ids[$index];
+      }
+      return $wheres;
+    }
+  }
+
   public static function getList($filter = [])
   {
     $args = ["wheres", "hideCols", "forcecols", "orderby"];
@@ -266,17 +307,28 @@ abstract class Item
 
   public static function getObject($idInput)
   {
-    if (!is_numeric($idInput)) {
+    $wheres = static::whereForId($idInput);
+    if ($wheres === null) {
       return null;
     }
+    $idKeys = array_keys($wheres);
+    $ids = array_values($wheres);
+    $tagToId = [];
+    $arrStrWheres = [];
+    foreach ($idKeys as $index => $col) {
+      $arrStrWheres[] = "$col = :id$index";
+      $tagToId[":id$index"] = (integer) $ids[$index];
+    }
+    $strWheres = implode(" AND ", $arrStrWheres);
     require_once BDD_CONFIG;
     try {
-      $bddName = static::$BDDName;
       $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
       $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       $select = static::sqlGetSELECT([], []);
-      $stmt = $pdo->prepare("$select WHERE $bddName.id = :id");
-      $stmt->bindValue(':id', $idInput, PDO::PARAM_INT);
+      $stmt = $pdo->prepare("$select WHERE $strWheres");
+      foreach ($tagToId as $key => $value) {
+        $stmt->bindValue($key, $value, PDO::PARAM_INT);
+      }
 
       $stmt->execute();
       $bdd_result = $stmt->fetch(PDO::FETCH_ASSOC);

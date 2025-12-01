@@ -37,6 +37,11 @@ final class Note extends Item
     ] ;
   }
 
+  protected static function idAttribute()
+  {
+    return ['users.id','devoirs.id'];
+  }
+
   protected static function joinedTables()
   {
     return [

@@ -11,8 +11,12 @@ final class NoteExo extends Item
 {
   protected static $BDDName = "users";
 
-
   ##################################### METHODES STATIQUES #####################################
+
+  protected static function idAttribute()
+  {
+    return ['users.id','exodevoirs.id'];
+  }
 
   protected static function champs()
   {

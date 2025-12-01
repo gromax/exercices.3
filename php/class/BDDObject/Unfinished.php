@@ -22,6 +22,11 @@ final class Unfinished extends Trial
     ] ;
   }
 
+  protected static function idAttribute()
+  {
+    return ['trials.idUser', 'trials.idExoDevoir'];
+  }
+
   public static function getList($filter = [])
   {
     if (!isset($filter['wheres']))
