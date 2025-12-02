@@ -168,7 +168,7 @@ class MyNerd {
      * par la valeur évaluée de l'expression au format spécifié
      */
     static substituteExpressions(texte, params) {
-        return texte.replace(/\{([^:]+):\s*([\w]*(?:\$)?)?\}/g, (match, expr, format) => {
+        return texte.replace(/\{([^:{}]+):\s*([\w]*(?:\$)?)?\}/g, (match, expr, format) => {
             return MyNerd.make(expr, params).toFormat(format);
         });
     }
