@@ -11,6 +11,7 @@ import Halt from "./halt";
 import GraphBloc from "./graphbloc";
 import TkzTabBloc from "./tkztabbloc";
 import { ChoiceList, ChoiceForm } from "./choice";
+import Colors from "../colors.js";
 
 const TRYNUMBER = 100;
 
@@ -50,6 +51,7 @@ class MainBloc extends Bloc {
      * @returns {object} l'objet représentant la structure de l'exercice
      */
     static _parse(content) {
+        const colors = new Colors(); // instancie une palette pour les blocs qui en auraient besoin
         const lines = content.split('\n');
         const mainBlock = new MainBloc();
         const stack = [mainBlock];
@@ -123,6 +125,11 @@ class MainBloc extends Bloc {
             }
 
             const bloc = MainBloc.parseBloc(trimmed);
+            if (typeof bloc.setColors === 'function') {
+                // si le bloc nécessite une palette de couleurs
+                // on la lui fournit
+                bloc.setColors(colors);
+            }
             if (bloc) {
                 if (bloc.closed) {
                     stack[stack.length-1].push(bloc);

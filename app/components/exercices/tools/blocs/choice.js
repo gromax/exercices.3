@@ -1,6 +1,6 @@
 import { Model, Collection } from 'backbone'
 import Bloc from "./bloc";
-import { COLORS, PICTOS } from "../colors.js";
+import Colors from "../colors.js";
 import { ChoicesView, ChoiceFormLayout } from "../blocsviews/choice.js";
 import renderMathInElement from "katex/contrib/auto-render";
 
@@ -9,8 +9,16 @@ class Choice extends Bloc {
         super(label, paramsString, false);
         this._options = [];
         this._valuemax = 0;
-        
     }
+
+    /**
+     * Définir les couleurs à utiliser
+     * @param {Colors} colors 
+     */
+    setColors(colors) {
+        this._colors = colors;
+    }
+
     setOption(key, value) {
         let index = /[0-9]+/.test(key) ? parseInt(key) : 0;
         if (index > 7) {
@@ -29,10 +37,10 @@ class Choice extends Bloc {
                 caption: value,
                 index: showIndex,
                 goodIndex:index,
-                color: COLORS[showIndex],
-                picto: squareOnly ? 'square' : PICTOS[showIndex],
-                goodcolor: COLORS[index],
-                goodpicto: squareOnly ? 'square' : PICTOS[index],
+                color: this._colors.getColor(showIndex),
+                picto: squareOnly ? 'square' : this._colors.getPicto(showIndex),
+                goodcolor: this._colors.getColor(index),
+                goodpicto: squareOnly ? 'square' : this._colors.getPicto(index),
             });
             this._collection.add(m);
             this._notshuffledCollection = this._collection;
@@ -106,11 +114,11 @@ class ChoiceForm extends Choice {
             }
             model.set({
                 index: idx,
-                color: COLORS[idx],
+                color: this._colors.getColor(idx),
             });
             if (!squareOnly) {
                 model.set({
-                    picto: PICTOS[idx],
+                    picto: this._colors.getPicto(idx),
                 });
             }
             layout.$el.find(`input[name="${this.header}"]`).val(

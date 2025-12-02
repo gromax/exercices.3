@@ -1,10 +1,18 @@
 import Bloc from "./bloc.js";
 import GraphView from "../blocsviews/graphview";
 import MyNerd from "../maths/mynerd.js";
-import { COLORS } from "../colors.js";
+import Colors from "../colors.js";
 
 class GraphBloc extends Bloc {
     static LABELS = ['graph', 'graphe'];
+
+    /**
+     * Définir les couleurs à utiliser
+     * @param {Colors} colors 
+     */
+    setColors(colors) {
+        this._colors = colors;
+    }
 
     _customView(answers) {
         this.xmin = this.params.xmin !== undefined ? Number(this.params.xmin) : -5;
@@ -35,7 +43,7 @@ class GraphBloc extends Bloc {
             const color = item.params.color;
             const i = parseInt(color);
             if (!isNaN(i)) {
-                item.params.color = COLORS[i % COLORS.length];
+                item.params.color = this._colors.getColor(i);
             }
         }
         switch (item.tag) {

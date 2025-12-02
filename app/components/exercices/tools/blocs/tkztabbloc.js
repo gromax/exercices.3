@@ -1,6 +1,6 @@
 import Bloc from "./bloc";
 import TkzTabView from "../blocsviews/tkztabview";
-import { COLORS } from "../colors";
+import Colors from "../colors";
 
 class TkzTabBloc extends Bloc {
     static LABELS = ['tkztab'];
@@ -9,6 +9,14 @@ class TkzTabBloc extends Bloc {
         super(label, paramsString, false);
         this._lines = [];
         this._color = 'black';
+    }
+
+    /**
+     * Définir les couleurs à utiliser
+     * @param {Colors} colors 
+     */
+    setColors(colors) {
+        this._colors = colors;
     }
 
     _customView(answers) {
@@ -62,7 +70,7 @@ class TkzTabBloc extends Bloc {
         if (key === 'color') {
             const n = parseInt(value);
             if (!isNaN(n)) {
-                value = COLORS[n % COLORS.length];
+                value = this._colors.getColor(n);
             }
             this._color = value;
             return;
