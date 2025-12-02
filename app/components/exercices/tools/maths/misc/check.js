@@ -131,7 +131,7 @@ function checkValue(userValue, expectedValue, format = "none") {
         return MyNerd.parseUser(userValue).compare(`expand(${expectedValue})`, "==");
     }
     // autres formats à ajouter ici
-    return MyNerd.parseUser(userValue).compare(expectedValue, "==");
+    return MyNerd.parseUser(userValue).expand().compare(`expand(${expectedValue})`, "==");
 }
 
 export { checkFormat, checkValue };
