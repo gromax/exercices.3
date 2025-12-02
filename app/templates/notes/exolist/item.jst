@@ -4,9 +4,9 @@
       <h5>Exercice <%- num %> : <%- title %></h5>
       <p><%- description %></p>
       <% if (trials == 0) { %>
-        <p><span class="badge bg-danger">note : <%- note %></span> <span class="text-danger">Vous n'avez pas encore fait cet exercice.</span></p>
+        <p><span class="badge bg-danger">note : <%- note %></span> <span class="text-danger"><% if (modeProf) { %>L'élève n'a<% } else { %>Vous n'avez<% } %> pas encore fait cet exercice.</span></p>
       <% } else { %>
-        <p><span class="badge bg-success">note : <%- note %></span> <span class="text-secondary">Vous avez déjà fait cet exercice <%- trials %> fois.</span></p>
+        <p><span class="badge bg-success">note : <%- note %></span> <span class="text-secondary"><% if (modeProf) { %>L'élève a<% } else { %>Vous avez<% } %> déjà fait cet exercice <%- trials %> fois.</span></p>
       <% } %>
     </div>
   </div>

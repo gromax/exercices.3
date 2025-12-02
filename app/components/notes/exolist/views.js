@@ -25,6 +25,11 @@ const ItemView = View.extend({
     triggers: {
         "click": "show"
     },
+    templateContext() {
+        return {
+            modeProf: this.getOption('modeProf') || false,
+        };
+    },
     template: item_tpl,
 });
 
@@ -33,6 +38,11 @@ const NotesExosCollectionView = CollectionView.extend({
     emptyView: NoItemView,
     childView: ItemView,
     childViewEventPrefix: "item",
+    childViewOptions() {
+        return {
+            modeProf: this.getOption('modeProf') || false,
+        };
+    }
 });
 
 export { PanelView, NotesExosCollectionView }

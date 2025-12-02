@@ -18,6 +18,7 @@ const Controller = MnObject.extend({
 
     const notesView = new NotesExosCollectionView({
       collection: collecNotesExo,
+      modeProf: logged.isProf() || logged.isAdmin(),
     });
     if (logged.isEleve()) {
       notesView.on("item:show", (childView) => {
@@ -28,6 +29,14 @@ const Controller = MnObject.extend({
           model.get("idExo"),
           model.get("idDevoir"),
           logged.get("id")
+        );
+      });
+    } else {
+      notesView.on("item:show", (childView) => {
+        const model = childView.model;
+        channel.trigger(
+          "popup:info",
+          "L'affichage des essais élève n'est pas encore disponible."
         );
       });
     }
