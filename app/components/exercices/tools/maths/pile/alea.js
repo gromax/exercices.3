@@ -7,6 +7,7 @@ class Alea {
         'lagrangePolynome': Alea.lagrangePolynome,
         'binomial': Alea.binomial,
         'binomialList': Alea.binomialList,
+        'choice': Alea.choice
     };
     static entier(min, max) {
         const a = Number(min);
@@ -18,6 +19,14 @@ class Alea {
 
     static signe() {
         return Math.random() < 0.5 ? -1 : 1;
+    }
+
+    static choice(tab) {
+        if (!Array.isArray(tab) || tab.length === 0) {
+            throw new Error("Paramètre invalide pour Alea.choice");
+        }
+        const index = Alea.entier(0, tab.length - 1);
+        return tab[index];
     }
 
     static lagrangePolynome(xmin, ymin, xmax, ymax, n) {
