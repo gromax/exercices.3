@@ -29,9 +29,9 @@ class Choice extends Bloc {
 
     _makeCollection() {
         this._collection = new Collection();
-        const showIndex = this instanceof ChoiceForm ? 0 : index;
-        const squareOnly = (typeof this._params.onlysquares === 'undefined') || Boolean(this._params.onlysquares);
+        const squareOnly = this.squaresOnly;
         for (const {index, value} of this._options) {
+            const showIndex = this instanceof ChoiceForm ? 0 : index;
             this._valuemax = Math.max(this._valuemax, index);
             const m = new Model({
                 caption: value,
@@ -49,6 +49,10 @@ class Choice extends Bloc {
 
     _shuffle() {
         this._collection = new Collection(this._collection.shuffle());
+    }
+
+    get squaresOnly() {
+        return (typeof this._params.onlysquares == 'undefined') || Boolean(this._params.onlysquares);
     }
 }
 
@@ -95,12 +99,15 @@ class ChoiceForm extends Choice {
                 subViews.push(subView);
             }
         }
+        const vmax = typeof this._params.max !== 'undefined'
+            ? Math.max(parseInt(this._params.max), this._valuemax)
+            : this._valuemax;
         const layout = new ChoiceFormLayout({
             name: this.header,
             blocParent: this,
             value: '0'.repeat(this._options.length),
         });
-        const squareOnly = (typeof this._params.onlysquares !== 'undefined') && Boolean(this._params.onlysquares);
+        const squareOnly = this.squaresOnly;
         const lView = new ChoicesView({
             collection: this._collection,
             button: true
@@ -109,7 +116,7 @@ class ChoiceForm extends Choice {
             const model = childView.model;
             let idx = model.get('index');
             idx += 1;
-            if (idx > this._valuemax) {
+            if (idx > vmax) {
                 idx = 1;
             }
             model.set({
