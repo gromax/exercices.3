@@ -19,6 +19,9 @@ This is a modern JS skeleton with MarionetteJS for [Webpack](https://webpack.git
 * J'ai réglé le problème des calculs à virgule avec nerdamer. Toutefois, si le concepteur de l'exo écrit par ex 0,5, nerdamer va peut être butter sur la virgule et il va mettre 1/2. Il faudrait donc trouver moyen de dire à nerdamer de ne pas faire cela, ou bien trouver un autre moteur de rendu tex. copilot m'a proposé une fonction pour conserver les décimaux.
 * pour un bloc de mises en correspondances d'items, les enfant pourraient être comme dans un bloc radio du genre 0=>a:b et ensuite ce n'est qu'un problème de rendu. 
 
+
+  * la note de ces mêmes exercices ne se met à jour dynamiquement (met c'est bon si F5)
+
 ## à faire
 
 * une fonction permettant l'évaluation d'une fonction
@@ -529,7 +532,7 @@ Ici `@gn` qui aura été préalablement initialisé, contiendra une valeur parmi
 1 => Le choix 1
 2 => Le choix 2
 3 => Le choix 3
-<\choix>
+</choix>
 ```
 
 Ce bloc permet d'afficher une liste d'items associés à un pictogramme coloré dépendant de l'index indiqué. L'index doit être entre 1 et 7 inclus.
@@ -573,6 +576,8 @@ Voyons un exemple d'utilisation :
 ```
 
 Le premier bloc définit les couleurs (et donc indices) associées aux ensembles. On demande ensuite à l'élève de choisir. Il devra choisir 2 pour $-5$, 1 pour $8$, etc.
+
+On peut préciser le param `<max:4/> pour indiquer que l'on autorise le choix à aller jusque 4 même si ce n'est pas une des réponses prévues.
 
 **Remarque :** les indices peuvent se répéter dans `formchoix` car plusieurs items peuvent avoir la même réponse. Ici, $8$ et $0$ sont tous deux des entiers naturels.
 
