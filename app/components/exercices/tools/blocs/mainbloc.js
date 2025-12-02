@@ -125,12 +125,12 @@ class MainBloc extends Bloc {
             }
 
             const bloc = MainBloc.parseBloc(trimmed);
-            if (typeof bloc.setColors === 'function') {
-                // si le bloc nécessite une palette de couleurs
-                // on la lui fournit
-                bloc.setColors(colors);
-            }
             if (bloc) {
+                if (typeof bloc.setColors === 'function') {
+                    // si le bloc nécessite une palette de couleurs
+                    // on la lui fournit
+                    bloc.setColors(colors);
+                }
                 if (bloc.closed) {
                     stack[stack.length-1].push(bloc);
                 } else {
