@@ -41,6 +41,7 @@ const Controller = MnObject.extend({
       case "notesexos": return require("./notes/noteexo.js").Collection;
       case "notes": return require("./notes/note.js").Collection;
       case "unfinished": return require("./exercices/trial.js").Collection;
+      case "trials": return require("./exercices/trial.js").Collection;
       default: return null;
     }
   },
