@@ -34,17 +34,6 @@ class InputBloc extends Bloc {
         }
     }
 
-    setParam(key, value) {
-        if (key === 'keyboard') {
-            if (this._params.keyboard === undefined) {
-                this._params.keyboard = [];
-            }
-            this._params.keyboard.push(value);
-            return;
-        }
-        super.setParam(key, value);
-    }
-
     constructor(label, paramsString) {
         super(label, paramsString, false);
         if (!paramsString) {
@@ -71,6 +60,10 @@ class InputTextBloc extends InputBloc {
             if (!this.params.keyboard.includes('help')) {
                 this.params.keyboard.push('help');
             }
+        }
+        // keyboard doit être un tableau
+        if (typeof this.params.keyboard !== "undefined" && !Array.isArray(this.params.keyboard)) {
+            this.params.keyboard = [this.params.keyboard];
         }
         const view =  new InputView({
             name: this.header,
@@ -139,6 +132,10 @@ class InputTextBloc extends InputBloc {
     }
 
     _format(solution, format) {
+        if (Array.isArray(format)) {
+            console.warn("Le format est de type tableau. On devrait dans ce cas proposer tagSolution.");
+            return format.map(f => this._format(solution, f));
+        }
         if (Array.isArray(solution)) {
             return solution.map(sol => this._format(sol, format));
         }
