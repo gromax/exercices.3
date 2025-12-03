@@ -4,6 +4,7 @@ import params_tpl from '@templates/exercices/run/exercice-apercu-params.jst' // 
 import exercice_finished_tpl from '@templates/exercices/run/exercice-finished.jst'
 import layout_tpl from '@templates/exercices/run/layout.jst'
 import panel_eleve_tpl from '@templates/exercices/run/panel-eleve.jst'
+import panel_prof_trial_tpl from '@templates/exercices/run/panel-prof-trial.jst'
 
 const OptionsView = View.extend({
   template: options_tpl,
@@ -76,10 +77,20 @@ const PanelEleveView = View.extend({
   }
 });
 
+const PanelProfTrialView = View.extend({
+  template: panel_prof_trial_tpl,
+  templateContext() {
+    return {
+      nom: this.getOption("nom") || 'Inconnu',
+    };
+  }
+});
+
 export {
   OptionsView,
   ParamsView,
   Finished_View,
   LayoutView,
-  PanelEleveView
+  PanelEleveView,
+  PanelProfTrialView
 };
