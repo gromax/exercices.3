@@ -8,6 +8,7 @@ const Controller = MnObject.extend({
     'custom:entities': 'getCustomEntities',
     'user:me': 'getMe',
     'data:getitem': 'getItem',
+    'data:trials': 'getTrials',
   },
 
   radioEvents: {
@@ -62,6 +63,20 @@ const Controller = MnObject.extend({
       this.stored_time.classestojoin = Date.now();
       this.stored_data.classestojoin = new Classes(data, { parse:true });
       defer.resolve(this.stored_data.classestojoin);
+    }).fail( (response) => {
+      defer.reject(response);
+    });
+    return defer.promise();
+  },
+
+  getTrials(idUser, idExoDevoir) {
+    // on ne fait pas de cache pour cela
+    const defer = $.Deferred();
+    const fetching = this.fetch(`api/trials/${idUser}/${idExoDevoir}`);
+    fetching.done( (data) => {
+        const Trials = require("./exercices/trial.js").Collection;
+        const trials = new Trials(data, { parse:true });
+        defer.resolve(trials);
     }).fail( (response) => {
       defer.reject(response);
     });
