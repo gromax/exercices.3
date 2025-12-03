@@ -11,6 +11,7 @@ const Item = MyModel.extend ({
     description: "",
     idOwner: 0,
     idClasse: 0,
+    idExoDevoir: 0,
     num: 0,
     idUser: null,
     nomUser: "",
