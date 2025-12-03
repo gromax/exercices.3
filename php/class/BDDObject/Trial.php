@@ -22,7 +22,8 @@ class Trial extends Item
       'date' => ['def' => date('Y-m-d'), 'type'=> 'date'], // date de l'essai
       'finished' => ['def' => false, 'type'=> 'bool'], // si l'essai est terminé
       'idExo' => ['def' => 0, 'type'=> 'integer', 'foreign' => 'exodevoirs.idExo'], // id du sujet
-      'idOwner' => ['def' => 0, 'type'=> 'integer', 'foreign' => 'devoirs.idOwner'] // id du propriétaire du devoir
+      'idOwner' => ['def' => 0, 'type'=> 'integer', 'foreign' => 'devoirs.idOwner'], // id du propriétaire du devoir
+      'idDevoir' => ['def' => 0, 'type'=> 'integer', 'foreign' => 'exodevoirs.idDevoir'] // id du devoir
     ] ;
   }
 
