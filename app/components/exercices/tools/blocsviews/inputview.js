@@ -5,6 +5,7 @@ const KEYS = {
   'sqrt': '$\\sqrt{x}$',
   'power': '$x^y$',
   'square': '$x^2$',
+  'cube': '$x^3$',
   'help': '<i class="fa-solid fa-question"></i>',
   'inf': '$\\infty$',
   'empty': 'Ø'
@@ -24,6 +25,7 @@ const InputView = View.extend({
     'click .js-sqrt': 'keyboard:sqrt',
     'click .js-power': 'keyboard:power',
     'click .js-square': 'keyboard:square',
+    'click .js-cube': 'keyboard:cube',
     'click .js-help': 'keyboard:help',
     'click .js-inf': 'keyboard:inf',
     'click .js-empty': 'keyboard:empty'
@@ -45,6 +47,16 @@ const InputView = View.extend({
     const newValue = end-start <=1
       ? value.slice(0, end) + '²' + value.slice(end)
       : value.slice(0, start) + '(' + value.slice(start,end) + ')²' + value.slice(end);
+    const input = this.el.querySelector('input[name="' + this.getOption("name") + '"]');
+    input.value = newValue;
+    input.focus();
+  },
+
+  onKeyboardCube() {
+    const {start, end, value} = this._getInputSelection();
+    const newValue = end-start <=1
+      ? value.slice(0, end) + '³' + value.slice(end)
+      : value.slice(0, start) + '(' + value.slice(start,end) + ')³' + value.slice(end);
     const input = this.el.querySelector('input[name="' + this.getOption("name") + '"]');
     input.value = newValue;
     input.focus();
