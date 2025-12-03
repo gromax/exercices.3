@@ -1,3 +1,4 @@
+import { on } from "@svgdotjs/svg.js";
 import Backbone from "backbone";
 import {MnObject} from "backbone.marionette"
 
@@ -5,6 +6,7 @@ const Controller = MnObject.extend({
   channelName: "app",
   radioEvents: {
     "notes:devoir:user:show": "onShowNotesForDevoirUser",
+    "trials:show": "onShowTrials",
     "notes:my": "onShowMyNotes",
     "notes:my:devoir": "onShowMyNotesForDevoir",
   },
@@ -22,6 +24,11 @@ const Controller = MnObject.extend({
     }
     Backbone.history.navigate("home", { trigger: false });
     this.showNotesListForEleve(logged.id);
+  },
+
+  onShowTrials(idUser, idExoDevoir) {
+    Backbone.history.navigate(`trials/user:${idUser}/exodevoir:${idExoDevoir}`, { trigger: false });
+    this.showTrials(idUser, idExoDevoir);
   },
 
   onShowMyNotesForDevoir(idDevoir) {
@@ -130,8 +137,29 @@ const Controller = MnObject.extend({
     }).always( () => {
       channel.trigger("loading:down");
     });
-  }
+  },
 
+  showTrials(idUser, idExoDevoir) {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    if (logged.isOff() || logged.isEleve()) {
+      channel.trigger("not:found");
+      return;
+    }
+    channel.trigger("loading:up");
+    const fetching = channel.request("data:trials", idUser, idExoDevoir);
+    $.when(fetching).done( (trials) => {
+      channel.trigger("ariane:push", {
+        text: `Essais élève #${idUser} pour exercice devoir #${idExoDevoir}`,
+        link: `#trials/user:${idUser}/exodevoir:${idExoDevoir}`
+      });
+      require("./trials/controller.js").controller.showList(trials);
+    }).fail( (response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always( () => {
+      channel.trigger("loading:down");
+    });
+  }
 });
 
 const controller = new Controller();
@@ -140,6 +168,7 @@ const Router = Backbone.Router.extend({
   routes: {
     "devoir::id/notes": "showNotesForDevoir",
     "devoir::idDevoir/notes/user::idUser": "showNotesExosForDevoirUser",
+    "trials/user::idUser/exodevoir::idExoDevoir": "showTrials",
     "mynotes::id": "showMyNotesExosForDevoir",
   },
 
@@ -153,6 +182,10 @@ const Router = Backbone.Router.extend({
 
   showMyNotesExosForDevoir(idDevoir) {
     controller.showMyNotesExosForDevoir(idDevoir);
+  },
+
+  showTrials(idUser, idExoDevoir) {
+    controller.showTrials(idUser, idExoDevoir);
   }
 });
 
