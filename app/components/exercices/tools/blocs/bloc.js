@@ -16,19 +16,32 @@ class Bloc {
         this._category = tag;
     }
 
+    /**
+     * Ajoute un paramètre au bloc
+     * Si ce paramètre existe déjà, le paramètre devient un tableau
+     * [] n'est donc requis que si on veut forcer  un tableau
+     * avec une seule valeur
+     * @param {string} key 
+     * @param {*} value 
+     */
     setParam(key, value) {
-        if (!key.endsWith('[]')) {
-            this._params[key] = value;
+        const realKey = key.endsWith('[]')
+            ? key.slice(0, -2)
+            : key;
+        if (this._params[realKey] !== undefined) {
+            if (!Array.isArray(this._params[realKey])) {
+                this._params[realKey] = [this._params[realKey], value];
+            } else {
+                this._params[realKey].push(value);
+            }
             return;
         }
-        // il s'agit d'un tableau
-        const realKey = key.slice(0, -2);
-        if (!(realKey in this._params)) {
-            this._params[realKey] = [];
-        } else if (!Array.isArray(this._params[realKey])) {
-            throw new Error(`Le paramètre ${realKey} n'est pas un tableau.`);
+        if (key.endsWith('[]')) {
+            // bien que ce soit la première valeur, on l'a met en tableau
+            this._params[realKey] = [value];
+        } else {
+            this._params[realKey] = value
         }
-        this._params[realKey].push(value);
     }
 
     get header() {
@@ -79,6 +92,10 @@ class Bloc {
             throw new Error(`Le bloc <${this.tag}> a déjà été exécuté.`);
         }
         this._runned = true;
+        if (this.tag ==="shuffle") {
+            // on mélange les enfants
+            return _.shuffle(this._children);
+        }
         const pile = [...this._children].reverse();
         this._children = [];
         while (pile.length > 0) {
