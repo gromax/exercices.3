@@ -22,13 +22,17 @@ class Trial extends Item
       'date' => ['def' => date('Y-m-d'), 'type'=> 'date'], // date de l'essai
       'finished' => ['def' => false, 'type'=> 'bool'], // si l'essai est terminé
       'idExo' => ['def' => 0, 'type'=> 'integer', 'foreign' => 'exodevoirs.idExo'], // id du sujet
+      'idOwner' => ['def' => 0, 'type'=> 'integer', 'foreign' => 'devoirs.idOwner'] // id du propriétaire du devoir
     ] ;
   }
 
   protected static function joinedTables()
   {
     return [
-      'inner' => ['exodevoirs' => 'trials.idExoDevoir = exodevoirs.id']
+      'inner' => [
+        'exodevoirs' => 'trials.idExoDevoir = exodevoirs.id',
+        'devoirs' => 'exodevoirs.idDevoir = devoirs.id'
+      ]
     ];
   }
 
