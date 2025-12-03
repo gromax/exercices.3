@@ -8,7 +8,8 @@ const Controller = MnObject.extend({
     "sujet:exercice:show": "onSujetExerciceShow",
     "exercice:apercu": "onExerciceApercu",
     "exodevoir:run": "onExoDevoirRun",
-    "exodevoir:run:bynumber": "onExoDevoirRunByNumber"
+    "exodevoir:run:bynumber": "onExoDevoirRunByNumber",
+    "trial:run": "onTrialRun",
   },
 
   onExercicesList() {
@@ -24,6 +25,11 @@ const Controller = MnObject.extend({
 
   onExerciceApercu(sujetExo, region) {
     require("./run/controller.js").controller.showApercu(sujetExo, region);
+  },
+
+  onTrialRun(idTrial, idExoDevoir, idExo, idDevoir, idUser) {
+    Backbone.history.navigate(`trial:${idTrial}/${idExoDevoir}/${idExo}/${idDevoir}/${idUser}`, {});
+    this.trialRun(idTrial, idExoDevoir, idExo, idDevoir, idUser);
   },
 
   onExoDevoirRun(idExoDevoir, idExo, idDevoir, idUser) {
