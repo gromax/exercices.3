@@ -372,6 +372,15 @@ Il est d'ailleurs possible de traiter ces paramètres en tableaux :
 
 Ainsi on a un paramètre de nom `param` qui est le tableau `[1, 7]`.
 
+Toutefois, si on ajoute plusieurs valeurs dans un même param, celui-ci sera toujours compris comme un tableau.
+
+```
+<param:1/>
+<param:7/>
+```
+
+Dans ce cas, le `7` n'écrase pas le `1`. La première ligne produit `param = 1` et la seconde ligne met à jour `param = [1, 7]`.
+
 Un paramètre peut aussi être un texte avec formatage. Par exemple `<param:image de {@x:}/>`
 
 #### Bloc de texte
@@ -765,6 +774,16 @@ La fonction `Alea.lagrangePolynome` tire `n+1` points au hasard, à coordonnées
     <expression:@p/>
   </function>
 </graph>
+```
+
+#### Bloc shuffle
+
+À l'exécution, mélange ses enfants et renvoie ces enfants. Peut servir par exemple si on veut produire des tableaux de variations et les mélanger.
+
+```
+<shuffle>
+...
+</shuffle>
 ```
 
 ### Les fonctions disponibles
