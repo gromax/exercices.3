@@ -34,10 +34,7 @@ const Controller = MnObject.extend({
     } else {
       notesView.on("item:show", (childView) => {
         const model = childView.model;
-        channel.trigger(
-          "popup:info",
-          "L'affichage des essais élève n'est pas encore disponible."
-        );
+        channel.trigger("trials:show", model.get("idUser"), model.get("idExoDevoir"));
       });
     }
     layoutView.getRegion('contentRegion').show(notesView);
