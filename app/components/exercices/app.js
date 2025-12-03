@@ -166,7 +166,49 @@ const Controller = MnObject.extend({
     }).always(() => {
       channel.trigger("loading:down");
     });
+  },
+
+  trialRun(idTrial, idExoDevoir, idExo, idDevoir, idUser) {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    if (!logged.isProf() && !logged.isAdmin()) {
+      channel.trigger("not:found");
+      return;
+    }
+    channel.trigger("loading:up");
+    const fetching = channel.request("custom:entities", [
+      `trials:${idTrial}`,
+      `notesexos:${idUser}_${idExoDevoir}`,
+      `sujetsexercices:${idExo}`,
+      `notes:${idUser}_${idDevoir}`,
+      `users:${idUser}`
+    ]);
+    $.when(fetching).done((data) => {
+      const trial = data[`trials:${idTrial}`];
+      const noteexo = data[`notesexos:${idUser}_${idExoDevoir}`];
+      const note = data[`notes:${idUser}_${idDevoir}`];
+      const sujet = data[`sujetsexercices:${idExo}`];
+      const user = data[`users:${idUser}`];
+      if (!noteexo||!note||!sujet||!user||!trial
+        || noteexo.get("idExo") != sujet.id
+        || noteexo.get("idDevoir") != note.get("idDevoir")
+        || trial.get("idExoDevoir") != noteexo.get("idExoDevoir")
+        || trial.get("idUser") != noteexo.get("idUser")
+      ) {
+        channel.trigger("not:found");
+        return;
+      }
+      channel.trigger("ariane:push", { text: `Essai #${idTrial} &mdash; ${user.get("nomComplet")} &mdash; Exo ${noteexo.get("num")}/${note.get("exosCount")}`, link: `exodevoir:${idExoDevoir}/${idExo}/${idDevoir}/${idUser}/run`, fragile:true });
+      const region = channel.request("region:main");
+      require("./run/controller.js").controller.showTrialForProf(noteexo, sujet, note, user, trial, region);
+    }).fail((response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always(() => {
+      channel.trigger("loading:down");
+    });
   }
+
+
 });
 
 const controller = new Controller();
@@ -178,6 +220,7 @@ const Router = Backbone.Router.extend({
     "sujet-exercice::id/edit": "sujetExerciceEdit",
     "sujet-exercice/new": "sujetExerciceNew",
     "exodevoir::id/:id/:id/:id/run": "exoDevoirRun",
+    "trial::id/:id/:id/:id/:id": "trialRun",
   },
 
   exercicesList(criterion) {
@@ -194,7 +237,11 @@ const Router = Backbone.Router.extend({
   },
   exoDevoirRun(idExoDevoir, idExo, idDevoir, idUser) {
     controller.exoDevoirRun(idExoDevoir, idExo, idDevoir, idUser);
+  },
+  trialRun(idTrial, idExoDevoir, idExo, idDevoir, idUser) {
+    controller.trialRun(idTrial, idExoDevoir, idExo, idDevoir, idUser);
   }
+
 });
 
 new Router();
