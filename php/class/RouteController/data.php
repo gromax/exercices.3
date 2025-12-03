@@ -12,6 +12,7 @@ use BDDObject\Exercice;
 use BDDObject\NoteExo;
 use BDDObject\Note;
 use BDDObject\Unfinished;
+use BDDObject\Trial;
 
 
 class data
@@ -87,7 +88,8 @@ class data
             'exodevoirs' => ExoDevoir::class,
             'notesexos' => NoteExo::class,
             'notes' => Note::class,
-            'unfinished' => Unfinished::class
+            'unfinished' => Unfinished::class,
+            'trials' => Trial::class
         ];
 
         $output = [];
@@ -230,6 +232,9 @@ class data
             ],
             "notes" => [
                 'wheres' => ['devoirs.idOwner'=> $uLog->get('id') ],
+            ],
+            "trials" => [
+                'wheres' => ['devoirs.idOwner' => $uLog->get('id')]
             ]
         ];
         $output = $this->customFetchHelper($toLoad, $asks);
@@ -275,7 +280,8 @@ class data
             "notesexos"=>[
                 'orderby' => 'exodevoirs.num ASC'
             ],
-            "notes"=>[]
+            "notes"=>[],
+            "trials"=> []
         ];
         $output = $this->customFetchHelper($toLoad, $asks);
         if ($output === false) return false;
