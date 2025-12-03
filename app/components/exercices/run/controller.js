@@ -4,7 +4,8 @@ import {
   ParamsView,
   Finished_View,
   LayoutView,
-  PanelEleveView
+  PanelEleveView,
+  PanelProfTrialView
 } from './views.js'
 import { Item as ExerciceTry } from '../trial.js'
 import MainBloc from '../tools/blocs/mainbloc.js';
@@ -75,6 +76,39 @@ const Controller = MnObject.extend ({
         message: error.message
       });
     }
+  },
+
+  showTrialForProf(noteexo, sujet, note, user, trial, region) {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    if (!noteexo||!note||!sujet||!user||!trial) {
+      channel.trigger("popup:error", "Données de l'exercice ou du devoir incorrectes.");
+      return;
+    }
+    try {
+      const {options, defaultsOptions} = MainBloc.parseOptions(sujet.get("options"));
+      const optionsSelected = { ...defaultsOptions, ...noteexo.get("options") };
+      trial.set("options", optionsSelected);
+      trial.set("idDevoir", note.get("idDevoir"));
+      trial.resetNeedSave();
+      
+      const layoutView = new LayoutView();
+      region.show(layoutView);
+
+      const panelView = new PanelProfTrialView({
+        model: trial,
+        nom: user.get("nomComplet"),
+      });
+      layoutView.showChildView('panel', panelView);
+      this.showTrial(sujet, trial, layoutView);
+    } catch (error) {
+      console.error(error);
+      channel.trigger("popup:error", {
+        title: "Erreur de compilation",
+        message: error.message
+      });
+    }
+
   },
 
   runExoDevoirForEleve(noteexo, sujet, note, user, trial, region) {
