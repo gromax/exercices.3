@@ -4,7 +4,6 @@ import { FilterList, FilterPanel } from '../../behaviors.js'
 import panel_tpl from 'templates/exercices/list/exercice-list-panel.jst'
 import no_exercice_view_tpl from 'templates/exercices/list/exercice-list-none.jst'
 import exercice_item_view_tpl from 'templates/exercices/list/exercice-list-item.jst'
-import { template } from 'underscore'
 
 const ExercicesPanel = View.extend({
   template: panel_tpl,
