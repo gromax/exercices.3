@@ -85,6 +85,10 @@ const Item = MyModel.extend({
     this._needSave = true;
   },
 
+  resetNeedSave() {
+    this._needSave = false;
+  },
+
   needSave() {
     return this._needSave;
   },
