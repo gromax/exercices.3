@@ -22,6 +22,39 @@ class trials
         $this->params = $params;
     }
 
+    public function getList()
+    {
+        $uLog=Logged::getFromToken();
+        if ($uLog->isOff())
+        {
+            EC::addError("Utilisateur non connecté.");
+            EC::set_error_code(401);
+            return false;
+        }
+        if ($uLog->isEleve())
+        {
+            EC::addError("Accès interdit aux élèves.");
+            EC::set_error_code(403);
+            return false;
+        }
+        $idUser = (integer) $this->params['idUser'];
+        $idExoDevoir = (integer) $this->params['idExoDevoir'];
+        if ($uLog->isProf())
+        {
+            $filter = [
+                'wheres' => ['devoirs.idOwner' => $uLog->get('id')]
+            ];
+        }
+        else {
+            $filter = [
+                'wheres' => []
+            ];
+        }
+        $filter['wheres']['trials.idUser'] = $idUser;
+        $filter['wheres']['trials.idExoDevoir'] = $idExoDevoir;
+        return Trial::getList($filter);
+    }
+
     public function delete()
     {
         $uLog=Logged::getFromToken();

@@ -59,6 +59,7 @@ $router->addRule('api/exodevoirs', 'exodevoirs', 'insert', 'POST');
 //$router->addRule('api/notes', 'notes', 'fetch', 'GET');
 
 // trials
+$router->addRule('api/trials/:idUser/:idExoDevoir', 'trials', 'getList', 'GET');
 //$router->addRule('api/trials/:id', 'trials', 'delete', 'DELETE');
 $router->addRule('api/trials/:id', 'trials', 'update', 'PUT');
 $router->addRule('api/trials', 'trials', 'insert', 'POST');
