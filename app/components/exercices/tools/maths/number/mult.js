@@ -150,8 +150,12 @@ class Div extends Base {
      * @returns {string}
      */
     toString() {
-        let left = String(this.#left);
-        let right = this.#right.priority <= this.priority? `(${String(this.#right)})`:String(this.#right);
+        let left = this.#left.priority <= this.priority
+            ? `(${String(this.#left)})`
+            : String(this.#left);
+        let right = this.#right.priority <= this.priority
+            ? `(${String(this.#right)})`
+            : String(this.#right);
         return `${left} / ${right}`;
     }
 
