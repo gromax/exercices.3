@@ -49,7 +49,7 @@ function checkInfiniteExpression(expr) {
  * @param {Array|string} format 
  * @returns {boolean|string} true if format is correct, error message otherwise
  */
-function checkFormat(expr, format) {
+function checkFormat(expr, format = 'none') {
     // format peut être un tableau de formats acceptés
     if (Array.isArray(format)) {
         const reponses = format.map(f => checkFormat(expr, f));
@@ -63,7 +63,7 @@ function checkFormat(expr, format) {
         return checkEmptyExpression(expr);
     }
 
-    if (format === 'inf') {
+    if (format === 'inf' || format === "infini")  {
         return checkInfiniteExpression(expr);
     }
 
@@ -78,6 +78,11 @@ function checkFormat(expr, format) {
     }
     if (format === 'expand') {
         return checkIfExpand(expr);
+    }
+
+    if (format !== 'none') {
+        // format inconnu
+        console.warn(`Format inconnu : ${format}`);
     }
     // autres formats à ajouter ici
     return true;
