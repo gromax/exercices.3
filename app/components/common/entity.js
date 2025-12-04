@@ -18,7 +18,6 @@ const MyModel = Backbone.Model.extend({
             // traiter le token s'il y en a un
             if (data && data.token) {
                 localStorage.setItem('jwt', data.token);
-                console.log("Nouveau token enregistré");
             }
             if (originalSuccess) originalSuccess.call(this, data, status, xhr);
         };

@@ -50,7 +50,6 @@ const SessionApp = MnObject.extend({
     request.done( (response) => {
         if (response && response.token) {
             localStorage.setItem('jwt', response.token);
-            console.log("Nouveau token enregistré");
         }
         this.logged.set("adminMode", true);
         channel.trigger("session:refresh");
@@ -76,7 +75,6 @@ const SessionApp = MnObject.extend({
     request.done( (response) => {
         if (response && response.token) {
             localStorage.setItem('jwt', response.token);
-            console.log("Nouveau token enregistré");
         }
         this.logged.set("adminMode", false);
         channel.trigger("session:refresh");

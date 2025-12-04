@@ -75,7 +75,6 @@ const Session = MyModel.extend({
         /* Charge la session depuis le serveur */
         this.fetch({
             success: function(){
-                console.log("Session loaded");
                 if (callBack) callBack();
             },
             error: function(model, xhr, options) {

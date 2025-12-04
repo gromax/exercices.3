@@ -45,7 +45,6 @@ const Manager = Application.extend({
   },
 
   onStart(app, options) {
-    console.log("App started");
     this.version = APP_VERSION;
     this.settings = {};
     
@@ -67,7 +66,7 @@ const Manager = Application.extend({
       require('./devoirs/app.js');
       require('./notes/app.js');
       
-      console.log("token", Radio.channel("app").request("jwt:get"));
+      //console.log("token", Radio.channel("app").request("jwt:get"));
     
       Backbone.history.start();
     };
