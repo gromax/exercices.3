@@ -1,6 +1,6 @@
 import renderMathInElement from "katex/contrib/auto-render";
 
-function renderTex(domelement) {
+function renderTexInDomElement(domelement) {
   renderMathInElement(domelement, {
     delimiters: [
       {left: "$", right: "$", display: false},
@@ -10,4 +10,4 @@ function renderTex(domelement) {
   });
 }
 
-export default renderTex;
+export default renderTexInDomElement;
