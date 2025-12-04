@@ -56,7 +56,7 @@ class FormBloc extends Bloc {
             }
             if (child.params.format) {
                 const userValue = data[name] || '';
-                const v = checkFormat(userValue, child.params.format);
+                const v = checkFormat(userValue, child.params.format || 'none');
                 if (v!==true) {
                     errors[name] = v;
                 }
