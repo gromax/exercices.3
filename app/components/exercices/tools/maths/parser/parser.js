@@ -247,7 +247,7 @@ class Parser {
         expression = expression.replace(/right/g, " ");
         // Les élèves utilisent la touche ²
         expression = expression.replace(/²/g, "^2 ");
-        expression = expression.replace(/̂³/g, "^3 ");
+        expression = expression.replace(/³/g, "^3 ");
         // Dans certains cas, le - est remplacé par un autre caractère plus long
         expression = expression.replace(/−/g, "-");
       
