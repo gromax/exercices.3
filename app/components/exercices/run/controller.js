@@ -9,7 +9,7 @@ import {
 } from './views.js'
 import { Item as ExerciceTry } from '../trial.js'
 import MainBloc from '../tools/blocs/mainbloc.js';
-import renderTex from '../tools/rendertex.js';
+import renderTexInDomElement from '../../common/rendertex';
 
 const Controller = MnObject.extend ({
   channelName: "app",
@@ -99,7 +99,7 @@ const Controller = MnObject.extend ({
         nom: user.get("nomComplet"),
       });
       layoutView.showChildView('panel', panelView);
-      renderTex(layoutView.getRegion('panel').el);
+      renderTexInDomElement(layoutView.getRegion('panel').el);
       this.showTrial(sujet, trial, layoutView);
     } catch (error) {
       console.error(error);
@@ -145,7 +145,7 @@ const Controller = MnObject.extend ({
           channel.trigger("exodevoir:run:bynumber", note.get("idDevoir"), noteexo.get("num")+1);
         });
         layoutView.showChildView('panel', panelView);
-        renderTex(layoutView.getRegion('panel').el);
+        renderTexInDomElement(layoutView.getRegion('panel').el);
       }
       this.showTrial(sujet, trial, layoutView);
     } catch (error) {
@@ -291,7 +291,7 @@ const Controller = MnObject.extend ({
       finishedView.render();
     }
     // Rendu de KaTeX dans la zone d'exercice
-    renderTex(region);
+    renderTexInDomElement(region);
   }
 });
 

@@ -1,6 +1,7 @@
 import { MnObject } from 'backbone.marionette'
 import { NotesExosCollectionView, PanelView } from './views.js';
 import { LayoutView } from '../../common/views.js';
+import renderTexInDomElement from '../../common/rendertex';
 
 const Controller = MnObject.extend({
   channelName: 'app',
@@ -38,6 +39,7 @@ const Controller = MnObject.extend({
       });
     }
     layoutView.getRegion('contentRegion').show(notesView);
+    renderTexInDomElement(layoutView.el);
   }
 });
 

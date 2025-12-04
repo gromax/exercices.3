@@ -1,6 +1,6 @@
 import { MnObject } from 'backbone.marionette';
 import { ShowExerciceView } from './view.js';
-import renderTex from '../tools/rendertex.js';
+import renderTexInDomElement from '../../common/rendertex.js';
 
 
 const Controller = MnObject.extend({
@@ -18,7 +18,7 @@ const Controller = MnObject.extend({
     });
     const regionMain = channel.request("region:main")
     regionMain.show(view);
-    renderTex(regionMain.el);
+    renderTexInDomElement(regionMain.el);
     const region = view.getRegion('exercice');
     require('../run/controller.js').controller.showApercu(exercice, region);
   }
