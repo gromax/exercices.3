@@ -1,5 +1,7 @@
 import { MnObject } from 'backbone.marionette';
 import { ShowExerciceView } from './view.js';
+import renderTex from '../tools/rendertex.js';
+
 
 const Controller = MnObject.extend({
   channelName: 'app',
@@ -14,7 +16,9 @@ const Controller = MnObject.extend({
       model: exercice,
       showModButton: logged.id === exercice.get("idOwner") || logged.isAdmin()
     });
-    channel.request("region:main").show(view);
+    const regionMain = channel.request("region:main")
+    regionMain.show(view);
+    renderTex(regionMain.el);
     const region = view.getRegion('exercice');
     require('../run/controller.js').controller.showApercu(exercice, region);
   }
