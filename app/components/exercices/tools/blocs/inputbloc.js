@@ -155,7 +155,7 @@ class InputTextBloc extends InputBloc {
         if (Array.isArray(solution)) {
             return solution.some(sol => this._verify(userValue, sol));
         }
-        return checkValue(userValue, solution, this._params.format);
+        return checkValue(userValue, solution, this._params.format || 'none');
     }
 }
 
