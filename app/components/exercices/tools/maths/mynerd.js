@@ -82,7 +82,7 @@ class MyNerd {
             const b = build(parsed.rpn);
             return new MyNerd(b.toString());
         } catch (e) {
-            console.warn("Erreur lors du parsing de l'expression utilisateur :", e);
+            console.warn("Erreur lors du parsing de l'expression utilisateur :", expression);
             return new MyNerd("NaN");
         }
     }
@@ -153,14 +153,31 @@ class MyNerd {
         if (typeof expression !== 'string') {
             expression = String(expression);
         }
-        if (expression === '\\infty') {
-            return '+\\infty';
+        if (expression === 'infinity') {
+            return '+∞';
+        } else if (expression === '-infinity') {
+            return '-∞';
         }
         return expression
             .replace(/\./g, ',')            // points décimaux → virgules
             .replace(/\blog\(/g, 'ln(')     // log( → ln(
             .replace(/\blog10\(/g, 'log('); // log10( → log(
             
+    }
+
+    static latexDenormalization(expression) {
+        if (typeof expression !== 'string') {
+            expression = String(expression);
+        }
+        if (expression === '\\infty') {
+            return '+\\infty';
+        }
+        return expression
+            .replace(/\./g, ',')            // points décimaux → virgules
+            .replace(/\b\\log\(/g, '\\ln(')            // log( → ln(
+            .replace(/\b\\log10\(/g, '\\log(')         // log10( → log(
+            .replaceAll('\\mathrm{log}_{10}', '\\log') // log → ln
+            .replaceAll('\\mathrm{log}', '\\ln')       // log → ln
     }
 
     /**
@@ -260,7 +277,7 @@ class MyNerd {
         } else if (txt === '-infinity') {
             return "-\\infty";
         }
-        return MyNerd.denormalization(this._processed.toTeX());
+        return MyNerd.latexDenormalization(this._processed.toTeX());
     }
 
     /**
