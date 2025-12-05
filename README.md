@@ -480,7 +480,7 @@ Voici les formats reconnus :
   * round:2 : on veut un nombre arrondi, dans cet exemple à deux chiffres après la virgule.
   * erreur:0.2 : demande un nombre. Sa valeur ne doit pas excéder une erreur de 0.2 dans l'exemple.
   * empty : indique que l'on accepte l'ensemble vide. On peut alors répondre par `'vide'` ou `'∅'`
-  * inf : indique que l'on accepte un infin comme `'+inf'` ou `'-∞'`. Le signe est obligatoire même pour +
+  * infini : indique que l'on accepte un infin comme `'+inf'` ou `'-∞'`. Le signe est obligatoire même pour +
   * expand : indique que l'on attend une expression développée.
 
 Il ne serait pas logique de proposer à la fois numeric et round mais on peut demander empty et numeric par exemple.
@@ -492,12 +492,17 @@ On pourra donc utiliser : `<format:numeric/>` dans le cas où on veut permettre 
 <format[]:empty/>
 ```
 
+Les formats `infini` et `empty` auront également pour effet d'ajouter un bouton adapté au input.
+
 ##### Clavier
 
 keyboard: permet d'ajouter un bouton pour des expressions mathématiques comme `sqrt`
   * power
   * sqrt
   * square
+  * cube
+  * infini
+  * empty
 
 Ainsi un bloc typique serait :
 
@@ -514,6 +519,8 @@ Ainsi un bloc typique serait :
 Dans ce cas on ajoute deux boutons, un pour racine et l'autre pour la puissance.
 
 Si vous ajoutez un bloc d'aide dans un input, alors il y aura un bouton d'aide directement dans le input.
+
+les keyboard infini et empty sont ajoutés autmatiquement si on a précisé les format infini et empty.
 
 #### Bloc Radio
 
