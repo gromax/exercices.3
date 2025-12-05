@@ -55,7 +55,11 @@ class InputTextBloc extends InputBloc {
             console.warn(`Le bloc <input:${this.header}> contient plusieurs blocs d'aide. Seul le premier sera pris en compte.`);
         }
         if (aideBlocs.length > 0) {
-            this.params.keyboard = this.params.keyboard ?? [];
+            if (typeof this.params.keyboard === 'undefined') {
+                this.params.keyboard = [];
+            } else if (!Array.isArray(this.params.keyboard)) {
+                this.params.keyboard = [this.params.keyboard];
+            }
             if (!this.params.keyboard.includes('help')) {
                 this.params.keyboard.push('help');
             }
