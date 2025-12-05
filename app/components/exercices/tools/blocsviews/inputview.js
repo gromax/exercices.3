@@ -7,7 +7,7 @@ const KEYS = {
   'square': '$x^2$',
   'cube': '$x^3$',
   'help': '<i class="fa-solid fa-question"></i>',
-  'inf': '$\\infty$',
+  'infini': '$\\infty$',
   'empty': 'Ø'
 }
 
@@ -27,7 +27,7 @@ const InputView = View.extend({
     'click .js-square': 'keyboard:square',
     'click .js-cube': 'keyboard:cube',
     'click .js-help': 'keyboard:help',
-    'click .js-inf': 'keyboard:inf',
+    'click .js-infini': 'keyboard:infini',
     'click .js-empty': 'keyboard:empty'
   },
 
@@ -77,7 +77,7 @@ const InputView = View.extend({
     cards.forEach(card => card.classList.toggle('show'));
   },
 
-  onKeyboardInf() {
+  onKeyboardInfini() {
     const {start, end, value} = this._getInputSelection();
     const newValue = value.slice(0, start) + '∞' + value.slice(end);
     const input = this.el.querySelector('input[name="' + this.getOption("name") + '"]');
