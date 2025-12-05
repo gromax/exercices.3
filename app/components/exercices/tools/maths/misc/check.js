@@ -32,7 +32,7 @@ function checkIfExpand(expr) {
 }
 
 function checkEmptyExpression(expr) {
-    return expr == 'vide' || expr == '∅'
+    return ['vide', '∅', 'empty'].includes(expr)
         ? true
         : "Vous devez répondre 'vide' ou '∅' pour indiquer l'ensemble vide.";
 }
@@ -63,7 +63,7 @@ function checkFormat(expr, format = 'none') {
         return checkEmptyExpression(expr);
     }
 
-    if (format === 'inf' || format === "infini")  {
+    if (format === "infini")  {
         return checkInfiniteExpression(expr);
     }
 
@@ -87,6 +87,62 @@ function checkFormat(expr, format = 'none') {
     // autres formats à ajouter ici
     return true;
 }
+
+/**
+ * recherche, parmi les formats demandés, celui qui convient à la valeur attendue
+ * @param {string|Array} value 
+ * @param {string|Array} format 
+ * @returns {string} le format choisi
+ */
+function formatValue(value, format = "none") {
+    // format peut être un tableau ou non
+    // il faudrait voir les cas empty, infini qui sont à part et peuvent être en plus
+    // puis les autres qui devraient être uniques
+    if (Array.isArray(value)) {
+        return value.map(val => this._format(val, format));
+    }
+
+    if (
+        (format === "infini") || (Array.isArray(format) && format.includes("infini"))
+        && checkInfiniteExpression(value) === true
+       ) {
+        return value[0] === '-' ? '$-\\infty$' : '$+\\infty$';
+    }
+    if (
+        (format === "empty") || (Array.isArray(format) && format.includes("empty"))
+        && checkEmptyExpression(value) === true
+       ) {
+        return '$\\emptyset$';
+    }
+    if (Array.isArray(format)) {
+        // premier cas, format était un tableau. Il faut donc chercher le format non empty et non infini
+        const formatChoisi = format.filter(f => f !== 'empty' && f !== 'infini');
+        if (formatChoisi.length > 1) {
+            console.warn("Le format choisi contient des types inconmpatibles : " + formatChoisi.join(', ') + ".");
+        }
+        format = formatChoisi.length === 1 ? formatChoisi[0] : 'none';
+    }
+    // il pourrait arriver que le format choisi soit "empty" ou "infini" et qu'il
+    // n'est pas convenu pour la valeur attendue. Ce cas revient à none
+    if (format === 'empty' || format === 'infini') {
+        format = 'none';
+    }
+    if (/^round:[0-9]+$/.test(format)) {
+        const n = Number(format.split(':')[1]);
+        return MyNerd.make(value).toFormat(`${n}f`);
+    }
+    if (/^erreur:(?:[0-9]+(?:\.[0-9]+)?)|(?:\.[0-9]+)$/.test(format)) {
+        const err = Number(format.split(':')[1]);
+        const n = Math.ceil(Math.log10(1 / err));
+        return `${MyNerd.make(value).toFormat(`${n+1}f`)} ± ${String(err).replace('.', ',')}`;
+    }
+    if (!['none', 'numeric', 'expand'].includes(format)) {
+        console.warn(`Format inconnu : ${format}`);
+    }
+    return `$${MyNerd.make(value).latex()}$`;
+}
+
+
 
 function checkValue(userValue, expectedValue, format = "none") {
     const checkFormatResult = checkFormat(userValue, format);
@@ -139,4 +195,8 @@ function checkValue(userValue, expectedValue, format = "none") {
     return MyNerd.parseUser(userValue).expand().compare(`expand(${expectedValue})`, "==");
 }
 
-export { checkFormat, checkValue };
+export {
+    checkFormat,
+    checkValue,
+    formatValue
+};
