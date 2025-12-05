@@ -60,8 +60,7 @@ class Function extends Base {
             let child = this.#child.priority <= this.priority? `(${String(this.#child)})`:` ${String(this.#child)}`;
             this.#string = `-${child}`;
         } else {
-            let child = this.#child.priority <= this.priority? `(${String(this.#child)})`:` ${String(this.#child)}`;
-            this.#string = `${this.#name}${child}`;
+            this.#string = `${this.#name}(${String(this.#child)})`;
         }
         return this.#string;
     }
@@ -128,6 +127,7 @@ class Function extends Base {
         switch (this.#name) {
             case 'sqrt': return Decimal.sqrt(child);
             case 'ln': return Decimal.ln(child);
+            case 'log': return Decimal.log(child);
             case 'exp': return Decimal.exp(child);
             case 'cos': return Decimal.cos(child);
             case 'sin': return Decimal.sin(child);
