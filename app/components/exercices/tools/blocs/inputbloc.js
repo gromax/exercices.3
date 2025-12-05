@@ -1,8 +1,7 @@
 import Bloc from "./bloc";
 import RadioView from "../blocsviews/radioview.js";
 import InputView from "../blocsviews/inputview.js";
-import MyNerd from '../maths/mynerd.js'
-import { checkValue } from '../maths/misc/check.js';
+import { checkValue, formatValue } from '../maths/misc/check.js';
 
 /**
  * Bloc représentant un champ de saisie (input, radio...)
@@ -88,13 +87,44 @@ class InputTextBloc extends InputBloc {
         return view;
     }
 
+    setParam(key, value) {
+        if (key === 'format') {
+            if (value === "inf") {
+                console.warn(`Le format "inf" pour le bloc <input:${this.header}> est obsolète. Utilisez "infini" à la place.`);
+                value = "infini";
+            } else if (value === "vide") {
+                console.warn(`Le format "vide" pour le bloc <input:${this.header}> est obsolète. Utilisez "empty" à la place.`);
+                value = "empty";
+            }
+            // je veux éviter un format non défini
+            if (value !== "infini" &&
+                value !== "numeric" &&
+                value !== "none" &&
+                value !== "expand" &&
+                value !== "empty" &&
+                !value.startsWith("round:") &&
+                !value.startsWith("erreur:")
+            ) {
+                console.warn(`Format inconnu pour le bloc <input:${this.header}> : ${value}`);
+            }
+            // pour certains formats, je modifie aussi le clavier
+            if (value === "infini") {
+                this.setParam('keyboard', "infini");
+            } else if (value === "empty") {
+                this.setParam('keyboard', "empty");
+            }
+            
+        }
+        super.setParam(key, value);
+    }
+
     verification(data) {
         const name = this.header;
         const userValue = data[name] || '';
         const userValueTag = userValue.includes('\\') ? `$${userValue}$` : userValue;
         const solution = this.params.solution;
         const tag = this.params.tag;
-        const format = this._params.format || '';
+        const format = this._params.format || 'none';
         const entete = tag?`${tag} : `:'';
         if (!solution) {
             return {
@@ -118,7 +148,7 @@ class InputTextBloc extends InputBloc {
             const message = `${userValueTag} est une Mauvaise réponse.`;
             const solutionFormatted = (typeof this.params.tagSolution !== 'undefined')
                 ? this.params.tagSolution
-                : this._format(solution, format);
+                : formatValue(solution, format);
             const complement = Array.isArray(solutionFormatted)
                 ? `Les bonnes réponses possibles étaient : ${solutionFormatted.join(', ')}.`
                 :`La réponse attendue était : ${solutionFormatted}.`;
@@ -129,26 +159,6 @@ class InputTextBloc extends InputBloc {
                 score: 0
             };
         }
-    }
-
-    _format(solution, format) {
-        if (Array.isArray(format)) {
-            console.warn("Le format est de type tableau. On devrait dans ce cas proposer tagSolution.");
-            return format.map(f => this._format(solution, f));
-        }
-        if (Array.isArray(solution)) {
-            return solution.map(sol => this._format(sol, format));
-        }
-        if (/^round:[0-9]+$/.test(format)) {
-            const n = Number(format.split(':')[1]);
-            return MyNerd.make(solution).toFormat(`${n}f`);
-        }
-        if (/^erreur:(?:[0-9]+(?:\.[0-9]+)?)|(?:\.[0-9]+)$/.test(format)) {
-            const err = Number(format.split(':')[1]);
-            const n = Math.ceil(Math.log10(1 / err));
-            return `${MyNerd.make(solution).toFormat(`${n+1}f`)} ± ${String(err).replace('.', ',')}`;
-        }
-        return `$${MyNerd.make(solution).latex()}$`;
     }
 
     _verify(userValue, solution) {
