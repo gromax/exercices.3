@@ -296,6 +296,9 @@ class MyNerd {
         if (format === '$') {
             return this.latex();
         }
+        if (format === 's$') {
+            return this._toMyLatex();
+        }
         if (format === 'f') {
             return this._toFormatDecimal(-1);
         }
@@ -340,6 +343,19 @@ class MyNerd {
         const b = build(parsed.rpn);
         return b.toTex();
     }
+
+    /**
+     * Le latx de nerdamer n'est pas toujours satisfaisant
+     * je prévois donc un format personalisé
+     * @returns {string}
+     */
+    _toMyLatex() {
+        const expr = this._expression;
+        const parsed = new Parser(expr);
+        const b = build(parsed.rpn);
+        return b.simplify().toTex();
+    }
+
 
     compare(rightExpr, operator, params = {}) {
         if (this._children !== null) {
