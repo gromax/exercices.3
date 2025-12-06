@@ -53,7 +53,7 @@ class TkzTabBloc extends Bloc {
     }
 
     setParam(key, value) {
-        if ((key === 'var') || (key === 'sign')) {
+        if ((key === 'var') || (key === 'sign') || (key === 'varform')) {
             const items = value.split(':')
             if (items.length !== 3) {
                 throw new Error(`<${key}:${value}/> Le paramètre '${key}' est mal formé.`);
