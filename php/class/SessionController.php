@@ -40,6 +40,15 @@ final class SessionController
             return null;
         }
     }
+
+    public static function renewToken()
+    {
+        $data = self::readToken();
+        if ($data !== null) {
+            return null;
+        }
+        return self::makeToken($data);
+    }
 }
 
 ?>
