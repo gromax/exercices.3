@@ -10,12 +10,6 @@ class TabVarLine extends TabLine {
     _values = [];
 
     /**
-     * @type {*} élément DOM des valeurs
-     */
-    _divRight = null;
-
-
-    /**
      * Constructeur
      * line est constité d'une chaîne de caractères comme pour tkz-tab
      * de forme -/$12$,+/$y$,...
@@ -26,9 +20,11 @@ class TabVarLine extends TabLine {
      * @param {number} hauteur hauteur de la ligne en nombre d'unités verticales, doit être au moins 3
      * @param {number} offset décalage vertical de la ligne
      * @param {object} config configuration de la ligne
+     * @param {number} index index de la ligne dans le tableau
      */
-    constructor (line, tag, hauteur, offset, config) {
+    constructor (line, tag, hauteur, offset, config, index) {
         super(tag, hauteur, offset, config)
+        this._index = index
         const items = typeof line === "string"
             ? line.split(',').map( x => x.trim() )
             : line
@@ -40,7 +36,8 @@ class TabVarLine extends TabLine {
             (item, index) => TabVarItem.make(
                     index,
                     item,
-                    this._config
+                    this._config,
+                    this._index
                 )
             )
         const filtered = subItems.filter( subitem => subitem !== null )
