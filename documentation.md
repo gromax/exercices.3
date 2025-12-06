@@ -389,6 +389,8 @@ Dans une zone de texte, on est susceptible d'ajouter une formule. On peut alors 
 
     Si on souhaite en plus que ce code soit identifié comme du latex et soit rendu en tant que tel, il faudra ajouter les `$`, donc écrire `${@x:$}`
 
+  * `{@x:s$}` est une version alternative pour le formatage en latex. En effet, nerdamer n'est pas toujours satisfaisant dans ses choix. Si on a $\exp(-3)$ il mettra automatiquement $\frac{1}{e^3}$. Ce formatage utilise alors un rendu personalisé  mais fait quelque simplification de façon à afficher correctement des cas comme `{@a*x^2+@b*x+@c:s$}` où l'un des coefficients serait nul ou égal à 1 ou -1.
+
   * `{@x:f}` ou `{@x:3f}` pour un affichage approximé. Si on ne précise pas de nombre de chiffres après la virgules, alors le nombre est écrit en entier.
 
   > Attention : nerdamer qui est utilisé pour les calculs remplace automatiquement les nombres décimaux en fractions. Ainsi, si on écrit `2.1`, on aura `21/10`. Cela peut être gênant dans une expression. Le format `float` permet alors de convertir les nombres fractionnaires en approximations à virgule.
