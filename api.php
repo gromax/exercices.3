@@ -1,5 +1,6 @@
 <?php
 use ErrorController as EC;
+use SessionController as SC;
 
 require_once "./php/constantes.php";
 
@@ -26,6 +27,12 @@ if ($response === false) {
         $messages = EC::messages();
         if (count($messages)>0) {
             $response["errors"] = $messages;
+        }
+    }
+    if (!isset($response['token'])) {
+        $token = SC::renewToken();
+        if ($token !== null) {
+            $response['token'] = $token;
         }
     }
     echo json_encode($response);
