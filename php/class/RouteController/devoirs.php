@@ -197,6 +197,8 @@ class devoirs
             EC::set_error_code(422);
             return $response;
         }
+        // il faut recharger l'objet pour obtenir tous les champs
+        $devoir = Devoir::getObject($devoir->getId());
         return $devoir->toArray();
     }
 
