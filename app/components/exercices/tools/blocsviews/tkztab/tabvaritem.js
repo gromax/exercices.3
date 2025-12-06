@@ -10,75 +10,84 @@ class TabVarItem {
      * @param {string} ypos - position verticale de l'item ("+", "-", "R")
      * @param {string} tag - tag de l'item (texte affiché)
      */
-    constructor (xIndex, xpos, ypos, tag, config) {
+    constructor (xIndex, xpos, ypos, tag, config, lineIndex) {
         this._xIndex = xIndex
         this._xpos = xpos
         this._ypos = ypos
         this._tag = tag
         this._config = config
+        this._lineIndex = lineIndex
     }
 
-    static make(index, tag, config) {
+    static make(index, tag, config, lineIndex) {
         // tag a la forme "+/value" ou encore "-D+/value/value" ou même "+"
         const tabTag = tag.split('/')
         switch(tabTag[0]) {
             case "-":
-                return new TabVarItem(index, "", "-", tabTag[1], config)
+                return new TabVarItem(index, "", "-", tabTag[1], config, lineIndex)
             case "+":
-                return new TabVarItem(index, "", "+", tabTag[1], config)
+                return new TabVarItem(index, "", "+", tabTag[1], config, lineIndex)
             case "R":
                 return null
             case "-D":
                 return [
-                    new TabVarItem(index, "-", "-", tabTag[1], config),
-                    new TabVarItem(index, "", "D", "", config)
+                    new TabVarItem(index, "-", "-", tabTag[1], config, lineIndex),
+                    new TabVarItem(index, "", "D", "", config, lineIndex)
                 ]
             case "+D":
                 return [
-                    new TabVarItem(index, "-", "+", tabTag[1], config),
-                    new TabVarItem(index, "", "D", "", config)
+                    new TabVarItem(index, "-", "+", tabTag[1], config, lineIndex),
+                    new TabVarItem(index, "", "D", "", config, lineIndex)
                 ]
             case "D-":
                 return [
-                    new TabVarItem(index, "","D", "", config),
-                    new TabVarItem(index, "+", "-", tabTag[1], config)
+                    new TabVarItem(index, "","D", "", config, lineIndex),
+                    new TabVarItem(index, "+", "-", tabTag[1], config, lineIndex)
                 ]
             case "D+":
                 return [
-                    new TabVarItem(index, "", "D", tabTag[1], config),
-                    new TabVarItem(index, "+", "+", tabTag[1], config)
+                    new TabVarItem(index, "", "D", tabTag[1], config, lineIndex),
+                    new TabVarItem(index, "+", "+", tabTag[1], config, lineIndex)
                 ]
             case "-D-":
                 return [
-                    new TabVarItem(index, "-", "-", tabTag[1], config),
-                    new TabVarItem(index, "", "D", "", config),
-                    new TabVarItem(index, "+", "-", tabTag[2], config)
+                    new TabVarItem(index, "-", "-", tabTag[1], config, lineIndex),
+                    new TabVarItem(index, "", "D", "", config, lineIndex),
+                    new TabVarItem(index, "+", "-", tabTag[2], config, lineIndex)
                 ]
             case "-D+":
                 return [
-                    new TabVarItem(index, "-", "-", tabTag[1], config),
-                    new TabVarItem(index, "", "D", "", config),
-                    new TabVarItem(index, "+", "+", tabTag[2], config)
+                    new TabVarItem(index, "-", "-", tabTag[1], config, lineIndex),
+                    new TabVarItem(index, "", "D", "", config, lineIndex),
+                    new TabVarItem(index, "+", "+", tabTag[2], config, lineIndex)
                 ]
             case "+D-":
                 return [
-                    new TabVarItem(index, "-", "+", tabTag[1], config),
-                    new TabVarItem(index, "", "D", "", config),
-                    new TabVarItem(index, "+", "-", tabTag[2], config)
+                    new TabVarItem(index, "-", "+", tabTag[1], config, lineIndex),
+                    new TabVarItem(index, "", "D", "", config, lineIndex),
+                    new TabVarItem(index, "+", "-", tabTag[2], config, lineIndex)
                 ]
             case "+D+":
                 return [
-                    new TabVarItem(index, "-", "+", tabTag[1], config),
-                    new TabVarItem(index, "", "D", "", config),
-                    new TabVarItem(index, "+", "+", tabTag[2], config)
+                    new TabVarItem(index, "-", "+", tabTag[1], config, lineIndex),
+                    new TabVarItem(index, "", "D", "", config, lineIndex),
+                    new TabVarItem(index, "+", "+", tabTag[2], config, lineIndex)
                 ]
             default:
                 return null
         }
     }
 
+    isD() {
+        return this._ypos === "D"
+    }
+
+    isR() {
+        return this._ypos === "R"
+    }
+
     /**
-     * constructruit la représentation svg
+     * construit la représentation svg
      * @param {number} h hauteur de la ligne en unités
      * @param {number} y0 décalage vertical de la ligne
      * @param {SVG} svgParent élément SVG parent
@@ -105,7 +114,9 @@ class TabVarItem {
         const xalign = this._xpos === "-"
             ? "flex-end"
             : this._xpos === "+" ? "flex-start" : "center"
-
+        if (this._tag === undefined || this._tag.trim() === "") {
+            return
+        }
         createTextForeignObject(
             svgParent,
             x - d/2, y0,
@@ -130,7 +141,7 @@ class TabVarItem {
      * @param {number} h hauteur de la ligne en unités
      */
     renderPrevArrow(itemPrev, svgParent, y0, h) {
-        if (!itemPrev || itemPrev._ypos === "D" || this._ypos === "D") {
+        if (!itemPrev || itemPrev.isD() || this.isD() || itemPrev.isR() || this.isR()) {
             return
         }
         const color = this._config.color
@@ -162,6 +173,40 @@ class TabVarItem {
                     .stroke({ width: 1, color })
             })
     }
+
+    /**
+     * constructruit un bouton svg
+     * @param {number} h hauteur de la ligne en unités
+     * @param {number} y0 décalage vertical de la ligne
+     * @param {SVG} svgParent élément SVG parent
+     */
+    renderButton( h, y0, svgParent) {
+        if (this.isD() || this.isR()) {
+            return
+        }
+        const d = this._config.espcl
+        const m = this._config.margin
+        const lgt = this._config.lgt
+        const s = this._config.pixelsYUnit
+        const dx = this._xpos === "-"
+            ? -s/2
+            : this._xpos === "+" ? s/2 : 0
+        const x = d*this._xIndex + m + lgt + dx
+        const hl = h * this._config.pixelsYUnit
+        const y = this._ypos === "-"
+            ? y0 + hl - s/2
+            : y0 + s/2
+
+        svgParent.circle(s/2).center(x, y)
+            .fill('#ff66ff')
+            .addClass('js-varline-button')
+            .css('cursor', 'pointer')
+            .attr('data-ypos', this._ypos)
+            .attr('data-xpos', this._xpos)
+            .attr('data-xindex', this._xIndex)
+            .attr('data-lineindex', this._lineIndex)
+    }
+
 }
 
 export default TabVarItem
