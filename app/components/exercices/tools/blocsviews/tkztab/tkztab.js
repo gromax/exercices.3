@@ -1,5 +1,6 @@
 import TabHeaderLine from "./header"
 import TabVarLine from "./tabvarline"
+import TabVarLineForm from "./tabvarlineform"
 import TabSignLine from "./tabsignline"
 
 class TkzTab {
@@ -43,6 +44,21 @@ class TkzTab {
         const tabvarline = new TabVarLine(line, tag, hauteur, this._offset, this._config)
         this._offset += tabvarline.hauteur
         this._lines.push(tabvarline)
+        return this;
+    }
+
+    /**
+     * ajoute une ligne de type TabVarLineForm
+     * @param {string|Array} line chaîne décrivant la ligne (ex: "-/2,+/3,R")
+     * @param {string} tag tag de la ligne (ex: "f(x)")
+     * @param {number} hauteur hauteur de la ligne en nombre d'unités verticales
+     * @returns {TkzTab} l'objet courant pour chaînage
+     */
+    addVarLineForm (line, tag, hauteur) {
+        const index = this._lines.length - 1
+        const tabvarlineForm = new TabVarLineForm(line, tag, hauteur, this._offset, this._config, index)
+        this._offset += tabvarlineForm.hauteur
+        this._lines.push(tabvarlineForm)
         return this;
     }
 
