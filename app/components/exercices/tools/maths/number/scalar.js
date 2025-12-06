@@ -40,6 +40,8 @@ class Scalar extends Base {
             this.#makeFromString(entree);
         } else if (typeof entree == 'number') {
             this.#makeFromNumber(entree);
+        } else if (entree instanceof Decimal) {
+            this.#makeFromString(String(entree));
         } else {
             throw new Error(`entree = ${entree} invalide pour un Scalar`);
         }
@@ -167,6 +169,13 @@ class Scalar extends Base {
 
     signature() {
         return [];
+    }
+
+    multiplyBy(n) {
+        if (!(n instanceof Scalar)) {
+            throw new Error('n doit être un Scalar');
+        }
+        return new Scalar(this.#value.mul(n.#value));
     }
 }
 

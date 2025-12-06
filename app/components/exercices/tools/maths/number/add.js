@@ -3,8 +3,14 @@ import { Scalar } from "./scalar";
 import Decimal from "decimal.js";
 
 class AddMinus extends Base {
-    _left;
-    _right;
+    _left; /** @type {Base} */
+    _right; /** @type {Base} */
+
+    /**
+     * constructeur
+     * @param {Base} left 
+     * @param {Base} right 
+     */
     constructor(left, right) {
         super();
         if (!(left instanceof Base)) {
@@ -18,6 +24,9 @@ class AddMinus extends Base {
         this._right = right;
     }
 
+    /**
+     * accesseurs
+     */
     get left() {
         return this._left;
     }
@@ -30,6 +39,10 @@ class AddMinus extends Base {
         return 1;
     }
 
+    /**
+     * prédicat : le noeud est-il développé
+     * @returns {boolean}
+     */
     isExpanded() {
         if (!this._left.isExpanded() || !this._right.isExpanded()) {
             return false;
@@ -66,6 +79,22 @@ class AddMinus extends Base {
             return _.uniq(this._left.isFunctionOf().concat(this._right.isFunctionOf()));
         }
         return this._left.isFunctionOf(name) || this._right.isFunctionOf(name);
+    }
+
+    simplify() {
+        const leftSim = this._left.simplify();
+        const rightSim = this._right.simplify();
+        if (leftSim.isZero()) {
+            return rightSim;
+        } 
+        if (rightSim.isZero()) {
+            return leftSim;
+        }
+        if (leftSim instanceof Scalar && rightSim instanceof Scalar) {
+            let val = leftSim.toDecimal().plus(rightSim.toDecimal());
+            return new Scalar(val);
+        }
+        return new this.constructor(leftSim, rightSim);
     }
 }
 
@@ -173,6 +202,28 @@ class Minus extends AddMinus {
         let left = this._left.toDecimal(values);
         let right = this._right.toDecimal(values);
         return left.minus(right);
+    }
+
+    simplify() {
+        const leftSim = this._left.simplify();
+        const rightSim = this._right.simplify();
+        if (leftSim.isZero()) {
+            if (typeof rightSim.opposite === 'function') {
+                return rightSim.opposite();
+            }
+        } 
+        if (rightSim.isZero()) {
+            return leftSim;
+        }
+        if (leftSim instanceof Scalar && rightSim instanceof Scalar) {
+            let val = leftSim.toDecimal().minus(rightSim.toDecimal());
+            return new Scalar(val);
+        }
+        return new this.constructor(leftSim, rightSim);
+    }
+
+    opposite() {
+        return new Minus(this._right, this._left);
     }
 
 }

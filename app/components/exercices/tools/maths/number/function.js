@@ -1,5 +1,6 @@
 import { Base } from "./base";
 import Decimal from "decimal.js";
+import { Scalar } from "./scalar";
 
 class Function extends Base {
     /** @type {Base} */
@@ -109,12 +110,13 @@ class Function extends Base {
         if (this.#name == '(+)') {
             return this.#child.toTex();
         }
-
-        let texChild = this.#child.priority <= this.priority? `\\left(${this.#child.toTex()}\\right)`:` ${this.#child.toTex()}`;
         if (this.#name == '(-)') {
-            return `- ${texChild}`;
+            if (this.#child.priority < this.priority) {
+                return `- \\left(${this.#child.toTex()}\\right)`;
+            }
+            return `- ${this.#child.toTex()}`;
         }
-        return `\\${this.#name}${texChild}`;
+        return `\\${this.#name}\\left(${this.#child.toTex()}\\right)`;
     }
 
     /**
@@ -139,6 +141,57 @@ class Function extends Base {
 
     signature() {
         return [this.toString()];
+    }
+
+    isExponential() {
+        if (this.#name === 'exp') {
+            return this.#child;
+        }
+        return false;
+    }
+
+    simplify() {
+        const childSim = this.#child.simplify();
+        if (this.#name === '(+)') {
+            return childSim;
+        }
+        if (this.#name === '(-)') {
+            if (typeof childSim.opposite === 'function') {
+                return childSim.opposite();
+            }
+        }
+        if (typeof childSim.isExponential === 'function' && this.#name == 'ln') {
+            const exponent = childSim.isExponential();
+            if (exponent !== false) {
+                return exponent;
+            }
+        }
+        if (childSim.isZero()) {
+            if (this.#name === '(+)' || this.#name === '(-)' || this.#name === 'sin' || this.#name === 'sqrt') {
+                return childSim;
+            }
+            if (this.#name === 'exp' || this.#name === 'cos') {
+                return Scalar.ONE;
+            }
+            if (this.#name === 'ln' || this.#name === 'log') {
+                return Scalar.NAN;
+            }
+        }
+
+        if (childSim === this.#child) {
+            return this;
+        }
+        return new Function(this.#name, childSim);
+    }
+
+    opposite() {
+        if (this.#name === '(+)') {
+            return new Function('(-)', this.#child);
+        }
+        if (this.#name === '(-)') {
+            return this.#child;
+        }
+        return new Function('(-)', this);
     }
 
 }

@@ -57,11 +57,36 @@ class Base {
     }
 
     /**
+     * simplification symbolique
+     * pour des simplifications simples
+     * @returns {Base}
+     */
+    simplify() {
+        return this;
+    }
+
+    /**
      * renvoie une signature représentant le contenu symbolique d'un noeud
      * @returns {Array<string>}
      */
     signature() {
         return [`(${this.toString()})`];
+    }
+
+    /**
+     * prédicat : le noeud est-il nul ?
+     * @returns {boolean}
+     */
+    isZero() {
+        return false;
+    }
+
+    /**
+     * prédicat : le noeud est-il égal à 1 ?
+     * @returns {boolean}
+     */
+    isOne() {
+        return false;
     }
 }
 

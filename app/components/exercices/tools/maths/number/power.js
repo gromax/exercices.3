@@ -1,5 +1,6 @@
 import { Base } from "./base";
 import Decimal from "decimal.js";
+import { E } from "./constant";
 
 class Power extends Base {
     /** @type {Base} */
@@ -105,6 +106,18 @@ class Power extends Base {
             return Array.from({length: Math.abs(n)}, () => b).flat().sort();
         }
         return this.toString();
+    }
+
+    /**
+     * renvoie false si ce n'est pas un e^...
+     * et si c'en est un renvoie l'exposant
+     * @returns {false, Base}
+     */
+    isExponential() {
+        if (this.#base === E) {
+            return this.#exposant;
+        }
+        return false;
     }
 }
 
