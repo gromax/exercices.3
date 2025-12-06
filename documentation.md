@@ -413,6 +413,10 @@ On peut utiliser la fonction `expand`. Avec l'exemple précédent, on pourra par
 
 L'expression est analysée de sorte que si `@b == 0`, le terme en `x` n'apparaîtra pas. `expand` force un affichage développé.
 
+On peut aussi utiliser le format `s$` qui évite les mécanismes de nerdamer :
+
+`${@a*x^2 + @b*x + @c:s$}$`
+
 #### Bloc de texte
 
 ```
