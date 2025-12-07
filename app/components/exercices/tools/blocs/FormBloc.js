@@ -2,7 +2,6 @@ import Bloc from "./bloc";
 import FormView from "../blocsviews/formview.js";
 import ResultsView from "../blocsviews/resultsview.js";
 import InputBloc from "./inputbloc";
-import { checkFormat } from "../maths/misc/check.js";
 
 /* Il faut vérifier les answers dans entity et choisir si on affiche
    le formulaire ou pas. */
@@ -15,10 +14,16 @@ class FormBloc extends Bloc {
             return this._viewFormCase(answers);
         }
         // Sinon, on affiche les résultats
-        const verifs = this.verification(answers);
-        return new ResultsView({
-            items: verifs
-        })
+        const views = this.resultsViews(answers);
+        const resultView = new ResultsView()
+        resultView.on('render', () => {
+            const container = resultView.el.querySelector('.js-items');
+            views.forEach( v => {
+                v.render()
+                container.appendChild( v.el )
+            });
+        });
+        return resultView;
     }
 
     _viewFormCase(answers) {
@@ -54,10 +59,9 @@ class FormBloc extends Bloc {
                 errors[name] = "Champ manquant";
                 continue;
             }
-            if (child.params.format) {
-                const userValue = data[name] || '';
-                const v = checkFormat(userValue, child.params.format || 'none');
-                if (v!==true) {
+            if (typeof child.validation === 'function') {
+                const v = child.validation(data[name] || '');
+                if (v !== true) {
                     errors[name] = v;
                 }
             }
@@ -71,22 +75,24 @@ class FormBloc extends Bloc {
     /**
      * Vérification des réponses
      * @param {object} data 
-     * @returns {object} un objet de résultats
+     * @returns {View[]} un tabeau de vues
      */
-    verification(data) {
-        const results = [];
+    resultsViews(data) {
+        const views = [];
         for (const child of this._children) {
-            if (!(child instanceof InputBloc)) {
+            if (typeof child.resultView !== "function") {
                 continue;
             }
-            results.push(child.verification(data));
+            views.push(child.resultView(data));
         }
-        const nbPoints = results.reduce(
-            (sum, obj) => sum + (obj.score || 0),
+        const nbPoints = this._children.reduce(
+            (sum, child) => (typeof child.resultScore === "function")
+                ? sum + (child.resultScore(data) || 0)
+                : sum,
             0
         );
         this._score = nbPoints;
-        return results;
+        return views;
     }
 
     get score() {
