@@ -30,7 +30,7 @@ class TabVarLine extends TabLine {
             : line
         while (items.length < this._config.size) items.push('') // On s'assure une longueur minimum
         while (items.length > this._config.size) items.pop() // On s'assure d'une longueur maximum
-
+        this._items = items
         const subItems = _.map(
             items,
             (item, index) => TabVarItem.make(
