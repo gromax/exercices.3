@@ -1,17 +1,19 @@
-import { IfBloc, CondBloc } from "./ifbloc";
-import Affectation from "./affectation";
-import Bloc from "./bloc";
-import TextNode from "./textnode";
-import TextBloc from "./textbloc";
-import InputBloc from "./inputbloc";
-import FormBloc from "./FormBloc";
-import Parameter from "./parameter";
-import Option from "./option";
-import Halt from "./halt";
-import GraphBloc from "./graphbloc";
-import TkzTabBloc from "./tkztabbloc";
-import { ChoiceList, ChoiceForm } from "./choice";
-import Colors from "../colors.js";
+import { IfBloc, CondBloc } from "./ifbloc"
+import Affectation from "./affectation"
+import Bloc from "./bloc"
+import TextNode from "./textnode"
+import TextBloc from "./textbloc"
+import InputTextBloc from "./inputs/inputtextbloc"
+import RadioBloc from "./inputs/radiobloc"
+import FormBloc from "./FormBloc"
+import Parameter from "./parameter"
+import Option from "./option"
+import Halt from "./halt"
+import GraphBloc from "./graphbloc"
+import TkzTabBloc from "./tkztabbloc"
+import { ChoiceBloc } from "./choice"
+import InputChoice from "./inputs/inputchoice"
+import Colors from "../colors"
 
 const TRYNUMBER = 100;
 
@@ -87,6 +89,16 @@ class MainBloc extends Bloc {
                 stack.push(condition);
                 continue;
             }
+
+            // je dois test options avant affectation
+            // car en cas de @x => ... cela pourrait être pris
+            // pour une affectation
+            const option = Option.parse(trimmed);
+            if (option) {
+                stack[stack.length-1].push(option);
+                continue;
+            }
+
             const affectation = Affectation.parse(trimmed);
             if (affectation) {
                 stack[stack.length-1].push(affectation);
@@ -118,11 +130,7 @@ class MainBloc extends Bloc {
                 continue;
             }
 
-            const option = Option.parse(trimmed);
-            if (option) {
-                stack[stack.length-1].push(option);
-                continue;
-            }
+
 
             const bloc = MainBloc.parseBloc(trimmed);
             if (bloc) {
@@ -177,8 +185,11 @@ class MainBloc extends Bloc {
         if (TextBloc.LABELS.includes(label)) {
             return new TextBloc(label, paramsString);
         }
-        if (InputBloc.LABELS.includes(label)) {
-            return InputBloc.make(label, paramsString);
+        if (InputTextBloc.LABEL == label) {
+            return new InputTextBloc(label, paramsString);
+        }
+        if (RadioBloc.LABEL == label) {
+            return new RadioBloc(label, paramsString);
         }
         if (FormBloc.LABELS.includes(label)) {
             return new FormBloc(label, paramsString);
@@ -186,11 +197,11 @@ class MainBloc extends Bloc {
         if (GraphBloc.LABELS.includes(label)) {
             return new GraphBloc(label, paramsString);
         }
-        if (ChoiceList.LABELS.includes(label)) {
-            return new ChoiceList(label, paramsString);
+        if (ChoiceBloc.LABELS.includes(label)) {
+            return new ChoiceBloc(label, paramsString);
         }
-        if (ChoiceForm.LABELS.includes(label)) {
-            return new ChoiceForm(label, paramsString);
+        if (InputChoice.LABELS.includes(label)) {
+            return new InputChoice(label, paramsString);
         }
         if (TkzTabBloc.LABELS.includes(label)) {
             return new TkzTabBloc(label, paramsString);
