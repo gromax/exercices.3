@@ -6,7 +6,6 @@ class TextBloc extends Bloc {
     static LABELS = ['text', 'texte', 'warning', 'aide', 'info', 'help'];
     constructor(tag, paramsString) {
         super(tag, paramsString, false);
-        this._category = 'text';
     }
 
     run(params, caller) {
