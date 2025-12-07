@@ -1,14 +1,8 @@
 import { View } from 'backbone.marionette';
-import exercice_results_tpl from '@templates/exercices/run/exercice-results.jst';
-import { def } from 'jsxgraph';
+import results_tpl from '@templates/exercices/bloc/results.jst';
 
 const ResultsView = View.extend({
-  template: exercice_results_tpl,
-  templateContext() {
-    return {
-      items: this.getOption("items")
-    };
-  }
+  template: results_tpl,
 });
 
 export default ResultsView;
