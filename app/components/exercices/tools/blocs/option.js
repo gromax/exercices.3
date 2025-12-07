@@ -1,8 +1,8 @@
-import { substituteLabels } from '../maths/misc/substitution.js';
-import MyNerd from '../maths/mynerd.js';
+import { getValue } from '@mathstools/misc/substitution'
+import MyNerd from '@mathstools/mynerd'
 
 class Option {
-    static REGEX = /^([\w]+)\s*=>(.*)/;
+    static REGEX = /^(@?[\w]+)\s*=>(.*)/;
     static parse(line) {
         const m = line.match(Option.REGEX);
         if (m) {
@@ -26,9 +26,12 @@ class Option {
     }
 
     run(params, caller) {
+        const key = this._key.startsWith('@')
+            ? getValue(this._key, params)
+            : this._key;
         const value = MyNerd.substituteExpressions(this._value, params);
         if (caller && typeof caller.setOption === 'function') {
-            caller.setOption(this._key, value);
+            caller.setOption(key, value);
         }
         return null;
     }
