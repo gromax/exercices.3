@@ -1,6 +1,7 @@
 import Bloc from "./bloc";
 import TkzTabView from "../blocsviews/tkztabview";
 import Colors from "../colors";
+import TkzTab from "../blocsviews/tkztab/tkztab";
 
 class TkzTabBloc extends Bloc {
     static LABELS = ['tkztab'];
@@ -53,19 +54,8 @@ class TkzTabBloc extends Bloc {
     }
 
     setParam(key, value) {
-        if ((key === 'var') || (key === 'sign') || (key === 'varform')) {
-            const items = value.split(':')
-            if (items.length !== 3) {
-                throw new Error(`<${key}:${value}/> Le paramètre '${key}' est mal formé.`);
-            }
-            const tag = items[0].trim();
-            const hauteur = parseInt(items[1].trim());
-            if (isNaN(hauteur) || hauteur < 1) {
-                throw new Error(`<${key}:${value}/> La hauteur doit être un entier supérieur ou égal à 1.`);
-            }
-            const line = items[2].trim();
-            this._lines.push({type: key, tag, hauteur, line});
-            return;
+        if (TkzTab.LINESTYPES.includes(key)) {
+            this._lines.push(TkzTab.parseLine(key, value));
         }
         if (key === 'color') {
             const n = parseInt(value);
