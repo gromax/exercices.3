@@ -53,9 +53,10 @@ class TabLine {
 
     /**
      * Construit la représentation svg
-     * @param {*} élément SVG de la ligne
+     * @param {SVG} draw élément SVG de la ligne
+     * @param {HTMLElement} divComplement élément HTML complémentaire
      */
-    render (draw) {
+    render (draw, divComplement) {
         if (this._svg) this._svg.remove()
         this._y0 = this._offset * this._config.pixelsYUnit
         this._x0 = this._config.lgt + this._config.margin
