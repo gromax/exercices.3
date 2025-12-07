@@ -13,7 +13,6 @@ class Bloc {
         this._params = { header:paramsString };
         this._runned = false;
         this._tag = tag;
-        this._category = tag;
     }
 
     /**
@@ -50,10 +49,6 @@ class Bloc {
 
     get params() {
         return this._params;
-    }
-
-    get category() {
-        return this._category;
     }
 
     get tag() {
@@ -131,7 +126,7 @@ class Bloc {
     }
 
     parseOption() {
-        if (this.category !== 'option') {
+        if (this._tag !== 'option') {
             throw new Error("Seul un bloc <option> peut être analysé par cette méthode");
         }
         if (this._paramsString === '') {
