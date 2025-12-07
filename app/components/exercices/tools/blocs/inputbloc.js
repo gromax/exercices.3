@@ -1,7 +1,7 @@
 import Bloc from "./bloc";
 import RadioView from "../blocsviews/radioview.js";
-import InputView from "../blocsviews/inputview.js";
-import { checkValue, formatValue } from '../maths/misc/check.js';
+import { InputView, InputResultView } from "../blocsviews/inputview.js";
+import { checkValue, formatValue, checkFormat } from '../maths/misc/check.js';
 
 /**
  * Bloc représentant un champ de saisie (input, radio...)
@@ -39,10 +39,37 @@ class InputBloc extends Bloc {
             throw new Error(`<${label}> doit avoir un nom (ex: <${label}:le_nom>)`);
         }
         this._category = 'input';
+        this._resultView = null;
+        this._score = null;
     }
 
     nombrePts() {
         return 1;
+    }
+
+    /**
+     * renvoie la vue résultat. La calcule au besoin
+     * @param {*} data 
+     * @returns {View} la vue résultat
+     */
+    resultView(data) {
+        if (this._resultView === null) {
+            this._calcResult(data);
+        }
+        return this._resultView;
+    }
+
+    /**
+     * Renvoie le score final
+     * le calcule au besoin
+     * @param {*} data 
+     * @returns {number} le score final
+     */
+    resultScore(data) {
+        if (this._score === null) {
+            this._calcResult(data);
+        }
+        return this._score;
     }
 }
 
@@ -122,7 +149,15 @@ class InputTextBloc extends InputBloc {
         super.setParam(key, value);
     }
 
-    verification(data) {
+    validation(userValue) {
+        return checkFormat(userValue, this._params.format || 'none');
+    }
+
+    /**
+     * Calcule le score et la vue
+     * @param {*} data 
+     */
+    _calcResult(data) {
         const name = this.header;
         const userValue = data[name] || '';
         const userValueTag = userValue.includes('\\') ? `$${userValue}$` : userValue;
@@ -131,23 +166,25 @@ class InputTextBloc extends InputBloc {
         const format = this._params.format || 'none';
         const entete = tag?`${tag} : `:'';
         if (!solution) {
-            return {
+            this._score = 0;
+            this._resultView = new InputResultView({
                 name: name,
                 success: false,
                 message: entete + `Aucune réponse attendue.`,
-                score: 0
-            };
+            });
+            return;
         }
         // C'est là qu'il faudra prévoir les divers vérifications
         // solution pourrait être un tableau et alors il suffit qu'une valeur convienne
         if (this._verify(userValue, solution)) {
             const message = `${userValueTag} est une bonne réponse.`;
-            return {
+            this._score = 1;
+            this._resultView = new InputResultView({
                 name: name,
                 success: true,
                 message: entete + message,
-                score: 1
-            };
+            });
+            return;
         } else {
             const message = `${userValueTag} est une Mauvaise réponse.`;
             const solutionFormatted = (typeof this.params.tagSolution !== 'undefined')
@@ -156,12 +193,12 @@ class InputTextBloc extends InputBloc {
             const complement = Array.isArray(solutionFormatted)
                 ? `Les bonnes réponses possibles étaient : ${solutionFormatted.join(', ')}.`
                 :`La réponse attendue était : ${solutionFormatted}.`;
-            return {
+            this._score = 0;
+            this._resultView = new InputResultView({
                 name: name,
                 success: false,
                 message: entete + message + '\n' + complement,
-                score: 0
-            };
+            });
         }
     }
 
@@ -188,7 +225,7 @@ class RadioBloc extends InputBloc {
         });
     }
 
-    verification(data) {
+    _calcResult(data) {
         const name = this.header;
         const userValue = data[name] || '';
         const userValueTag = this._options[userValue];
@@ -197,30 +234,35 @@ class RadioBloc extends InputBloc {
         const tag = this.params.tag;
         const entete = tag?`${tag} : `:'';
         if (!solution) {
-            return {
+            this._score = 0;
+            this._resultView = new InputResultView({
                 name: name,
                 success: false,
                 message: entete + `Aucune réponse attendue.`,
-                score: 0
-            };
+            });
+            return
         }
         // C'est là qu'il faudra prévoir les divers vérifications
         if (solution == userValue) {
-            return {
+            this._score = 1;
+            this._resultView = new InputResultView({
                 name: name,
                 success: true,
                 message: `${entete}${userValueTag} est une bonne réponse.`,
                 score: 1
-            };
+            });
+            return;
         }
         const message = `${userValueTag} est une Mauvaise réponse.`;
         const complement = `La réponse attendue était : ${solutionTag}.`;
-        return {
+        
+        this._score = 0;
+        this._resultView = new InputResultView({
             name: name,
             success: false,
             message: entete + message + '\n' + complement,
             score: 0
-        };
+        });
     }
 
 
