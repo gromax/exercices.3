@@ -213,11 +213,11 @@ class MyNerd {
         this._normalized = MyNerd.normalization(this._expression);
         try {
             this._processed = nerdamer(this._normalized);
-            this._processed_text = this._processed.text();
+            this._processed_lower_text = this._processed.text().toLowerCase();
         } catch (e) {
             console.warn(`Erreur lors du traitement avec nerdamer de ${this._normalized}:`, e);
             this._processed = nerdamer("NaN");
-            this._processed_text = this._processed.text();
+            this._processed_lower_text = this._processed.text().toLowerCase();
         }
     }
 
@@ -395,9 +395,9 @@ class MyNerd {
     _compareInfinityCase(othervalue, operator) {
         switch (operator) {
             case '==':
-                return this._processed_text === othervalue._processed_text;
+                return this._processed_lower_text === othervalue._processed_lower_text;
             case '!=':
-                return this._processed_text !== othervalue._processed_text;
+                return this._processed_lower_text !== othervalue._processed_lower_text;
             case '<':
                 return this.isMinusInfinity() && !othervalue.isMinusInfinity();
             case '<=':
@@ -412,15 +412,15 @@ class MyNerd {
     }
 
     isInfinity() {
-        return this._children === null && (this._processed_text === 'infinity' || this._processed_text === '-infinity');
+        return this._children === null && (this._processed_lower_text === 'infinity' || this._processed_lower_text === '-infinity');
     }
 
     isPlusInfinity() {
-        return this._children === null && this._processed_text === 'infinity';
+        return this._children === null && this._processed_lower_text === 'infinity';
     }
 
     isMinusInfinity() {
-        return this._children === null && this._processed_text === '-infinity';
+        return this._children === null && this._processed_lower_text === '-infinity';
     }
 
     expand() {
