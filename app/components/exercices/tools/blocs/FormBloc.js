@@ -1,7 +1,7 @@
 import Bloc from "./bloc";
 import FormView from "../blocsviews/formview.js";
 import ResultsView from "../blocsviews/resultsview.js";
-import InputBloc from "./inputbloc";
+import InputBloc from "./inputs/inputbloc";
 
 /* Il faut vérifier les answers dans entity et choisir si on affiche
    le formulaire ou pas. */
@@ -75,7 +75,7 @@ class FormBloc extends Bloc {
     /**
      * Vérification des réponses
      * @param {object} data 
-     * @returns {View[]} un tabeau de vues
+     * @returns {Array<Marionette.View>} un tabeau de vues
      */
     resultsViews(data) {
         const views = [];
@@ -92,9 +92,14 @@ class FormBloc extends Bloc {
             0
         );
         this._score = nbPoints;
-        return views;
+        return _.flatten(views);
     }
 
+    /**
+     * Renvoie le score
+     * @param {*} data 
+     * @returns {number} le score final
+     */
     get score() {
         return this._score || 0;
     }
