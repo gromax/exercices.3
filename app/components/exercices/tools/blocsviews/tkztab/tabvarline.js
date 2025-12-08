@@ -21,18 +21,30 @@ class TabVarLine extends TabLine {
      * @param {number} offset décalage vertical de la ligne
      * @param {object} config configuration de la ligne
      * @param {number} index index de la ligne dans le tableau
+     * @param {boolean|undefined} ok si true, la ligne est validée
      */
-    constructor (line, tag, hauteur, offset, config, index) {
-        super(tag, hauteur, offset, config)
+    constructor (line, tag, hauteur, offset, config, index, ok) {
+        super(tag, hauteur, offset, {...config})
         this._index = index
+        if (ok === true) {
+            this._config.backgroundColor = "lightgreen"
+            this._config.color = "green"
+        } else if (ok === false) {
+            this._config.backgroundColor = "lightcoral"
+            this._config.color = "DarkRed"
+        }
         const items = typeof line === "string"
             ? line.split(',').map( x => x.trim() )
             : line
         while (items.length < this._config.size) items.push('') // On s'assure une longueur minimum
         while (items.length > this._config.size) items.pop() // On s'assure d'une longueur maximum
         this._items = items
+        this._calcSubItems()
+    }
+
+    _calcSubItems() {
         const subItems = _.map(
-            items,
+            this._items,
             (item, index) => TabVarItem.make(
                     index,
                     item,
@@ -46,7 +58,7 @@ class TabVarLine extends TabLine {
 
     _renderRight () {
         for (let item of this._values) {
-            item.render(this._hauteur, this._y0,this._svg)
+            item.render(this._hauteur, this._y0, this._svg)
         }
         for (let i=1; i<this._values.length; i++) {
             this._values[i].renderPrevArrow(this._values[i-1], this._svg, this._y0, this._hauteur)
