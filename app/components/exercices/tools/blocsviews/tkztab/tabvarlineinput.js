@@ -21,7 +21,42 @@ class TabVarLineInput extends TabVarLine {
         this._name = name
         this._solution = solution
     }
-    
+
+    /**
+     * Bascule la position de l'item d'un tabvar
+     * @param {number} xindex 
+     * @param {string} xpos 
+     */
+    togglePosItem(xindex, xpos) {
+        if (xindex < 0 || xindex >= this._items.length) {
+            console.warn(`Invalid xIndex for var line button click: xIndex=${xindex}`)
+            return
+        }
+        const item = this._items[xindex]
+        // l'item a potentiellement la forme tag/value/value
+        const components = item.split('/')
+        const tag = components[0]
+        // on lit la position selon xpos
+        if ((xpos === '' && tag.length != 1) || (xpos !== '' && tag.length != 3)) {
+            console.warn(`Invalid xpos for var line button click: xpos=${xpos} and tag=${tag}`)
+            return
+        }
+        const ypos = xpos === '+'
+            ? tag.charAt(2)
+            : tag.charAt(0)
+        const newYpos = ypos === '+'
+            ? '-'
+            : '+'
+        const newTag = xpos === ''
+            ? newYpos
+            : xpos === '-'
+                ? newYpos + tag.charAt(1) + tag.charAt(2)
+                : tag.charAt(0) + tag.charAt(1) + newYpos
+        components[0] = newTag
+        this._items[xindex] = components.join('/')
+        this._calcSubItems()
+    }
+
     /**
      * trace la ligne et ajoute le champ input
      * @param {SVG} draw élément SVG de la ligne
