@@ -7,6 +7,8 @@ class TkzTab {
     static LINESTYPES = [
         'sign', 'var', 'inputvar'
     ]
+    static INPUTLABELS = ['inputvar']
+
 
     static parseLine(key, value) {
         const options = value.split(':').map( x => x.trim() )
@@ -57,12 +59,31 @@ class TkzTab {
         this._lines = [ header ]
     }
 
+    /**
+     * Bascule la position de l'item d'un tabvar
+     * @param {number} lineIndex indice de la ligne
+     * @param {number} xIndex indice de l'item dans la ligne
+     * @param {string} xpos position de l'item '+', '-' ou ''
+     */
+    togglePosItem(lineIndex, xIndex, xpos) {
+        if (lineIndex < 0 || lineIndex >= this._lines.length-1) {
+            console.warn(`indice de ligne invalide : ${lineIndex}`)
+            return
+        }
+        const line = this._lines[lineIndex+1]
+        if (!(line instanceof TabVarLineInput)) {
+            console.warn(`la ligne à l'indice ${lineIndex} n'est pas de type TabVarLineInput`)
+            return
+        }
+        line.togglePosItem(xIndex, xpos)
+    }
+
     addLines(lines) {
         for (let line of lines) {
             if (line.type === 'sign') {
                 this.addSignLine(line.line, line.tag, line.hauteur);
             } else if (line.type === 'var') {
-                this.addVarLine(line.line, line.tag, line.hauteur);
+                this.addVarLine(line.line, line.tag, line.hauteur, line.ok);
             } else if (line.type === 'inputvar') {
                 this.addVarLineInput(line.line, line.tag, line.hauteur, line.name, line.solution);
             }
@@ -74,10 +95,12 @@ class TkzTab {
      * @param {string|Array} line chaîne décrivant la ligne (ex: "-/2,+/3,R")
      * @param {string} tag tag de la ligne (ex: "f(x)")
      * @param {number} hauteur hauteur de la ligne en nombre d'unités verticales
+     * @param {boolean|undefined} ok si true, la ligne est validée
      * @returns {TkzTab} l'objet courant pour chaînage
      */
-    addVarLine (line, tag, hauteur) {
-        const tabvarline = new TabVarLine(line, tag, hauteur, this._offset, this._config)
+    addVarLine (line, tag, hauteur, ok) {
+        const index = this._lines.length - 1
+        const tabvarline = new TabVarLine(line, tag, hauteur, this._offset, this._config, index, ok)
         this._offset += tabvarline.hauteur
         this._lines.push(tabvarline)
         return this;
