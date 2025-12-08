@@ -57,6 +57,7 @@ class TabLine {
      * @param {HTMLElement} divComplement élément HTML complémentaire
      */
     render (draw, divComplement) {
+        const backgroundColor = this._config.backgroundColor || "white"
         if (this._svg) this._svg.remove()
         this._y0 = this._offset * this._config.pixelsYUnit
         this._x0 = this._config.lgt + this._config.margin
@@ -67,7 +68,7 @@ class TabLine {
             .rect(this._config.width, hl)
             .attr({x:0, y:this._y0})
             .stroke({ color, 'stroke-width': 2 })
-            .fill({ color:"white"})
+            .fill({ color: backgroundColor })
 
         this._renderHeader()
         this._renderRight()
@@ -75,6 +76,7 @@ class TabLine {
 
     _renderHeader () {
         if (this._divHeader) this._divHeader.remove()
+        const backgroundColor = this._config.backgroundColor || "white"
         this._divHeader = $("<div>")
         const hl = this._hauteur * this._config.pixelsYUnit
         const color = this._config.color
@@ -83,7 +85,7 @@ class TabLine {
             .rect(lgt, hl)
             .attr({x:0, y:this._y0})
             .stroke({ color, 'stroke-width': 2 })
-            .fill({ color:"white"})
+            .fill({ color: backgroundColor })
 
 
         // Créer un foreignObject pour le texte
