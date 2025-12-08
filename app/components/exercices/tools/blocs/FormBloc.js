@@ -1,7 +1,6 @@
 import Bloc from "./bloc";
 import FormView from "../blocsviews/formview.js";
 import ResultsView from "../blocsviews/resultsview.js";
-import InputBloc from "./inputs/inputbloc";
 
 /* Il faut vérifier les answers dans entity et choisir si on affiche
    le formulaire ou pas. */
@@ -42,6 +41,21 @@ class FormBloc extends Bloc {
         return formView;
     }
 
+    /**
+     * helper pour gérer le message d'erreur de champ manquant
+     * @param {Array<string>|string} name
+     * @param {object} errors
+     */
+    _champManquantError(data, name, errors) {
+        if (Array.isArray(name)) {
+            name.forEach(n => this._champManquantError(data, n, errors));
+            return errors
+        }
+        if (!(name in data)) {
+            errors[name] = "Champ manquant"
+        }
+        return errors
+    }
 
     /**
      * Validation des données du formulaire
@@ -49,21 +63,34 @@ class FormBloc extends Bloc {
      * @returns {object|null} un objet d'erreurs ou null si tout est ok
      */
     validation(data) {
-        const errors = {};
+        let errors = {}
         for (const child of this._children) {
-            if (!(child instanceof InputBloc)) {
-                continue;
+            if (typeof child.validation !== "function") {
+                continue
             }
-            const name = child.header;
-            if (!(name in data)) {
-                errors[name] = "Champ manquant";
-                continue;
+            const name = child.validation()
+            if (name === '' || name === null || typeof name === 'undefined') {
+                continue
             }
-            if (typeof child.validation === 'function') {
-                const v = child.validation(data[name] || '');
-                if (v !== true) {
-                    errors[name] = v;
+            const childErrors = this._champManquantError(data, name, {})
+            if (Object.keys(childErrors).length > 0) {
+                errors = {...errors, ...childErrors}
+                continue
+            }
+            const dataValue = Array.isArray(name)
+                ? name.map(n => data[n])
+                : data[name]
+            const v = child.validation(dataValue) // si tableau, les value sont dans le même ordre que les name
+            if (v === true) {
+                continue
+            }
+            if (Array.isArray(name)) {
+                if (typeof v !== "object") {
+                    throw new Error(`La validation pour un champ multiple doit renvoyer un objet d'erreurs.`)
                 }
+                errors = {...errors, ...v}
+            } else {
+                errors[name] = v
             }
         }
         if (Object.keys(errors).length > 0) {
@@ -107,10 +134,13 @@ class FormBloc extends Bloc {
     _needSubmit(answers) {
         // Si une des questions n'a pas de réponse, il faut soumettre
         for (const child of this._children) {
-            if (!(child instanceof InputBloc)) {
+            if (typeof child.validation !== "function") {
                 continue;
             }
             const name = child.header;
+            if (name === '' || name === null || typeof name === 'undefined') {
+                continue;
+            }
             if (!answers[name]) {
                 return true;
             }
