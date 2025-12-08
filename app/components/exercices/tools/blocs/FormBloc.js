@@ -135,13 +135,19 @@ class FormBloc extends Bloc {
         // Si une des questions n'a pas de réponse, il faut soumettre
         for (const child of this._children) {
             if (typeof child.validation !== "function") {
-                continue;
+                continue
             }
-            const name = child.header;
+            const name = child.validation()
             if (name === '' || name === null || typeof name === 'undefined') {
-                continue;
+                continue
             }
-            if (!answers[name]) {
+            if (Array.isArray(name)) {
+                for (let n of name) {
+                    if (!answers[n]) {
+                        return true;
+                    }
+                }
+            } else if (!answers[name]) {
                 return true;
             }
         }
