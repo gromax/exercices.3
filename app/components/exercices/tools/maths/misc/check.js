@@ -99,7 +99,7 @@ function formatValue(value, format = "none") {
     // il faudrait voir les cas empty, infini qui sont à part et peuvent être en plus
     // puis les autres qui devraient être uniques
     if (Array.isArray(value)) {
-        return value.map(val => this._format(val, format));
+        return value.map(val => formatValue(val, format));
     }
 
     if (
