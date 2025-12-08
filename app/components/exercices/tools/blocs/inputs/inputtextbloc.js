@@ -79,7 +79,17 @@ class InputTextBloc extends InputBloc {
         super.setParam(key, value);
     }
 
+    /**
+     * réalise la validation de la saisie
+     * renvoi true si ok, message d'erreur sinon
+     * si pas d'argument, renvoie le name à valider
+     * @param {string|undefined} userValue 
+     * @returns {true|string} true si ok, message d'erreur sinon
+     */
     validation(userValue) {
+        if (typeof userValue === 'undefined') {
+            return this.header;
+        }
         return checkFormat(userValue, this._params.format || 'none');
     }
 

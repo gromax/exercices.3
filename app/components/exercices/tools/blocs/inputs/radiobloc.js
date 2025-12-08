@@ -10,6 +10,22 @@ class RadioBloc extends InputBloc {
         this._options = {};
     }
 
+    /**
+     * réalise la validation de la saisie
+     * renvoi true si ok, message d'erreur sinon
+     * si pas d'argument, renvoie le name à valider
+     * @param {string|undefined} userValue 
+     * @returns {true|string} true si ok, message d'erreur sinon
+     */
+    validation(userValue) {
+        if (typeof userValue === 'undefined') {
+            return this.header;
+        }
+        // le radio sera toujours valide grâce au formulaire
+        // qui requiert une réponse
+        return true
+    }
+
     _customView(answers) {
         const items = _.shuffle(Object.entries(this._options || {}));
         return new RadioView({

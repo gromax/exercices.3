@@ -17,7 +17,17 @@ class InputChoice extends InputBloc {
         this._colors = colors
     }
 
+    /**
+     * réalise la validation de la saisie
+     * renvoi true si ok, message d'erreur sinon
+     * si pas d'argument, renvoie le name à valider
+     * @param {string|undefined} userValue 
+     * @returns {true|string} true si ok, message d'erreur sinon
+     */
     validation(userValue) {
+        if (typeof userValue === 'undefined') {
+            return this.header;
+        }
         if (userValue.includes('0')) {
             return "Vous devez faire un choix pour tous les items."
         }
