@@ -2,7 +2,7 @@ import Bloc from "./bloc";
 import TkzTabView from "../blocsviews/tkztabview";
 import Colors from "../colors";
 import TkzTab from "../blocsviews/tkztab/tkztab";
-
+import TabVarLineInput from "../blocsviews/tkztab/tabvarlineinput"
 class TkzTabBloc extends Bloc {
     static LABELS = ['tkztab']
 
@@ -13,14 +13,6 @@ class TkzTabBloc extends Bloc {
         this._tkzTab = null
     }
 
-    static clone() {
-        const tab = new TkzTabBloc('tkztab', "")
-        tab._params = this._params
-        tab._colors = this._colors
-        return tab
-    }
-
-
     /**
      * Définir les couleurs à utiliser
      * @param {Colors} colors 
@@ -29,9 +21,13 @@ class TkzTabBloc extends Bloc {
         this._colors = colors
     }
 
+    /**
+     * calcule le tkztab au besoin
+     * @returns {TkzTab} le tkztab construit
+     */
     _getTkzTab() {
         if (this._params.xlist === undefined) {
-            throw new Error("<tkztab/> Le paramètre 'xlist' est obligatoire.");
+            throw new Error("<tkztab/> Le paramètre 'xlist' est obligatoire.")
         }
         if (this._tkzTab === null) {
             const config = this._getConfig()
@@ -65,6 +61,11 @@ class TkzTabBloc extends Bloc {
         return config
     }
 
+    /**
+     * renvoie la vue pour l'affichage de l'exercice
+     * @param {object} answers 
+     * @returns 
+     */
     _customView(answers) {
         return new TkzTabView({
             tkzTab: this._getTkzTab(),
@@ -87,8 +88,6 @@ class TkzTabBloc extends Bloc {
         super.setParam(key, value)
     }
 
-
-
     /**
      * réalise la validation de la saisie
      * renvoi true si ok, message d'erreur sinon
@@ -104,6 +103,11 @@ class TkzTabBloc extends Bloc {
         return true
     }
 
+    /**
+     * renvoie le nombre de points total
+     * c'est le nombre de lignes inputvar ou inputsign
+     * @returns {number} le nombre de points total
+     */
     nombrePts() {
         return this._lines.filter(line => TkzTab.INPUTLABELS.includes(line.type)).length
     }
@@ -143,12 +147,13 @@ class TkzTabBloc extends Bloc {
         // en ajoutant une ligne en vert si elle est juste
         // et une ligne en rouge avec la bonne en vert sinon
         // on va calculer de nouvelles lines
-        const correcLines = []
+        const config = this._getConfig()
+        const tkzTab = new TkzTab(this._params.xlist, config)
         let count = 0
         for (let line of this._lines) {
             if (!TkzTab.INPUTLABELS.includes(line.type)) {
                 // ligne normale, on la recopie
-                correcLines.push(line)
+                tkzTab.addLine(line)
                 continue
             }
             const newLine = {
@@ -157,32 +162,34 @@ class TkzTabBloc extends Bloc {
                 hauteur: line.hauteur,
                 line: line.solution
             }
-            if (line.type === 'inputvar') {
-                newLine.type = 'var'
-                newLine.ok = true
+            if (line.type === 'inputvar' || line.type === 'inputsign') {
+                newLine.type = line.type === 'inputvar' ? 'var' : 'sign'
                 // on met de toute façon une ligne pour la correction
-                correcLines.push(newLine)
+                tkzTab.addLine(newLine).setSuccess(true)
                 const userValue = data[line.name] || ''
                 const solution = line.solution
-                if (solution === userValue) {
+                if (line.type === 'inputvar' && TabVarLineInput.compare(solution, userValue)) {
+                    // bonne réponse
+                    count += 1
+                    continue
+                } else if (line.type === 'inputsign' && solution === userValue) {
                     // bonne réponse
                     count += 1
                     continue
                 }
                 const wrongLine = { ...newLine }
                 wrongLine.line = userValue
-                wrongLine.ok = false
-                correcLines.push(wrongLine)
+                tkzTab.addLine(wrongLine).setSuccess(false)
             }
         }
         this._score = count
-        const config = this._getConfig()
-        const tkzTab = new TkzTab(this._params.xlist, config)
-        tkzTab.addLines(correcLines)
         this._resultView = new TkzTabView({
             tkzTab: tkzTab,
+            result:true
         })
     }
+
+
 }
 
 export default TkzTabBloc;
