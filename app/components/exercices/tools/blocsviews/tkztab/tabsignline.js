@@ -1,6 +1,8 @@
 import TabLine from "./tabline.js"
 
 class TabSignLine extends TabLine {
+    static STROKE_WIDTH = 4
+    
     /**
      * @type {Array} liste des étiquettes de la ligne : z, d, t, +, -...
      */
@@ -17,14 +19,14 @@ class TabSignLine extends TabLine {
      * @param {number} hauteur hauteur de la ligne en nombre d'unités verticales
      * @param {number} offset décalage vertical de la ligne
      * @param {object} config configuration de la ligne
+     * @param {number} index index de la ligne dans le tableau
      */
-    constructor(line, tag, hauteur, offset, config) {
-        super(tag, hauteur, offset, config)
+    constructor(line, tag, hauteur, offset, config, index) {
+        super(tag, hauteur, offset, config, index)
         this._tags = typeof line === "string"
             ? line.split(',')
             : []
         const s = 2 * this._config.size - 1
-
         while (this._tags.length < s) this._tags.push('') // On s'assure une longueur minimum
         while (this._tags.length > s) this._tags.pop() // On s'assure une longueur maximum
     }
@@ -39,13 +41,14 @@ class TabSignLine extends TabLine {
                 this._drawVertLines(tag, x)
             } else {
                 // En face de la zone i
-                this._drawItem(tag, x)
+                this._drawItem(j, tag, x)
             }
         }
     }
 
     _drawVertLines(tag, x) {
         const svg = this._svg
+        const backgroundColor = this._config.backgroundColor || 'white'
         const hl = this._hauteur * this._config.pixelsYUnit
         const color = this._config.color
         const y0 = this._y0
@@ -55,7 +58,7 @@ class TabSignLine extends TabLine {
                 svg.line(x, y0 ,x, y0 + hl)
                     .stroke({color, 'stroke-width':2})
                 svg.circle(15)
-                    .attr({stroke: color, fill: 'white', 'stroke-width':2})
+                    .attr({stroke: color, fill: backgroundColor, 'stroke-width':2})
                     .center(x, y0 + hl/2)
                 return
             case "d":
@@ -72,17 +75,23 @@ class TabSignLine extends TabLine {
         }
     }
 
-    _drawItem(tag, x) {
+    /**
+     * Dessine un signe en face d'une zone
+     * @param {number} index 
+     * @param {string} tag 
+     * @param {number} x 
+     */
+    _drawItem(index, tag, x) {
         // En face d'une zone
         const color = this._config.color
         const hl = this._hauteur * this._config.pixelsYUnit
         const y0 = this._y0 + hl/2
         const svg = this._svg
         if (tag === "+") {
-            svg.line(x, y0 - 10, x, y0 + 10).stroke({color, 'stroke-width':2})
-            svg.line(x - 10, y0 , x + 10, y0).stroke({color, 'stroke-width':2})
+            svg.line(x, y0 - 10, x, y0 + 10).stroke({color, 'stroke-width':this.constructor.STROKE_WIDTH})
+            svg.line(x - 10, y0 , x + 10, y0).stroke({color, 'stroke-width':this.constructor.STROKE_WIDTH})
         } else if (tag === "-") {
-            svg.line(x-10, y0, x+10, y0).stroke({color, 'stroke-width':2})
+            svg.line(x-10, y0, x+10, y0).stroke({color, 'stroke-width':this.constructor.STROKE_WIDTH})
         }
     }
 }
