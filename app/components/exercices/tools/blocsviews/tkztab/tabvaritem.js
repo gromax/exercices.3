@@ -2,6 +2,9 @@ import SVG from "@svgdotjs/svg.js"
 import createTextForeignObject from "./foreignobject"
 
 class TabVarItem {
+    static BUTTON_COLOR = '#ff66ff'
+    static BUTTON_SIZE_RATIO = 0.820
+
     static RATIO = 0.2 // ratio de la taille de la flèche par rapport à la hauteur de la ligne
     /**
      * Constructeur d'un item de TabVar
@@ -187,18 +190,18 @@ class TabVarItem {
         const d = this._config.espcl
         const m = this._config.margin
         const lgt = this._config.lgt
-        const s = this._config.pixelsYUnit
+        const size = this._config.pixelsYUnit * TabVarItem.BUTTON_SIZE_RATIO
         const dx = this._xpos === "-"
-            ? -s/2
-            : this._xpos === "+" ? s/2 : 0
+            ? -size
+            : this._xpos === "+" ? size : 0
         const x = d*this._xIndex + m + lgt + dx
         const hl = h * this._config.pixelsYUnit
         const y = this._ypos === "-"
-            ? y0 + hl - s/2
-            : y0 + s/2
+            ? y0 + hl - size
+            : y0 + size
 
-        svgParent.circle(s/2).center(x, y)
-            .fill('#ff66ff')
+        svgParent.circle(size).center(x, y)
+            .fill({color: TabVarItem.BUTTON_COLOR, opacity:0.3})
             .addClass('js-varline-button')
             .css('cursor', 'pointer')
             .attr('data-ypos', this._ypos)
