@@ -21,18 +21,9 @@ class TabVarLine extends TabLine {
      * @param {number} offset décalage vertical de la ligne
      * @param {object} config configuration de la ligne
      * @param {number} index index de la ligne dans le tableau
-     * @param {boolean|undefined} ok si true, la ligne est validée
      */
-    constructor (line, tag, hauteur, offset, config, index, ok) {
-        super(tag, hauteur, offset, {...config})
-        this._index = index
-        if (ok === true) {
-            this._config.backgroundColor = "lightgreen"
-            this._config.color = "green"
-        } else if (ok === false) {
-            this._config.backgroundColor = "lightcoral"
-            this._config.color = "DarkRed"
-        }
+    constructor (line, tag, hauteur, offset, config, index) {
+        super(tag, hauteur, offset, config, index)
         const items = typeof line === "string"
             ? line.split(',').map( x => x.trim() )
             : line
