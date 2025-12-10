@@ -583,16 +583,16 @@ Les pictogrammes peuvent servir pour les daltoniens. On peut donc choisir de ne 
 #### Formulaire liste de choix
 
 ```
-<formchoix:name>
+<inputchoix:name>
 1 => valeur 1
 2 => valeur 2
 1 => valeur 3
-</formchoix>
+</inputchoix>
 ```
 
-Il s'agit d'un formulaire, donc d'un bloc attendant une validation. `name` est l'identifiant de la réponse.
+Il s'agit d'un input. `name` est l'identifiant de la réponse. Il faut le placer dans un bloc <form>
 
-Ce formulaire se présentera comme une liste de choix avec des pictogrammes colorés. Chaque item est un bouton. Quand on clique, on change le pictogramme et la couleur.
+Cet input se présentera comme une liste de choix avec des pictogrammes colorés. Chaque item est un bouton. Quand on clique, on change le pictogramme et la couleur.
 
 Voyons un exemple d'utilisation :
 
@@ -603,24 +603,42 @@ Voyons un exemple d'utilisation :
 3 => $\mathcal{D}$
 </choix>
 
-<formchoix:a>
+<form>
+<inputchoix:a>
 2 => -5
 1 => 8
 1 => 0
 3 => 5,4
 2 => -1
-</formchoix>
+</inputchoix>
+</form>
 ```
 
 Le premier bloc définit les couleurs (et donc indices) associées aux ensembles. On demande ensuite à l'élève de choisir. Il devra choisir 2 pour $-5$, 1 pour $8$, etc.
 
 On peut préciser le param `<max:4/> pour indiquer que l'on autorise le choix à aller jusque 4 même si ce n'est pas une des réponses prévues.
 
-**Remarque :** les indices peuvent se répéter dans `formchoix` car plusieurs items peuvent avoir la même réponse. Ici, $8$ et $0$ sont tous deux des entiers naturels.
+**Remarque :** les indices peuvent se répéter dans `inputchoix` car plusieurs items peuvent avoir la même réponse. Ici, $8$ et $0$ sont tous deux des entiers naturels.
 
 On dispose là encore de paramètres :
   * `shuffle:false` pour le mélange (mélangé par défaut)
   * `onlysquares:true` pour ne pas utiliser les pictogrammes
+
+**Cas d'une réponse calculée**
+
+Supposons que l'exercice calcule une variable `@g` qui vaut `1` ou `2` selon le cas. Vous pouvez faire :
+
+```
+<choix>
+1 => Le choix 1
+2 => Le choix 2
+</choix>
+<form>
+<inputchoix:a>
+@g => Choisir la bonne réponse
+</input>
+</form>
+```
 
 #### Bloc Table
 
@@ -683,7 +701,7 @@ Ensuite viennent les contenus à proprement dit.
 
 ##### Ligne tableau de signe
 
-La forme est `<sign:$f(x)$:2:,-,d,+,z,-/>`
+La forme est `<sign:$f(x)$:2:,-,d,+,z,-,/>`
 
   * `sign` indique qu'il s'agit d'une ligne tableau de signe
   * `$f(x)$` est l'entête (obligatoire)
@@ -696,6 +714,21 @@ La ligne sera tronquée ou complétée en fonction de la taille attendue avec le
   * en face d'un x, on peut avoir `z` pour zéro, `d` pour interdit et `t` pour une cloison neutre (autre ignoré)
 
 Naturellement, comme pour tous les params, on a le droit de placer des variables avec un formatage comme `${@a:$}$`.
+
+##### input ligne tableau de signe
+
+La forme est `<inputsign:$f(x)$:2:,-,z,-,:b:,-,z,+,/>`
+
+  * `inputsign` indique qu'il s'agit d'une ligne tableau de signe input
+  * `$f(x)$` est l'entête (obligatoire)
+  * `2` est la hauteur de la ligne, en unité (obligatoire, minimum 1)
+  * `,-,z,-,` est la valeur des signes tels qu'ils apparaîtront au moment de poser la question
+  * `b` est l'identifiant de la réponse, utilisée notamment pour la sauvegarde BDD
+  * `,-,z,+,` est la réponse attendue
+
+Un tableau contenant une ligne *inputsign* devrait être placé dans un bloc <form>.
+
+Rien n'empêche d'avoir plusieurs lignes input dans un même tableau.
 
 ##### Ligne tableau de variation
 
@@ -724,6 +757,23 @@ Chaque fois, `pos` permet d'indiquer la forme. On a les cas de tkz-tab :
   * `R`, position igorée
 
 Naturellement, comme pour tous les params, on a le droit de placer des variables avec un formatage comme `${@a:$}$`.
+
+##### input ligne tableau de variation
+
+On peut ajouter une ligne de tableau de variations avec des boutons permettant de choisir la position des flèches.
+
+Exemple `<inputvar:$f(x)$:3:+,+D+,+:a:-,+D-,+/>`
+
+  * `inputvar` signale que c'est une ligne de variations input
+  * `$f(x)$` est l'entête (obligatoire)
+  * `3` est la hauteur en unités (obligaoire, minimum 3)
+  * `+,+D+,+` est la position des flèches telle qu'elle apparaîtra au moment de poser la question. On est libre de placer des valeurs mais c'est plus lisible sans.
+  * `a` est le nom de la réponse telle qu'elle sera stockée en BDD
+  * `-,+D-,+` est la réponse attendue. On peut ajouter des valeurs comme `-/$0$,+D-/$+\infty$/$-\infty$,+/$0$`. Ces valeurs seront de toute façons ignorées (l'utilisateur ne peut les changer) Ces valeurs peuvent enrichir la réponse.
+
+Un tableau contenant une ligne *inputvar* devrait être placé dans un bloc <form>.
+
+Rien n'empêche d'avoir plusieurs lignes input dans un même tableau.
 
 #### Bloc Graph
 
