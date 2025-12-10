@@ -33,8 +33,6 @@ class TabLine {
      */
     _offset = 0;
 
-
-
     /**
      * Constructeur
      * représente le cadre d'une ligne pour un item de type TabVarLine ou TabSignLine
@@ -42,13 +40,31 @@ class TabLine {
      * @param {number} hauteur hauteur de la ligne en nombre d'unités verticales, doit être au moins 3
      * @param {number} offset décalage vertical de la ligne
      * @param {object} config configuration de la ligne
+     * @param {number} index index de la ligne dans le tableau
      */
-    constructor (tag, hauteur, offset, config) {
-        this._config = config
+    constructor (tag, hauteur, offset, config, index) {
+        this._config = {...config} // réalise une copie
+        this._index = index
         this._tag = tag
         const minHauteur = this.constructor.MIN_HAUTEUR || 3
         this._hauteur = Math.max(hauteur, minHauteur)
         this._offset = offset
+    }
+
+    /**
+     * indique que la ligne est un succès
+     * @param {boolean} success 
+     * @returns {TabLine} l'objet courant pour chaînage
+     */
+    setSuccess(success) {
+        if (success === true) {
+            this._config.backgroundColor = "lightgreen"
+            this._config.color = "green"
+        } else if (success === false) {
+            this._config.backgroundColor = "lightcoral"
+            this._config.color = "DarkRed"
+        }
+        return this;
     }
 
     /**
