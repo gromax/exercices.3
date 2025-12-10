@@ -2,6 +2,22 @@ import TabVarLine from "./tabvarline"
 
 class TabVarLineInput extends TabVarLine {
     /**
+     * compare les positions de deux lignes, sans tenir compte des valeurs
+     * @param {string} a 
+     * @param {string} b 
+     * @returns {boolean} true si les positions sont identiques
+     */
+    static compare(a, b) {
+        const aTags = a.split(',').map( x => x.trim().split('/')[0] )
+        const bTags = b.split(',').map( x => x.trim().split('/')[0] )
+        if (aTags.length !== bTags.length) return false
+        for (let i=0; i<aTags.length; i++) {
+            if (aTags[i] !== bTags[i]) return false
+        }
+        return true
+    }
+
+    /**
      * Constructeur
      * line est constité d'une chaîne de caractères comme pour tkz-tab
      * de forme -/$12$,+/$y$,...
@@ -20,6 +36,10 @@ class TabVarLineInput extends TabVarLine {
         super(line, tag, hauteur, offset, config, index)
         this._name = name
         this._solution = solution
+        const s = this._config.size
+        if (solution.split(',').length !== s) {
+            console.warn(`Invalid solution for var line input: solution=${solution} and expected size=${s}`)
+        }
     }
 
     /**
@@ -76,10 +96,10 @@ class TabVarLineInput extends TabVarLine {
     }
 
     _renderRight () {
+        super._renderRight()
         for (let item of this._values) {
             item.renderButton(this._hauteur, this._y0, this._svg)
         }
-        super._renderRight()
     }
 }
 
