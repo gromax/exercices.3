@@ -1,5 +1,6 @@
-import { Base } from "./base";
-import Decimal from "decimal.js";
+import { Base } from "./base"
+import { Scalar } from "./scalar"
+import Decimal from "decimal.js"
 
 const GREEK_TO_TEX = {
     'alpha': '\\alpha',
@@ -134,7 +135,25 @@ class Symbol extends Base {
     }
 
     signature() {
-        return [this.#name];
+        return [this.#name]
+    }
+
+    substituteVariable(varName, value) {
+        if (this.#name === varName) {
+            if (value instanceof Base) {
+                return value
+            } else {
+                return new Scalar(value)
+            }
+        }
+        return this;
+    }
+
+    substituteVariables(values) {
+        if (this.#name in values) {
+            return this.substituteVariable(this.#name, values[this.#name])
+        }
+        return this
     }
 }
 

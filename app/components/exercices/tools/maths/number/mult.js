@@ -47,9 +47,29 @@ class MultDiv extends Base {
      */
     isFunctionOf(name){
         if (typeof name === 'undefined') {
-            return _.uniq(this._left.isFunctionOf().concat(this._right.isFunctionOf()));
+            return _.uniq(this._left.isFunctionOf().concat(this._right.isFunctionOf())).sort()
         }
-        return this._left.isFunctionOf(name) || this._right.isFunctionOf(name);
+        return this._left.isFunctionOf(name) || this._right.isFunctionOf(name)
+    }
+
+    substituteVariable(varName, value) {
+        const newLeft = this._left.substituteVariable(varName, value)
+        const newRight = this._right.substituteVariable(varName, value)
+        if (newLeft === this._left && newRight === this._right) {
+            // pas de changement
+            return this
+        }
+        return new this.constructor(newLeft, newRight)
+    }
+
+    substituteVariables(values) {
+        const leftSub = this._left.substituteVariables(values)
+        const rightSub = this._right.substituteVariables(values)
+        if (leftSub === this._left && rightSub === this._right) {
+            // pas de changement
+            return this
+        }
+        return new this.constructor(leftSub, rightSub);
     }
 }
 

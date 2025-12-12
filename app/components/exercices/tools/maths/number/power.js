@@ -69,7 +69,7 @@ class Power extends Base {
      */
     isFunctionOf(name){
         if (typeof name == 'undefined') {
-            return _.uniq(this.#base.isFunctionOf().concat(this.#exposant.isFunctionOf()));
+            return _.uniq(this.#base.isFunctionOf().concat(this.#exposant.isFunctionOf())).sort();
         }
         return this.#base.isFunctionOf(name) || this.#exposant.isFunctionOf(name);
     }
@@ -119,6 +119,27 @@ class Power extends Base {
         }
         return false;
     }
+
+    substituteVariable(varName, value) {
+        const newBase = this.#base.substituteVariable(varName, value)
+        const newExposant = this.#exposant.substituteVariable(varName, value)
+        if (newBase === this.#base && newExposant === this.#exposant) {
+            // pas de changement
+            return this
+        }
+        return new Power(newBase, newExposant)
+    }
+
+    substituteVariables(values) {
+        const newBase = this.#base.substituteVariables(values)
+        const newExposant = this.#exposant.substituteVariables(values)
+        if (newBase === this.#base && newExposant === this.#exposant) {
+            // pas de changement
+            return this
+        }
+        return new Power(newBase, newExposant);
+    }
+
 }
 
 export { Power }

@@ -93,7 +93,7 @@ class Function extends Base {
         if (typeof name == 'undefined') {
             return this.#child.isFunctionOf();
         }
-        return this.#child.isFunctionOf(name);
+        return this.#child.isFunctionOf(name)
     }
 
     /**
@@ -192,6 +192,22 @@ class Function extends Base {
             return this.#child;
         }
         return new Function('(-)', this);
+    }
+
+    substituteVariable(varName, value) {
+        const newChild = this.#child.substituteVariable(varName, value)
+        if (newChild === this.#child) {
+            return this
+        }
+        return new Function(this.#name, newChild)
+    }
+
+    substituteVariables(values) {
+        const newChild = this.#child.substituteVariables(values)
+        if (newChild === this.#child) {
+            return this
+        }
+        return new Function(this.#name, newChild)
     }
 
 }

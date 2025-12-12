@@ -76,25 +76,45 @@ class AddMinus extends Base {
      */
     isFunctionOf(name){
         if (typeof name == 'undefined') {
-            return _.uniq(this._left.isFunctionOf().concat(this._right.isFunctionOf()));
+            return _.uniq(this._left.isFunctionOf().concat(this._right.isFunctionOf())).sort()
         }
-        return this._left.isFunctionOf(name) || this._right.isFunctionOf(name);
+        return this._left.isFunctionOf(name) || this._right.isFunctionOf(name)
     }
 
     simplify() {
-        const leftSim = this._left.simplify();
-        const rightSim = this._right.simplify();
+        const leftSim = this._left.simplify()
+        const rightSim = this._right.simplify()
         if (leftSim.isZero()) {
-            return rightSim;
+            return rightSim
         } 
         if (rightSim.isZero()) {
-            return leftSim;
+            return leftSim
         }
         if (leftSim instanceof Scalar && rightSim instanceof Scalar) {
-            let val = leftSim.toDecimal().plus(rightSim.toDecimal());
-            return new Scalar(val);
+            let val = leftSim.toDecimal().plus(rightSim.toDecimal())
+            return new Scalar(val)
         }
-        return new this.constructor(leftSim, rightSim);
+        return new this.constructor(leftSim, rightSim)
+    }
+
+    substituteVariable(varName, value) {
+        const leftSub = this._left.substituteVariable(varName, value)
+        const rightSub = this._right.substituteVariable(varName, value)
+        if (leftSub === this._left && rightSub === this._right) {
+            // pas de changement
+            return this
+        }
+        return new this.constructor(leftSub, rightSub);
+    }
+
+    substituteVariables(values) {
+        const leftSub = this._left.substituteVariables(values)
+        const rightSub = this._right.substituteVariables(values)
+        if (leftSub === this._left && rightSub === this._right) {
+            // pas de changement
+            return this
+        }
+        return new this.constructor(leftSub, rightSub);
     }
 }
 
