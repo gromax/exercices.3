@@ -25,9 +25,9 @@ class Base {
      */
     isFunctionOf(name){
         if (typeof name == 'undefined') {
-            return [];
+            return []
         }
-        return false;
+        return false
     }
 
     /**
@@ -87,6 +87,44 @@ class Base {
      */
     isOne() {
         return false;
+    }
+
+    /**
+     * crée un clone avec la variable substituée par la valeur donnée
+     * @param {string} varName 
+     * @param {Base|number} value 
+     * @returns {Base}
+     */
+    substituteVariable(varName, value) {
+        return this;
+    }
+
+    /**
+     * substitue d'un coup plusieurs variables
+     * @param {object} substitutions de forme {varName: Base|number, ...}
+     * @returns {Base}
+     */
+    substituteVariables(substitutions) {
+        return this;
+    }
+
+    /**
+     * construit une fonction à partir du noeud
+     * @param {Array<string>} order ordre des variables
+     * @returns {Function}
+     */
+    buildFunction(order) {
+        if (typeof order === 'undefined') {
+            order = this.isFunctionOf()
+        }
+        const self = this
+        return function(...args) {
+            let values = {}
+            for (let i = 0; i < order.length; i++) {
+                values[order[i]] = args[i];
+            }
+            return self.substituteVariables(values).toDecimal(values).toNumber()
+        }
     }
 }
 
