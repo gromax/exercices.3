@@ -37,13 +37,13 @@ class Scalar extends Base {
     constructor(entree) {
         super();
         if (typeof entree == 'string') {
-            this.#makeFromString(entree);
+            this.#makeFromString(entree)
         } else if (typeof entree == 'number') {
-            this.#makeFromNumber(entree);
+            this.#makeFromNumber(entree)
         } else if (entree instanceof Decimal) {
-            this.#makeFromString(String(entree));
+            this.#makeFromString(String(entree))
         } else {
-            throw new Error(`entree = ${entree} invalide pour un Scalar`);
+            throw new Error(`entree = ${entree} invalide pour un Scalar`)
         }
     }
 
@@ -53,7 +53,7 @@ class Scalar extends Base {
      * @returns {boolean}
      */
     static isScalar(chaine) {
-        return Scalar.REGEX.test(chaine);
+        return Scalar.REGEX.test(chaine)
     }
 
     /**
@@ -62,20 +62,20 @@ class Scalar extends Base {
      */
     #makeFromString(chaine) {
         if (!Scalar.isScalar(chaine)) {
-            throw new Error(`entree = ${entree} invalide pour un Scalar`);
+            throw new Error(`entree = ${chaine} invalide pour un Scalar`)
         }
-        chaine = chaine.trim();
-        let percent = false;
-        this.#chaine = chaine;
-        chaine = chaine.replace(',', '.');
-        let i = chaine.indexOf('%');
+        chaine = chaine.trim()
+        let percent = false
+        this.#chaine = chaine
+        chaine = chaine.replace(',', '.')
+        let i = chaine.indexOf('%')
         if (i >= 0) {
-            percent = true;
-            chaine = chaine.substring(0,i).trim();
+            percent = true
+            chaine = chaine.substring(0,i).trim()
         }
-        this.#value = new Decimal(chaine);
+        this.#value = new Decimal(chaine)
         if (percent) {
-            this.#value = this.#value.div(100);
+            this.#value = this.#value.div(100)
         }
     }
 
@@ -84,8 +84,8 @@ class Scalar extends Base {
      * @param {number}
      */
     #makeFromNumber(n) {
-        this.#chaine = String(n);
-        this.#value = new Decimal(n);
+        this.#chaine = String(n)
+        this.#value = new Decimal(n)
     }
 
     /**
@@ -93,19 +93,19 @@ class Scalar extends Base {
      * @return {string}
      */
     toString() {
-        return this.#value.toString();
+        return this.#value.toString()
     }
 
     get priority() {
-        return 10;
+        return 10
     }
 
     isInteger() {
-        return this.#value.isInteger();
+        return this.#value.isInteger()
     }
 
     get floatValue() {
-        return this.#value.toNumber();
+        return this.#value.toNumber()
     }
 
     /**
@@ -113,7 +113,7 @@ class Scalar extends Base {
      * @returns { boolean }
      */
     isOne() {
-        return this.#value.equals(1);
+        return this.#value.equals(1)
     }
 
     /**
@@ -121,7 +121,7 @@ class Scalar extends Base {
      * @returns { boolean }
      */
     isZero() {
-        return this.#value.equals(0);
+        return this.#value.equals(0)
     }
 
     /**
@@ -129,7 +129,7 @@ class Scalar extends Base {
      * @returns {boolean}
      */
     isNaN() {
-        return this.#value.isNaN();
+        return this.#value.isNaN()
     }
 
     /**
@@ -138,16 +138,16 @@ class Scalar extends Base {
      */
     opposite() {
         if (this.isNaN()) {
-            return this;
+            return this
         }
-        let opp = new Scalar(1);
-        opp.#value = this.#value.negated();
+        let opp = new Scalar(1)
+        opp.#value = this.#value.negated()
         if (this.#chaine.startsWith('-')) {
-            opp.#chaine = this.#chaine.substring(1).trim();
+            opp.#chaine = this.#chaine.substring(1).trim()
         } else {
-            opp.#chaine = `-${this.#chaine}`;
+            opp.#chaine = `-${this.#chaine}`
         }
-        return opp;
+        return opp
     }
 
     /**
@@ -155,7 +155,7 @@ class Scalar extends Base {
      * @returns {string}
      */
     toTex() {
-        return this.#chaine.replace('%', '\\%');
+        return this.#chaine.replace('%', '\\%')
     }
 
     /**
@@ -164,31 +164,31 @@ class Scalar extends Base {
      * @returns {Decimal}
      */
     toDecimal(values) {
-        return this.#value;
+        return this.#value
     }
 
     signature() {
-        return [];
+        return []
     }
 
     multiplyBy(n) {
         if (!(n instanceof Scalar)) {
-            throw new Error('n doit être un Scalar');
+            throw new Error('n doit être un Scalar')
         }
-        return new Scalar(this.#value.mul(n.#value));
+        return new Scalar(this.#value.mul(n.#value))
     }
 }
 
 /** @type {Scalar} */
-Scalar.ONE = new Scalar(1);
+Scalar.ONE = new Scalar(1)
 
 /** @type {Scalar} */
-Scalar.ZERO = new Scalar(0);
+Scalar.ZERO = new Scalar(0)
 
 /** @type {Scalar} */
-Scalar.MINUS_ONE = Scalar.ONE.opposite();
+Scalar.MINUS_ONE = Scalar.ONE.opposite()
 
 /** @type {Scalar} */
-Scalar.NAN = new Scalar(NaN);
+Scalar.NAN = new Scalar(NaN)
 
-export { Scalar };
+export { Scalar }
