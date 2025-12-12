@@ -2,8 +2,8 @@
  * Check if the userValue matches the expected format.
  */
 
-import Parser from '../parser/parser.js';
-import MyNerd from '../mynerd.js';
+import Parser from '../parser/parser.js'
+import MyMath from '@mathstools/mymath'
 
 
 function checkNumericExpression(expr) {
@@ -129,17 +129,17 @@ function formatValue(value, format = "none") {
     }
     if (/^round:[0-9]+$/.test(format)) {
         const n = Number(format.split(':')[1]);
-        return MyNerd.make(value).toFormat(`${n}f`);
+        return MyMath.make(value).toFormat(`${n}f`);
     }
     if (/^erreur:(?:[0-9]+(?:\.[0-9]+)?)|(?:\.[0-9]+)$/.test(format)) {
         const err = Number(format.split(':')[1]);
         const n = Math.ceil(Math.log10(1 / err));
-        return `${MyNerd.make(value).toFormat(`${n+1}f`)} ± ${String(err).replace('.', ',')}`;
+        return `${MyMath.make(value).toFormat(`${n+1}f`)} ± ${String(err).replace('.', ',')}`;
     }
     if (!['none', 'numeric', 'expand'].includes(format)) {
         console.warn(`Format inconnu : ${format}`);
     }
-    return `$${MyNerd.make(value).latex()}$`;
+    return `$${MyMath.make(value).latex()}$`;
 }
 
 
@@ -169,12 +169,12 @@ function checkValue(userValue, expectedValue, format = "none") {
 
     if (format === "numeric") {
         // numérique mais exacte. Une comparaison directe suffit
-        return MyNerd.parseUser(userValue).compare(expectedValue, "==");
+        return MyMath.parseUser(userValue).compare(expectedValue, "==");
     }
     if (format.startsWith("round:") || format.startsWith("erreur:")) {
         // Il faut une évaluation float des deux valeurs
-        const userFloat = MyNerd.parseUser(userValue).toFloat();
-        const expectedFloat = MyNerd.toFloat(expectedValue);
+        const userFloat = MyMath.parseUser(userValue).toFloat();
+        const expectedFloat = MyMath.toFloat(expectedValue);
         if (isNaN(userFloat) || isNaN(expectedFloat)) {
             return false;
         }
@@ -189,10 +189,10 @@ function checkValue(userValue, expectedValue, format = "none") {
     }
     if (format === "expand") {
         // comparaison d'expressions algébriques
-        return MyNerd.parseUser(userValue).compare(`expand(${expectedValue})`, "==");
+        return MyMath.parseUser(userValue).compare(`expand(${expectedValue})`, "==");
     }
     // autres formats à ajouter ici
-    return MyNerd.parseUser(userValue).expand().compare(`expand(${expectedValue})`, "==");
+    return MyMath.parseUser(userValue).expand().compare(`expand(${expectedValue})`, "==");
 }
 
 export {

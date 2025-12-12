@@ -1,6 +1,6 @@
 import Bloc from "./bloc.js";
 import GraphView from "../blocsviews/graphview";
-import MyNerd from "../maths/mynerd.js";
+import MyMath from "../maths/mymath.js";
 import Colors from "../colors.js";
 
 class GraphBloc extends Bloc {
@@ -83,7 +83,7 @@ class GraphBloc extends Bloc {
         const xmin = item.params.xmin !== undefined ? Number(item.params.xmin) : this.xmin;
         const xmax = item.params.xmax !== undefined ? Number(item.params.xmax) : this.xmax;
         const options = _.pick(item.params, ['strokeColor', 'strokeWidth', 'dash', 'color']);
-        const func = MyNerd.buildFunction(expressionStr);
+        const func = MyMath.buildFunction(expressionStr);
         const f = function(g, graphObjects) {
             return g.create('functiongraph', [func, xmin, xmax], options);
         }
@@ -97,7 +97,7 @@ class GraphBloc extends Bloc {
             return Number(coordString.replace(',', '.'));
         }
         // si c'est une expression, il faut savoir si elle dépend d'autre objets
-        const n = new MyNerd(coordString);
+        const n = new MyMath(coordString);
         const vars = n.variables;
         if (vars.length === 0) {
             // pas de dépendance, on évalue directement
@@ -105,7 +105,7 @@ class GraphBloc extends Bloc {
         }
         if ((vars.length === 1) && (vars[0].length === 1)) {
             // fonction simple
-            return n.processed.buildFunction();
+            return n.buildFunction();
         }
         return 0;
 
@@ -132,7 +132,7 @@ class GraphBloc extends Bloc {
         });
         if (labels.length === 0) {
             // pas de dépendance, on évalue directement
-            return MyNerd.toFloat(coordString);
+            return MyMath.toFloat(coordString);
         }
         // il y a des dépendances, on crée une fonction
         const func = nerdamer(subCoordString).buildFunction(labels);

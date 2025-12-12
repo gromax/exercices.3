@@ -1,4 +1,4 @@
-import MyNerd from "../mynerd";
+import MyMath from "../mymath"
 
 class Table {
     static NAME = 'Table';
@@ -184,12 +184,12 @@ class Table {
     }
 
     static max(values) {
-        const vf = values.map(v => MyNerd.parseFloat(v));
+        const vf = values.map(v => MyMath.parseFloat(v));
         return Math.max(...vf);
     }
 
     static min(values) {
-        const vf = values.map(v => MyNerd.parseFloat(v));
+        const vf = values.map(v => MyMath.parseFloat(v));
         return Math.min(...vf);
     }
 
@@ -200,15 +200,15 @@ class Table {
         if (values.length !== effectifs.length) {
             throw new Error(`Les tableaux passés à Table.quantile doivent avoir la même taille.`);
         }
-        const N = Table.sum(effectifs);
+        const N = Table.sum(effectifs)
         if (N === 0) {
-            throw new Error(`La somme des effectifs est nulle dans Table.quantile.`);
+            throw new Error(`La somme des effectifs est nulle dans Table.quantile.`)
         }
-        let cumulative = 0;
+        let cumulative = 0
         for (let i = 0; i < effectifs.length; i++) {
             cumulative += effectifs[i];
             if (cumulative >= q * N) {
-                return values[i];
+                return values[i]
             }
         }
     }
@@ -223,20 +223,20 @@ class Table {
      */
     static ECC2(values, effectifs, value) {
         if (!Array.isArray(values) || !Array.isArray(effectifs)) {
-            throw new Error(`Les arguments de Table.quantile doivent être des tableaux.`);
+            throw new Error(`Les arguments de Table.quantile doivent être des tableaux.`)
         }
         if (values.length !== effectifs.length) {
-            throw new Error(`Les tableaux passés à Table.quantile doivent avoir la même taille.`);
+            throw new Error(`Les tableaux passés à Table.quantile doivent avoir la même taille.`)
         }
-        value = MyNerd.parseFloat(value);
-        let cumulative = 0;
+        value = MyMath.parseFloat(value)
+        let cumulative = 0
         for (let i = 0; i < effectifs.length; i++) {
             if (values[i] > value) {
-                return cumulative;
+                return cumulative
             }
-            cumulative += effectifs[i];
+            cumulative += effectifs[i]
         }
-        return cumulative;
+        return cumulative
     }
 
     /**
@@ -247,13 +247,13 @@ class Table {
      */
     static filter(values, operator, value) {
         if (!Array.isArray(values)) {
-            throw new Error(`Les arguments de Table.filter doivent être des tableaux.`);
+            throw new Error(`Les arguments de Table.filter doivent être des tableaux.`)
         }
-        value = MyNerd.parseFloat(value);
+        value = MyMath.parseFloat(value)
         if (!['==', '!=', '<', '<=', '>', '>='].includes(operator)) {
-            throw new Error(`L'opérateur ${operator} passé à Table.filter est invalide.`);
+            throw new Error(`L'opérateur ${operator} passé à Table.filter est invalide.`)
         }
-        return values.filter((val) => MyNerd.compare(val, value, operator));
+        return values.filter((val) => MyMath.compare(val, value, operator))
     }
 }
 

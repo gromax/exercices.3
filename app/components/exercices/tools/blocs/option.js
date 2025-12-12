@@ -1,5 +1,5 @@
 import { getValue } from '@mathstools/misc/substitution'
-import MyNerd from '@mathstools/mynerd'
+import MyMath from '@mathstools/mymath'
 
 class Option {
     static REGEX = /^(@?[\w]+)\s*=>(.*)/;
@@ -29,7 +29,7 @@ class Option {
         const key = this._key.startsWith('@')
             ? getValue(this._key, params)
             : this._key;
-        const value = MyNerd.substituteExpressions(this._value, params);
+        const value = MyMath.substituteExpressions(this._value, params);
         if (caller && typeof caller.setOption === 'function') {
             caller.setOption(key, value);
         }

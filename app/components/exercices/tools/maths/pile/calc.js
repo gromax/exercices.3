@@ -1,4 +1,4 @@
-import MyNerd from '../mynerd';
+import MyMath from '../mymath';
 
 class Calc {
     static NAME = 'Calc'
@@ -75,7 +75,7 @@ class Calc {
 
     static round(x, n) {
         const a = Number(x);
-        const digits = MyNerd.parseInt(n);
+        const digits = MyMath.parseInt(n);
         if (isNaN(a)) {
             return `round(${x}, ${n})`;
         }
@@ -94,8 +94,7 @@ class Calc {
         if (Array.isArray(value)) {
             return value.map(v => Calc.substitute(expr, name, v));
         }
-        const n = MyNerd.make(expr);
-        return MyNerd.denormalization(n.processed.sub(name, value).toString());
+        return MyMath.make(expr).sub(name, value).toString();
     }
 
     /**
@@ -106,7 +105,7 @@ class Calc {
      * @returns {array} liste des solutions
      */
     static solve(exprLeft, exprRight, varName) {
-        return MyNerd.solveInR(exprLeft, exprRight, varName);
+        return MyMath.solveInR(exprLeft, exprRight, varName);
     }
 
     /**
@@ -119,7 +118,7 @@ class Calc {
             return expression.map(expr => Calc.float(expr));
         }
         try {
-            return MyNerd.toFloat(expression);
+            return MyMath.toFloat(expression);
         } catch (e) {
             console.warn(`Erreur lors de la conversion en float de l'expression ${expression} :`, e);
             return NaN;

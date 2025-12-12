@@ -1,5 +1,5 @@
 import Bloc from './bloc.js';
-import MyNerd from '../maths/mynerd.js';
+import MyMath from '../maths/mymath.js';
 import Affectation from './affectation.js';
 
 class UnaryLogicalOperator {
@@ -126,7 +126,7 @@ class SimpleCondition {
     }
 
     evaluate(params) {
-        return MyNerd.compare(this.left, this.right, this.operator, params);
+        return MyMath.compare(this.left, this.right, this.operator, params);
     }
 
     toString() {

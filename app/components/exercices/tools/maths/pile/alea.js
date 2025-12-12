@@ -1,6 +1,6 @@
-import MyNerd from '../mynerd.js';
+import MyMath from '../mymath'
 class Alea {
-    static NAME = 'Alea';
+    static NAME = 'Alea'
     static METHODS = {
         'entier': Alea.entier,
         'signe': Alea.signe,
@@ -69,7 +69,7 @@ class Alea {
             }, 1);
             expression += ` + (${poids})*${monomes}`;
         }
-        return MyNerd.make(expression).expand().toString();
+        return MyMath.make(expression).expand().toString()
     }
 }
 

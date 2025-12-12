@@ -3,9 +3,9 @@
  * Implémente des fonctions pour la loi binomiale et autres
  */
 
-import MyNerd from '../mynerd.js';
+import MyMath from '../mymath'
 class Dist {
-    static NAME = 'Dist';
+    static NAME = 'Dist'
     static METHODS = {
         'binomial': Dist.binomial,
         'binList': Dist.binomialList,
@@ -22,7 +22,7 @@ class Dist {
      */
     static binomial(n, p) {
         n = parseInt(n);
-        p = MyNerd.parseFloat(p);
+        p = MyMath.parseFloat(p);
         if (isNaN(n) || isNaN(p) || n <= 0 || p < 0 || p > 1) {
             throw new Error('Paramètres invalides pour la loi binomiale');
         }
@@ -49,7 +49,7 @@ class Dist {
         if (isNaN(count) || count <= 0) {
             throw new Error('Paramètre count invalide pour binomialList');
         }
-        p = MyNerd.parseFloat(p);
+        p = MyMath.parseFloat(p);
         return Array.from({ length: count }, () => Dist.binomial(n, p));
     }
 
@@ -87,14 +87,14 @@ class Dist {
      * @returns {number} un nombre aléatoire suivant une loi normale N(mu, sigma)
      */ 
     static _normal(mu, sigma) {
-        let u, x, y;
+        let u, x, y
         do {
             // Box-Muller pour génération normale
-            x = Math.random();
-            y = Math.random();
-            u = x*x + y*y;
-        } while (u ==0 || u > 1);
-        return (x*Math.sqrt(-2 * Math.log(u) / u))*sigma + mu;
+            x = Math.random()
+            y = Math.random()
+            u = x*x + y*y
+        } while (u ==0 || u > 1)
+        return (x*Math.sqrt(-2 * Math.log(u) / u))*sigma + mu
     }
 
     /**
@@ -102,41 +102,41 @@ class Dist {
      * Plus efficace car réutilise les calculs précédents
      */
     static binomialCDF(k, n, p) {
-        k = parseInt(k);
-        n = parseInt(n);
-        p = MyNerd.parseFloat(p);
+        k = parseInt(k)
+        n = parseInt(n)
+        p = MyMath.parseFloat(p)
         
         if (isNaN(k) || isNaN(n) || isNaN(p)) {
-            throw new Error('Paramètres invalides pour binomialCDF');
+            throw new Error('Paramètres invalides pour binomialCDF')
         }
-        if (k < 0) return 0;
-        if (k >= n) return 1;
-        if (p === 0) return 1;
-        if (p === 1) return 0;
+        if (k < 0) return 0
+        if (k >= n) return 1
+        if (p === 0) return 1
+        if (p === 1) return 0
         
         // Calcul itératif avec récurrence
-        const normFactor = (1 - p);
-        const remainingPowers = n;
-        let prob = 1; // P(X=0) (manque le facteur (1-p)^n)
-        let cdf = 0; // idem
+        const normFactor = (1 - p)
+        const remainingPowers = n
+        let prob = 1 // P(X=0) (manque le facteur (1-p)^n)
+        let cdf = 0 // idem
         // P(X = i+1) = P(X = i) * (n-i)/(i+1) * p/(1-p)
-        const ratio = p/(1 - p);
+        const ratio = p/(1 - p)
         for (let i = 0; i < k; i++) {
-            cdf += prob;
+            cdf += prob
             // si cdf trop grand, normaliser
             while (cdf > 10 && remainingPowers > 0) {
-                cdf *= normFactor;
-                prob *= normFactor;
-                remainingPowers--;
+                cdf *= normFactor
+                prob *= normFactor
+                remainingPowers--
             }
-            prob *= ((n - i) / (i + 1)) * ratio;
+            prob *= ((n - i) / (i + 1)) * ratio
         }
         while (remainingPowers > 0) {
-            cdf *= normFactor;
-            remainingPowers--;
+            cdf *= normFactor
+            remainingPowers--
         }
         // éviter dépassement dû aux erreurs d'arrondi
-        return Math.min(cdf, 1);
+        return Math.min(cdf, 1)
     }
 
     /**
@@ -144,26 +144,26 @@ class Dist {
      * Plus efficace car réutilise les calculs précédents
      */
     static binomialPDF(k, n, p) {
-        k = parseInt(k);
-        n = parseInt(n);
-        p = MyNerd.parseFloat(p);
+        k = parseInt(k)
+        n = parseInt(n)
+        p = MyMath.parseFloat(p)
         if (isNaN(k) || isNaN(n) || isNaN(p)) {
-            throw new Error('Paramètres invalides pour binomialPDF');
+            throw new Error('Paramètres invalides pour binomialPDF')
         }
         if (k < 0 || k > n) return 0;
-        if (p === 0) return k === 0 ? 1 : 0;
-        if (p === 1) return k === n ? 1 : 0;
+        if (p === 0) return k === 0 ? 1 : 0
+        if (p === 1) return k === n ? 1 : 0
         // Calcul itératif avec récurrence
-        let logProb = 0;
+        let logProb = 0
         for (let i = k+1; i <= n; i++) {
-            logProb += Math.log(i);
+            logProb += Math.log(i)
         }
         for (let i = 1; i <= k; i++) {
-            logProb -= Math.log(i);
+            logProb -= Math.log(i)
         }
-        logProb += k * Math.log(p) + (n - k) * Math.log(1 - p);
-        return Math.min(Math.exp(logProb),1);
+        logProb += k * Math.log(p) + (n - k) * Math.log(1 - p)
+        return Math.min(Math.exp(logProb),1)
     }
 }
 
-export default Dist;
+export default Dist
