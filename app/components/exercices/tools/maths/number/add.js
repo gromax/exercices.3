@@ -120,7 +120,10 @@ class AddMinus extends Base {
 
 
 class Add extends AddMinus {
+    /** @type {string|null} représentation texte */
     #string;
+    /** @type {string|null} représentation texte */
+    #stringEN;
 
     /**
      * constructeur
@@ -129,7 +132,6 @@ class Add extends AddMinus {
      */
     constructor(left, right) {
         super(left, right);
-        this.#string = `${String(this._left)} + ${String(this._right)}`;
     }
 
     /**
@@ -158,7 +160,19 @@ class Add extends AddMinus {
      * @returns {string}
      */
     toString() {
-        return this.#string;
+        if (this.#string != null) {
+            return this.#string
+        }
+        this.#string = `${String(this._left)} + ${String(this._right)}`
+        return this.#string
+    }
+
+    toStringEn() {
+        if (this.#stringEN != null) {
+            return this.#stringEN
+        }
+        this.#stringEN = `${this._left.toStringEn()} + ${this._right.toStringEn()}`
+        return this.#stringEN
     }
 
     /**
@@ -183,14 +197,14 @@ class Add extends AddMinus {
 }
 
 class Minus extends AddMinus {
-    #string;
+    /** @type {string|null} représentation texte */
+    #string = null
+    /** @type {string|null} représentation texte */
+    #stringEN = null
+
     constructor(left, right) {
         super(left, right);
-        const strLeft = String(this._left);
-        const strRight = this._right.priority <= this.priority
-            ? `(${String(this._right)})`
-            : String(this._right);
-        this.#string = `${strLeft} - ${strRight}`;
+        this.#stringEN = `${this._left.toStringEn()} - (${this._right.toStringEn()})`;
     }
 
     /**
@@ -198,9 +212,27 @@ class Minus extends AddMinus {
      * @returns {string}
      */
     toString() {
-        return this.#string;
+        if (this.#string != null) {
+            return this.#string
+        }
+        const strLeft = this._left.priority <= this.priority
+            ? `(${String(this._left)})`
+            : String(this._left)
+        const strRight = this._right.priority <= this.priority
+            ? `(${String(this._right)})`
+            : String(this._right)
+        this.#string = `${strLeft} - ${strRight}`
+        return this.#string
     }
 
+    toStringEn() {
+        if (this.#stringEN != null) {
+            return this.#stringEN
+        }
+        this.#stringEN = `(${this._left.toStringEn()}) - (${this._right.toStringEn()})`
+        return this.#stringEN
+    }
+ 
     /**
      * renvoie une représentation tex
      * @returns {string}

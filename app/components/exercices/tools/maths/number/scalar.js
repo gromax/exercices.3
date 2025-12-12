@@ -15,7 +15,7 @@ class Scalar extends Base {
     /** @type{string} */
     #chaine = "";
     /** @type{Decimal} */
-    #value = new Decimal(NaN);
+    #value = new Decimal(NaN)
 
 
     /**
@@ -93,6 +93,10 @@ class Scalar extends Base {
      * @return {string}
      */
     toString() {
+        return this.#value.toString().replace('.', ',')
+    }
+
+    toStringEn() {
         return this.#value.toString()
     }
 

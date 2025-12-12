@@ -505,7 +505,6 @@ class MyMath {
     buildFunction() {
         return this.#nerdamer_processed.buildFunction();
     }
-
 }
 
 export default MyMath;

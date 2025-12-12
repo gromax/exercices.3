@@ -8,7 +8,9 @@ class Power extends Base {
     /** @type {Base} */
     #exposant;
     /** @type {string|null} */
-    #string = null; 
+    #string = null;
+    /** @type {string|null} */
+    #stringEN = null;
 
     /**
      * constructeur
@@ -39,6 +41,14 @@ class Power extends Base {
         let exposant = this.#exposant.priority <= this.priority? `(${String(this.#exposant)})`:String(this.#exposant);
         this.#string = `${base} ^ ${exposant}`;
         return this.#string;
+    }
+
+    toStringEn() {
+        if (this.#stringEN != null) {
+            return this.#stringEN;
+        }
+        this.#stringEN = `(${this.#base.toStringEn()}) ^ (${this.#exposant.toStringEn()})`
+        return this.#stringEN
     }
 
     get priority() {

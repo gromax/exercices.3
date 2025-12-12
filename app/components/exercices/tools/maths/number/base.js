@@ -11,6 +11,13 @@ class Base {
     }
 
     /**
+     * transtypage vers string version anglaise
+     */
+    toStringEn() {
+        return this.toString();
+    }
+
+    /**
      * priorité
      */
     get priority() {

@@ -77,6 +77,8 @@ class MultDiv extends Base {
 class Mult extends MultDiv {
     /** @type {string|null} représentation texte */
     #string = null;
+    /** @type {string|null} représentation texte */
+    #stringEN = null;
 
     /**
      * 
@@ -113,6 +115,13 @@ class Mult extends MultDiv {
             this.#string = `${left} * ${right}`;
         }
         return this.#string;
+    }
+
+    toStringEn() {
+        if (this.#stringEN == null) {
+            this.#stringEN = `(${this._left.toStringEn()}) * (${this._right.toStringEn()})`
+        }
+        return this.#stringEN
     }
 
     isExpanded() {
@@ -216,18 +225,34 @@ class Mult extends MultDiv {
 
 
 class Div extends MultDiv {
+    /** @type {string|null} représentation texte */
+    #string = null
+    /** @type {string|null} représentation texte */
+    #stringEN = null
+
     /**
      * transtypage -> string
      * @returns {string}
      */
     toString() {
-        let left = this._left.priority <= this.priority
+        if (this.#string != null) {
+            return this.#string
+        }
+        const left = this._left.priority <= this.priority
             ? `(${String(this._left)})`
-            : String(this._left);
-        let right = this._right.priority <= this.priority
+            : String(this._left)
+        const right = this._right.priority <= this.priority
             ? `(${String(this._right)})`
-            : String(this._right);
-        return `${left} / ${right}`;
+            : String(this._right)
+        this.#string = `${left} / ${right}`
+        return this.#string;
+    }
+
+    toStringEn() {
+        if (this.#stringEN == null) {
+            this.#stringEN = `(${this._left.toStringEn()}) / (${this._right.toStringEn()})`
+        }
+        return this.#stringEN
     }
 
     isExpanded() {

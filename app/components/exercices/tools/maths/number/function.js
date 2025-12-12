@@ -9,8 +9,14 @@ class Function extends Base {
     #name;
     /** @type {string|null} représentation texte */
     #string = null;
+    /** @type {string|null} représentation texte */
+    #stringEN = null;
 
-    static NAMES = ['sqrt', '(-)', '(+)', 'cos', 'sin', 'ln', 'exp', 'inverse'];
+    static NAMES = ['sqrt', '(-)', '(+)', 'cos', 'sin', 'ln', 'log', 'exp', 'inverse']
+    static EN_NAMES = {
+        'ln': 'log',
+        'log': 'log10',
+    }
 
     /**
      * constructeur
@@ -60,11 +66,28 @@ class Function extends Base {
         } else if (this.#name == '(-)') {
             let child = this.#child.priority <= this.priority? `(${String(this.#child)})`:` ${String(this.#child)}`;
             this.#string = `-${child}`;
+        } else if (this.#name == 'inverse') {
+            this.#string = `1/(${String(this.#child)})`;
         } else {
             this.#string = `${this.#name}(${String(this.#child)})`;
         }
         return this.#string;
     }
+
+    toStringEn() {
+        if (this.#stringEN != null) {
+            return this.#stringEN
+        }
+        if (typeof Function.EN_NAMES[this.#name] === 'undefined') {
+            this.#stringEN = this.toString()
+            return this.#stringEN
+        }
+        const enName = Function.EN_NAMES[this.#name]
+        this.#stringEN = `${enName}(${this.#child.toStringEn()})`
+        return this.#stringEN
+    }
+
+
 
     get name() {
         return this.#name;
