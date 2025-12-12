@@ -13,7 +13,20 @@ import Parser from './parser/parser';
 import { build } from './parser/rpnbuilder';
 import { substituteLabels, getValue } from './misc/substitution';
 
-class MyNerd {
+class MyNath {
+    /** @type{Array|null} enfants de l'objet */
+    #children
+
+    /** @type{string} expression d'origine */
+    #expression = ""
+
+    /** @type{nerdamer.Expression} */
+    #processed
+
+    /** @type{string} */
+    #processed_lower_text = ""
+
+
     static reverseOperator(operator) {
         switch (operator) {
             case '<':
@@ -104,7 +117,7 @@ class MyNerd {
 
     static buildFunction(expression, params = {}) {
         const n = new MyNerd(expression, params);
-        return n.processed.buildFunction();
+        return n.buildFunction();
     }
 
     static solveInC(exprLeft, exprRight, varName) {
@@ -197,57 +210,50 @@ class MyNerd {
         if (typeof expression !== 'string') {
             expression = String(expression);
         }
-        this._expression = expression.includes('@')
+        this.#expression = expression.includes('@')
           ? getValue(expression, params) ?? substituteLabels(expression, params)
           : expression;
-        if (this._expression === Infinity || this._expression === "Infinity") {
-            this._expression = "infinity";
-        } else if (this._expression === -Infinity || this._expression === "-Infinity") {
-            this._expression = "-infinity";
+        if (this.#expression === Infinity || this.#expression === "Infinity") {
+            this.#expression = "infinity";
+        } else if (this.#expression === -Infinity || this.#expression === "-Infinity") {
+            this.#expression = "-infinity";
         }
-          this._children = null;
-        if (Array.isArray(this._expression)) {
-            this._children = this._expression.map(expr => new MyNerd(expr, params));
+          this.#children = null;
+        if (Array.isArray(this.#expression)) {
+            this.#children = this.#expression.map(expr => new MyNerd(expr, params));
             return;
         }
-        this._normalized = MyNerd.normalization(this._expression);
+        this._normalized = MyNerd.normalization(this.#expression);
         try {
-            this._processed = nerdamer(this._normalized);
-            this._processed_lower_text = this._processed.text().toLowerCase();
+            this.#processed = nerdamer(this._normalized);
+            this.#processed_lower_text = this.#processed.text().toLowerCase();
         } catch (e) {
             console.warn(`Erreur lors du traitement avec nerdamer de ${this._normalized}:`, e);
-            this._processed = nerdamer("NaN");
-            this._processed_lower_text = this._processed.text().toLowerCase();
+            this.#processed = nerdamer("NaN");
+            this.#processed_lower_text = this.#processed.text().toLowerCase();
         }
     }
 
     get expression() {
-        if (this._children !== null) {
-            return this._children.map(child => child.expression);
+        if (this.#children !== null) {
+            return this.#children.map(child => child.expression);
         }
-        return this._expression;
-    }
-
-    get processed() {
-        if (this._children !== null) {
-            return this._children.map(child => child.processed);
-        }
-        return this._processed;
+        return this.#expression;
     }
 
     get variables() {
-        if (this._children !== null) {
-            return this._children.map(child => child.variables);
+        if (this.#children !== null) {
+            return this.#children.map(child => child.variables);
         }
-        return this._processed.variables();
+        return this.#processed.variables();
     }
 
     toFloat() {
-        if (this._children !== null) {
-            return this._children.map(child => child.toFloat());
+        if (this.#children !== null) {
+            return this.#children.map(child => child.toFloat());
         }
         try {
-            const txt = this._processed.evaluate().text('decimals');
+            const txt = this.#processed.evaluate().text('decimals');
             if (txt === 'infinity') {
                 return Infinity;
             } else if (txt === '-infinity') {
@@ -261,17 +267,17 @@ class MyNerd {
     }
 
     toString() {
-        if (this._children !== null) {
-            return this._children.map(child => child.toString());
+        if (this.#children !== null) {
+            return this.#children.map(child => child.toString());
         }
-        return MyNerd.denormalization(this._processed.toString());
+        return MyNerd.denormalization(this.#processed.toString());
     }
 
     latex() {
-        if (this._children !== null) {
-            return this._children.map(child => child.latex());
+        if (this.#children !== null) {
+            return this.#children.map(child => child.latex());
         }
-        const txt = this._processed.text();
+        const txt = this.#processed.text();
         if (txt === 'infinity') {
             return "+\\infty";
         } else if (txt === '-infinity') {
@@ -289,29 +295,29 @@ class MyNerd {
      * @returns {string} la valeur formatée
      */
     toFormat(format) {
-        if (this._children !== null) {
-            return this._children.map(child => child.toFormat(format));
+        if (this.#children !== null) {
+            return this.#children.map(child => child.toFormat(format));
         }
         format = (format || '').trim();
         if (format === '$') {
             return this.latex();
         }
         if (format === 's$') {
-            return this._toMyLatex();
+            return this.#toMyLatex();
         }
         if (format === 'f') {
-            return this._toFormatDecimal(-1);
+            return this.#toFormatDecimal(-1);
         }
         if (format === 'f$') {
-            return this._toTexDecimal(-1);
+            return this.#toTexDecimal(-1);
         }
         const m = format.match(/^([1-9][0-9]*)f(\$)?$/);
         if (m) {
             const n = parseInt(m[1], 10);
             if (m[2]) {
-                return this._toTexDecimal(n+1);
+                return this.#toTexDecimal(n+1);
             }
-            return this._toFormatDecimal(n+1);
+            return this.#toFormatDecimal(n+1);
         }
         return this.toString();
     }
@@ -321,7 +327,7 @@ class MyNerd {
      * @param {number} n -1 si pas de limite
      * @returns {string}
      */
-    _toFormatDecimal(n) {
+    #toFormatDecimal(n) {
         if (n >= 0) {
             return MyNerd.denormalization(this._processed.evaluate().text('decimals', n));
         }
@@ -335,8 +341,8 @@ class MyNerd {
      * @param {number} n -1 si pas de limite
      * @returns {string}
      */
-    _toTexDecimal(n) {
-        const expr = this._toFormatDecimal(n);
+    #toTexDecimal(n) {
+        const expr = this.#toFormatDecimal(n);
         // ensuite on veut générer du TeX
         // J'utilise mon parser
         const parsed = new Parser(expr);
@@ -349,8 +355,8 @@ class MyNerd {
      * je prévois donc un format personalisé
      * @returns {string}
      */
-    _toMyLatex() {
-        const expr = this._expression;
+    #toMyLatex() {
+        const expr = this.#expression;
         const parsed = new Parser(expr);
         const b = build(parsed.rpn);
         return b.simplify().toTex();
@@ -358,46 +364,46 @@ class MyNerd {
 
 
     compare(rightExpr, operator, params = {}) {
-        if (this._children !== null) {
+        if (this.#children !== null) {
             if (Array.isArray(rightExpr)) {
-                if (rightExpr.length !== this._children.length) {
+                if (rightExpr.length !== this.#children.length) {
                     throw new Error(`Les tableaux comparés n'ont pas la même taille.`);
                 }
-                return this._children.map((child, index) => child.compare(rightExpr[index], operator, params));
+                return this.#children.map((child, index) => child.compare(rightExpr[index], operator, params));
             } else {
-                return this._children.map(child => child.compare(rightExpr, operator, params));
+                return this.#children.map(child => child.compare(rightExpr, operator, params));
             }
         }
         const right = MyNerd.make(rightExpr, params);
         if (this.isInfinity()) {
-            return this._compareInfinityCase(right, operator);
+            return this.#compareInfinityCase(right, operator);
         } else if (right.isInfinity()) {
-            return right._compareInfinityCase(this, MyNerd.reverseOperator(operator));
+            return right.#compareInfinityCase(this, MyNerd.reverseOperator(operator));
         }
         switch (operator) {
             case '==':
-                return this._processed.eq(right.processed);
+                return this.#processed.eq(right.#processed);
             case '!=':
-                return !this._processed.eq(right.processed);
+                return !this.#processed.eq(right.#processed);
             case '<':
-                return this._processed.lt(right.processed);
+                return this.#processed.lt(right.#processed);
             case '<=':
-                return this._processed.lte(right.processed);
+                return this.#processed.lte(right.#processed);
             case '>':
-                return this._processed.gt(right.processed);
+                return this.#processed.gt(right.#processed);
             case '>=':
-                return this._processed.gte(right.processed);
+                return this.#processed.gte(right.#processed);
             default:
                 throw new Error(`Opérateur de comparaison invalide : ${operator}`);
         }
     }
 
-    _compareInfinityCase(othervalue, operator) {
+    #compareInfinityCase(othervalue, operator) {
         switch (operator) {
             case '==':
-                return this._processed_lower_text === othervalue._processed_lower_text;
+                return this.#processed_lower_text === othervalue.#processed_lower_text;
             case '!=':
-                return this._processed_lower_text !== othervalue._processed_lower_text;
+                return this.#processed_lower_text !== othervalue.#processed_lower_text;
             case '<':
                 return this.isMinusInfinity() && !othervalue.isMinusInfinity();
             case '<=':
@@ -412,53 +418,43 @@ class MyNerd {
     }
 
     isInfinity() {
-        return this._children === null && (this._processed_lower_text === 'infinity' || this._processed_lower_text === '-infinity');
+        return this.#children === null && (this.#processed_lower_text === 'infinity' || this.#processed_lower_text === '-infinity');
     }
 
     isPlusInfinity() {
-        return this._children === null && this._processed_lower_text === 'infinity';
+        return this.#children === null && this.#processed_lower_text === 'infinity';
     }
 
     isMinusInfinity() {
-        return this._children === null && this._processed_lower_text === '-infinity';
+        return this.#children === null && this.#processed_lower_text === '-infinity';
     }
 
     expand() {
-        if (this._children !== null) {
-            for (const child of this._children) {
+        if (this.#children !== null) {
+            for (const child of this.#children) {
                 child.expand();
             }
             return this;
         }
-        this._processed = this._processed.expand();
+        this.#processed = this.#processed.expand();
         return this;
     }
 
-}
-
-export default MyNerd;
-
-/*
-// solution à étudier pour conserver les décimaux dans le TeX
-function toTeXKeepDecimals(expr) {
-    // map des tokens -> littéral décimal
-    const map = {};
-    let i = 0;
-    // capture décimaux (ex. 0.1, .5, 12.34)
-    const tokenized = expr.replace(/(?<![\w.])(-?\d*[.,]\d+)(?![\w.])/g, (m) => {
-      const token = `__DEC_${i++}__`;
-      map[token] = m;
-      return token;
-    });
-
-    // passer à nerdamer (les tokens sont des identifiants valides)
-    const tex = nerdamer(tokenized).toTeX();
-
-    // remplacer les tokens par les littéraux décimaux d'origine dans le TeX
-    let out = tex;
-    for (const token in map) {
-      out = out.split(token).join(map[token]);
+    sub(varName, value) {
+        if (this.#children !== null) {
+            return new MyNerd(this.#children.map(child => child.sub(varName, value)));
+        }
+        this.#processed = this.#processed.sub(varName, value);
+        return this;
     }
-    return out;
+
+    buildFunction() {
+        if (this.#children !== null) {
+            return this.#children.map(child => child.buildFunction());
+        }
+        return this.#processed.buildFunction();
+    }
+
 }
-*/
+
+export default MyNath;
