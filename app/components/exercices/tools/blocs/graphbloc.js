@@ -97,7 +97,7 @@ class GraphBloc extends Bloc {
             return Number(coordString.replace(',', '.'));
         }
         // si c'est une expression, il faut savoir si elle dépend d'autre objets
-        const n = new MyMath(coordString);
+        const n = MyMath.make(coordString);
         const vars = n.variables;
         if (vars.length === 0) {
             // pas de dépendance, on évalue directement
