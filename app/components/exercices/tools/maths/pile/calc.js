@@ -12,7 +12,8 @@ class Calc {
         'substitute': Calc.substitute,
         'solve': Calc.solve,
         'float': Calc.float,
-        'round': Calc.round
+        'round': Calc.round,
+        'expand': Calc.expand,
     }
     static SHORTCUTS = {
         'abs': 'Calc.abs',
@@ -24,7 +25,8 @@ class Calc {
         'sub': 'Calc.substitute',
         'solve': 'Calc.solve',
         'float': 'Calc.float',
-        'round': 'Calc.round'
+        'round': 'Calc.round',
+        'expand': 'Calc.expand',
     }
     static mult(x, y) {
         const a = Number(x);
@@ -95,6 +97,11 @@ class Calc {
             return value.map(v => Calc.substitute(expr, name, v));
         }
         return MyMath.make(expr).sub(name, value).toString();
+    }
+
+    /** Développe l'expression */
+    static expand(expr) {
+        return MyMath.make(expr).expand().toString();
     }
 
     /**
