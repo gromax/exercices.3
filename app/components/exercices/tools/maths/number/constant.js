@@ -86,7 +86,7 @@ class Constant extends Base {
             case 'e': return Decimal.exp(1);
             case 'π': return Decimal.PI;
             case 'i': return Decimal.I;
-            case '∞': return Decimal.INFINITY;
+            case '∞': return new Decimal(Infinity);
             default: return Decimal.NAN;
         }
     }
