@@ -1,11 +1,17 @@
-import { TNumber } from './tokens/number.js';
-import { TFunction } from './tokens/function.js';
-import { TOperator } from './tokens/operator.js';
-import { TParenthesis } from './tokens/parenthesis.js';
-import { TSymbol } from './tokens/symbol.js';
-import { build } from './rpnbuilder.js';
+import { TNumber } from './tokens/number'
+import { TFunction } from './tokens/function'
+import { TOperator } from './tokens/operator'
+import { TParenthesis } from './tokens/parenthesis'
+import { TSymbol } from './tokens/symbol'
+import { build } from './rpnbuilder'
+import { Scalar } from "../number/scalar"
 
-const TOKENS = [TNumber, TFunction, TOperator, TParenthesis, TSymbol];
+// Constante privée
+// sert à empêcher l'accès direct au constructeur
+const PRIVATE = Symbol('private');
+
+
+const TOKENS = [TNumber, TFunction, TOperator, TParenthesis, TSymbol]
 
 class Parser {
     /** @type{string} */
@@ -22,14 +28,23 @@ class Parser {
      * @returns {Parser}
      */
     static build(expr) {
-        return build(new Parser(expr).rpn);
+        if (typeof expr === "number") {
+            return new Scalar(expr)
+        }
+        if (typeof expr !== "string") {
+            expr = String(expr)
+        }
+        return build(new Parser(PRIVATE, expr).rpn);
     }
 
     /**
      * constructeur
      * @param {string} saisie
      */
-    constructor(saisie) {
+    constructor(token, saisie) {
+        if (token !== PRIVATE) {
+            throw new Error('Utilisez Parser.build() pour utiliser le parser')
+        }
         this.#saisie = saisie || "";
         this.#rpn = [];
         this.#parse();
