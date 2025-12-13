@@ -2,6 +2,8 @@ import Decimal from 'decimal.js';
 Decimal.set({ precision: 50, rounding: Decimal.ROUND_HALF_UP });
 
 class Base {
+    _canBeDistributed = false // pour test sur la distributivité
+
     /**
      * transtypage vers string
      * @returns {string}

@@ -5,6 +5,7 @@ import Decimal from "decimal.js";
 class AddMinus extends Base {
     _left; /** @type {Base} */
     _right; /** @type {Base} */
+    _canBeDistributed = true
 
     /**
      * constructeur
