@@ -13,6 +13,9 @@ function checkNumericExpression(expr) {
         if (variables.length > 0) {
             return `Expression numérique attendue (pas de ${variables.join(', ')}).`;
         }
+        if (objMath.toString().includes('∞')) {
+            return "Expression numérique attendue (pas d'infini).";
+        }
         // on souhaite également que l'expression soit développée
         return objMath.isExpanded() ? true : "Vous devez simplifier.";
     } catch (e) {
@@ -24,19 +27,33 @@ function checkNumericExpression(expr) {
 function checkIfExpand(expr) {
     try {
         const objMath = Parser.build(expr);
-        return objMath.isExpanded() ? true : "Vous devez développer et simplifier.";
+        return objMath.isExpanded()
+            ? true
+            : "Vous devez développer et simplifier.";
     } catch (e) {
         // parsing error => pas numérique
         return "Expression invalide.";
     }
 }
 
+/**
+ * renvoie true ou un message d'erreur si l'expression donnée
+ * n'est pas une expression vide
+ * @param {string} expr 
+ * @returns {boolean|string}
+ */
 function checkEmptyExpression(expr) {
     return ['vide', '∅', 'empty'].includes(expr)
         ? true
         : "Vous devez répondre 'vide' ou '∅' pour indiquer l'ensemble vide.";
 }
 
+/**
+ * renvoie true ou un message d'erreur si l'expression donnée
+ * n'est pas une expression infinie
+ * @param {string} expr 
+ * @returns {boolean|string}
+ */
 function checkInfiniteExpression(expr) {
     return /^[-+]\s*(?:∞|inf|infini|infinity)$/.test(expr)
         ? true
@@ -101,7 +118,9 @@ function formatValue(value, format = "none") {
     if (Array.isArray(value)) {
         return value.map(val => formatValue(val, format));
     }
-
+    if (typeof value !== 'string') {
+        value = String(value)
+    }
     if (
         (format === "infini") || (Array.isArray(format) && format.includes("infini"))
         && checkInfiniteExpression(value) === true
@@ -129,27 +148,35 @@ function formatValue(value, format = "none") {
     }
     if (/^round:[0-9]+$/.test(format)) {
         const n = Number(format.split(':')[1]);
-        return MyMath.make(value).toFormat(`${n}f`);
+        return MyMath.toFormat(value, `${n}f`);
     }
     if (/^erreur:(?:[0-9]+(?:\.[0-9]+)?)|(?:\.[0-9]+)$/.test(format)) {
         const err = Number(format.split(':')[1]);
         const n = Math.ceil(Math.log10(1 / err));
-        return `${MyMath.make(value).toFormat(`${n+1}f`)} ± ${String(err).replace('.', ',')}`;
+        return `${MyMath.toFormat(value, `${n+1}f`)} ± ${String(err).replace('.', ',')}`;
     }
     if (!['none', 'numeric', 'expand'].includes(format)) {
         console.warn(`Format inconnu : ${format}`);
     }
-    return `$${MyMath.make(value).latex()}$`;
+    return `$${MyMath.latex(value)}$`;
 }
 
 
-
+/**
+ * vérifie la valeur donnée par l'utilisateur
+ * @param {string} userValue 
+ * @param {string|MyMath} expectedValue 
+ * @param {string|Array<string>} format 
+ * @returns {boolean} true si la valeur est correcte
+ */
 function checkValue(userValue, expectedValue, format = "none") {
     const checkFormatResult = checkFormat(userValue, format);
     if (checkFormatResult !== true) {
         return false;
     }
-
+    if (typeof expectedValue !== 'string') {
+        expectedValue = String(expectedValue)
+    }
     // je traite d'abord les cas particuliers
     if (checkInfiniteExpression(expectedValue) === true) {
         return checkInfiniteExpression(userValue) === true && ((expectedValue[0]==='-') === (userValue[0] === '-'));
@@ -173,26 +200,26 @@ function checkValue(userValue, expectedValue, format = "none") {
     }
     if (format.startsWith("round:") || format.startsWith("erreur:")) {
         // Il faut une évaluation float des deux valeurs
-        const userFloat = MyMath.parseUser(userValue).toFloat();
-        const expectedFloat = MyMath.toFloat(expectedValue);
+        const userFloat = MyMath.parseUser(userValue).toFloat()
+        const expectedFloat = MyMath.toFloat(expectedValue)
         if (isNaN(userFloat) || isNaN(expectedFloat)) {
-            return false;
+            return false
         }
-        const param = Number(format.split(':')[1]);
+        const param = Number(format.split(':')[1])
         if (format.startsWith("round:")) {
-            const factor = Math.pow(10, param);
-            return userFloat * factor === Math.round(expectedFloat * factor);
+            const factor = Math.pow(10, param)
+            return userFloat * factor === Math.round(expectedFloat * factor)
         } else if (format.startsWith("erreur:")) {
-            const tolerance = param;
-            return Math.abs(userFloat - expectedFloat) <= tolerance;
+            const tolerance = param
+            return Math.abs(userFloat - expectedFloat) <= tolerance
         }
     }
     if (format === "expand") {
         // comparaison d'expressions algébriques
-        return MyMath.parseUser(userValue).compare(`expand(${expectedValue})`, "==");
+        return MyMath.parseUser(userValue).compare(`expand(${expectedValue})`, "==")
     }
     // autres formats à ajouter ici
-    return MyMath.parseUser(userValue).expand().compare(`expand(${expectedValue})`, "==");
+    return MyMath.parseUser(userValue).expand().compare(`expand(${expectedValue})`, "==")
 }
 
 export {
