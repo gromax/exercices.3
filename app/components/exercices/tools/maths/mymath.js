@@ -27,6 +27,27 @@ class MyMath {
     /** @type{Base|null} */
     #mynumber = null
 
+    /**
+     * alias de toFloat
+     * @param {*} value 
+     * @returns 
+     */
+    static toNumber(value) {
+        return MyMath.toFloat(value)
+    }
+
+    static toInteger(value) {
+        const f = MyMath.toFloat(value);
+        if (isNaN(f)) {
+            throw new Error(`La valeur ${value} ne peut pas être convertie en entier.`);
+        }
+        const n = Math.trunc(f);
+        if (f !== n) {
+            throw new Error(`La valeur ${value} ne peut pas être convertie en entier.`);
+        }
+        return n;
+    }
+
     static reverseOperator(operator) {
         switch (operator) {
             case '<':
