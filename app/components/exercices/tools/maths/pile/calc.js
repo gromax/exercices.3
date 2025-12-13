@@ -32,54 +32,58 @@ class Calc {
         const a = Number(x);
         const b = Number(y);
         if (isNaN(a) || isNaN(b)) {
-            return `${x} * ${y}`;
+            return `${String(x)} * ${String(y)}`;
         }
         return a * b;
     }
 
     static divide(x, y) {
-        return `${x} / ${y}`;
+        return `${String(x)} / ${String(y)}`;
     }
 
     static add(x, y) {
-        const a = Number(x);
-        const b = Number(y);
+        const a = MyMath.toNumber(x);
+        const b = MyMath.toNumber(y);
         if (isNaN(a) || isNaN(b)) {
-            return `${x} + ${y}`;
+            return `${String(x)} + ${String(y)}`;
         }
         return a + b;
     }
 
     static sub(x, y) {
-        const a = Number(x);
-        const b = Number(y);
+        const a = MyMath.toNumber(x);
+        const b = MyMath.toNumber(y);
         if (isNaN(a) || isNaN(b)) {
-            return `${x} - ${y}`;
+            return `${String(x)} - ${String(y)}`;
         }
         return a - b;
     }
 
     static abs(x) {
-        const a = Number(x);
+        const a = MyMath.toNumber(x);
         if (isNaN(a)) {
-            return `abs(${x})`;
+            return `abs(${String(x)})`;
         }
         return Math.abs(a);
     }
 
     static sign(x) {
-        const a = Number(x);
+        const a = MyMath.toNumber(x);
         if (isNaN(a)) {
-            return `sign(${x})`;
+            return `sign(${String(x)})`;
         }
         return Math.sign(a);
     }
 
     static round(x, n) {
-        const a = Number(x);
-        const digits = MyMath.parseInt(n);
+        const a = MyMath.toNumber(x)
+        const digits = MyMath.toInteger(n)
         if (isNaN(a)) {
-            return `round(${x}, ${n})`;
+            return `round(${String(x)}, ${String(n)})`;
+        }
+        if (digits < 0) {
+            console.warn(`Paramètre invalide pour Calc.round : ${String(n)}`);
+            return Math.round(a);
         }
         // Éviter les problèmes de précision floating point
         const multiplier = Math.pow(10, digits);

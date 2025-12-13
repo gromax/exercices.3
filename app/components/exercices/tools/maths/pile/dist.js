@@ -21,13 +21,13 @@ class Dist {
      * @returns 
      */
     static binomial(n, p) {
-        n = parseInt(n);
-        p = MyMath.parseFloat(p);
+        n = MyMath.toInteger(n);
+        p = MyMath.toNumber(p);
         if (isNaN(n) || isNaN(p) || n <= 0 || p < 0 || p > 1) {
             throw new Error('Paramètres invalides pour la loi binomiale');
         }
         if (n>25) {
-            return Dist._binomialBTPE(n, p);
+            return Dist.#binomialBTPE(n, p);
         }
         let successes = 0;
         for (let i = 0; i < n; i++) {
@@ -45,11 +45,14 @@ class Dist {
      * @param {string|number} p 
      */
     static binomialList(count, n, p) {
-        count = parseInt(count);
-        if (isNaN(count) || count <= 0) {
-            throw new Error('Paramètre count invalide pour binomialList');
+        count = MyMath.toInteger(count)
+        if (count <= 0) {
+            throw new Error('Paramètre count invalide pour binomialList')
         }
-        p = MyMath.parseFloat(p);
+        p = MyMath.toNumber(p)
+        if (isNaN(p) || p < 0 || p > 1) {
+            throw new Error('Paramètre p invalide pour binomialList');
+        }
         return Array.from({ length: count }, () => Dist.binomial(n, p));
     }
 
@@ -59,7 +62,7 @@ class Dist {
      * @param {number} p - Probabilité de succès
      * @returns {number}
      */
-    static _binomialBTPE(n, p) {
+    static #binomialBTPE(n, p) {
         // Ajuster p si nécessaire
         const flip = p > 0.5;
         const probability = flip ? 1 - p : p;
@@ -72,10 +75,10 @@ class Dist {
         let x;
         let counter = 0;
         do {
-            x = Math.round(Dist._normal(mean, stddev));
+            x = Math.round(Dist.#normal(mean, stddev));
             counter++;
             if (counter > 10) {
-                throw new Error("Trop d'itérations dans _binomialBTPE");
+                throw new Error("Trop d'itérations dans #binomialBTPE");
             }
         } while (x < 0 || x > n);
         return flip ? n - x : x;
@@ -86,7 +89,12 @@ class Dist {
      * @param {number} sigma - écart type
      * @returns {number} un nombre aléatoire suivant une loi normale N(mu, sigma)
      */ 
-    static _normal(mu, sigma) {
+    static #normal(mu, sigma) {
+        mu = MyMath.toNumber(mu)
+        sigma = MyMath.toNumber(sigma)
+        if (isNaN(mu) || isNaN(sigma) || sigma <= 0) {
+            throw new Error('Paramètres invalides pour Dist.#normal')
+        }
         let u, x, y
         do {
             // Box-Muller pour génération normale
@@ -102,9 +110,9 @@ class Dist {
      * Plus efficace car réutilise les calculs précédents
      */
     static binomialCDF(k, n, p) {
-        k = parseInt(k)
-        n = parseInt(n)
-        p = MyMath.parseFloat(p)
+        k = MyMath.toInteger(k)
+        n = MyMath.toInteger(n)
+        p = MyMath.toNumber(p)
         
         if (isNaN(k) || isNaN(n) || isNaN(p)) {
             throw new Error('Paramètres invalides pour binomialCDF')
@@ -144,9 +152,9 @@ class Dist {
      * Plus efficace car réutilise les calculs précédents
      */
     static binomialPDF(k, n, p) {
-        k = parseInt(k)
-        n = parseInt(n)
-        p = MyMath.parseFloat(p)
+        k = MyMath.toInteger(k)
+        n = MyMath.toInteger(n)
+        p = MyMath.toNumber(p)
         if (isNaN(k) || isNaN(n) || isNaN(p)) {
             throw new Error('Paramètres invalides pour binomialPDF')
         }

@@ -10,8 +10,8 @@ class Alea {
         'choice': Alea.choice
     };
     static entier(min, max) {
-        const a = Number(min);
-        const b = Number(max);
+        const a = MyMath.toNumber(min);
+        const b = MyMath.toNumber(max);
         min = Math.min(a, b);
         max = Math.max(a, b);
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -30,11 +30,11 @@ class Alea {
     }
 
     static lagrangePolynome(xmin, ymin, xmax, ymax, n) {
-        xmin = Number(xmin);
-        ymin = Number(ymin);
-        xmax = Number(xmax);
-        ymax = Number(ymax);
-        n = Number(n);
+        xmin = MyMath.toNumber(xmin);
+        ymin = MyMath.toNumber(ymin);
+        xmax = MyMath.toNumber(xmax);
+        ymax = MyMath.toNumber(ymax);
+        n = MyMath.toNumber(n);
         if (isNaN(xmin) || isNaN(ymin) || isNaN(xmax) || isNaN(ymax) || isNaN(n) || n < 0) {
             throw new Error("Paramètres invalides pour Alea.laplacePolynome");
         }
