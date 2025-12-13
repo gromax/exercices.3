@@ -1,1 +1,7 @@
-<%- message %>
+<% if (Array.isArray(message)) {
+    message.forEach( function(mess) { %>
+        <p><%- mess %></p>
+    <% });
+} else { %>
+<p><%- message %></p>
+<% } %>

@@ -137,7 +137,7 @@ class InputTextBloc extends InputBloc {
             this._resultView = new InputResultView({
                 name: name,
                 success: false,
-                message: entete + message + '\n' + complement,
+                message: [entete + message, complement],
             });
         }
     }
