@@ -17,79 +17,6 @@ import { Base } from './number/base'
 // sert à empêcher l'accès direct au constructeur
 const PRIVATE = Symbol('private');
 
-class MyMathArray {
-    /** @type{Array<MyMath>|null} enfants de l'objet */
-    #children = null
-
-    /**
-     * constructeur
-     * @param {Array<MyMath>} children 
-     */
-    constructor(children) {
-        this.#children = children
-    }
-
-    get expression() {
-        return this.#children.map(child => child.expression)
-    }
-
-    get variables() {
-        return this.#children.map(child => child.variables)
-    }
-
-    toFloat() {
-        return this.#children.map(child => child.toFloat());
-    }
-
-    toString() {
-        return this.#children.map(child => child.toString());
-    }
-
-    latex() {
-        return this.#children.map(child => child.latex());
-    }
-
-    toFormat(format) {
-        return this.#children.map(child => child.toFormat(format));
-    }
-
-    expand() {
-        return new MyMathArray(this.#children.map(child => child.expand()))
-    }
-
-    sub(varName, value) {
-        return new MyMathArray(this.#children.map(child => child.sub(varName, value)))
-    }
-
-    buildFunction() {
-        return this.#children.map(child => child.buildFunction())
-    }
-
-    compare(rightExpr, operator, params = {}) {
-        if (Array.isArray(rightExpr) || (rightExpr instanceof MyMathArray)) {
-            if (rightExpr.length !== this.#children.length) {
-                throw new Error(`Les tableaux comparés n'ont pas la même taille.`);
-            }
-            if (Array.isArray(rightExpr)) {
-                return this.#children.map((child, index) => child.compare(rightExpr[index], operator, params))
-            } else {
-                return this.#children.map((child, index) => child.compare(rightExpr.getChild(index), operator))
-            }
-        }
-        return this.#children.map(child => child.compare(rightExpr, operator, params));
-    }
-
-    get length() {
-        return this.#children.length;
-    }
-
-    getChild(index) {
-        return this.#children[index]
-    }
-
-}
-
-
 class MyMath {
     /** @type{string} expression d'origine */
     #expression
@@ -147,15 +74,12 @@ class MyMath {
 
     /**
      * fabrique un MyMath à partir d'une expression
-     * @param {string|number|Array|MyMath|MyMathArray} expression 
-     * @returns {MyMath|MyMathArray}
+     * @param {string|number|MyMath} expression 
+     * @returns {MyMath}
      */
     static make(expression) {
-        if ((expression instanceof MyMath) || (expression instanceof MyMathArray)) {
+        if (expression instanceof MyMath) {
             return expression
-        }
-        if (Array.isArray(expression)) {
-            return new MyMathArray(expression.map(expr => MyMath.make({ expression: expr })))
         }
         if (expression instanceof Base) {
             return new MyMath(PRIVATE, { mynumber: expression })
@@ -164,8 +88,8 @@ class MyMath {
         return new MyMath(PRIVATE, { expression: String(expression) })
     }
 
-    static latex(expression, params = {}) {
-        return MyMath.make(substituteParams(expression, params)).latex();
+    static latex(expression) {
+        return MyMath.make(expression).latex();
     }
     
     static parseUser(expression) {
@@ -182,20 +106,20 @@ class MyMath {
         }
     }
 
-    static toFloat(expression, params = {}) {
-        return MyMath.make(substituteParams(expression, params)).toFloat()
+    static toFloat(expression) {
+        return MyMath.make(expression).toFloat()
     }
 
-    static toFormat(expression, format, params = {}) {
-        return MyMath.make(substituteParams(expression, params)).toFormat(format)
+    static toFormat(expression, format) {
+        return MyMath.make(expression).toFormat(format)
     }
 
-    static variables(expression, params = {}) {
-        return MyMath.make(substituteParams(expression, params)).variables;
+    static variables(expression) {
+        return MyMath.make(expression).variables;
     }
 
-    static buildFunction(expression, params = {}) {
-        return MyMath.make(substituteParams(expression, params)).buildFunction();
+    static buildFunction(expression) {
+        return MyMath.make(expression).buildFunction();
     }
 
     static solveInC(exprLeft, exprRight, varName) {
@@ -221,12 +145,10 @@ class MyMath {
      * @param {*} leftExpr doit pouvoir être converti
      * @param {*} rightExpr idem
      * @param {string} operator parmi ==, !=, <, <=, >, >=
-     * @param {object} params permet de substituer des labels dans les expressions
      * @returns {boolean} le résultat de la comparaison
      */
-    static compare(leftExpr, rightExpr, operator, params = {}) {
-        const left = MyMath.make(substituteParams(leftExpr, params))
-        return left.compare(rightExpr, operator, params)
+    static compare(leftExpr, rightExpr, operator) {
+        return MyMath.make(leftExpr).compare(rightExpr, operator)
     }
 
     static normalization(expression) {
@@ -260,6 +182,7 @@ class MyMath {
         if (typeof expression !== 'string') {
             expression = String(expression);
         }
+        expression = expression.replace('infinity', '\\infty')
         if (expression === '\\infty') {
             return '+\\infty';
         }
@@ -350,13 +273,7 @@ class MyMath {
 
     toFloat() {
         try {
-            const txt = this.#getNerdamerProcessed().evaluate().text('decimals');
-            if (txt === 'infinity') {
-                return Infinity;
-            } else if (txt === '-infinity') {
-                return -Infinity;
-            }
-            return parseFloat(txt);
+            return this.#getMyNumber().toDecimal().toNumber()
         } catch (e) {
             console.warn(`Erreur lors de la conversion de ${this.#expression} en nombre décimal :`, e);
             return NaN;
@@ -364,6 +281,7 @@ class MyMath {
     }
 
     toString() {
+        //console.log(this.#getNerdamerProcessed().toString())
         return MyMath.denormalization(this.#getNerdamerProcessed().toString());
     }
 
@@ -403,9 +321,9 @@ class MyMath {
         if (m) {
             const n = parseInt(m[1], 10);
             if (m[2]) {
-                return this.#toTexDecimal(n+1);
+                return this.#toTexDecimal(n);
             }
-            return this.#toFormatDecimal(n+1);
+            return this.#toFormatDecimal(n);
         }
         return this.toString();
     }
@@ -416,12 +334,19 @@ class MyMath {
      * @returns {string}
      */
     #toFormatDecimal(n) {
-        if (n >= 0) {
-            return MyMath.denormalization(this.#getNerdamerProcessed().evaluate().text('decimals', n));
+        // s'il y a des varriables, je passe par nerdamer. Sinon par mynumber
+        if (this.variables.length > 0) {
+            // Si on a une expression comme "4.3 + sqrt(4.5)", nerdamer ne va pas
+            // exécuter la fonction. Dans ce cas il me semble plus pertinent d'évaluer
+            const evaluated = n >=0
+                ? this.#getNerdamerProcessed().evaluate().text('decimals', n)
+                : this.#getNerdamerProcessed().evaluate().text('decimals')
+            return MyMath.denormalization(evaluated)
         }
-        // Si on a une expression comme "4.3 + sqrt(4.5)", nerdamer ne va pas
-        // exécuter la fonction. Dans ce cas il me semble plus pertinent d'évaluer
-        return MyMath.denormalization(this.#getNerdamerProcessed().evaluate().text('decimals'));
+        if (n >= 0) {
+            return this.#getMyNumber().toDecimal().toFixed(n).replace('.', ',')
+        }
+        return this.#getMyNumber().toDecimal().toString().replace('.', ',')
     }
 
     /**
@@ -436,11 +361,10 @@ class MyMath {
         return Parser.build(expr).toTex()
     }
 
-    compare(rightExpr, operator, params = {}) {
-        const right = MyMath.make(substituteParams(rightExpr, params))
-        if (right instanceof MyMathArray) {
-            // c'est un objet MyMathArray
-            return right.compare(this, MyMath.reverseOperator(operator));
+    compare(rightExpr, operator) {
+        const right = MyMath.make(rightExpr)
+        if (Array.isArray(right)) {
+            return right.map(r => this.compare(r, operator))
         }
         if (this.isInfinity()) {
             return this.#compareInfinityCase(right, operator);
