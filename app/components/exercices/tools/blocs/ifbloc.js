@@ -1,6 +1,7 @@
-import Bloc from './bloc.js';
-import MyMath from '../maths/mymath.js';
-import Affectation from './affectation.js';
+import Bloc from './bloc'
+import MyMath from '../maths/mymath'
+import Affectation from './affectation'
+import { substituteParams } from '../maths/misc/substitution'
 
 class UnaryLogicalOperator {
     static SYMBOLS = ['some', 'all'];
@@ -126,7 +127,23 @@ class SimpleCondition {
     }
 
     evaluate(params) {
-        return MyMath.compare(this.left, this.right, this.operator, params);
+        const left = substituteParams(this.left, params)
+        const right = substituteParams(this.right, params)
+        if (Array.isArray(left)) {
+            if (Array.isArray(right)) {
+                if (left.length !== right.length) {
+                    throw new Error("Erreur d'évaluation de l'expression conditionnelle : tailles incompatibles");
+                }
+                return left.map((v, i) => MyMath.compare(v, right[i], this.operator));
+            } else {
+                return left.map(v => MyMath.compare(v, right, this.operator));
+            }
+        }
+        if (Array.isArray(right)) {
+            return right.map(v => MyMath.compare(left, v, this.operator));
+        }
+        
+        return MyMath.compare(left, right, this.operator)
     }
 
     toString() {
