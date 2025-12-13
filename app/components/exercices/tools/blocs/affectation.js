@@ -42,11 +42,11 @@ class Affectation {
             params[this._tag] = [];
         }
         if (this._repeater === undefined) {
-            const value = evaluate(this._value, { ...params, ...protectedParams });
+            const value = evaluate(this._value, { ...params, ...protectedParams })
             if (this._isArray) {
-                params[this._tag].push(value);
+                params[this._tag].push(value)
             } else {
-                params[this._tag] = value;
+                params[this._tag] = value
             }
             return;
         }
