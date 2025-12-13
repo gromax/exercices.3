@@ -113,9 +113,17 @@ function _getAlea(sub) {
     }
 }
 
-
+function substituteParams(expression, params) {
+    if (typeof expression !== 'string') {
+        return expression
+    }
+    return expression.includes('@')
+        ? getValue(expression, params) ?? substituteLabels(expression, params)
+        : expression
+}
 
 export {
     substituteLabels,
     getValue,
+    substituteParams,
 };
