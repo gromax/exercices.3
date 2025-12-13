@@ -7,11 +7,11 @@
     - faire une conversion tofloat
 */
 
-import nerdamer from 'nerdamer';
-import 'nerdamer/all';
-import Parser from './parser/parser';
-import { build } from './parser/rpnbuilder';
-import { substituteLabels, getValue } from './misc/substitution';
+import nerdamer from 'nerdamer'
+import 'nerdamer/all'
+import Parser from './parser/parser'
+import { substituteParams } from './misc/substitution'
+import { Base } from './number/base'
 
 // Constante privée
 // sert à empêcher l'accès direct au constructeur
@@ -58,7 +58,7 @@ class MyMathArray {
     }
 
     sub(varName, value) {
-        return new MyMath(PRIVATE, this.#children.map(child => child.sub(varName, value)))
+        return new MyMathArray(this.#children.map(child => child.sub(varName, value)))
     }
 
     buildFunction() {
@@ -92,16 +92,13 @@ class MyMathArray {
 
 class MyMath {
     /** @type{string} expression d'origine */
-    #expression = ""
+    #expression
 
-    /** @type{nerdamer.Expression} */
-    #nerdamer_processed
+    /** @type{nerdamer.Expression|null} */
+    #nerdamer_processed = null
 
-    /** @type{string} */
-    #processed_lower_text = ""
-
-    /** @type{string} */
-    #normalized
+    /** @type{Base|null} */
+    #mynumber = null
 
     static reverseOperator(operator) {
         switch (operator) {
@@ -150,26 +147,25 @@ class MyMath {
 
     /**
      * fabrique un MyMath à partir d'une expression
-     * @param {string|Array|MyMath|MyMathArray} expression 
-     * @param {object} params 
+     * @param {string|number|Array|MyMath|MyMathArray} expression 
      * @returns {MyMath|MyMathArray}
      */
-    static make(expression, params = {}) {
+    static make(expression) {
         if ((expression instanceof MyMath) || (expression instanceof MyMathArray)) {
             return expression
         }
         if (Array.isArray(expression)) {
-            return new MyMathArray(expression.map(expr => MyMath.make(expr, params)))
+            return new MyMathArray(expression.map(expr => MyMath.make({ expression: expr })))
         }
-        return new MyMath(PRIVATE, expression, params)
+        if (expression instanceof Base) {
+            return new MyMath(PRIVATE, { mynumber: expression })
+        }
+        // expression pourrait être un number ou un string
+        return new MyMath(PRIVATE, { expression: String(expression) })
     }
 
     static latex(expression, params = {}) {
-        if (/^[+-]?\s*(?:∞|inf|infinity|infty|infini)?$/.test(expression)) {
-            return expression.startsWith('-') ? "-\\infty" : "+\\infty";
-        }
-        const n = new MyMath(PRIVATE, expression, params);
-        return n.latex();
+        return MyMath.make(substituteParams(expression, params)).latex();
     }
     
     static parseUser(expression) {
@@ -179,33 +175,27 @@ class MyMath {
             expression = expression.startsWith('-') ? "-infinity" : "infinity";
         }
         try {
-            const parsed = new Parser(expression);
-            const b = build(parsed.rpn);
-            return new MyMath(PRIVATE, b.toString());
+            return new MyMath(PRIVATE, { mynumber: Parser.build(expression) });
         } catch (e) {
             console.warn("Erreur lors du parsing de l'expression utilisateur :", expression);
-            return new MyMath(PRIVATE, "NaN");
+            return new MyMath(PRIVATE, { expression: "NaN" });
         }
     }
 
     static toFloat(expression, params = {}) {
-        const n = new MyMath(PRIVATE, expression, params);
-        return n.toFloat();
+        return MyMath.make(substituteParams(expression, params)).toFloat()
     }
 
     static toFormat(expression, format, params = {}) {
-        const n = new MyMath(PRIVATE, expression, params);
-        return n.toFormat(format);
+        return MyMath.make(substituteParams(expression, params)).toFormat(format)
     }
 
     static variables(expression, params = {}) {
-        const n = new MyMath(PRIVATE, expression, params);
-        return n.variables;
+        return MyMath.make(substituteParams(expression, params)).variables;
     }
 
     static buildFunction(expression, params = {}) {
-        const n = new MyMath(PRIVATE, expression, params);
-        return n.buildFunction();
+        return MyMath.make(substituteParams(expression, params)).buildFunction();
     }
 
     static solveInC(exprLeft, exprRight, varName) {
@@ -235,8 +225,8 @@ class MyMath {
      * @returns {boolean} le résultat de la comparaison
      */
     static compare(leftExpr, rightExpr, operator, params = {}) {
-        const left = MyMath.make(leftExpr, params);
-        return left.compare(rightExpr, operator, params);
+        const left = MyMath.make(substituteParams(leftExpr, params))
+        return left.compare(rightExpr, operator, params)
     }
 
     static normalization(expression) {
@@ -287,40 +277,67 @@ class MyMath {
      */
     static substituteExpressions(texte, params) {
         return texte.replace(/\{([^:{}]+):\s*([\w]*(?:\$)?)?\}/g, (match, expr, format) => {
-            return MyMath.make(expr, params).toFormat(format);
+            return MyMath.make(substituteParams(expr, params)).toFormat(format);
         });
     }
 
 
     // Méthodes d'instance
-    constructor(token, expression, params = {}) {
-       if (token !== PRIVATE) {
+    constructor(token, options) {
+        if (token !== PRIVATE) {
             throw new Error('Utilisez MyMath.make() pour créer une instance')
-        } 
-        if (typeof expression !== 'string') {
-            expression = String(expression)
         }
-        this.#expression = expression.includes('@')
-          ? getValue(expression, params) ?? substituteLabels(expression, params)
-          : expression
-        if (this.#expression === "Infinity") {
-            this.#expression = "infinity"
-        } else if (this.#expression === "-Infinity") {
-            this.#expression = "-infinity"
+        if (typeof options.expression !== 'undefined') {
+            this.#initFromExpression(options.expression.trim())
+            return
         }
-        this.#normalized = MyMath.normalization(this.#expression)
-        try {
-            this.#nerdamer_processed = nerdamer(this.#normalized)
-            this.#processed_lower_text = this.#nerdamer_processed.text().toLowerCase()
-        } catch (e) {
-            console.warn(`Erreur lors du traitement avec nerdamer de ${this.#normalized}:`, e)
-            this.#nerdamer_processed = nerdamer("NaN")
-            this.#processed_lower_text = this.#nerdamer_processed.text().toLowerCase()
+        if (typeof options.nerdamer !== 'undefined') {
+            this.#nerdamer_processed = options.nerdamer
+            if (typeof this.#expression === 'undefined') {
+                this.#initFromExpression(MyMath.denormalization(this.#nerdamer_processed.toString()))
+            }
+        }
+        if (typeof options.mynumber !== 'undefined') {
+            this.#mynumber = options.mynumber
+            if (typeof this.#expression === 'undefined') {
+                this.#initFromExpression(this.#mynumber.toString())
+            }
         }
     }
 
+    #initFromExpression(expression) {
+        if (typeof expression !== 'string') {
+            expression = String(expression)
+        }
+        if (/^[+-]?\s*(?:inf|infini|infinity|∞)$/i.test(expression)) {
+            this.#expression = expression[0] === '-' ? "-infinity" : "infinity"
+        } else {
+            this.#expression = expression
+        }
+    }
+
+    #getMyNumber() {
+        if (this.#mynumber != null) {
+            return this.#mynumber
+        }
+        this.#mynumber = Parser.build(this.#expression)
+        return this.#mynumber
+    }
+
     #getNerdamerProcessed() {
-        return this.#nerdamer_processed;
+        if (this.#nerdamer_processed !== null) {
+            return this.#nerdamer_processed
+        }
+        const normalized = this.#mynumber !== null
+            ? this.#mynumber.toStringEn()
+            : MyMath.normalization(this.#expression)
+        try {
+            this.#nerdamer_processed = nerdamer(normalized)
+        } catch (e) {
+            console.warn(`Erreur lors du traitement avec nerdamer de ${normalized}:`, e)
+            this.#nerdamer_processed = nerdamer("NaN")
+        }
+        return this.#nerdamer_processed
     }
 
     get expression() {
@@ -328,12 +345,12 @@ class MyMath {
     }
 
     get variables() {
-        return this.#nerdamer_processed.variables();
+        return this.#getNerdamerProcessed().variables();
     }
 
     toFloat() {
         try {
-            const txt = this.#nerdamer_processed.evaluate().text('decimals');
+            const txt = this.#getNerdamerProcessed().evaluate().text('decimals');
             if (txt === 'infinity') {
                 return Infinity;
             } else if (txt === '-infinity') {
@@ -341,23 +358,22 @@ class MyMath {
             }
             return parseFloat(txt);
         } catch (e) {
-            console.warn(`Erreur lors de la conversion de ${this._expression} en nombre décimal :`, e);
+            console.warn(`Erreur lors de la conversion de ${this.#expression} en nombre décimal :`, e);
             return NaN;
         }
     }
 
     toString() {
-        return MyMath.denormalization(this.#nerdamer_processed.toString());
+        return MyMath.denormalization(this.#getNerdamerProcessed().toString());
     }
 
     latex() {
-        const txt = this.#nerdamer_processed.text();
-        if (txt === 'infinity') {
+        if (this.isPlusInfinity()) {
             return "+\\infty";
-        } else if (txt === '-infinity') {
+        } else if (this.isMinusInfinity()) {
             return "-\\infty";
         }
-        return MyMath.latexDenormalization(this._processed.toTeX());
+        return MyMath.latexDenormalization(this.#getNerdamerProcessed().toTeX());
     }
 
     /**
@@ -374,7 +390,8 @@ class MyMath {
             return this.latex();
         }
         if (format === 's$') {
-            return this.#toMyLatex();
+            // format personnalisé pour contourner des soucis de nerdamer
+            return this.#getMyNumber().simplify().toTex()
         }
         if (format === 'f') {
             return this.#toFormatDecimal(-1);
@@ -400,11 +417,11 @@ class MyMath {
      */
     #toFormatDecimal(n) {
         if (n >= 0) {
-            return MyMath.denormalization(this._processed.evaluate().text('decimals', n));
+            return MyMath.denormalization(this.#getNerdamerProcessed().evaluate().text('decimals', n));
         }
         // Si on a une expression comme "4.3 + sqrt(4.5)", nerdamer ne va pas
         // exécuter la fonction. Dans ce cas il me semble plus pertinent d'évaluer
-        return MyMath.denormalization(this._processed.evaluate().text('decimals'));
+        return MyMath.denormalization(this.#getNerdamerProcessed().evaluate().text('decimals'));
     }
 
     /**
@@ -416,25 +433,11 @@ class MyMath {
         const expr = this.#toFormatDecimal(n);
         // ensuite on veut générer du TeX
         // J'utilise mon parser
-        const parsed = new Parser(expr);
-        const b = build(parsed.rpn);
-        return b.toTex();
-    }
-
-    /**
-     * Le latx de nerdamer n'est pas toujours satisfaisant
-     * je prévois donc un format personalisé
-     * @returns {string}
-     */
-    #toMyLatex() {
-        const expr = this.#expression;
-        const parsed = new Parser(expr);
-        const b = build(parsed.rpn);
-        return b.simplify().toTex();
+        return Parser.build(expr).toTex()
     }
 
     compare(rightExpr, operator, params = {}) {
-        const right = MyMath.make(rightExpr, params);
+        const right = MyMath.make(substituteParams(rightExpr, params))
         if (right instanceof MyMathArray) {
             // c'est un objet MyMathArray
             return right.compare(this, MyMath.reverseOperator(operator));
@@ -444,19 +447,21 @@ class MyMath {
         } else if (right.isInfinity()) {
             return right.#compareInfinityCase(this, MyMath.reverseOperator(operator));
         }
+        const p1 = this.#getNerdamerProcessed()
+        const p2 = right.#getNerdamerProcessed()
         switch (operator) {
             case '==':
-                return this.#nerdamer_processed.eq(right.#nerdamer_processed);
+                return p1.eq(p2);
             case '!=':
-                return !this.#nerdamer_processed.eq(right.#nerdamer_processed);
+                return !p1.eq(p2);
             case '<':
-                return this.#nerdamer_processed.lt(right.#nerdamer_processed);
+                return p1.lt(p2);
             case '<=':
-                return this.#nerdamer_processed.lte(right.#nerdamer_processed);
+                return p1.lte(p2);
             case '>':
-                return this.#nerdamer_processed.gt(right.#nerdamer_processed);
+                return p1.gt(p2);
             case '>=':
-                return this.#nerdamer_processed.gte(right.#nerdamer_processed);
+                return p1.gte(p2);
             default:
                 throw new Error(`Opérateur de comparaison invalide : ${operator}`);
         }
@@ -465,9 +470,9 @@ class MyMath {
     #compareInfinityCase(othervalue, operator) {
         switch (operator) {
             case '==':
-                return this.#processed_lower_text === othervalue.#processed_lower_text;
+                return this.#getMyNumber().toString() === othervalue.#getMyNumber().toString();
             case '!=':
-                return this.#processed_lower_text !== othervalue.#processed_lower_text;
+                return this.#getMyNumber().toString() !== othervalue.#getMyNumber().toString();
             case '<':
                 return this.isMinusInfinity() && !othervalue.isMinusInfinity();
             case '<=':
@@ -482,28 +487,27 @@ class MyMath {
     }
 
     isInfinity() {
-        return this.#processed_lower_text === 'infinity' || this.#processed_lower_text === '-infinity';
+        return this.isPlusInfinity() || this.isMinusInfinity()
     }
 
     isPlusInfinity() {
-        return this.#processed_lower_text === 'infinity';
+        return this.#expression === 'infinity'
     }
 
     isMinusInfinity() {
-        return this.#processed_lower_text === '-infinity';
+        return this.#expression === '-infinity'
     }
 
     expand() {
-        return new MyMath(PRIVATE, MyMath.denormalization(this.#nerdamer_processed.expand().toString()));
+        return new MyMath(PRIVATE, { nerdamer: this.#getNerdamerProcessed().expand() })
     }
 
     sub(varName, value) {
-        this.#nerdamer_processed = this.#nerdamer_processed.sub(varName, value);
-        return this;
+        return new MyMath(PRIVATE, { nerdamer: this.#getNerdamerProcessed().sub(varName, value) })
     }
 
     buildFunction() {
-        return this.#nerdamer_processed.buildFunction();
+        return this.#getNerdamerProcessed().buildFunction();
     }
 }
 
