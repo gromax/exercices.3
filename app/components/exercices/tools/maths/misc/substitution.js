@@ -114,6 +114,9 @@ function _getAlea(sub) {
 }
 
 function substituteParams(expression, params) {
+    if (Array.isArray(expression)) {
+        return expression.map(expr => substituteParams(expr, params));
+    }
     if (typeof expression !== 'string') {
         return expression
     }
