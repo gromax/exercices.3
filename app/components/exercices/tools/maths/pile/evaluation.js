@@ -3,7 +3,7 @@ import Table from './table'; // Tables et stats
 import Calc from './calc';
 import Dist from './dist'; // Distributions
 import MyMath from '../mymath';
-import { getValue, substituteLabels } from '../misc/substitution';
+import { getValue, substituteLabels, substituteParams } from '../misc/substitution';
 
 const MODULES = {
     'Alea': Alea,
@@ -70,17 +70,33 @@ function _executePile(pile) {
     return operandes[0];
 }
 
+/**
+ * évalue une expression
+ * @param {MyMath|string|number|Array} expression 
+ * @param {object} params 
+ * @returns 
+ */
 function evaluate(expression, params) {
-    const pileResult = _tryAsPile(expression, params)
-    if (pileResult !== null) {
-        return pileResult
+    if (typeof expression === 'string') {
+        const pileResult = _tryAsPile(expression, params)
+        if (pileResult !== null) {
+            return pileResult
+        }
+        if (expression.startsWith('[') && expression.endsWith(']')) {
+            // liste
+            const vals = expression.slice(1, -1).split(',').map(v => v.trim())
+            return vals.map(v => MyMath.make(substituteParams(v, params)))
+        }
+        if (expression.startsWith('"') && expression.endsWith('"')) {
+            // chaîne de caractères
+            return expression.slice(1, -1);
+        }
+        expression = substituteParams(expression, params)
     }
-    if (expression.startsWith('[') && expression.endsWith(']')) {
-        // liste
-        const vals = expression.slice(1, -1).split(',').map(v => v.trim())
-        return vals.map(v => MyMath.make(v, params))
+    if (Array.isArray(expression)) {
+        return expression.map(expr => MyMath.make(expr))
     }
-    return MyMath.make(expression, params).toString()
+    return MyMath.make(expression)
 }
 
 export default evaluate
