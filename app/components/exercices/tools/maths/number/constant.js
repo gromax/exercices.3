@@ -2,27 +2,32 @@ import { Base } from "./base";
 import Decimal from "decimal.js";
 
 class Constant extends Base {
-    static NAMES = ['e', 'i', 'pi', 'π']
+    static NAMES = ['e', 'i', 'pi', 'π', '∞', 'inf', 'infinity', 'infini']
     static TEX = {
         'e': 'e',
         'π': '\\pi',
         'i': 'i',
+        '∞': '\\infty'
     }
+    
     static #list = {};
+
     #name; /** @type{string} */
     constructor(name) {
-        super();
+        super()
         if (!Constant.isConstant(name)) {
             throw new Error(`${name} n'est pas une constante valide.`)
         }
-        this.#name = name;
+        this.#name = name
     }
 
     static alias(name){
         switch(name) {
-            case 'infini': return '∞';
-            case 'pi': return 'π';
-            default: return name;
+            case 'inf': return '∞'
+            case 'infinity': return '∞'
+            case 'infini': return '∞'
+            case 'pi': return 'π'
+            default: return name
         }
     }
 
@@ -35,7 +40,7 @@ class Constant extends Base {
         if (!Constant.isConstant(chaine)) {
             return null;
         }
-        let name = this.alias(chaine);
+        const name = this.alias(chaine);
         if (typeof this.#list[name] == 'undefined') {
             this.#list[name] = new Constant(name);
         }
@@ -48,7 +53,7 @@ class Constant extends Base {
      * @returns {boolean}
      */
     static isConstant(chaine) {
-        return (Constant.NAMES.indexOf(chaine)>=0);
+        return Constant.NAMES.includes(chaine)
     }
 
     /**
@@ -56,7 +61,7 @@ class Constant extends Base {
      * @returns {string}
      */
     toString() {
-        return this.#name;
+        return this.#name
     }
 
     get priority() {
@@ -97,7 +102,7 @@ function isConstant(name){
 }
 
 function makeConstant(name){
-    return Constant.fromString(name);
+    return Constant.fromString(name)
 }
 
-export { makeConstant, isConstant, E, PI, I, INFINI };
+export { makeConstant, isConstant, E, PI, I, INFINI }
