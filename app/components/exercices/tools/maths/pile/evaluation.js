@@ -85,7 +85,7 @@ function evaluate(expression, params) {
         if (expression.startsWith('[') && expression.endsWith(']')) {
             // liste
             const vals = expression.slice(1, -1).split(',').map(v => v.trim())
-            return vals.map(v => MyMath.make(substituteParams(v, params)))
+            return vals.map(v => MyMath.make(substituteParams(v, params)) )
         }
         if (expression.startsWith('"') && expression.endsWith('"')) {
             // chaîne de caractères
