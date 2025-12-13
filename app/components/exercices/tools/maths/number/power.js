@@ -65,9 +65,16 @@ class Power extends Base {
 
     isExpanded() {
         if (!this.#base.isExpanded() || !this.#exposant.isExpanded()) {
-            return false;
+            return false
         }
-        return true;
+        const d = this.#exposant.toDecimal()
+        if (d.isNaN()) {
+            return true
+        }
+        if (d.isInteger() && d.gte(0)) {
+            return false
+        }
+        return true
     }
 
 
