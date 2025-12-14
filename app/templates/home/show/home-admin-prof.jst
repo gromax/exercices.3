@@ -1,4 +1,4 @@
-<h1>Bienvenue !</h1>
+<h2>Bienvenue !</h2>
 <% if (adminMode) { %><p>Vous êtes administrateur du site. Vous pouvez exécuter une des commandes suivantes :</p><% } else { %><p>Vous êtes <b>professeur</b>. Vous pouvez exécuter une des commandes suivantes :</p><% } %>
 <div class="list-group">
   <a type="button" class="list-group-item list-group-item-action" href="#messages"><i class="fa fa-comment"></i>&nbsp; Messages<% if (unread>0){%>&emsp;<span class="badge badge-danger"><%-unread%> message(s) non lu(s)<% } %></span></a>
