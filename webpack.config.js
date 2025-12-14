@@ -1,5 +1,11 @@
 'use strict';
 
+// ==========================================
+// Configuration Webpack pour exercices.3
+// ==========================================
+// Gère la compilation du code source (JS, CSS, templates JST)
+// Supporte 3 modes : dev (hot reload), start (dev server), build (production)
+
 const webpack = require('webpack');
 const packageJson = require('./package.json');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -9,12 +15,21 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const path = require('path');
 const { merge } = require('webpack-merge');
 
+// ==========================================
+// Configuration commune à tous les modes
+// ==========================================
 const webpackCommon = {
+  // Point d'entrée : initialize.js charge l'application Backbone/Marionette
   entry: {
     app: ['./app/initialize']
   },
+  
+  // ==========================================
+  // Loaders : transformation des fichiers sources
+  // ==========================================
   module: {
     rules: [
+      // Transpile JS avec Babel (ES6+ → ES5 pour compatibilité navigateurs)
       {
         test: /\.js?$/,
         exclude: /node_modules/,
@@ -25,10 +40,12 @@ const webpackCommon = {
           }
         }
       },
+      // Templates Underscore.js (fichiers .jst) → fonctions JS
       {
         test: /\.jst$/,
         use: 'underscore-template-loader'
       },
+      // CSS : injecté dans <style> en dev, extrait en fichier en prod
       {
         test: /\.css$/,
         use: [
@@ -93,7 +110,7 @@ switch (process.env.npm_lifecycle_event) {
   case 'dev':
     module.exports = merge(webpackCommon, {
       mode: 'development',
-      devtool: 'inline-source-map',
+      devtool: 'inline-source-map', // source maps inline pour debug
       devServer: {
         static: {
           directory: path.join(__dirname, './public'),
