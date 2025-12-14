@@ -2,7 +2,6 @@ import { View } from 'backbone.marionette';
 import header_tpl from '@templates/header/show/header-navbar.jst';
 import Radio from 'backbone.radio';
 
-
 const HeaderView = View.extend({
   template: header_tpl,
   logged: { isOff: true },
@@ -11,7 +10,21 @@ const HeaderView = View.extend({
     "click a.js-edit-me": "home:editme",
     "click a.js-login": "home:login",
     "click a.js-logout": "logout",
-    "click a.js-message": "messages:list",
+    "click a.js-message": "messages:list"
+  },
+
+  events: {
+    "click button.js-hamburger": "onClickHamburger"
+  },
+
+  onClickHamburger(e){
+    // le bouton bootstrap ne fait pas le collapse tout seul car le header
+    // j'ai donc ôté la cible data-bs-target et je gère le toggle moi-même
+    e.preventDefault();
+    const div = $("#navbarContent")
+    div.toggleClass("show")
+
+    console.log("click hamburger")
   },
 
   showSpinner(){
@@ -31,7 +44,7 @@ const HeaderView = View.extend({
       isEleve: logged.isEleve(),
       isOff: logged.isOff(),
       nomComplet: logged.get("nomComplet"),
-      unread: (logged.unread || 0)
+      unread: (logged.unread || 0),
     };
   },
 
