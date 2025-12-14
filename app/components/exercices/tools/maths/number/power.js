@@ -154,9 +154,23 @@ class Power extends Base {
             // pas de changement
             return this
         }
-        return new Power(newBase, newExposant);
+        return new Power(newBase, newExposant)
     }
 
+    Decimalize() {
+        const newBase = this.#base.Decimalize()
+        const newExposant = this.#exposant.Decimalize()
+        if (newBase._isNumber && newExposant._isNumber) {
+            return new Scalar(newBase.toDecimal().pow(newExposant.toDecimal()))
+        }
+        return new Power(newBase, newExposant)
+    }
+
+    toFixed(n) {
+        const newBase = this.#base.toFixed(n)
+        const newExposant = this.#exposant.toFixed(n)
+        return new Power(newBase, newExposant)
+    }
 }
 
 export { Power }

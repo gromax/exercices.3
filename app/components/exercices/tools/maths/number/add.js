@@ -117,6 +117,25 @@ class AddMinus extends Base {
         }
         return new this.constructor(leftSub, rightSub);
     }
+
+    Decimalize() {
+        const newLeft = this._left.Decimalize()
+        const newRight = this._right.Decimalize()
+        if (newLeft._isNumber && newRight._isNumber) {
+            if (this instanceof Add) {
+                return new Scalar(newLeft.toDecimal().plus(newRight.toDecimal()))
+            } else if (this instanceof Minus) {
+                return new Scalar(newLeft.toDecimal().minus(newRight.toDecimal()))
+            }
+        }
+        return (new this.constructor(newLeft, newRight)).simplify()
+    }
+
+    toFixed(n) {
+        const newLeft = this._left.toFixed(n)
+        const newRight = this._right.toFixed(n)
+        return new this.constructor(newLeft, newRight)
+    }
 }
 
 

@@ -17,6 +17,7 @@ class Scalar extends Base {
     /** @type{Decimal} */
     #value = new Decimal(NaN)
 
+    _isNumber = true
 
     /**
      * tente la fabrication d'un Scalar à partir d'une chaine
@@ -41,7 +42,7 @@ class Scalar extends Base {
         } else if (typeof entree == 'number') {
             this.#makeFromNumber(entree)
         } else if (entree instanceof Decimal) {
-            this.#makeFromString(String(entree))
+            this.#makeFromDecimal(entree)
         } else {
             throw new Error(`entree = ${entree} invalide pour un Scalar`)
         }
@@ -86,6 +87,15 @@ class Scalar extends Base {
     #makeFromNumber(n) {
         this.#chaine = String(n)
         this.#value = new Decimal(n)
+    }
+
+    /**
+     * auxiliaire constructeur pour un Decimal
+     * @param {Decimal} d
+     */
+    #makeFromDecimal(d) {
+        this.#chaine = d.toString()
+        this.#value = d
     }
 
     /**
@@ -180,6 +190,10 @@ class Scalar extends Base {
             throw new Error('n doit être un Scalar')
         }
         return new Scalar(this.#value.mul(n.#value))
+    }
+
+    toFixed(n) {
+        return new Scalar(this.#value.toFixed(n))
     }
 }
 

@@ -71,6 +71,25 @@ class MultDiv extends Base {
         }
         return new this.constructor(leftSub, rightSub);
     }
+
+    Decimalize() {
+        const newLeft = this._left.Decimalize()
+        const newRight = this._right.Decimalize()
+        if (newLeft._isNumber && newRight._isNumber) {
+            if (this instanceof Mult) {
+                return new Scalar(newLeft.toDecimal().mul(newRight.toDecimal()))
+            } else if (this instanceof Div) {
+                return new Scalar(newLeft.toDecimal().dividedBy(newRight.toDecimal()))
+            }
+        }
+        return (new this.constructor(newLeft, newRight)).simplify()
+    }
+
+    toFixed(n) {
+        const newLeft = this._left.toFixed(n)
+        const newRight = this._right.toFixed(n)
+        return new this.constructor(newLeft, newRight)
+    }
 }
 
 
@@ -334,7 +353,6 @@ class Div extends MultDiv {
         }
         return new Mult(Scalar.MINUS_ONE, this);
     }
-
 }
 
 export { Mult, Div};

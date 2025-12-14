@@ -3,6 +3,7 @@ Decimal.set({ precision: 50, rounding: Decimal.ROUND_HALF_UP });
 
 class Base {
     _canBeDistributed = false // pour test sur la distributivité
+    _isNumber = false         // pour test si le noeud est un nombre
 
     /**
      * transtypage vers string
@@ -134,6 +135,23 @@ class Base {
             }
             return self.substituteVariables(values).toDecimal(values).toNumber()
         }
+    }
+
+    /**
+     * Renvoie une version où les calculs numériques sont effectués en Decimal
+     * par exemple 4/5 * x devient 0.8 * x
+     */
+    Decimalize() {
+        return this
+    }
+
+    /**
+     * Transforme to les décimaux en une version fixée à n chiffres
+     * @param {*} n 
+     * @returns 
+     */
+    toFixed(n) {
+        return this
     }
 }
 

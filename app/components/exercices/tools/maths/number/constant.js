@@ -1,5 +1,6 @@
-import { Base } from "./base";
-import Decimal from "decimal.js";
+import { Base } from "./base"
+import { Scalar } from "./scalar"
+import Decimal from "decimal.js"
 
 class Constant extends Base {
     static NAMES = ['e', 'i', 'pi', 'π', '∞', 'inf', 'infinity', 'infini']
@@ -13,6 +14,9 @@ class Constant extends Base {
     static #list = {};
 
     #name; /** @type{string} */
+
+    _isNumber = true
+
     constructor(name) {
         super()
         if (!Constant.isConstant(name)) {
@@ -87,8 +91,12 @@ class Constant extends Base {
             case 'π': return Decimal.PI;
             case 'i': return Decimal.I;
             case '∞': return new Decimal(Infinity);
-            default: return Decimal.NAN;
+            default: return new Decimal(NaN) ;
         }
+    }
+
+    toFixed(n) {
+        return new Scalar(this.toDecimal().toFixed(n))
     }
 }
 
