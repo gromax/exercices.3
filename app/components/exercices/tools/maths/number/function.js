@@ -12,7 +12,7 @@ class Function extends Base {
     /** @type {string|null} représentation texte */
     #stringEN = null;
 
-    static NAMES = ['sqrt', '(-)', '(+)', 'cos', 'sin', 'ln', 'log', 'exp', 'inverse']
+    static NAMES = ['sqrt', '(-)', '(+)', 'cos', 'sin', 'ln', 'log', 'exp', 'inverse', 'sign']
     static EN_NAMES = {
         'ln': 'log',
         'log': 'log10',
@@ -61,15 +61,17 @@ class Function extends Base {
      */
     static calc(name, value) {
         switch (name) {
-            case 'sqrt': return Decimal.sqrt(value);
-            case 'ln': return Decimal.ln(value);
-            case 'log': return Decimal.log(value);
-            case 'exp': return Decimal.exp(value);
-            case 'cos': return Decimal.cos(value);
-            case 'sin': return Decimal.sin(value);
-            case '(-)': return value.negated();
-            case '(+)': return value;
-            default: return new Decimal(NaN) ;
+            case 'sqrt': return Decimal.sqrt(value)
+            case 'ln': return Decimal.ln(value)
+            case 'log': return Decimal.log(value)
+            case 'exp': return Decimal.exp(value)
+            case 'cos': return Decimal.cos(value)
+            case 'sin': return Decimal.sin(value)
+            case '(-)': return value.negated()
+            case '(+)': return value
+            case 'inverse': return new Decimal(1).dividedBy(value)
+            case 'sign': return new Decimal(value.isZero() ? 0 : (value.isPositive() ? 1 : -1))
+            default: return new Decimal(NaN)
         }
     }
 
@@ -161,6 +163,9 @@ class Function extends Base {
             }
             return `- ${this.#child.toTex()}`;
         }
+        if (this.#name == 'sign') {
+            return `\\text{sign}\\left(${this.#child.toTex()}\\right)`;
+        }
         return `\\${this.#name}\\left(${this.#child.toTex()}\\right)`;
     }
 
@@ -201,7 +206,19 @@ class Function extends Base {
                 return exponent;
             }
         }
-        if (childSim.isZero()) {
+        const d = childSim.toDecimal()
+        if (this.#name === 'sign') {
+            if (d.isZero()) {
+                return Scalar.ZERO
+            }
+            if (d.isPositive()) {
+                return Scalar.ONE
+            }
+            if (d.isNegative()) {
+                return Scalar.MINUS_ONE
+            }
+        } 
+        if (d.isZero()) {
             if (this.#name === '(+)' || this.#name === '(-)' || this.#name === 'sin' || this.#name === 'sqrt') {
                 return childSim;
             }

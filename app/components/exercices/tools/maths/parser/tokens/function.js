@@ -16,8 +16,8 @@ class TFunction {
         return this.#name;
     }
 
-    static sREGEX = "sqrt|racine|cos|sin|ln|log|exp|frac";
-    static REGEX = new RegExp("sqrt|racine|cos|sin|ln|log|exp|frac", 'i');
+    static sREGEX = "sqrt|racine|cos|sin|ln|log|exp|frac|sign";
+    static REGEX = new RegExp("sqrt|racine|cos|sin|ln|log|exp|frac|sign", 'i');
   
     /**
      * renvoie le niveau de priorité
