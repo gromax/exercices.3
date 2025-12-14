@@ -13,22 +13,46 @@ class TkzTab {
 
     static parseLine(key, value) {
         const options = value.split(':').map( x => x.trim() )
-        const goodsize = (key === 'inputvar' || key === 'inputsign') ? 5 : 3
+        if (key === 'sign' || key === 'inputsign') {
+            return TkzTab.#parseSign(key, options)
+        } else if (key === 'var' || key === 'inputvar') {
+            return TkzTab.#parseVar(key, options)
+        }
+        throw new Error(`Type de ligne inconnu : ${key}`)
+    }
+
+    static #parseVar(key, options) {
+        const goodsize = (key === 'inputvar') ? 5 : 3
         if (options.length !== goodsize) {
-            throw new Error(`<${key}:${value}/> Le paramètre '${key}' est mal formé.`)
+            throw new Error(`<${key}:${options.join(':')}/> Le paramètre '${key}' est mal formé.`)
         }
         const tag = options[0]
         const hauteur = parseInt(options[1])
         if (isNaN(hauteur) || hauteur < 1) {
-            throw new Error(`<${key}:${value}/> La hauteur doit être un entier supérieur ou égal à 1.`)
+            throw new Error(`<${key}:${options.join(':')}/> La hauteur doit être un entier supérieur ou égal à 1.`)
         }
         const line = options[2]
-        if (key === 'inputvar' || key === 'inputsign') {
+        if (key === 'inputvar') {
             const name = options[3]
             const solution = options[4]
-            return {type: key, tag, hauteur, line, name, solution}
+            return {type: 'inputvar', tag, hauteur, line, name, solution}
         }
-        return {type: key, tag, hauteur, line}
+        return {type: 'var', tag, hauteur, line}
+    }
+
+    static #parseSign(key, options) {
+        const goodsize = (key === 'inputsign') ? 4 : 2
+        if (options.length !== goodsize) {
+            throw new Error(`<${key}:${options.join(':')}/> Le paramètre '${key}' est mal formé.`)
+        }
+        const tag = options[0]
+        const line = options[1]
+        if (key === 'inputsign') {
+            const name = options[2]
+            const solution = options[3]
+            return {type: 'inputsign', tag, line, name, solution}
+        }
+        return {type: 'sign', tag, line}
     }
 
     /**
@@ -100,13 +124,13 @@ class TkzTab {
 
     addLine(line) {
         if (line.type === 'sign') {
-            return this.addSignLine(line.line, line.tag, line.hauteur)
+            return this.addSignLine(line.line, line.tag)
         } else if (line.type === 'var') {
             return this.addVarLine(line.line, line.tag, line.hauteur)
         } else if (line.type === 'inputvar') {
             return this.addVarLineInput(line.line, line.tag, line.hauteur, line.name, line.solution)
         } else if (line.type === 'inputsign') {
-            return this.addSignLineInput(line.line, line.tag, line.hauteur, line.name, line.solution)
+            return this.addSignLineInput(line.line, line.tag, line.name, line.solution)
         } else {
             console.warn(`Type de ligne inconnu : ${line.type}`)
         }
@@ -154,12 +178,11 @@ class TkzTab {
      * ajoute une ligne de type TabSignLine
      * @param {string} line chaîne décrivant la ligne (ex: "z,+,z")
      * @param {string} tag tag de la ligne (ex: "f(x)")
-     * @param {number} hauteur hauteur de la ligne en nombre d'unités verticales
      * @returns {TabSignLine} l'objet créé pour chaînage
      */
-    addSignLine (line, tag, hauteur) {
+    addSignLine (line, tag) {
         const index = this._lines.length
-        const tabsignline = new TabSignLine(line, tag, hauteur, this._offset, this._config, index)
+        const tabsignline = new TabSignLine(line, tag, this._offset, this._config, index)
         this._offset += tabsignline.hauteur
         this._lines.push(tabsignline)
         return tabsignline
@@ -169,14 +192,13 @@ class TkzTab {
      * ajoute une ligne de type TabSignLineInput
      * @param {string} line chaîne décrivant la ligne (ex: "z,+,z")
      * @param {string} tag tag de la ligne (ex: "f(x)")
-     * @param {number} hauteur hauteur de la ligne en nombre d'unités verticales
      * @param {string} name nom de l'input
      * @param {string} solution valeur de la solution
      * @returns {TabSignLineInput} l'objet créé pour chaînage
      */
-    addSignLineInput (line, tag, hauteur, name, solution) {
+    addSignLineInput (line, tag, name, solution) {
         const index = this._lines.length
-        const tabsignlineinput = new TabSignLineInput(line, tag, hauteur, this._offset, this._config, index, name, solution)
+        const tabsignlineinput = new TabSignLineInput(line, tag, this._offset, this._config, index, name, solution)
         this._offset += tabsignlineinput.hauteur
         this._lines.push(tabsignlineinput)
         return tabsignlineinput
