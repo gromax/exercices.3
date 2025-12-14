@@ -332,6 +332,10 @@ class MyMath {
             // format personnalisé pour contourner des soucis de nerdamer
             return this.#getMyNumber().simplify().toTex()
         }
+        if (format === 's') {
+            // format personnalisé pour contourner des soucis de nerdamer
+            return this.#getMyNumber().simplify().toString()
+        }
         if (format === 'f') {
             return this.#toFormatDecimal(-1);
         }
@@ -357,12 +361,11 @@ class MyMath {
     #toFormatDecimal(n) {
         // s'il y a des varriables, je passe par nerdamer. Sinon par mynumber
         if (this.variables.length > 0) {
-            // Si on a une expression comme "4.3 + sqrt(4.5)", nerdamer ne va pas
-            // exécuter la fonction. Dans ce cas il me semble plus pertinent d'évaluer
-            const evaluated = n >=0
-                ? this.#getNerdamerProcessed().evaluate().text('decimals', n)
-                : this.#getNerdamerProcessed().evaluate().text('decimals')
-            return MyMath.denormalization(evaluated)
+            // La procédure de décimalisation va calculer ce qui peut l'être
+            // et on peut fixer au besoin, sinon on garde toute la précision
+            return n>=0
+                ? this.#getMyNumber().Decimalize().toFixed(n).toString()
+                : this.#getMyNumber().Decimalize().toString()
         }
         if (n >= 0) {
             return this.#getMyNumber().toDecimal().toFixed(n).replace('.', ',')
