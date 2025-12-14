@@ -54,6 +54,26 @@ class Function extends Base {
     }
 
     /**
+     * exécute une fonction numérique
+     * @param {string} name 
+     * @param {Decimal} value 
+     * @returns {Decimal}
+     */
+    static calc(name, value) {
+        switch (name) {
+            case 'sqrt': return Decimal.sqrt(value);
+            case 'ln': return Decimal.ln(value);
+            case 'log': return Decimal.log(value);
+            case 'exp': return Decimal.exp(value);
+            case 'cos': return Decimal.cos(value);
+            case 'sin': return Decimal.sin(value);
+            case '(-)': return value.negated();
+            case '(+)': return value;
+            default: return new Decimal(NaN) ;
+        }
+    }
+
+    /**
      * transtypage -> string
      * @returns {string}
      */
@@ -151,17 +171,7 @@ class Function extends Base {
      */
     toDecimal(values) {
         let child = this.#child.toDecimal(values);
-        switch (this.#name) {
-            case 'sqrt': return Decimal.sqrt(child);
-            case 'ln': return Decimal.ln(child);
-            case 'log': return Decimal.log(child);
-            case 'exp': return Decimal.exp(child);
-            case 'cos': return Decimal.cos(child);
-            case 'sin': return Decimal.sin(child);
-            case '(-)': return child.negated();
-            case '(+)': return child;
-            default: return Decimal.NAN;
-        }
+        return Function.calc(this.#name, child)
     }
 
     signature() {
@@ -235,6 +245,19 @@ class Function extends Base {
         return new Function(this.#name, newChild)
     }
 
+    Decimalize() {
+        const newChild = this.#child.Decimalize()
+        if (newChild._isNumber) {
+            const d = newChild.toDecimal()
+            return new Scalar( Function.calc(this.#name, d) )
+        }
+        return new Function(this.#name, newChild)
+    }
+
+    toFixed(n) {
+        const newChild = this.#child.toFixed(n)
+        return new Function(this.#name, newChild)
+    }
 }
 
 export { Function };
