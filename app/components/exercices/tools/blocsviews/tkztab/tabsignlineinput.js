@@ -9,15 +9,14 @@ class TabSignLineInput extends TabSignLine {
      * respecte l'écriture de tkz-tab :
      * @param {string} line texte qui a la forme z,+,z
      * @param {string} tag tag de la ligne (ex: "f(x)")
-     * @param {number} hauteur hauteur de la ligne en nombre d'unités verticales
      * @param {number} offset décalage vertical de la ligne
      * @param {object} config configuration de la ligne
      * @param {number} index index de la ligne dans le tableau
      * @param {string} name nom de l'input
      * @param {string} solution valeur de la solution
      */
-    constructor(line, tag, hauteur, offset, config, index, name, solution) {
-        super(line, tag, hauteur, offset, config, index)
+    constructor(line, tag, offset, config, index, name, solution) {
+        super(line, tag, offset, config, index)
         this._name = name
         this._solution = solution
         const s = 2 * this._config.size - 1

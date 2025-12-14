@@ -16,13 +16,12 @@ class TabSignLine extends TabLine {
      * Sur les rangs impairs (valeurs) : d = double-barre, z = 0, t = pointillé, espace, ? = inconnu
      * @param {string} line texte qui a la forme z,+,z
      * @param {string} tag tag de la ligne (ex: "f(x)")
-     * @param {number} hauteur hauteur de la ligne en nombre d'unités verticales
      * @param {number} offset décalage vertical de la ligne
      * @param {object} config configuration de la ligne
      * @param {number} index index de la ligne dans le tableau
      */
-    constructor(line, tag, hauteur, offset, config, index) {
-        super(tag, hauteur, offset, config, index)
+    constructor(line, tag, offset, config, index) {
+        super(tag, 1, offset, config, index)
         this._tags = typeof line === "string"
             ? line.split(',')
             : []
