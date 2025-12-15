@@ -12,6 +12,7 @@ import 'nerdamer/all'
 import Parser from './parser/parser'
 import { substituteParams } from './misc/substitution'
 import { Base } from './number/base'
+import { simplify, decimalize } from './number/simplify'
 
 // Constante privée
 // sert à empêcher l'accès direct au constructeur
@@ -132,6 +133,11 @@ class MyMath {
     }
 
     static toFormat(expression, format) {
+        if (typeof expression === 'string' && expression.startsWith('"') && expression.endsWith('"')) {
+            // chaîne de caractères
+            // renvoyée sans tenir compte du format
+            return expression.slice(1, -1);
+        }
         return MyMath.make(expression).toFormat(format)
     }
 
@@ -264,7 +270,7 @@ class MyMath {
         if (this.#mynumber != null) {
             return this.#mynumber
         }
-        this.#mynumber = Parser.build(this.#expression)
+        this.#mynumber = simplify(Parser.build(this.#expression))
         return this.#mynumber
     }
 
@@ -276,7 +282,7 @@ class MyMath {
             ? this.#mynumber.toStringEn()
             : MyMath.normalization(this.#expression)
         try {
-            this.#nerdamer_processed = nerdamer(normalized)
+            this.#nerdamer_processed = nerdamer(normalized).evaluate()
         } catch (e) {
             console.warn(`Erreur lors du traitement avec nerdamer de ${normalized}:`, e)
             this.#nerdamer_processed = nerdamer("NaN")
@@ -330,11 +336,11 @@ class MyMath {
         }
         if (format === 's$') {
             // format personnalisé pour contourner des soucis de nerdamer
-            return this.#getMyNumber().simplify().toTex()
+            return simplify(this.#getMyNumber()).toTex()
         }
         if (format === 's') {
             // format personnalisé pour contourner des soucis de nerdamer
-            return this.#getMyNumber().simplify().toString()
+            return simplify(this.#getMyNumber()).toString()
         }
         if (format === 'f') {
             return this.#toFormatDecimal(-1);
@@ -364,8 +370,8 @@ class MyMath {
             // La procédure de décimalisation va calculer ce qui peut l'être
             // et on peut fixer au besoin, sinon on garde toute la précision
             return n>=0
-                ? this.#getMyNumber().Decimalize().toFixed(n).toString()
-                : this.#getMyNumber().Decimalize().toString()
+                ? decimalize(this.#getMyNumber()).toFixed(n).toString()
+                : decimalize(this.#getMyNumber()).toString()
         }
         if (n >= 0) {
             return this.#getMyNumber().toDecimal().toFixed(n).replace('.', ',')
@@ -452,6 +458,10 @@ class MyMath {
 
     sub(varName, value) {
         return new MyMath(PRIVATE, { nerdamer: this.#getNerdamerProcessed().sub(varName, value) })
+    }
+
+    diff() {
+        return new MyMath(PRIVATE, { expression: `diff(${this.#expression})` })
     }
 
     buildFunction() {
