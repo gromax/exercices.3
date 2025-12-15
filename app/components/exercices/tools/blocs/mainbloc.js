@@ -4,6 +4,7 @@ import Bloc from "./bloc"
 import TextNode from "./textnode"
 import TextBloc from "./textbloc"
 import InputTextBloc from "./inputs/inputtextbloc"
+import InputEnsemble from "./inputs/inputensemble"
 import RadioBloc from "./inputs/radiobloc"
 import FormBloc from "./FormBloc"
 import Parameter from "./parameter"
@@ -190,6 +191,9 @@ class MainBloc extends Bloc {
         }
         if (RadioBloc.LABEL == label) {
             return new RadioBloc(label, paramsString);
+        }
+        if (InputEnsemble.LABEL == label) {
+            return new InputEnsemble(label, paramsString);
         }
         if (FormBloc.LABELS.includes(label)) {
             return new FormBloc(label, paramsString);
