@@ -9,7 +9,8 @@ const KEYS = {
     'cube': '$x^3$',
     'help': '<i class="fa-solid fa-question"></i>',
     'infini': '$\\infty$',
-    'empty': 'Ø'
+    'empty': 'Ø',
+    'union': '$\\cup$',
 }
 
 const InputView = View.extend({
@@ -29,7 +30,8 @@ const InputView = View.extend({
         'click .js-cube': 'keyboard:cube',
         'click .js-help': 'keyboard:help',
         'click .js-infini': 'keyboard:infini',
-        'click .js-empty': 'keyboard:empty'
+        'click .js-empty': 'keyboard:empty',
+        'click .js-union': 'keyboard:union'
     },
 
     regions: {
@@ -41,6 +43,7 @@ const InputView = View.extend({
         const newValue = value.slice(0, start) + 'sqrt(' + value.slice(start,end) + ')' + value.slice(end);
         const input = this.el.querySelector('input[name="' + this.getOption("name") + '"]');
         input.value = newValue;
+        input.focus();
     },
 
     onKeyboardSquare() {
@@ -70,6 +73,7 @@ const InputView = View.extend({
             : value.slice(0, start) + '(' + value.slice(start,end) + ')^' + value.slice(end);
         const input = this.el.querySelector('input[name="' + this.getOption("name") + '"]');
         input.value = newValue;
+        input.focus();
     },
 
     onKeyboardHelp() {
@@ -83,6 +87,7 @@ const InputView = View.extend({
         const newValue = value.slice(0, start) + '∞' + value.slice(end);
         const input = this.el.querySelector('input[name="' + this.getOption("name") + '"]');
         input.value = newValue;
+        input.focus();
     },
 
     onKeyboardEmpty() {
@@ -90,6 +95,15 @@ const InputView = View.extend({
         const newValue = value.slice(0, start) + '∅' + value.slice(end);
         const input = this.el.querySelector('input[name="' + this.getOption("name") + '"]');
         input.value = newValue;
+        input.focus();
+    },
+
+    onKeyboardUnion() {
+        const {start, end, value} = this._getInputSelection();
+        const newValue = value.slice(0, start) + '∪' + value.slice(end);
+        const input = this.el.querySelector('input[name="' + this.getOption("name") + '"]');
+        input.value = newValue;
+        input.focus();
     },
 
     _getInputSelection() {
