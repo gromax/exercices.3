@@ -14,6 +14,7 @@ class Calc {
         'float': Calc.float,
         'round': Calc.round,
         'expand': Calc.expand,
+        'diff': Calc.diff,
     }
     static SHORTCUTS = {
         'abs': 'Calc.abs',
@@ -27,6 +28,7 @@ class Calc {
         'float': 'Calc.float',
         'round': 'Calc.round',
         'expand': 'Calc.expand',
+        'diff': 'Calc.diff',
     }
     static mult(x, y) {
         const a = Number(x);
@@ -38,7 +40,7 @@ class Calc {
     }
 
     static divide(x, y) {
-        return `${String(x)} / ${String(y)}`;
+        return `(${String(x)}) / (${String(y)})`;
     }
 
     static add(x, y) {
@@ -134,6 +136,15 @@ class Calc {
             console.warn(`Erreur lors de la conversion en float de l'expression ${expression} :`, e);
             return NaN;
         }
+    }
+
+    /**
+     * dérive l'expression
+     * @param {string|MyMath} expression 
+     * @returns 
+     */
+    static diff(expression) {
+        return MyMath.make(expression).diff().toString();
     }
 }
 export default Calc;
