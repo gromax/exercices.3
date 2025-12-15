@@ -14,7 +14,8 @@ const Controller = MnObject.extend({
     }
     const view = new ShowExerciceView({
       model: exercice,
-      showModButton: logged.id === exercice.get("idOwner") || logged.isAdmin()
+      showModButton: logged.id === exercice.get("idOwner") || logged.isAdmin(),
+      showCloneButton: logged.isProf() || logged.isAdmin()
     });
     const regionMain = channel.request("region:main")
     regionMain.show(view);
