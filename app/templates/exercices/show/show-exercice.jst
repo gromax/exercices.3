@@ -4,6 +4,9 @@
     <% if (showModButton) { %>
     <a href="#sujet-exercice:<%- id %>/edit" class="btn btn-success btn-sm" role="button"><i class="fa fa-pencil" title="Modifier"></i> Modifier</a>
     <% } %>
+    <% if (showCloneButton) { %>
+    <a href="#sujet-exercice:<%- id %>/clone" class="btn btn-warning btn-sm" role="button"><i class="fa-solid fa-clone" title="cloner"></i> Cloner</a>
+    <% } %>
 </h3>
 
 <p><%- description %></p>
