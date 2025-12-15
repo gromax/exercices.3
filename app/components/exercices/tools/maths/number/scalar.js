@@ -122,6 +122,13 @@ class Scalar extends Base {
         return this.#value.toNumber()
     }
 
+    addScalar(n) {
+        if (!(n instanceof Scalar)) {
+            throw new Error('n doit être un Scalar')
+        }
+        return new Scalar(this.#value.add(n.#value))
+    }
+
     /**
      * Renvoie vrai si == 1
      * @returns { boolean }
@@ -182,7 +189,13 @@ class Scalar extends Base {
     }
 
     signature() {
-        return []
+        return {
+            scalarNum: this.#value,
+            scalarDen: Decimal(1),
+            exponent: 1,
+            text: '1',
+            node: Scalar.ONE
+        }
     }
 
     multiplyBy(n) {
@@ -194,6 +207,19 @@ class Scalar extends Base {
 
     toFixed(n) {
         return new Scalar(this.#value.toFixed(n))
+    }
+
+    toDict() {
+        return {
+            type: "Scalar",
+            chaine: this.#chaine,
+            decimal: this.#value,
+            number: this.#value.toNumber()
+        }
+    }
+
+    isPositive() {
+        return this.#value.isPositive()
     }
 }
 

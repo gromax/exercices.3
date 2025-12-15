@@ -72,19 +72,6 @@ class MultDiv extends Base {
         return new this.constructor(leftSub, rightSub);
     }
 
-    Decimalize() {
-        const newLeft = this._left.Decimalize()
-        const newRight = this._right.Decimalize()
-        if (newLeft._isNumber && newRight._isNumber) {
-            if (this instanceof Mult) {
-                return new Scalar(newLeft.toDecimal().mul(newRight.toDecimal()))
-            } else if (this instanceof Div) {
-                return new Scalar(newLeft.toDecimal().dividedBy(newRight.toDecimal()))
-            }
-        }
-        return (new this.constructor(newLeft, newRight)).simplify()
-    }
-
     toFixed(n) {
         const newLeft = this._left.toFixed(n)
         const newRight = this._right.toFixed(n)
@@ -183,62 +170,89 @@ class Mult extends MultDiv {
     }
 
     signature() {
-        const lefts = this._left.signature();
-        const rights = this._right.signature();
-        return [...lefts, ...rights].sort();
+        let lefts = this._left.signature()
+        if (!Array.isArray(lefts)) {
+            lefts = [lefts]
+        }
+        let rights = this._right.signature()
+        if (!Array.isArray(rights)) {
+            rights = [rights]
+        }
+        for (let s of rights) {
+            let found = false
+            for (let s1 of lefts) {
+                if (s.text === s1.text) {
+                    // simplification
+                    s1.exponent += s.exponent
+                    s1.scalarNum = s1.scalarNum.mul(s.scalarNum)
+                    s1.scalarDen = s1.scalarDen.mul(s.scalarDen)
+                    found = true
+                    break
+                }
+            }
+            if (!found) {
+                lefts.push(s)
+            }
+        }
+        for (let item of lefts) {
+            if (item.scalarNum.equals(0)) {
+                return {
+                    scalarNum: Decimal(0),
+                    scalarDen: Decimal(1),
+                    exponent: 1,
+                    text: '0',
+                    node: Scalar.ZERO
+                }
+            }
+            if (item.exponent === 0) {
+                item.text = '1'
+                item.node = Scalar.ONE
+            }
+        }
+        const scalars = lefts.filter(item => item.text === '1')
+        const nonScalars = lefts.filter(item => item.text !== '1')
+        while (scalars.length > 1) {
+            const s1 = scalars.pop()
+            scalars[0].scalarNum = scalars[0].scalarNum.mul(s1.scalarNum)
+            scalars[0].scalarDen = scalars[0].scalarDen.mul(s1.scalarDen)
+        }
+        const result = [...scalars, ...nonScalars]
+        if (result.length === 1) {
+            return result[0]
+        }
+        return result.sort((a, b) => a.text.localeCompare(b.text))
     }
 
     /** recherche les facteurs dans les mults enfants
      * @returns {Array<Base>} */
-    _chilfFactors() {
+    childFactors() {
         const factorsLeft = this._left instanceof Mult
-            ? this._left._chilfFactors()
+            ? this._left.childFactors()
             : [this._left];
         const factorsRight = this._right instanceof Mult
-            ? this._right._chilfFactors()
+            ? this._right.childFactors()
             : [this._right];
         return factorsLeft.concat(factorsRight);
-    }
-
-    simplify() {
-        const factors = this._chilfFactors().map(f => f.simplify());
-        const scalarsFactors = factors.filter(f => f instanceof Scalar);
-        let scalarFactor = Scalar.ONE;
-        for (let sf of scalarsFactors) {
-            scalarFactor = scalarFactor.multiplyBy(sf);
-        }
-        if (scalarFactor.isZero()) {
-            return Scalar.ZERO;
-        }
-        const nonScalarFactors = factors.filter(f => !(f instanceof Scalar) && !f.isOne());
-        if (nonScalarFactors.length === 0) {
-            return scalarFactor;
-        }
-
-        const nonScalar = Mult.fromList(nonScalarFactors);
-        if (scalarFactor.isOne()) {
-            return nonScalar;
-        }
-        return new Mult(scalarFactor, nonScalar);
     }
 
     opposite() {
         // recherche un enfant pour porter l'opposite
         // sinon multiplie par -1
-        const s = this.simplify();
-        if (s instanceof Mult) {
-            if (typeof s.left.opposite === 'function') {
-                return new Mult(s.left.opposite(), s.right);
-            }
-            if (typeof s.right.opposite === 'function') {
-                return new Mult(s.left, s.right.opposite());
-            }
-            return new Mult(Scalar.MINUS_ONE, s);
+        if (typeof this.left.opposite === 'function') {
+            return new Mult(this.left.opposite(), this.right);
         }
-        if (typeof s.opposite === 'function') {
-            return s.opposite();
+        if (typeof this.right.opposite === 'function') {
+            return new Mult(this.left, this.right.opposite());
         }
-        return new Mult(Scalar.MINUS_ONE, s);
+        return new Mult(Scalar.MINUS_ONE, this);
+    }
+
+    toDict() {
+        return {
+            type: "Mult",
+            left: this._left.toDict(),
+            right: this._right.toDict()
+        }
     }
 }
 
@@ -303,45 +317,61 @@ class Div extends MultDiv {
     }
 
     signature() {
-        const lefts = this._left.signature();
-        const rights = this._right.signature().map(s => `/${s}`);
-        const result = [];
-        for (let s of lefts) {
-            if (rights.includes(`/${s}`)) {
-                // simplification
-                const i = rights.indexOf(`/${s}`);
-                rights.splice(i, 1);
-                continue;
-            }
-            result.push(s);
+        let lefts = this._left.signature()
+        if (!Array.isArray(lefts)) {
+            lefts = [lefts]
+        }
+        let rights = this._right.signature()
+        if (!Array.isArray(rights)) {
+            rights = [rights]
         }
         for (let s of rights) {
-            result.push(s);
-        }
-        return result.sort();
-    }
-
-    simplify() {
-        const leftSim = this._left.simplify();
-        const rightSim = this._right.simplify();
-        if (leftSim.isZero()) {
-            return Scalar.ZERO;
-        }
-        if (rightSim.isOne()) {
-            return leftSim;
-        }
-        if (rightSim.isZero()) {
-            return Scalar.NAN;
-        }
-        // simplification des scalaires
-        if (leftSim instanceof Scalar && rightSim instanceof Scalar) {
-            if (leftSim.toDecimal().modulo(rightSim.toDecimal()).equals(0)
-                && (!leftSim.isInteger() || !rightSim.isInteger())) {
-                const val = leftSim.toDecimal().dividedBy(rightSim.toDecimal());
-                return new Scalar(val);
+            let found = false
+            for (let s1 of lefts) {
+                if (s.text === s1.text) {
+                    // simplification
+                    s1.exponent -= s.exponent
+                    s1.scalarNum = s1.scalarNum.mul(s.scalarDen)
+                    s1.scalarDen = s1.scalarDen.mul(s.scalarNum)
+                    found = true
+                    break
+                }
+            }
+            if (!found) {
+                s.exponant = -s.exponent
+                const den = s.scalarDen
+                s.scalarDen = s.scalarNum
+                s.scalarNum = den
+                lefts.push(s)
             }
         }
-        return new Div(leftSim, rightSim);
+        for (let item of lefts) {
+            if (item.scalarNum.equals(0)) {
+                return {
+                    scalarNum: Decimal(0),
+                    scalarDen: Decimal(1),
+                    exponent: 1,
+                    text: '0',
+                    node: Scalar.ZERO
+                }
+            }
+            if (item.exponent === 0) {
+                item.text = '1'
+                item.node = Scalar.ONE
+            }
+        }
+        const scalars = lefts.filter(item => item.text === '1')
+        const nonScalars = lefts.filter(item => item.text !== '1')
+        while (scalars.length > 1) {
+            const s1 = scalars.pop()
+            scalars[0].scalarNum = scalars[0].scalarNum.mul(s1.scalarNum)
+            scalars[0].scalarDen = scalars[0].scalarDen.mul(s1.scalarDen)
+        }
+        const result = [...scalars, ...nonScalars]
+        if (result.length === 1) {
+            return result[0]
+        }
+        return result.sort((a, b) => a.text.localeCompare(b.text))
     }
 
     opposite() {
@@ -353,6 +383,14 @@ class Div extends MultDiv {
         }
         return new Mult(Scalar.MINUS_ONE, this);
     }
+
+    toDict() {
+        return {
+            type: "Div",
+            left: this._left.toDict(),
+            right: this._right.toDict()
+        }
+    }
 }
 
-export { Mult, Div};
+export { Mult, Div, MultDiv};

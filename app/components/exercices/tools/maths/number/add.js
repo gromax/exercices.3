@@ -55,18 +55,34 @@ class AddMinus extends Base {
         if (new Set(c).size < c.length) {
             return false;
         }
+        if (c.includes('0')) {
+            return false;
+        }
         return true;
     }
 
+    _getChildAddMinus() {
+        const left  = this._left instanceof AddMinus
+            ? this._left._getChildAddMinus()
+            : [this._left]
+        const right = this._right instanceof AddMinus
+            ? this._right._getChildAddMinus()
+            : [this._right]
+        return left.concat(right)
+    }
+
     childrenSignatures() {
-        // récupère les sinatures des enfants
-        const lefts = (this._left instanceof AddMinus)
-            ? this._left.childrenSignatures()
-            : [this._left.signature().join(',')];
-        const rights = (this._right instanceof AddMinus)
-            ? this._right.childrenSignatures()
-            : [this._right.signature().join(',')];
-        return [...lefts, ...rights];
+        // récupère les enfants pris dans un +/-
+        return this._getChildAddMinus().map(
+            (child) => {
+                const s = child.signature()
+                if (Array.isArray(s)) {
+                    return s.map( c => `(${c.text})^${c.exponent}` ).join('*')
+                } else {
+                    return `(${s.text})^${s.exponent}`
+                }
+            }
+        )
     }
 
     /**
@@ -116,19 +132,6 @@ class AddMinus extends Base {
             return this
         }
         return new this.constructor(leftSub, rightSub);
-    }
-
-    Decimalize() {
-        const newLeft = this._left.Decimalize()
-        const newRight = this._right.Decimalize()
-        if (newLeft._isNumber && newRight._isNumber) {
-            if (this instanceof Add) {
-                return new Scalar(newLeft.toDecimal().plus(newRight.toDecimal()))
-            } else if (this instanceof Minus) {
-                return new Scalar(newLeft.toDecimal().minus(newRight.toDecimal()))
-            }
-        }
-        return (new this.constructor(newLeft, newRight)).simplify()
     }
 
     toFixed(n) {
@@ -195,6 +198,22 @@ class Add extends AddMinus {
         return this.#stringEN
     }
 
+    /** recherche les opérandes des add/minus enfants
+     * @returns {[Array<Base>, Array<Base>]} les éléments en plus et les éléments en moins
+     */
+    childOperands() {
+        const factorsLeft = this._left instanceof AddMinus
+            ? this._left.childOperands()
+            : [[this._left], []]
+        const factorsRight = this._right instanceof AddMinus
+            ? this._right.childOperands()
+            : [[this._right], []]
+        return [
+            factorsLeft[0].concat(factorsRight[0]),
+            factorsLeft[1].concat(factorsRight[1])
+        ]
+    }
+
     /**
      * renvoie une représentation tex
      * @returns {string}
@@ -213,6 +232,14 @@ class Add extends AddMinus {
     toDecimal(values) {
         let v = this._left.toDecimal(values);
         return v.plus(this._right.toDecimal(values));
+    }
+
+    toDict() {
+        return {
+            type: "Add",
+            left: this._left.toDict(),
+            right: this._right.toDict()
+        }
     }
 }
 
@@ -252,6 +279,22 @@ class Minus extends AddMinus {
         this.#stringEN = `(${this._left.toStringEn()}) - (${this._right.toStringEn()})`
         return this.#stringEN
     }
+
+    /** recherche les opérandes des add/minus enfants
+     * @returns {[Array<Base>, Array<Base>]} les éléments en plus et les éléments en moins
+     */
+    childOperands() {
+        const factorsLeft = this._left instanceof AddMinus
+            ? this._left.childOperands()
+            : [[this._left], []]
+        const factorsRight = this._right instanceof AddMinus
+            ? this._right.childOperands().reverse()
+            : [[], [this._right]]
+        return [
+            factorsLeft[0].concat(factorsRight[0]),
+            factorsLeft[1].concat(factorsRight[1])
+        ]
+    }
  
     /**
      * renvoie une représentation tex
@@ -276,28 +319,18 @@ class Minus extends AddMinus {
         return left.minus(right);
     }
 
-    simplify() {
-        const leftSim = this._left.simplify();
-        const rightSim = this._right.simplify();
-        if (leftSim.isZero()) {
-            if (typeof rightSim.opposite === 'function') {
-                return rightSim.opposite();
-            }
-        } 
-        if (rightSim.isZero()) {
-            return leftSim;
-        }
-        if (leftSim instanceof Scalar && rightSim instanceof Scalar) {
-            let val = leftSim.toDecimal().minus(rightSim.toDecimal());
-            return new Scalar(val);
-        }
-        return new this.constructor(leftSim, rightSim);
-    }
-
     opposite() {
         return new Minus(this._right, this._left);
     }
 
+    toDict() {
+        return {
+            type: "Minus",
+            left: this._left.toDict(),
+            right: this._right.toDict()
+        }
+    }
+
 }
 
-export { Add, Minus};
+export { Add, Minus, AddMinus};

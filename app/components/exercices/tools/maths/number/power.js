@@ -1,6 +1,6 @@
+import { A } from "@svgdotjs/svg.js";
 import { Base } from "./base";
 import Decimal from "decimal.js";
-import { E } from "./constant";
 
 class Power extends Base {
     /** @type {Base} */
@@ -39,7 +39,10 @@ class Power extends Base {
         }
         let base = this.#base.priority <= this.priority? `(${String(this.#base)})`:String(this.#base);
         let exposant = this.#exposant.priority <= this.priority? `(${String(this.#exposant)})`:String(this.#exposant);
-        this.#string = `${base} ^ ${exposant}`;
+        if (exposant.startsWith('-')) {
+            exposant = `(${exposant})`;
+        }
+        this.#string = `${base}^${exposant}`;
         return this.#string;
     }
 
@@ -96,7 +99,9 @@ class Power extends Base {
      * @returns {string}
      */
     toTex() {
-        let texBase = this.#base.priority <= this.priority? `\\left(${this.#base.toTex()}\\right)`:this.#base.toTex();
+        let texBase = this.#base.priority <= this.priority
+            ? `\\left(${this.#base.toTex()}\\right)`
+            : this.#base.toTex();
         let texExposant = this.#exposant.toTex();
         return `${texBase}^{${texExposant}}`;
     }
@@ -112,29 +117,36 @@ class Power extends Base {
         return base.pow(exposant);
     }
 
-    signature() {
-        const expoStr = String(this.#exposant);
-        if (/^[+-]?\d+$/.test(expoStr)) {
-            // expo entier
-            const n = parseInt(expoStr, 10);
-            const b = n>0
-                ? this.#base.signature()
-                : this.#base.signature().map(s => `/${s}`);
-            return Array.from({length: Math.abs(n)}, () => b).flat().sort();
+    _powSignature(signature, n) {
+        if (Array.isArray(signature)) {
+            signature.forEach(item => {
+                this._powSignature(item, n)
+            })
+            return
         }
-        return this.toString();
+        if (signature.text != '1') {
+            signature.exponent *= n
+        }
+        signature.scalarNum = signature.scalarNum.pow(n)
+        signature.scalarDen = signature.scalarDen.pow(n)
     }
 
-    /**
-     * renvoie false si ce n'est pas un e^...
-     * et si c'en est un renvoie l'exposant
-     * @returns {false, Base}
-     */
-    isExponential() {
-        if (this.#base === E) {
-            return this.#exposant;
+    signature() {
+        const expoStr = String(this.#exposant)
+        if (/^[+-]?\d+$/.test(expoStr)) {
+            // expo entier
+            const n = parseInt(expoStr, 10)
+            const b = this.#base.signature()
+            this._powSignature(b, n)
+            return b
         }
-        return false;
+        return {
+            scalarNum: Decimal(1),
+            scalarDen: Decimal(1),
+            exponent: 1,
+            text: `${this.toString()}`,
+            node: this
+        }
     }
 
     substituteVariable(varName, value) {
@@ -157,19 +169,18 @@ class Power extends Base {
         return new Power(newBase, newExposant)
     }
 
-    Decimalize() {
-        const newBase = this.#base.Decimalize()
-        const newExposant = this.#exposant.Decimalize()
-        if (newBase._isNumber && newExposant._isNumber) {
-            return new Scalar(newBase.toDecimal().pow(newExposant.toDecimal()))
-        }
-        return new Power(newBase, newExposant)
-    }
-
     toFixed(n) {
         const newBase = this.#base.toFixed(n)
         const newExposant = this.#exposant.toFixed(n)
         return new Power(newBase, newExposant)
+    }
+
+    toDict() {
+        return {
+            type: "Power",
+            base: this.#base.toDict(),
+            exposant: this.#exposant.toDict()
+        }
     }
 }
 

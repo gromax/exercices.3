@@ -135,7 +135,13 @@ class Symbol extends Base {
     }
 
     signature() {
-        return [this.#name]
+        return {
+            scalarNum:Decimal(1),
+            scalarDen:Decimal(1),
+            exponent:1,
+            text: this.#name,
+            node:this
+        }
     }
 
     substituteVariable(varName, value) {
@@ -155,6 +161,13 @@ class Symbol extends Base {
         }
         return this
     }
+
+    toDict() {
+        return {
+            type: "Symbol",
+            name: this.#name
+        }
+    }
 }
 
 function makeSymbol(name) {
@@ -165,4 +178,8 @@ function isSymbol(name) {
     return Symbol.isSymbol(name);
 }
 
-export { makeSymbol, isSymbol };
+function isTypeSymbol(obj){
+    return obj instanceof Symbol;
+}
+
+export { makeSymbol, isSymbol, isTypeSymbol };

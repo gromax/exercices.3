@@ -98,6 +98,22 @@ class Constant extends Base {
     toFixed(n) {
         return new Scalar(this.toDecimal().toFixed(n))
     }
+
+    toDict() {
+        return {
+            type: "Constant",
+            name: this.#name
+        }
+    }
+
+    signature() {
+        return {
+            scalar:Decimal(1),
+            exponent:1,
+            text: this.toString(),
+            node:this
+        }
+    }
 }
 
 const E = Constant.fromString('e');
@@ -113,4 +129,8 @@ function makeConstant(name){
     return Constant.fromString(name)
 }
 
-export { makeConstant, isConstant, E, PI, I, INFINI }
+function isTypeConstant(obj){
+    return obj instanceof Constant;
+}
+
+export { makeConstant, isConstant, isTypeConstant, E, PI, I, INFINI }

@@ -180,60 +180,45 @@ class Function extends Base {
     }
 
     signature() {
-        return [this.toString()];
-    }
-
-    isExponential() {
-        if (this.#name === 'exp') {
-            return this.#child;
-        }
-        return false;
-    }
-
-    simplify() {
-        const childSim = this.#child.simplify();
         if (this.#name === '(+)') {
-            return childSim;
+            return this.#child.signature()
         }
         if (this.#name === '(-)') {
-            if (typeof childSim.opposite === 'function') {
-                return childSim.opposite();
+            const s = this.#child.signature()
+            if (Array.isArray(s)) {
+                if (s.length === 0) {
+                    throw new Error("Impossible de calculer la signature de l'opposé d'un noeud vide")
+                }
+                s[0].scalarNum = s[0].scalarNum.mul(-1)
+            } else {
+                s.scalarNum = s.scalarNum.mul(-1)
             }
+            return s
         }
-        if (typeof childSim.isExponential === 'function' && this.#name == 'ln') {
-            const exponent = childSim.isExponential();
-            if (exponent !== false) {
-                return exponent;
+        if (this.#name === 'inverse') {
+            const s = this.#child.signature()
+            if (Array.isArray(s)) {
+                s.forEach(item => {
+                    const den = item.scalarDen
+                    item.scalarDen = item.scalarNum
+                    item.scalarNum = den
+                    item.exponent = -item.exponent
+                })
+            } else {
+                s.exponent = -s.exponent
+                const den = s.scalarDen
+                s.scalarDen = s.scalarNum
+                s.scalarNum = den
             }
+            return s
         }
-        const d = childSim.toDecimal()
-        if (this.#name === 'sign') {
-            if (d.isZero()) {
-                return Scalar.ZERO
-            }
-            if (d.isPositive()) {
-                return Scalar.ONE
-            }
-            if (d.isNegative()) {
-                return Scalar.MINUS_ONE
-            }
-        } 
-        if (d.isZero()) {
-            if (this.#name === '(+)' || this.#name === '(-)' || this.#name === 'sin' || this.#name === 'sqrt') {
-                return childSim;
-            }
-            if (this.#name === 'exp' || this.#name === 'cos') {
-                return Scalar.ONE;
-            }
-            if (this.#name === 'ln' || this.#name === 'log') {
-                return Scalar.NAN;
-            }
+        return {
+            scalarNum: Decimal(1),
+            scalarDen: Decimal(1),
+            exponent: 1,
+            text: this.toString(),
+            node: this
         }
-
-        if (childSim === this.#child) {
-            return this;
-        }
-        return new Function(this.#name, childSim);
     }
 
     opposite() {
@@ -262,18 +247,17 @@ class Function extends Base {
         return new Function(this.#name, newChild)
     }
 
-    Decimalize() {
-        const newChild = this.#child.Decimalize()
-        if (newChild._isNumber) {
-            const d = newChild.toDecimal()
-            return new Scalar( Function.calc(this.#name, d) )
-        }
-        return new Function(this.#name, newChild)
-    }
-
     toFixed(n) {
         const newChild = this.#child.toFixed(n)
         return new Function(this.#name, newChild)
+    }
+
+    toDict() {
+        return {
+            type: "Function",
+            name: this.#name,
+            child: this.#child.toDict()
+        }
     }
 }
 

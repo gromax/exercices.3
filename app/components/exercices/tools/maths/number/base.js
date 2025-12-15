@@ -67,20 +67,18 @@ class Base {
     }
 
     /**
-     * simplification symbolique
-     * pour des simplifications simples
-     * @returns {Base}
-     */
-    simplify() {
-        return this;
-    }
-
-    /**
-     * renvoie une signature représentant le contenu symbolique d'un noeud
-     * @returns {Array<string>}
+     * renvoie une signature, c'est à dire un objet avec un facteur scalair
+     * et un texte représentant le contenu
+     * @returns {object}
      */
     signature() {
-        return [`(${this.toString()})`];
+        return {
+            scalarNum: Decimal(1),
+            scalarDen: Decimal(1),
+            exponent: 1,
+            text: `${this.toString()}`,
+            node: this
+        }
     }
 
     /**
@@ -88,7 +86,8 @@ class Base {
      * @returns {boolean}
      */
     isZero() {
-        return false;
+        const d = this.toDecimal()
+        return d.equals(0)
     }
 
     /**
@@ -138,20 +137,19 @@ class Base {
     }
 
     /**
-     * Renvoie une version où les calculs numériques sont effectués en Decimal
-     * par exemple 4/5 * x devient 0.8 * x
-     */
-    Decimalize() {
-        return this
-    }
-
-    /**
      * Transforme to les décimaux en une version fixée à n chiffres
      * @param {*} n 
      * @returns 
      */
     toFixed(n) {
         return this
+    }
+
+    /**
+     * renvoie une version dictionnaire du noeud
+     */
+    toDict() {
+        return { type: "Base" }
     }
 }
 
