@@ -70,6 +70,11 @@ function substituteLabels(expr, params) {
         if (replacement === null) {
             return match;
         }
+        if (typeof replacement === 'string'
+            && replacement.startsWith('"')
+            && replacement.endsWith('"')) {
+            return replacement.slice(1, -1)
+        }
         return `(${String(replacement)})`;
     });
 }
