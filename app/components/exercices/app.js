@@ -108,8 +108,43 @@ const Controller = MnObject.extend({
         channel.trigger("not:found");
         return;
       }
-      channel.trigger("ariane:push", { text:"Modification", link:`exercice:${id}/edit` });
+      channel.trigger("ariane:push", { text:`Modification de #${sujetExo.get('id')}:${sujetExo.get("title")}`, link:`sujet-exercice:${id}/edit` });
       require("./edit/controller.js").controller.edit(sujetExo);
+    }).fail((response) => {
+      channel.trigger("data:fetch:fail", response);
+    }).always(() => {
+      channel.trigger("loading:down");
+    });
+  },
+
+  sujetExerciceClone(id) {
+    const channel = this.getChannel();
+    const logged = channel.request("logged:get");
+    if (!logged.isAdmin() && !logged.isProf()) {
+      channel.trigger("not:found");
+      return;
+    }
+    channel.trigger("loading:up");
+    const fetching = channel.request("data:getitem", "sujetsexercices", id);
+    $.when(fetching).done((sujetExo) => {
+      if (!sujetExo) {
+        channel.trigger("not:found");
+        return;
+      }
+      channel.trigger("ariane:push", { text:`Clone de #${sujetExo.get('id')}:${sujetExo.get("title")}`, link:`sujet-exercice:${id}/clone` });
+      const SujetExo = require("./sujetexo.js").Item;
+      const newSujetExo = new SujetExo({
+        title: `Clone de #${sujetExo.get('id')}:${sujetExo.get("title")}`,
+        description: sujetExo.get("description"),
+        published: false,
+        idOwner: logged.get("id"),
+        nomOwner: logged.get("nom"),
+        keywords: sujetExo.get("keywords"),
+        options: sujetExo.get("options"),
+        code: sujetExo.get("code"),
+        init: sujetExo.get("init")
+      });
+      require("./edit/controller.js").controller.edit(newSujetExo);
     }).fail((response) => {
       channel.trigger("data:fetch:fail", response);
     }).always(() => {
@@ -132,7 +167,7 @@ const Controller = MnObject.extend({
       idOwner: logged.get("id"),
       nomOwner: logged.get("nom")
     });
-    channel.trigger("ariane:push", { text:"Création", link:`exercice/new`, fragile:true });
+    channel.trigger("ariane:push", { text:"Création", link:`sujet-exercice/new`, fragile:true });
     require("./edit/controller.js").controller.edit(newSujetExo);
   },
 
@@ -224,6 +259,7 @@ const Router = Backbone.Router.extend({
     "exercices(/filter/criterion::criterion)": "exercicesList",
     "sujet-exercice::id": "sujetExerciceShow",
     "sujet-exercice::id/edit": "sujetExerciceEdit",
+    "sujet-exercice::id/clone": "sujetExerciceClone",
     "sujet-exercice/new": "sujetExerciceNew",
     "exodevoir::id/:id/:id/:id/run": "exoDevoirRun",
     "trial::id/:id/:id/:id/:id": "trialRun",
@@ -237,6 +273,9 @@ const Router = Backbone.Router.extend({
   },
   sujetExerciceEdit(id) {
     controller.sujetExerciceEdit(id);
+  },
+  sujetExerciceClone(id) {
+    controller.sujetExerciceClone(id);
   },
   sujetExerciceNew() {
     controller.sujetExerciceNew();
