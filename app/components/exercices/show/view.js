@@ -6,7 +6,8 @@ const ShowExerciceView = View.extend({
   templateContext() {
     return {
       showId: this.options.showId || false,
-      showModButton: this.options.showModButton || false
+      showModButton: this.options.showModButton || false,
+      showCloneButton: this.options.showCloneButton || false,
     }
   },
   regions: {
