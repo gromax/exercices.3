@@ -87,11 +87,14 @@ function evaluate(expression, params) {
             const vals = expression.slice(1, -1).split(',').map(v => v.trim())
             return vals.map(v => MyMath.make(substituteParams(v, params)) )
         }
-        if (expression.startsWith('"') && expression.endsWith('"')) {
-            // chaîne de caractères
-            return expression.slice(1, -1);
-        }
         expression = substituteParams(expression, params)
+        if (typeof expression === 'string'
+            && expression.startsWith('"')
+            && expression.endsWith('"')) {
+            // chaîne de caractères
+            return expression
+        }
+
     }
     if (Array.isArray(expression)) {
         return expression.map(expr => MyMath.make(expr))
