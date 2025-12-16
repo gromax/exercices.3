@@ -5,6 +5,7 @@ use ErrorController as EC;
 use BDDObject\User;
 use BDDObject\Logged;
 use BDDObject\Classe;
+use BDDObject\InitKey;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -322,88 +323,94 @@ class users
 
   public function forgottenWithEmail()
   {
-    if (isset($_POST['email']))
+    if (!isset($_POST['email']))
     {
-      $email = $_POST['email'];
-      $id = User::emailExists($email);
-      if ($id!==false) {
-        $user = User::getObject($id);
-        if ($user!==null)
-        {
-          return $this->forgotten($user);
-        }
-        else
-        {
-          EC::set_error_code(404);
-          return false;
-        }
-      }
-      else
-      {
-        EC::set_error_code(404);
-        return false;
-      }
+      EC::set_error_code(422);
+      EC::addError("Email manquant.");
+      return false;
     }
-    else
+    $email = $_POST['email'];
+    // vérification de la validité de l'email
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      EC::set_error_code(501);
+      EC::addError("Email invalide.");
+      return false;
+    }
+    // vérification qu'un tel email existe
+    $res = User::getList([
+      'wheres' => [
+        'email' => $email
+      ]
+    ]);
+    if (count($res)==0)
     {
+      // L'email n'existe pas. On ne dit rien pour des raisons de sécurité.
+      return array("message"=>"Si un utilisateur a cet email, un message lui a été envoyé.");
+    }
+    $idUser = $res[0]['id'];
+    // Nous pouvons créer une clé de réinitialisation
+    $key = InitKey::createKey($idUser);
+    $response = $key->insert();
+    if ($response === false)
+    {
+      EC::addError("Erreur lors de la création de la clé.");
       EC::set_error_code(501);
       return false;
     }
+    if (is_array($response))
+    {
+      // erreur de validation
+      EC::set_error_code(422);
+      return $response;
+    }
+    if (!$this->sendMail($key)) {
+      // erreur lors de l'envoi du mail
+      return false;
+    }
+    return ["message" => "Si un utilisateur a cet email, un message lui a été envoyé."];
   }
 
-  private function forgotten($user)
+  private function sendMail($key)
   {
-    $key = $user->initKey();
-    if ($key!==null)
-    {
-      require_once MAIL_CONFIG;
-      $mail = new PHPMailer(true);                // Passing `true` enables exceptions
-      try{
-        //Server settings
-        $mail->CharSet = 'UTF-8';
-        //$mail->SMTPDebug = 2;                 // Enable verbose debug output
-        $mail->isSMTP();                    // Set mailer to use SMTP
-        $mail->Host = SMTP_HOST;           // Specify main and backup SMTP servers
-        $mail->SMTPAuth = true;                 // Enable SMTP authentication
-        $mail->Username = SMTP_USER;         // SMTP username
-        $mail->Password = SMTP_PASSWORD;               // SMTP password
-        $mail->SMTPSecure = 'ssl';              // Enable TLS encryption, `ssl` also accepted
-        $mail->Port = SMTP_PORT;                  // TCP port to connect to
+    $user = User::getObject($key->get("idUser"));
+    $token = $key->get("initKey");
 
-        //Recipients
-        $mail->setFrom(EMAIL_FROM, PSEUDO_FROM);
-        $arrUser = $user->toArray();
-        $mail->addAddress($user->get('email'), $arrUser['prenom']." ".$arrUser['nom']);   // Add a recipient
-        //$mail->addReplyTo('info@example.com', 'Information');
-        //$mail->addCC('cc@example.com');
-        //$mail->addBCC('bcc@example.com');
+    require_once MAIL_CONFIG;
+    $mail = new PHPMailer(true);
+    
+    try {
+      // Configuration serveur SMTP
+      $mail->CharSet = 'UTF-8';
+      $mail->isSMTP();
+      $mail->Host = SMTP_HOST;
+      $mail->SMTPAuth = true;
+      $mail->Username = SMTP_USER;
+      $mail->Password = SMTP_PASSWORD;
+      $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;  // SSL/TLS moderne
+      $mail->Port = SMTP_PORT;
+      
+      // Décommenter pour debug (affiche les échanges SMTP)
+      // $mail->SMTPDebug = 2;
 
-        //Attachments
-        //$mail->addAttachment('/var/tmp/file.tar.gz');     // Add attachments
-        //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');  // Optional name
+      // Expéditeur et destinataire
+      $mail->setFrom(EMAIL_FROM, PSEUDO_FROM);
+      $mail->addAddress($user->get('email'), $user->get('prenom') . " " . $user->get('nom'));
 
-        //Content
-        $mail->isHTML(true);                  // Set email format to HTML
-        $mail->Subject = "Mot de passe oublié";
-        $mail->Body  = "<b>".NOM_SITE.".</b> Vous avez oublié votre mot de passe. Suivez ce lien pour pour modifier votre mot de passe : <a href='".PATH_TO_SITE."/#forgotten:$key'>Réinitialisation du mot de passe</a>.";
-        $mail->AltBody = NOM_SITE." Vous avez oublié votre mot de passe. Copiez ce lien dans votre navigateur pour vous connecter et modifier votre mot de passe : ".PATH_TO_SITE."/#forgotten:$key";
+      // Contenu de l'email
+      $mail->isHTML(true);
+      $mail->Subject = "Mot de passe oublié";
+      $mail->Body = "<p><b>" . NOM_SITE . "</b></p>"
+                  . "<p>Vous avez oublié votre mot de passe.</p>"
+                  . "<p>Suivez ce lien pour réinitialiser votre mot de passe : "
+                  . "<a href='" . PATH_TO_SITE . "/#forgotten:" . $token . "'>Réinitialisation du mot de passe</a>.</p>";
+      $mail->AltBody = NOM_SITE . " - Vous avez oublié votre mot de passe. "
+                     . "Copiez ce lien dans votre navigateur : " . PATH_TO_SITE . "/#forgotten:" . $token;
 
-        $mail->send();
-      }   catch (Exception $e) {
-        EC::addError("Le message n'a pu être envoyé. Erreur :".$mail->ErrorInfo);
-        EC::set_error_code(501);
-        return false;
-      }
-      $uLog=Logged::getFromToken();
-      if ($uLog->isAdmin() || $user->get("idTeacher") === $uLog->getId()){
-        return array("message"=>"Email envoyé.", "key"=>$key);
-      } else {
-        return array("message"=>"Email envoyé.");
-      }
-    }
-    else
-    {
-      EC::set_error_code(501);
+      $mail->send();
+      return true;
+    } catch (Exception $e) {
+      EC::addError("Le message n'a pu être envoyé. Erreur : " . $mail->ErrorInfo);
+      EC::set_error_code(500);
       return false;
     }
   }
