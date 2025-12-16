@@ -76,6 +76,6 @@ $router->addRule('api/me', 'data', 'fetchMe', 'GET');
 
 // forgotten
 $router->addRule('api/forgotten', 'users', 'forgottenWithEmail', 'POST');
-$router->addRule('api/forgotten/:key', 'session', 'reinitMDP', 'GET'); // Essaie de se connecter avec une clé de réinit
+$router->addRule('api/forgotten/:key', 'session', 'logOnKey', 'GET'); // Essaie de se connecter avec une clé de réinit
 
 ?>
