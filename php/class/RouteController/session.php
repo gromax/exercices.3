@@ -6,6 +6,7 @@ use SessionController as SC;
 use BDDObject\User;
 use BDDObject\Logged;
 use BDDObject\Message;
+use BDDObject\InitKey;
 
 class session
 {
@@ -151,16 +152,33 @@ class session
         ];
     }
 
-    public function reinitMDP()
+    public function logOnKey()
     {
         $key = $this->params["key"];
-        $uLog = Logged::tryConnexionOnInitMDP($key);
-        if ($uLog === null)
+        $keys = InitKey::getList([
+          'wheres' => ['initKey' => $key]
+        ]);
+        if (count($keys) === 0)
         {
-            EC::set_error_code(401);
+            EC::set_error_code(404);
             return false;
         }
-        return $this->getData($uLog);
+        $item = $keys[array_key_first($keys)];
+        $idUser = $item['idUser'];
+        InitKey::deleteFromIdUser($idUser);
+        $user = User::getObject($idUser);
+        if ($user === null) {
+            EC::set_error_code(404);
+            return false;
+        }
+        $uLog = new Logged($user->toArray());
+        $uLog->updateTime();
+        $jwt = SC::makeToken($uLog->dataForToken());
+        return array(
+            "logged" => $uLog->toArray(),
+            "unread" => Message::unReadNumber($uLog->getId()),
+            "token" => $jwt
+        );
     }
 }
 ?>
