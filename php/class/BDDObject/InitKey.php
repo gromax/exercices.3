@@ -10,6 +10,21 @@ final class InitKey extends Item
   protected static $BDDName = "initkeys";
   ##################################### METHODES STATIQUES #####################################
 
+  /**
+   * Créer une clé de réinitialisation pour un utilisateur donné
+   * @param int $id id de l'utilisateur
+   * @return InitKey l'objet InitKey créé
+   */
+  public static function createKey($idUser)
+  {
+    $token = bin2hex(random_bytes(32));
+    $initKey = new InitKey(array(
+      'initKey' => $token,
+      'idUser' => $idUser
+    ));
+    return $initKey;
+  }
+
   protected static function champs()
   {
     return [
