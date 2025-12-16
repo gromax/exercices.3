@@ -56,27 +56,6 @@ class Logged extends User
     return null;
   }
 
-  public static function tryConnexionOnInitMDP($key)
-  {
-    $keys = InitKey::getList([
-      'wheres' => ['initKey' => $key]
-    ]);
-    if (count($keys) === 0)
-    {
-      return null;
-    }
-    $key = new InitKey(array_key_first($keys));
-    InitKey::deleteFromIdUser($key->get('idUser'));
-    $users = User::getList([
-      'wheres' => ['id' => $key->get('idUser')]
-    ]);
-    if (count($users) === 0)
-    {
-      return null;
-    }
-    return new Logged(array_key_first($users));
-  }
-
   public static function getFullData()
   {
     $uLog = Logged::getFromToken();
