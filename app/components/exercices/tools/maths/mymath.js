@@ -259,6 +259,14 @@ class MyMath {
         if (typeof expression !== 'string') {
             expression = String(expression)
         }
+        if (expression.includes('diff(') || expression.includes('expand(')) {
+            // cas particulier où on a une commande nerdamer
+            this.#expression = expression
+            const n = this.#getNerdamerProcessed()
+            this.#expression = MyMath.denormalization(n.toString())
+            return
+        }
+
         if (/^[+-]?\s*(?:inf|infini|infinity|∞)$/i.test(expression)) {
             this.#expression = expression[0] === '-' ? "-infinity" : "infinity"
         } else {
