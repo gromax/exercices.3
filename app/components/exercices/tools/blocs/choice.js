@@ -52,10 +52,10 @@ class ChoiceManager {
                 goodpicto: squareOnly ? 'square' : this._colors.getPicto(index),
             });
             this._collection.add(m)
-            this._notShuffledCollection = this._collection
-            if ((typeof this._params.shuffle === 'undefined') || Boolean(this._params.shuffle)) {
-                this._shuffle()
-            }
+        }
+        this._notShuffledCollection = this._collection
+        if ((typeof this._params.shuffle === 'undefined') || Boolean(this._params.shuffle)) {
+            this._shuffle()
         }
     }
 
@@ -70,13 +70,14 @@ class ChoiceManager {
             const model = this._notShuffledCollection.at(i)
             const v = parseInt(userValue.charAt(i)) || 0
             model.set('index', v)
+            model.set('color', this._colors.getColor(v))
+            model.set('picto', this.squaresOnly ? 'square' : this._colors.getPicto(v))
             if (v === model.get('goodIndex')) {
                 model.set('good', true)
                 count += 1
             } else {
                 model.set('good', false)
             }
-
         }
         return count
     }
