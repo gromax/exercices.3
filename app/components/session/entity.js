@@ -17,15 +17,15 @@ const Session = MyModel.extend({
     },
 
     validate(attrs, options) {
-        const errors = {};
+        const errors = {}
         if (!attrs.identifiant) {
-            errors["identifiant"] = "L'email ne doit pas être vide";
+            errors["identifiant"] = "L'email ne doit pas être vide"
         }
         if (!attrs.pwd) {
-            errors["pwd"] = "Le mot de passe ne doit pas être vide";
+            errors["pwd"] = "Le mot de passe ne doit pas être vide"
         }
         if (!_.isEmpty(errors)){
-            return errors;
+            return errors
         }
     },
 
@@ -37,69 +37,73 @@ const Session = MyModel.extend({
     },
 
     parse(data) {
-        let logged = data.logged;
+        let logged = data.logged
         if (data.token) {
-            localStorage.setItem('jwt', data.token);
+            localStorage.setItem('jwt', data.token)
         }
         if (!logged.nomClasse) {
-            logged.nomClasse = "N/A";
+            logged.nomClasse = "N/A"
         }
-        logged.unread = Number(logged.unread || 0);
+        logged.unread = Number(logged.unread || 0)
         if (typeof logged.rank != "undefined" ){
-            logged.rank = Number(logged.rank);
+            logged.rank = Number(logged.rank)
         } else {
-            logged.rank = Ranks.DISCONNECTED;
+            logged.rank = Ranks.DISCONNECTED
         }
-        logged.rankName = Ranks.getLabel(logged.rank);
+        logged.rankName = Ranks.getLabel(logged.rank)
         if (logged.rank !== Ranks.DISCONNECTED) {
-            logged.nomComplet = `${logged.prenom} ${logged.nom}`;
+            logged.nomComplet = `${logged.prenom} ${logged.nom}`
         } else {
-            logged.nomComplet = "Déconnecté";
+            logged.nomComplet = "Déconnecté"
         }
         if ((typeof logged.pref === "string") && (logged.pref !== "")){
-            logged.pref = JSON.parse(logged.pref);
+            logged.pref = JSON.parse(logged.pref)
         } else {
             logged.pref = {
                 mathquill:true
-            };
+            }
         }
         if (typeof logged.adminMode !== "undefined"){
-            logged.adminMode = Misc.parseBoolean(logged.adminMode);
+            logged.adminMode = Misc.parseBoolean(logged.adminMode)
         } else if ((typeof logged.adminMode === "undefined") && (logged.rank === Ranks.ADMIN)) {
-            logged.adminMode = false;
+            logged.adminMode = false
         }
-        return logged;
+        return logged
     },
 
     load(callBack) {
         /* Charge la session depuis le serveur */
         this.fetch({
             success: function(){
-                if (callBack) callBack();
+                if (callBack) callBack()
             },
             error: function(model, xhr, options) {
                 channel.trigger("popup:error", {
                     message: "Erreur au chargment de la session."
                 })
-                console.warn(`session error : ${xhr.status}, response:${xhr.responseText}`);
+                console.warn(`session error : ${xhr.status}, response:${xhr.responseText}`)
             }
         });
     },
 
-    /*getWithForgottenKey(key) {
-        let defer = $.Deferred()
-        let request = $.ajax(`api/forgotten/${key}`, {
+    getWithForgottenKey(key) {
+        const defer = $.Deferred()
+        const request = $.ajax(`api/forgotten/${key}`, {
             method:'GET',
             dataType:'json'
-        });
+        })
         request.done( (response) => {
-            this.refresh(response)
+            if (response && response.token) {
+                localStorage.setItem('jwt', response.token)
+            }
+            // parse() attend { logged: {...} } donc passer response complet
+            this.set(this.parse(response), { validate: false })
             defer.resolve()
         }).fail( function(response){
-            defer.reject(response);
-        });
-        return defer.promise();
-    },*/
+            defer.reject(response)
+        })
+        return defer.promise()
+    },
     
     isRoot() {
         /* Renvoie true si l'utilisateur est root */
