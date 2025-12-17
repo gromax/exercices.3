@@ -61,7 +61,11 @@ const Item = MyModel.extend({
     const output = _.clone(_.pick(this.attributes, "score", "idExoDevoir", "idUser"));
     output.id = this.get("idBDD");
     output.finished = this.get("finished") ? 1 : 0;
-    output.init = JSON.stringify(this.get("init") || {});
+    const initValue = this.get("init") || {};
+    Object.keys(initValue).forEach(key => {
+        initValue[key] = String(initValue[key]);
+    });
+    output.init = JSON.stringify(initValue);
     output.answers = JSON.stringify(this.get("answers") || {});
     return output;
   },
