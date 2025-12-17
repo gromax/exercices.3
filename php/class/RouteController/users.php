@@ -402,9 +402,9 @@ class users
       $mail->Body = "<p><b>" . NOM_SITE . "</b></p>"
                   . "<p>Vous avez oublié votre mot de passe.</p>"
                   . "<p>Suivez ce lien pour réinitialiser votre mot de passe : "
-                  . "<a href='" . PATH_TO_SITE . "/#forgotten:" . $token . "'>Réinitialisation du mot de passe</a>.</p>";
+                  . "<a href='" . PATH_TO_SITE . "/#forgotten/" . $token . "'>Réinitialisation du mot de passe</a>.</p>";
       $mail->AltBody = NOM_SITE . " - Vous avez oublié votre mot de passe. "
-                     . "Copiez ce lien dans votre navigateur : " . PATH_TO_SITE . "/#forgotten:" . $token;
+                     . "Copiez ce lien dans votre navigateur : " . PATH_TO_SITE . "/#forgotten/" . $token;
 
       $mail->send();
       return true;
