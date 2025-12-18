@@ -196,7 +196,8 @@ function checkValue(userValue, expectedValue, format = "none") {
 
     if (format === "numeric") {
         // numérique mais exacte. Une comparaison directe suffit
-        return MyMath.parseUser(userValue).compare(expectedValue, "==");
+        //return MyMath.parseUser(userValue).compare(expectedValue, "==");
+        return MyMath.parseUser(userValue).pseudoEquality(expectedValue);
     }
     if (format.startsWith("round:") || format.startsWith("erreur:")) {
         // Il faut une évaluation float des deux valeurs
