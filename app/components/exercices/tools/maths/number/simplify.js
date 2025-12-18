@@ -182,7 +182,7 @@ function divSimplify(node) {
             return simplify(new Div(opposite(leftSim), opposite(rightSim)))
         }
         if (leftSim.toDecimal().modulo(rightSim.toDecimal()).equals(0)
-            && (!leftSim.isInteger() || !rightSim.isInteger())) {
+            && leftSim.isInteger() && rightSim.isInteger()) {
             const val = leftSim.toDecimal().dividedBy(rightSim.toDecimal());
             return new Scalar(val);
         }
