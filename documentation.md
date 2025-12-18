@@ -532,13 +532,31 @@ Si vous ajoutez un bloc d'aide dans un input, alors il y aura un bouton d'aide d
 
 les keyboard `infini` et `empty` sont ajoutés automatiquement si on a précisé les format infini et empty.
 
+On peut aussi ajouter son clavier custom :
+
+```
+<keyboard:name:tag:replacement/>
+```
+
+  * `name` est un identifiant unique
+  * `tag` est ce qui apparaîtra sur le bouton
+  * `replacement` est le texte qui sera placé au niveau du curseur dans le champs
+
+Par exempele 
+
+```
+<keyboard:exp:$e^x$:e^x/>
+```
+
+###### Pas de formule en solution !
+
 **Attention :** n'essayez pas de mettre directement une formule comme solution. Le mieux est d'affecter au préalable une variable contenant la solution.
 
 ```
 @sol = ...
 <input:a>
 ...
-<solution:@g/>
+<solution:@sol/>
 ...
 </input>
 ```
