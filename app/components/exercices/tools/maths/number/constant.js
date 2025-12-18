@@ -88,7 +88,7 @@ class Constant extends Base {
     toDecimal(values) {
         switch (this.#name) {
             case 'e': return Decimal.exp(1);
-            case 'π': return Decimal.PI;
+            case 'π': return Decimal.acos(-1);
             case 'i': return Decimal.I;
             case '∞': return new Decimal(Infinity);
             default: return new Decimal(NaN) ;
