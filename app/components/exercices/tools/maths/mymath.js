@@ -315,9 +315,17 @@ class MyMath {
         }
     }
 
+    /**
+     * renvoie la valeur Decimal associée
+     * @returns {Decimal}
+     */
+    toDecimal() {
+        return this.#getMyNumber().toDecimal();
+    }
+
     toString() {
         //console.log(this.#getNerdamerProcessed().toString())
-        return MyMath.denormalization(this.#getNerdamerProcessed().toString());
+        return this.#expression
     }
 
     latex() {
@@ -364,7 +372,7 @@ class MyMath {
             }
             return this.#toFormatDecimal(n);
         }
-        return this.toString();
+        return MyMath.denormalization(this.#getNerdamerProcessed().toString())
     }
 
     /**
@@ -397,6 +405,25 @@ class MyMath {
         // ensuite on veut générer du TeX
         // J'utilise mon parser
         return Parser.build(expr).toTex()
+    }
+
+    /**
+     * Fait une comparaison numérique sur la base d'une évaluation
+     * donc ne vérifie pas symboliquement l'égalité
+     * @param {MyMath|string|number} right 
+     */
+    pseudoEquality(right) {
+        const lStr = this.toDecimal().toString()
+        const rStr = MyMath.make(right).toDecimal().toString()
+        if (lStr === rStr) {
+            return true
+        }
+        // On pourrait admettre un petit écart dû à du bruit de calcul
+        if (lStr.length < 40 || rStr.length < 40) {
+            return false
+        }
+        // On veut au moins 40 chiffres identiques
+        return (lStr.slice(0, 40) === rStr.slice(0, 40))
     }
 
     compare(rightExpr, operator) {
