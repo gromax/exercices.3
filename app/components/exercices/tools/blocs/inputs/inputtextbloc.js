@@ -70,7 +70,8 @@ class InputTextBloc extends InputBloc {
             }
             // pour certains formats, je modifie aussi le clavier
             if (value === "infini") {
-                this.setParam('keyboard', "infini");
+                this.setParam('keyboard', "minfini");
+                this.setParam('keyboard', "pinfini");
             } else if (value === "empty") {
                 this.setParam('keyboard', "empty");
             }

@@ -10,6 +10,8 @@ const KEYS = {
     'cube': { tag: '$x^3$', pre:'(', post: ')³', rep:'³' },
     'help': { tag: '<i class="fa-solid fa-question"></i>' },
     'infini': { tag: '$\\infty$', rep:'∞' },
+    'pinfini': { tag: '$+\\infty$', rep:'+∞' },
+    'minfini': { tag: '$-\\infty$', rep:'-∞' },
     'empty': { tag: '$\\emptyset$', rep:'∅' },
     'union': { tag: '$\\cup$', rep:'∪' },
 }
