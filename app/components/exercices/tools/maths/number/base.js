@@ -63,7 +63,7 @@ class Base {
      * @returns {Decimal}
      */
     toDecimal(values) {
-        return Decimal(NaN);
+        return new Decimal(NaN);
     }
 
     /**
