@@ -2,8 +2,8 @@
     <label for="<%- name %>" class="form-label"><%- tag %></label>
     <% if (keyboard && !_.isEmpty(keyboard)) { %>
     <div class="input-group mb-3">
-        <% _.each(keyboard, (value, key) => { %>
-        <button type="button" class="btn btn-outline-primary js-<%- key %>"><%= value %></button>
+        <% _.each(keyboard, (params, key) => { %>
+        <button type="button" class="btn btn-outline-primary js-keyboard" data-name="<%- key %>"><%= params.tag %></button>
         <% }) %>
         <input type="text" class="form-control" id="<%- name %>" name="<%- name %>" value="<%- answer %>" required>
     </div>
