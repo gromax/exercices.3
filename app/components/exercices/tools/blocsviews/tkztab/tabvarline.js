@@ -2,7 +2,7 @@ import TabLine from "./tabline.js"
 import TabVarItem from "./tabvaritem.js"
 
 class TabVarLine extends TabLine {
-    static MIN_HAUTEUR = 3;
+    static MIN_HAUTEUR = 1
 
     /**
      * @type {Array} liste des items de la ligne

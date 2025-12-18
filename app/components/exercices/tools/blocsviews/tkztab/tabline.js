@@ -46,7 +46,7 @@ class TabLine {
         this._config = {...config} // réalise une copie
         this._index = index
         this._tag = tag
-        const minHauteur = this.constructor.MIN_HAUTEUR || 3
+        const minHauteur = this.constructor.MIN_HAUTEUR
         this._hauteur = Math.max(hauteur, minHauteur)
         this._offset = offset
     }
