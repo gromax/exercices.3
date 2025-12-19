@@ -140,6 +140,22 @@ class Table {
         return Table.sum(Table.product(values, effectifs)) / N;
     }
 
+    static covariance(values1, values2) {
+        if (!Array.isArray(values1) || !Array.isArray(values2)) {
+            throw new Error(`Les arguments de Table.covariance doivent être des tableaux.`);
+        }
+        if (values1.length !== values2.length) {
+            throw new Error(`Les tableaux passés à Table.covariance doivent avoir la même taille.`);
+        }
+        const m1 = Table.average(values1);
+        const m2 = Table.average(values2);
+        let cov = 0;
+        for (let i = 0; i < values1.length; i++) {
+            cov += (values1[i] - m1) * (values2[i] - m2);
+        }
+        return cov / values1.length;
+    }
+
     static variance(values) {
         const m = Table.average(values);
         const squaredDiffs = values.map((val) => (val - m) ** 2);
