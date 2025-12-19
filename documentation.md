@@ -899,6 +899,7 @@ La fonction `Alea.lagrangePolynome` tire `n+1` points au hasard, à coordonnées
   * `Table.product` reçoit `tab1` et `tab2` qui doivent être de même taille et renvoie un tableau des `it1*it2`
   * `Table.average` reçoit `tableau` et renvoie la moyenne des éléments du tableau. Erreur si tableau vide.
   * `Table.average2` reçoit les tableaux `values` et `effectifs`, de même taille, et renvoie la moyenne.
+  * `Table.covariance` reçoit `tableau1` et `tableau2` de même taille et renvoie la covariance des éléments des deux tableaux.
   * `Table.variance` reçoit `tableau` et renvoie la variance des éléments du tableau. Erreur si tableau vide.
   * `Table.variance2` reçoit les tableaux `values` et `effectifs`, de même taille, et renvoie la variance.
   * `Table.std` reçoit `tableau` et renvoie l'écart-type des éléments du tableau. Erreur si tableau vide.
