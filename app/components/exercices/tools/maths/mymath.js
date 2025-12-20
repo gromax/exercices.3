@@ -227,7 +227,11 @@ class MyMath {
      */
     static substituteExpressions(texte, params) {
         return texte.replace(/\{([^:{}]+):\s*([\w]*(?:\$)?)?\}/g, (match, expr, format) => {
-            return MyMath.make(substituteParams(expr, params)).toFormat(format);
+            const replacement = substituteParams(expr, params)
+            if (typeof replacement === 'string' && replacement.startsWith('"') && replacement.endsWith('"')) {
+                return replacement.slice(1, -1)
+            }
+            return MyMath.make(replacement).toFormat(format);
         });
     }
 
@@ -328,6 +332,10 @@ class MyMath {
         return this.#expression
     }
 
+    toStringSimplified() {
+        return this.#getMyNumber().toString()
+    }
+
     latex() {
         if (this.isPlusInfinity()) {
             return "+\\infty";
@@ -364,7 +372,7 @@ class MyMath {
         if (format === 'f$') {
             return this.#toTexDecimal(-1);
         }
-        const m = format.match(/^([1-9][0-9]*)f(\$)?$/);
+        const m = format.match(/^([0-9]*)f(\$)?$/);
         if (m) {
             const n = parseInt(m[1], 10);
             if (m[2]) {
@@ -393,6 +401,19 @@ class MyMath {
             return this.#getMyNumber().toDecimal().toFixed(n).replace('.', ',')
         }
         return this.#getMyNumber().toDecimal().toString().replace('.', ',')
+    }
+
+
+    /** renvoie une représentation décimale
+     * @param {number} n nombre de chiffres après la virgule
+     * @param {string} dot caractère utilisé pour le séparateur décimal
+     * @returns {string}
+     */
+    toFixed(n, dot = '.') {
+        if (dot === '.') {
+            return this.#getMyNumber().toDecimal().toFixed(n)
+        }
+        return this.#getMyNumber().toDecimal().toFixed(n).replace('.', dot)
     }
 
     /**
