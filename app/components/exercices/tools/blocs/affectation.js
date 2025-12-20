@@ -3,21 +3,22 @@ import evaluate from '../maths/pile/evaluation';
 
 class Affectation {
     static parse(line) {
-        const regex = /^@([a-zA-Z_][a-zA-Z0-9_]*)(\[\])?\s*(?:<:(.+)>)?=\s*(.+)$/;
+        const regex = /^@([a-zA-Z_][a-zA-Z0-9_]*)(\[\])?\s*(?:<:(.+)>)?\s*=(?:~([0-9]*))?\s*([^~]+)$/;
         const m = line.match(regex);
         if (!m) {
             return null;
         }
-        const [, tag, brackets, repeater, value] = m;
+        const [, tag, brackets, repeater, approxOrder, value] = m;
         const isArray = brackets !== undefined;
-        return new Affectation(tag, repeater, value, isArray);
+        return new Affectation(tag, repeater, value, isArray, approxOrder);
     }
 
-    constructor(tag, repeater, value, isArray) {
-        this._tag = tag;
-        this._value = value;
-        this._repeater = repeater;
-        this._isArray = isArray;
+    constructor(tag, repeater, value, isArray, approxOrder) {
+        this._tag = tag
+        this._value = value
+        this._repeater = repeater
+        this._isArray = isArray
+        this._approxOrder = typeof approxOrder === 'undefined' ? undefined : Number(approxOrder)
     }
 
     /**
@@ -42,7 +43,10 @@ class Affectation {
             params[this._tag] = [];
         }
         if (this._repeater === undefined) {
-            const value = evaluate(this._value, { ...params, ...protectedParams })
+            let value = evaluate(this._value, { ...params, ...protectedParams })
+            if (typeof this._approxOrder !== 'undefined' && typeof value.toFixed === 'function') {
+                value = value.toFixed(this._approxOrder)
+            }
             if (this._isArray) {
                 params[this._tag].push(value)
             } else {
@@ -55,7 +59,11 @@ class Affectation {
         if (Array.isArray(r)) {
             // cas d'un répéteur tableau
             for (let i = 0; i < r.length; i++) {
-                arr.push(evaluate(this._value, { ...params, ...protectedParams, __v: r[i], __i: i }));
+                let value = evaluate(this._value, { ...params, ...protectedParams, __v: r[i], __i: i })
+                if (typeof this._approxOrder !== 'undefined' && typeof value.toFixed === 'function') {
+                    value = value.toFixed(this._approxOrder)
+                }
+                arr.push(value);
             }
         } else {
             // cas d'un répéteur entier
@@ -64,7 +72,11 @@ class Affectation {
                 throw new Error(`La valeur de répétition pour le paramètre ${this._tag} doit être un entier positif ou un tableau.`);
             }
             for (let i = 0; i < n; i++) {
-                arr.push(evaluate(this._value, { ...params, ...protectedParams, __i: i }));
+                let value = evaluate(this._value, { ...params, ...protectedParams, __i: i });
+                if (typeof this._approxOrder !== 'undefined' && typeof value.toFixed === 'function') {
+                    value = value.toFixed(this._approxOrder)
+                }
+                arr.push(value);
             }
 
         }
