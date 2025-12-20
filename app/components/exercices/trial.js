@@ -62,13 +62,12 @@ const Item = MyModel.extend({
     output.id = this.get("idBDD");
     output.finished = this.get("finished") ? 1 : 0;
     const initValue = this.get("init") || {};
-    Object.keys(initValue).forEach(key => {
-        initValue[key] = String(initValue[key]);
-    });
     output.init = JSON.stringify(initValue);
     output.answers = JSON.stringify(this.get("answers") || {});
     return output;
   },
+
+
 
   addAnswers(newAnswers) {
     const currentAnswers = this.get("answers") || {};
