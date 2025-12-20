@@ -128,9 +128,17 @@ class InputTextBloc extends InputBloc {
             return;
         } else {
             const message = `${userValueTag} est une Mauvaise réponse.`;
-            const solutionFormatted = (typeof this.params.tagSolution !== 'undefined')
+            let solutionFormatted = (typeof this.params.tagSolution !== 'undefined')
                 ? this.params.tagSolution
                 : formatValue(solution, format);
+            // Il peut arriver que l'on envisage plusieurs formules mais qui au final
+            // donne le même résultat formaté. Dans ce cas il faut éviter les répétitions
+            if (Array.isArray(solutionFormatted)) {
+                solutionFormatted = _.uniq(solutionFormatted)
+                if (solutionFormatted.length == 1) {
+                    solutionFormatted = solutionFormatted[0];
+                }
+            }
             const complement = Array.isArray(solutionFormatted)
                 ? `Les bonnes réponses possibles étaient : ${solutionFormatted.join(', ')}.`
                 :`La réponse attendue était : ${solutionFormatted}.`;
