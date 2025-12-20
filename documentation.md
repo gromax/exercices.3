@@ -173,6 +173,16 @@ On peut également définir un tableau par ajouts successifs :
 
 Crée un tableau contenant les valeurs `3` et `12`.
 
+###### Arrondi
+
+Si l'on fait suivre le `=` d'un nombre `~n` on force une évaluaiton arrondie à n décimales.
+
+```
+@x =~2 8/3
+```
+
+La valeur affectée à `@x` sera `2.67`
+
 #### Alea entier
 
 On dispose de la fonction `Alea.entier` mais cela nécessite de passer par la pile. Ainsi, quand on veut créer un nombre entier aléatoire entre `0` et `5` compris par exemple, il faut écrire :
@@ -921,10 +931,13 @@ La fonction `Alea.lagrangePolynome` tire `n+1` points au hasard, à coordonnées
   * `-`, `+`, `/` : idem
   * `float` pour obtenir un float
   * `abs` pour valeur absolue
+  * `exp` calcul l'exponentielle
   * `sign` renvoie `-1` pour un négatif et `+1` pour un positif
   * `solve` reçoit `left`, `right` (deux membres de l'équation) et `name` nom de la variable. Renvoie les solutions
   * `sub` reçoit `expression`, `name` et `value` et renvoie l'expression où on substitué `name` pour `value`. Permet en particulier de calculer $f(x)$.
   * `round` reçoit une valeur `x` et un `entier`. Arrondi à n digits.
+  * `expand` développe l'expression
+  * `diff` dérive l'expression
 
 #### Module Dist
 
