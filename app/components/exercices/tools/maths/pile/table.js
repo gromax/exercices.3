@@ -10,8 +10,10 @@ class Table {
         'size': Table.size,
         'sum': Table.sum,
         'product': Table.product,
+        'moyenne': Table.average,
         'average': Table.average,
         'average2': Table.average2,
+        'covariance': Table.covariance,
         'variance': Table.variance,
         'std': Table.std,
         'variance2': Table.variance2,
@@ -22,25 +24,41 @@ class Table {
         'min': Table.min,
         'ECC2': Table.ECC2,
         'filter': Table.filter,
-    };
+    }
+
+    static numberArray(arr) {
+        if (!Array.isArray(arr)) {
+            throw new Error(`L'argument de Table.numberArray doit être un tableau.`);
+        }
+        return arr.map(v => MyMath.parseFloat(v));
+    }
+
+    static stringArray(arr) {
+        if (!Array.isArray(arr)) {
+            throw new Error(`L'argument de Table.stringArray doit être un tableau.`)
+        }
+        return arr.map(v => String(v))
+    }
+
 
     static indice(val, arr) {
         if (!Array.isArray(arr)) {
             throw new Error(`Le second argument de Table.indice doit être un tableau.`);
         }
-        return arr.indexOf(val);
+        return arr.map(v => String(v)).indexOf(String(val))
     }
 
     static indices(val, arr) {
         if (!Array.isArray(arr)) {
             throw new Error(`Le second argument de Table.indices doit être un tableau.`);
         }
+        arr = Table.stringArray(arr)
         return arr.reduce((acc, item, index) => {
             if (String(item) === String(val)) {
-                acc.push(index);
+                acc.push(index)
             }
-            return acc;
-        }, []);
+            return acc
+        }, [])
     }
 
     /**
@@ -53,21 +71,21 @@ class Table {
         if (!Array.isArray(arr)) {
             throw new Error(`L'argument de Table.sortFreqs doit être un tableau.`);
         }
-        const arrCopy = arr.slice();
-        arrCopy.sort((a, b) => a - b);
-        const valeurs = [];
-        const effectifs = [];
-        let currentValue = null;
+        const arrCopy = Table.numberArray(arr)
+        arrCopy.sort((a, b) => a - b)
+        const valeurs = []
+        const effectifs = []
+        let currentValue = null
         for (const val of arrCopy) {
             if (val !== currentValue) {
-                valeurs.push(val);
-                effectifs.push(1);
-                currentValue = val;
+                valeurs.push(val)
+                effectifs.push(1)
+                currentValue = val
             } else {
-                effectifs[effectifs.length - 1]++;
+                effectifs[effectifs.length - 1]++
             }
         }
-        return [valeurs, effectifs];
+        return [valeurs, effectifs]
     }
 
     /**
@@ -83,27 +101,29 @@ class Table {
         if (values.length !== effectifs.length) {
             throw new Error(`Les tableaux passés à Table.toBrut doivent avoir la même taille.`);
         }
-        const result = [];
+        const result = []
+        effectifs = Table.numberArray(effectifs)
         for (let i = 0; i < values.length; i++) {
             for (let j = 0; j < effectifs[i]; j++) {
-                result.push(values[i]);
+                result.push(values[i])
             }
         }
-        return result;
+        return result
     }
 
     static size(arr) {
         if (!Array.isArray(arr)) {
             throw new Error(`L'argument de Table.size doit être un tableau.`);
         }
-        return arr.length;
+        return arr.length
     }
 
     static sum(arr) {
         if (!Array.isArray(arr)) {
-            throw new Error(`L'argument de Table.sum doit être un tableau.`);
+            throw new Error(`L'argument de Table.sum doit être un tableau.`)
         }
-        return arr.reduce((acc, val) => acc + val, 0);
+        arr = Table.numberArray(arr)
+        return arr.reduce((acc, val) => acc + val, 0)
     }
 
     static product(arr1, arr2) {
@@ -113,31 +133,36 @@ class Table {
         if (arr1.length !== arr2.length) {
             throw new Error(`Les tableaux passés à Table.product doivent avoir la même taille.`);
         }
-        return arr1.map((val, index) => val * arr2[index]);
+        arr1 = Table.numberArray(arr1)
+        arr2 = Table.numberArray(arr2)
+        return arr1.map((val, index) => val * arr2[index])
     }
 
     static average(values) {
         if (!Array.isArray(values)) {
-            throw new Error(`L'argument de Table.average doit être un tableau.`);
+            throw new Error(`L'argument de Table.average doit être un tableau.`)
         }
         if (values.length === 0) {
-            throw new Error(`Le tableau passé à Table.average est vide.`);
+            throw new Error(`Le tableau passé à Table.average est vide.`)
         }
-        return Table.sum(values) / values.length;
+        values = Table.numberArray(values)
+        return Table.sum(values) / values.length
     }
 
     static average2(values, effectifs) {
         if (!Array.isArray(values) || !Array.isArray(effectifs)) {
-            throw new Error(`Les arguments de Table.average doivent être des tableaux.`);
+            throw new Error(`Les arguments de Table.average doivent être des tableaux.`)
         }
         if (values.length !== effectifs.length) {
-            throw new Error(`Les tableaux passés à Table.average doivent avoir la même taille.`);
+            throw new Error(`Les tableaux passés à Table.average doivent avoir la même taille.`)
         }
-        const N = Table.sum(effectifs);
+        values = Table.numberArray(values)
+        effectifs = Table.numberArray(effectifs)
+        const N = Table.sum(effectifs)
         if (N === 0) {
-            throw new Error(`La somme des effectifs est nulle dans Table.average.`);
+            throw new Error(`La somme des effectifs est nulle dans Table.average.`)
         }
-        return Table.sum(Table.product(values, effectifs)) / N;
+        return Table.sum(Table.product(values, effectifs)) / N
     }
 
     static covariance(values1, values2) {
@@ -147,19 +172,22 @@ class Table {
         if (values1.length !== values2.length) {
             throw new Error(`Les tableaux passés à Table.covariance doivent avoir la même taille.`);
         }
-        const m1 = Table.average(values1);
-        const m2 = Table.average(values2);
+        values1 = Table.numberArray(values1)
+        values2 = Table.numberArray(values2)
+        const m1 = Table.average(values1)
+        const m2 = Table.average(values2)
         let cov = 0;
         for (let i = 0; i < values1.length; i++) {
-            cov += (values1[i] - m1) * (values2[i] - m2);
+            cov += (values1[i] - m1) * (values2[i] - m2)
         }
-        return cov / values1.length;
+        return cov / values1.length
     }
 
     static variance(values) {
-        const m = Table.average(values);
-        const squaredDiffs = values.map((val) => (val - m) ** 2);
-        return Table.average(squaredDiffs);
+        values = Table.numberArray(values)
+        const m = Table.average(values)
+        const squaredDiffs = values.map((val) => (val - m) ** 2)
+        return Table.average(squaredDiffs)
     }
 
     static std(values) {
@@ -167,8 +195,9 @@ class Table {
     }
 
     static variance2(values, effectifs) {
+        values = Table.numberArray(values)
         const m = Table.average2(values, effectifs);
-        const squaredDiffs = values.map((val) => (val - m) ** 2);
+        const squaredDiffs = values.map((val) => (val - m) ** 2)
         return Table.average2(squaredDiffs, effectifs);
     }
 
@@ -187,26 +216,28 @@ class Table {
         if (N === 0) {
             throw new Error(`La somme des effectifs est nulle dans Table.mediane.`);
         }
+        values = Table.numberArray(values)
+        effectifs = Table.numberArray(effectifs)
         let cumulative = 0;
         for (let i = 0; i < effectifs.length; i++) {
-            cumulative += effectifs[i];
+            cumulative += effectifs[i]
             if (2*cumulative == N) {
-                return (values[i]+values[i+1])/2;
+                return (values[i]+values[i+1])/2
             }
             if (2*cumulative > N) {
-                return values[i];
+                return values[i]
             }
         }
     }
 
     static max(values) {
-        const vf = values.map(v => MyMath.parseFloat(v));
-        return Math.max(...vf);
+        values = Table.numberArray(values)
+        return Math.max(...values);
     }
 
     static min(values) {
-        const vf = values.map(v => MyMath.parseFloat(v));
-        return Math.min(...vf);
+        values = Table.numberArray(values)
+        return Math.min(...values);
     }
 
     static quantile2(values, effectifs, q) {
@@ -220,6 +251,8 @@ class Table {
         if (N === 0) {
             throw new Error(`La somme des effectifs est nulle dans Table.quantile.`)
         }
+        values = Table.numberArray(values)
+        effectifs = Table.numberArray(effectifs)
         let cumulative = 0
         for (let i = 0; i < effectifs.length; i++) {
             cumulative += effectifs[i];
@@ -245,6 +278,8 @@ class Table {
             throw new Error(`Les tableaux passés à Table.quantile doivent avoir la même taille.`)
         }
         value = MyMath.parseFloat(value)
+        values = Table.numberArray(values)
+        effectifs = Table.numberArray(effectifs)
         let cumulative = 0
         for (let i = 0; i < effectifs.length; i++) {
             if (values[i] > value) {
