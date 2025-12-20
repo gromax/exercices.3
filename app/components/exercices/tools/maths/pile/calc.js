@@ -14,6 +14,7 @@ class Calc {
         'float': Calc.float,
         'round': Calc.round,
         'expand': Calc.expand,
+        'exp':Calc.exp,
         'diff': Calc.diff,
     }
     static SHORTCUTS = {
@@ -28,6 +29,7 @@ class Calc {
         'float': 'Calc.float',
         'round': 'Calc.round',
         'expand': 'Calc.expand',
+        'exp': 'Calc.exp',
         'diff': 'Calc.diff',
     }
     static mult(x, y) {
@@ -75,6 +77,14 @@ class Calc {
             return `sign(${String(x)})`;
         }
         return Math.sign(a);
+    }
+
+    static exp(x) {
+        const a = MyMath.toNumber(x);
+        if (isNaN(a)) {
+            return `exp(${String(x)})`;
+        }
+        return Math.exp(a);
     }
 
     static round(x, n) {
