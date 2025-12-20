@@ -266,7 +266,24 @@ class MainBloc extends Bloc {
         const filtered = Object.fromEntries(
             Object.entries(params).filter(([key]) => !key.startsWith('_'))
         );
+        // on veut stringifier les valeurs
+        Object.keys(filtered).forEach(key => {
+            filtered[key] = this.#stringifyValue(filtered[key]);
+        })
         return filtered;
+    }
+
+    #stringifyValue(value) {
+        if (Array.isArray(value)) {
+            return value.map(v => this.#stringifyValue(v))
+        }
+        if (typeof value === 'undefined' || value === null) {
+            return ''
+        }
+        if (typeof value.toStringSimplified === 'function') {
+            return value.toStringSimplified();
+        }
+        return String(value)
     }
 
     /**
