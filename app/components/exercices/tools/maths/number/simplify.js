@@ -69,6 +69,14 @@ function powerSimplify(node) {
             return sbase
         }
     }
+    if (sbase instanceof Scalar) {
+        if (sbase.isZero()) {
+            return Scalar.ZERO
+        }
+        if (sbase.isOne()) {
+            return Scalar.ONE
+        }
+    }
     if (sbase === E ) {
         return simplify(new Function('exp', sexposant))
     }
