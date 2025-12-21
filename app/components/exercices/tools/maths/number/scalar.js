@@ -176,7 +176,7 @@ class Scalar extends Base {
      * @returns {string}
      */
     toTex() {
-        return this.#chaine.replace('%', '\\%')
+        return this.#chaine.replace('%', '\\%').replace('.', ',')
     }
 
     /**
