@@ -1,6 +1,6 @@
 import { Scalar } from "../number/scalar";
 import { Function } from "../number/function";
-import { Add, Minus } from "../number/add";
+import { AddMinus } from "../number/add";
 import { Mult, Div } from '../number/mult';
 import { Power } from '../number/power';
 import { makeConstant, isConstant } from "../number/constant";
@@ -24,7 +24,7 @@ function build(rpn) {
             }
             let right = stack.pop();
             let left = stack.pop();
-            stack.push(new Add(left, right));
+            stack.push(AddMinus.add(left, right));
             continue;
         }
         if (item == "-") {
@@ -33,7 +33,7 @@ function build(rpn) {
             }
             let right = stack.pop();
             let left = stack.pop();
-            stack.push(new Minus(left, right));
+            stack.push(AddMinus.minus(left, right));
             continue;
         }
         if (item == "*") {
