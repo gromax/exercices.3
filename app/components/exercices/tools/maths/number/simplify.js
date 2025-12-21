@@ -62,10 +62,13 @@ function powerSimplify(node) {
     const sexposant = simplify(exposant)
     // cas des exposants nuls
     if (sexposant instanceof Scalar) {
-        if (sexposant.toDecimal().equals(0)) {
+        if (sexposant.isZero()) {
+            if (sbase.isZero()) {
+                return Scalar.NAN
+            }
             return Scalar.ONE
         }
-        if (sexposant.toDecimal().equals(1)) {
+        if (sexposant.isOne()) {
             return sbase
         }
     }
