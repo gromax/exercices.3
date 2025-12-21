@@ -1,4 +1,4 @@
-import { Add, Minus, AddMinus } from './add'
+import { AddMinus } from './add'
 import { Mult, Div, MultDiv } from './mult'
 import { Power } from './power'
 import { Scalar } from './scalar'
@@ -30,6 +30,11 @@ function simplify(node) {
         || isTypeSymbol(node)) {
         return node
     }
+
+    if (typeof node.simplify === 'function') {
+        return node.simplify()
+    }
+
     if (node instanceof Power) {
         return powerSimplify(node)
     }
@@ -41,9 +46,6 @@ function simplify(node) {
     }
     if (node instanceof Div) {
         return divSimplify(node)
-    }
-    if ((node instanceof Add) || (node instanceof Minus)) {
-        return addSimplify(node)
     }
     return node
 }
@@ -190,94 +192,29 @@ function divSimplify(node) {
     return new Div(leftSim, rightSim)
 }
 
-function addSimplify(node) {
-    const [enPlus, eMinus] = node.childOperands()
-    // on ne cherche pas à compliquer. On ne calcule que les scalaires
-    const simpEnPlus = enPlus.map(n => simplify(n))
-                             .filter(n => !n.isZero())
-    const simpEMinus = eMinus.map(n => simplify(n))
-                            .filter(n => !n.isZero())
-    const scalarsPlus = simpEnPlus.filter(n => n instanceof Scalar)
-    const scalarsMinus = simpEMinus.filter(n => n instanceof Scalar)
-    const noScalarPlus = simpEnPlus.filter(n => !(n instanceof Scalar))
-    const noScalarMinus = simpEMinus.filter(n => !(n instanceof Scalar))
-    let scalar = Scalar.ZERO
-    for (let s of scalarsPlus) {
-        scalar = scalar.addScalar(s)
-    }
-    for (let s of scalarsMinus) {
-        scalar = scalar.addScalar(s.opposite())
-    }
-    if (!scalar.isZero()) {
-        if (scalar.isPositive()) {
-            noScalarPlus.push(scalar)
-        } else {
-            noScalarMinus.push(scalar.opposite())
-        }
-    }
-    const nodePlus = noScalarPlus.length === 0
-        ? Scalar.ZERO
-        : Add.fromList(noScalarPlus)
-    const nodeMinus = noScalarMinus.length === 0
-        ? Scalar.ZERO
-        : Add.fromList(noScalarMinus)
-    if (nodeMinus.isZero()) {
-        return nodePlus
-    }
-    if (nodePlus.isZero()) {
-        return opposite(nodeMinus)
-    }
-    return new Minus(nodePlus, nodeMinus)
-}
-
-
 function decimalize(node) {
+    const d = node.toDecimal()
+    if (!d.isNaN()) {
+        return new Scalar(d)
+    }
     if (node instanceof AddMinus) {
-        const newLeft = decimalize(node.left)
-        const newRight = decimalize(node.right)
-        const d1 = newLeft.toDecimal()
-        const d2 = newRight.toDecimal()
-        if (!d1.isNaN() && !d2.isNaN()) {
-            if (node instanceof Add) {
-                return new Scalar(d1.plus(d2))
-            } else if (node instanceof Minus) {
-                return new Scalar(d1.minus(d2))
-            }
-        }
-        return simplify(new node.constructor(newLeft, newRight))
+        const children = node.children.map( decimalize )
+        return simplify( AddMinus.fromList(children, node.positive) )
     }
     if (node instanceof Function) {
         const newChild = decimalize(node.child)
-        const d = newChild.toDecimal()
-        if (!d.isNaN()) {
-            return new Scalar( Function.calc(node.name, d) )
-        }
         return new Function(node.name, newChild)
     }
 
     if (node instanceof MultDiv) {
         const newLeft = decimalize(node.left)
         const newRight = decimalize(node.right)
-        const d1 = newLeft.toDecimal()
-        const d2 = newRight.toDecimal()
-        if (!d1.isNaN() && !d2.isNaN()) {
-            if (node instanceof Mult) {
-                return new Scalar(d1.mul(d2))
-            } else if (node instanceof Div) {
-                return new Scalar(d1.dividedBy(d2))
-            }
-        }
         return simplify(new node.constructor(newLeft, newRight))
     }
 
     if (node instanceof Power) {
         const newBase = decimalize(node.base)
         const newExposant = decimalize(node.exposant)
-        const d1 = newBase.toDecimal()
-        const d2 = newExposant.toDecimal()
-        if (!d1.isNaN() && !d2.isNaN()) {
-            return new Scalar(d1.pow(d2))
-        }
         return simplify(new Power(newBase, newExposant))
     }
 
