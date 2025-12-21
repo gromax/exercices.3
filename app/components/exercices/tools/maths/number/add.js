@@ -2,38 +2,118 @@ import { Base } from "./base";
 import { Scalar } from "./scalar";
 import Decimal from "decimal.js";
 
+// Constante privée
+// sert à empêcher l'accès direct au constructeur
+const PRIVATE = Symbol('private');
+
 class AddMinus extends Base {
-    _left; /** @type {Base} */
-    _right; /** @type {Base} */
+    #children; /** @type {Base[]} */
+    #positive; /** @type {boolean[]} */
+    /** @type {string|undefined} représentation texte */
+    #string;
+    /** @type {string|undefined} représentation texte version anglaise */
+    #stringEN;
+    /** @type {string|undefined} représentation tex */
+    #stringTex;
+
     _canBeDistributed = true
+
+    static addFromList(operandes) {
+        operandes = _.filter(operandes, function(item){return (!(item instanceof Scalar) || !item.isZero())})
+        if (operandes.length == 0){
+            return Scalar.ZERO;
+        }
+        if (operandes.length == 1) {
+            return operandes[0];
+        }
+        let n = operandes.length;
+        if (!operandes.every( item => item instanceof Base)) {
+            throw new Error('Tous les éléments de la liste doivent être des instances de Base')
+        }
+        return new AddMinus(PRIVATE, operandes, new Array(operandes.length).fill(true))
+    }
+
+    static fromList(operandes, positive) {
+        if (operandes.length !== positive.length) {
+            throw new Error('operandes et positive doivent avoir la même longueur')
+        }
+        if (!operandes.every( item => item instanceof Base)) {
+            throw new Error('Tous les éléments de la liste doivent être des instances de Base')
+        }
+        if (!positive.every( item => typeof item === 'boolean')) {
+            throw new Error('Tous les éléments de positive doivent être des booléens')
+        }
+        return new AddMinus(PRIVATE, [...operandes], [...positive])
+    }
+
+    static add(left, right) {
+        let children, positive
+        if (!(left instanceof Base) || !(right instanceof Base)) {
+            throw new Error('Les deux arguments doivent être des instances de Base')
+        }
+        if (left instanceof AddMinus) {
+            children = left.#children
+            positive = left.#positive
+        } else {
+            children = [left]
+            positive = [true]
+        }
+        if (right instanceof AddMinus) {
+            children = [...children, ...right.#children]
+            positive = [...positive, ...right.#positive]
+        } else {
+            children.push(right)
+            positive.push(true)
+        }
+        return new AddMinus(PRIVATE, children, positive)
+    }
+
+    static minus(left, right) {
+        let children, positive
+        if (!(left instanceof Base) || !(right instanceof Base)) {
+            throw new Error('Les deux arguments doivent être des instances de Base')
+        }
+        if (left instanceof AddMinus) {
+            children = left.#children
+            positive = left.#positive
+        } else {
+            children = [left]
+            positive = [true]
+        }
+        if (right instanceof AddMinus) {
+            children = [...children, ...right.#children]
+            positive = [...positive, ...right.#positive.map( p => !p)]
+        } else {
+            children.push(right)
+            positive.push(false)
+        }
+        return new AddMinus(PRIVATE, children, positive)
+    }
 
     /**
      * constructeur
-     * @param {Base} left 
-     * @param {Base} right 
+     * @param {symbol} token
+     * @param {Base[]} children 
+     * @param {boolean[]} positive
      */
-    constructor(left, right) {
-        super();
-        if (!(left instanceof Base)) {
-            throw new Error("left invalide");
+    constructor(token, children, positive) {
+        if (token !== PRIVATE) {
+            throw new Error('Utilisez AddMinus.add ou AddMinus.minus pour créer une instance')
         }
-        if (!(right instanceof Base)) {
-            throw new Error("right invalide");
-        }
-
-        this._left = left;
-        this._right = right;
+        super()
+        this.#children = children
+        this.#positive = positive
     }
 
     /**
      * accesseurs
      */
-    get left() {
-        return this._left;
+    get children() {
+        return [...this.#children]
     }
 
-    get right() {
-        return this._right;
+    get positive() {
+        return [...this.#positive]
     }
 
     get priority() {
@@ -45,10 +125,13 @@ class AddMinus extends Base {
      * @returns {boolean}
      */
     isExpanded() {
-        if (!this._left.isExpanded() || !this._right.isExpanded()) {
-            return false;
+        for (let item of this.#children) {
+            if (!item.isExpanded()) {
+                return false;
+            }
         }
-        if (this._left instanceof Scalar && this._right instanceof Scalar) {
+        const scalars = this.#children.filter( (item) => item instanceof Scalar )
+        if (scalars.length > 1) {
             return false;
         }
         const c = this.childrenSignatures();
@@ -61,19 +144,9 @@ class AddMinus extends Base {
         return true;
     }
 
-    _getChildAddMinus() {
-        const left  = this._left instanceof AddMinus
-            ? this._left._getChildAddMinus()
-            : [this._left]
-        const right = this._right instanceof AddMinus
-            ? this._right._getChildAddMinus()
-            : [this._right]
-        return left.concat(right)
-    }
-
     childrenSignatures() {
         // récupère les enfants pris dans un +/-
-        return this._getChildAddMinus().map(
+        return this.#children.map(
             (child) => {
                 const s = child.signature()
                 if (Array.isArray(s)) {
@@ -93,135 +166,81 @@ class AddMinus extends Base {
      */
     isFunctionOf(name){
         if (typeof name == 'undefined') {
-            return _.uniq(this._left.isFunctionOf().concat(this._right.isFunctionOf())).sort()
+            return _.uniq(_.flatten(this.#children.map( c => c.isFunctionOf() ))).sort()
         }
-        return this._left.isFunctionOf(name) || this._right.isFunctionOf(name)
+        for (let item of this.#children) {
+            if (item.isFunctionOf(name)) {
+                return true
+            }
+        }
+        return false
     }
 
     simplify() {
-        const leftSim = this._left.simplify()
-        const rightSim = this._right.simplify()
-        if (leftSim.isZero()) {
-            return rightSim
-        } 
-        if (rightSim.isZero()) {
-            return leftSim
+        const childrenSim = this.#children.map( c => c.simplify() )
+        const children = []
+        const positive = []
+        for (let i=0; i<childrenSim.length; i++) {
+            const child = childrenSim[i]
+            if (child instanceof Scalar) {
+                if (child.isZero()) {
+                    // on ignore
+                    continue
+                }
+                // on ajoute au début
+                children.unshift(child)
+                positive.unshift(this.#positive[i])
+            } else {
+                // on ajoute à la fin
+                children.push(child)
+                positive.push(this.#positive[i])
+            }
         }
-        if (leftSim instanceof Scalar && rightSim instanceof Scalar) {
-            let val = leftSim.toDecimal().plus(rightSim.toDecimal())
-            return new Scalar(val)
+        // on réduit les scalaires au début
+        while (children.length >= 2 && children[0] instanceof Scalar && children[1] instanceof Scalar) {
+            let val1 = children.shift()
+            let pos1 = positive.shift()
+            let val2 = children.shift()
+            let pos2 = positive.shift()
+            let newVal
+            if (pos1 === pos2) {
+                newVal = new Scalar(val1.toDecimal().plus(val2.toDecimal()))
+            } else {
+                newVal = new Scalar(val1.toDecimal().minus(val2.toDecimal()))
+            }
+            if (!pos1) {
+                newVal = newVal.opposite()
+            }
+            if (newVal.isZero()) {
+                continue
+            }
+            children.unshift(newVal)
+            positive.unshift(true)
         }
-        return new this.constructor(leftSim, rightSim)
+        return new AddMinus(PRIVATE, children, positive)
     }
 
     substituteVariable(varName, value) {
-        const leftSub = this._left.substituteVariable(varName, value)
-        const rightSub = this._right.substituteVariable(varName, value)
-        if (leftSub === this._left && rightSub === this._right) {
+        const children = this.#children.map( c => c.substituteVariable(varName, value) )
+        if (children.every( (c, i) => c === this.#children[i] )) {
             // pas de changement
             return this
         }
-        return new this.constructor(leftSub, rightSub);
+        return new AddMinus(PRIVATE, children, this.#positive)
     }
 
     substituteVariables(values) {
-        const leftSub = this._left.substituteVariables(values)
-        const rightSub = this._right.substituteVariables(values)
-        if (leftSub === this._left && rightSub === this._right) {
+        const children = this.#children.map( c => c.substituteVariable(varName, value) )
+        if (children.every( (c, i) => c === this.#children[i] )) {
             // pas de changement
             return this
         }
-        return new this.constructor(leftSub, rightSub);
+        return new AddMinus(PRIVATE, children, this.#positive)
     }
 
     toFixed(n) {
-        const newLeft = this._left.toFixed(n)
-        const newRight = this._right.toFixed(n)
-        return new this.constructor(newLeft, newRight)
-    }
-}
-
-
-class Add extends AddMinus {
-    /** @type {string|null} représentation texte */
-    #string;
-    /** @type {string|null} représentation texte */
-    #stringEN;
-
-    /**
-     * constructeur
-     * @param {Base} left 
-     * @param {Base} right 
-     */
-    constructor(left, right) {
-        super(left, right);
-    }
-
-    /**
-     * Produit une somme à partir d'une liste d'opérandes
-     * @param {Array<Base>} operandes 
-     * @returns {Base}
-     */
-    static fromList(operandes) {
-        operandes = _.filter(operandes, function(item){return (!(item instanceof Scalar) || !item.isZero())})
-        if (operandes.length == 0){
-            return Scalar.ZERO;
-        }
-        if (operandes.length == 1) {
-            return operandes[0];
-        }
-        let n = operandes.length;
-        let node = new Add(operandes[n-2], operandes[n-1]);
-        for (let i=n-3; i>=0; i--) {
-            node = new Add(operandes[i], node);
-        }
-        return node;
-    }
-
-    /**
-     * transtypage -> string
-     * @returns {string}
-     */
-    toString() {
-        if (this.#string != null) {
-            return this.#string
-        }
-        this.#string = `${String(this._left)} + ${String(this._right)}`
-        return this.#string
-    }
-
-    toStringEn() {
-        if (this.#stringEN != null) {
-            return this.#stringEN
-        }
-        this.#stringEN = `${this._left.toStringEn()} + ${this._right.toStringEn()}`
-        return this.#stringEN
-    }
-
-    /** recherche les opérandes des add/minus enfants
-     * @returns {[Array<Base>, Array<Base>]} les éléments en plus et les éléments en moins
-     */
-    childOperands() {
-        const factorsLeft = this._left instanceof AddMinus
-            ? this._left.childOperands()
-            : [[this._left], []]
-        const factorsRight = this._right instanceof AddMinus
-            ? this._right.childOperands()
-            : [[this._right], []]
-        return [
-            factorsLeft[0].concat(factorsRight[0]),
-            factorsLeft[1].concat(factorsRight[1])
-        ]
-    }
-
-    /**
-     * renvoie une représentation tex
-     * @returns {string}
-     */
-    toTex() {
-        let texLeft = this._left.toTex();
-        let texRight = this._right.toTex();
-        return `${texLeft} + ${texRight}`;
+        const children = this.#children.map( c => c.toFixed(n) )
+        return new AddMinus(PRIVATE, children, this.#positive)
     }
 
     /**
@@ -230,107 +249,103 @@ class Add extends AddMinus {
      * @returns {Decimal}
      */
     toDecimal(values) {
-        let v = this._left.toDecimal(values);
-        return v.plus(this._right.toDecimal(values));
-    }
-
-    toDict() {
-        return {
-            type: "Add",
-            left: this._left.toDict(),
-            right: this._right.toDict()
+        const children = this.#children.map( c => c.toDecimal(values) )
+        const acc = new Decimal(0)
+        for (let i=0; i<children.length; i++) {
+            if (this.#positive[i]) {
+                acc.add( children[i] )
+            } else {
+                acc.sub( children[i] )
+            }
         }
-    }
-}
-
-class Minus extends AddMinus {
-    /** @type {string|null} représentation texte */
-    #string = null
-    /** @type {string|null} représentation texte */
-    #stringEN = null
-
-    constructor(left, right) {
-        super(left, right);
-        this.#stringEN = `${this._left.toStringEn()} - (${this._right.toStringEn()})`;
-    }
-
-    /**
-     * transtypage -> string
-     * @returns {string}
-     */
-    toString() {
-        if (this.#string != null) {
-            return this.#string
-        }
-        const strLeft = this._left.priority <= this.priority
-            ? `(${String(this._left)})`
-            : String(this._left)
-        const strRight = this._right.priority <= this.priority
-            ? `(${String(this._right)})`
-            : String(this._right)
-        this.#string = `${strLeft} - ${strRight}`
-        return this.#string
-    }
-
-    toStringEn() {
-        if (this.#stringEN != null) {
-            return this.#stringEN
-        }
-        this.#stringEN = `(${this._left.toStringEn()}) - (${this._right.toStringEn()})`
-        return this.#stringEN
-    }
-
-    /** recherche les opérandes des add/minus enfants
-     * @returns {[Array<Base>, Array<Base>]} les éléments en plus et les éléments en moins
-     */
-    childOperands() {
-        const factorsLeft = this._left instanceof AddMinus
-            ? this._left.childOperands()
-            : [[this._left], []]
-        const factorsRight = this._right instanceof AddMinus
-            ? this._right.childOperands().reverse()
-            : [[], [this._right]]
-        return [
-            factorsLeft[0].concat(factorsRight[0]),
-            factorsLeft[1].concat(factorsRight[1])
-        ]
-    }
- 
-    /**
-     * renvoie une représentation tex
-     * @returns {string}
-     */
-    toTex() {
-        let texLeft = this._left.toTex();
-        let texRight = this._right.priority <= this.priority
-            ? `\\left(${this._right.toTex()})`
-            : this._right.toTex();
-        return `${texLeft} - ${texRight}`;
-    }
-
-    /**
-     * evaluation numérique en decimal
-     * @param {object|undefined} values
-     * @returns {Decimal}
-     */
-    toDecimal(values) {
-        let left = this._left.toDecimal(values);
-        let right = this._right.toDecimal(values);
-        return left.minus(right);
+        return acc
     }
 
     opposite() {
-        return new Minus(this._right, this._left);
+        const newPositive = this.#positive.map( p => !p )
+        return new AddMinus(PRIVATE, this.#children, newPositive)
     }
 
     toDict() {
         return {
-            type: "Minus",
-            left: this._left.toDict(),
-            right: this._right.toDict()
+            type: "AddMinus",
+            children: this.#children.map( c => c.toDict() ),
+            signs: this.#positive.map( p => p ? '+' : '-' ),
         }
     }
 
+    /** recherche les opérandes des add/minus enfants
+     * @returns {[Array<Base>, Array<Base>]} les éléments en plus et les éléments en moins
+     */
+    childOperands() {
+        const factorsPlus = []
+        const factorsMinus = []
+        for (let i=0; i<this.#children.length; i++) {
+            if (this.#positive[i]) {
+                factorsPlus.push(this.#children[i])
+            } else {
+                factorsMinus.push(this.#children[i])
+            }
+        }
+        return [factorsPlus, factorsMinus]
+    }
+
+        /**
+     * transtypage -> string
+     * @returns {string}
+     */
+    toString() {
+        if (!this.#string) {
+            this.#string = this.#toStringHelper('fr')
+        }
+        return this.#string
+    }
+
+    toStringEn() {
+        if (!this.#stringEN) {
+            this.#stringEN = this.#toStringHelper('en')
+        }
+        return this.#stringEN
+    }
+
+    /**
+     * renvoie une représentation tex
+     * @returns {string}
+     */
+    toTex() {
+        if (!this.#stringTex) {
+            this.#stringTex = this.#toStringHelper('tex')
+        }
+        return this.#stringTex
+    }
+
+    #toStringHelper(lang) {
+        let result = ''
+        for (let i=0; i<this.#children.length; i++) {
+            let childStr
+            if (lang === 'en') {
+                childStr = this.#children[i].toStringEn()
+            } else if (lang === 'tex') {
+                childStr = this.#children[i].toTex()
+            } else {
+                childStr = String(this.#children[i])
+            }
+            const sign = this.#positive[i] ? '+' : '-'
+            if (childStr.startsWith('-')) {
+                if (lang === 'tex') {
+                    childStr = `\\left(${childStr}\\right)`
+                } else {
+                    childStr = `(${childStr})`
+                }
+            }
+            if (i !== 0 || sign === '-') {
+                result += ` ${sign} ${childStr}`
+            } else {
+                result += `${childStr}`
+            }
+        }
+        return result
+    }
 }
 
-export { Add, Minus, AddMinus};
+export { AddMinus};
