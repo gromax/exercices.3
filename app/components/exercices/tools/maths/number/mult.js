@@ -1,6 +1,5 @@
 import { Base } from "./base";
 import { Scalar } from "./scalar";
-import { Add, Minus } from "./add";
 import Decimal from "decimal.js";
 
 class MultDiv extends Base {
@@ -27,7 +26,7 @@ class MultDiv extends Base {
      * @param {Base} left 
      * @param {Base} right
      */
-    constructor(left, right) {
+    constructor(token, left, right) {
         super();
         if (!(left instanceof Base)) {
             throw new Error("left invalide");
@@ -137,9 +136,7 @@ class Mult extends MultDiv {
         if (this._left instanceof Scalar && this._right instanceof Scalar) {
             return false;
         }
-        if (this._left instanceof Add || this._right instanceof Add
-            || this._left instanceof Minus || this._right instanceof Minus
-        ) {
+        if (this._left.canBeDistributed || this._right.canBeDistributed) {
             return false;
         }
         return true;
