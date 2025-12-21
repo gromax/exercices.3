@@ -74,7 +74,7 @@ class Power extends Base {
         if (d.isNaN()) {
             return true
         }
-        if (d.isInteger() && d.gte(0) && this.#base._canBeDistributed) {
+        if (d.isInteger() && d.gte(0) && this.#base.canBeDistributed) {
             return false
         }
         return true
