@@ -26,7 +26,7 @@ class MultDiv extends Base {
      * @param {Base} left 
      * @param {Base} right
      */
-    constructor(token, left, right) {
+    constructor(left, right) {
         super();
         if (!(left instanceof Base)) {
             throw new Error("left invalide");
