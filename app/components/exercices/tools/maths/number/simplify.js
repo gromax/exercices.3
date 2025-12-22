@@ -1,3 +1,4 @@
+import Decimal from "decimal.js";
 import { AddMinus } from './add'
 import { Mult, Div, MultDiv } from './mult'
 import { Power } from './power'
@@ -6,6 +7,31 @@ import { isTypeConstant, E } from './constant'
 import { isTypeSymbol } from './symbol'
 import { Base } from './base'
 import { Function } from './function'
+
+/** Calcul du plus grand commun diviseur de deux entiers a et b
+ * @param {Decimal} a
+ * @param {Decimal} b
+ * @returns {Decimal}
+ */
+function gcd(a, b) {
+    if (!a.isInteger() || !b.isInteger()) {
+        return Scalar.ONE
+    }
+    if (b.isZero()) {
+        return a
+    }
+    if (a.isZero()) {
+        return b
+    }
+    a = a.abs().toNumber()
+    b = b.abs().toNumber()
+    while (a % b !== 0) {
+        const r = a % b
+        a = b
+        b = r
+    }
+    return new Decimal(b)
+}
 
 /**
  * Renvoie l'opposé d'un noeud
@@ -31,10 +57,6 @@ function simplify(node) {
         return node
     }
 
-    if (typeof node.simplify === 'function') {
-        return node.simplify()
-    }
-
     if (node instanceof Power) {
         return powerSimplify(node)
     }
@@ -47,6 +69,10 @@ function simplify(node) {
     if (node instanceof Div) {
         return divSimplify(node)
     }
+    if (node instanceof AddMinus) {
+        return addSimplify(node)
+    }
+
     return node
 }
 
@@ -178,29 +204,85 @@ function multSimplify(node) {
 }
 
 function divSimplify(node) {
-    const leftSim = simplify(node.left);
-    const rightSim = simplify(node.right);
+    let leftSim = simplify(node.left)
+    let rightSim = simplify(node.right)
     if (leftSim.isZero()) {
-        return Scalar.ZERO;
+        return Scalar.ZERO
     }
     if (rightSim.isOne()) {
-        return leftSim;
+        return leftSim
     }
     if (rightSim.isZero()) {
-        return Scalar.NAN;
+        return Scalar.NAN
     }
     // simplification des scalaires
     if (leftSim instanceof Scalar && rightSim instanceof Scalar) {
         if (!rightSim.isPositive()) {
-            return simplify(new Div(opposite(leftSim), opposite(rightSim)))
+            leftSim = leftSim.opposite()
+            rightSim = rightSim.opposite()
         }
-        if (leftSim.toDecimal().modulo(rightSim.toDecimal()).equals(0)
-            && leftSim.isInteger() && rightSim.isInteger()) {
-            const val = leftSim.toDecimal().dividedBy(rightSim.toDecimal());
-            return new Scalar(val);
+        const leftVal = leftSim.toDecimal()
+        const rightVal = rightSim.toDecimal()
+        const gcdValue = gcd(leftVal, rightVal)
+        if (gcdValue.gt(1)) {
+            const newLeft = new Scalar(leftVal.dividedBy(gcdValue))
+            const newRight = new Scalar(rightVal.dividedBy(gcdValue))
+            if (newRight.isOne()) {
+                return newLeft
+            }
+            return new Div(newLeft, newRight)
         }
     }
     return new Div(leftSim, rightSim)
+}
+
+function addSimplify(node) {
+    const childrenSim = node.children.map( c => simplify(c) )
+    const currentPositive = node.positive
+    const children = []
+    const positive = []
+    for (let i=0; i<childrenSim.length; i++) {
+        const child = childrenSim[i]
+        if (child instanceof Scalar) {
+            if (child.isZero()) {
+                // on ignore
+                continue
+            }
+            // on ajoute au début
+            children.unshift(child)
+            positive.unshift(currentPositive[i])
+        } else {
+            // on ajoute à la fin
+            children.push(child)
+            positive.push(currentPositive[i])
+        }
+    }
+    // on réduit les scalaires au début de la liste
+    while (children.length >= 2 && children[0] instanceof Scalar && children[1] instanceof Scalar) {
+        let val1 = children.shift()
+        let pos1 = positive.shift()
+        let val2 = children.shift()
+        let pos2 = positive.shift()
+        let newVal
+        if (pos1 === pos2) {
+            newVal = new Scalar(val1.toDecimal().plus(val2.toDecimal()))
+        } else {
+            newVal = new Scalar(val1.toDecimal().minus(val2.toDecimal()))
+        }
+        if (!pos1) {
+            newVal = newVal.opposite()
+        }
+        if (newVal.isZero()) {
+            continue
+        }
+        children.unshift(newVal)
+        positive.unshift(true)
+    }
+    if (children.length > 0 && children[0] instanceof Scalar && children[0].isZero()) {
+        children.shift()
+        positive.shift()
+    }
+    return AddMinus.fromList(children, positive)
 }
 
 function decimalize(node) {
