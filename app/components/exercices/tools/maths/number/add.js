@@ -26,7 +26,6 @@ class AddMinus extends Base {
         if (operandes.length == 1) {
             return operandes[0];
         }
-        let n = operandes.length;
         if (!operandes.every( item => item instanceof Base)) {
             throw new Error('Tous les éléments de la liste doivent être des instances de Base')
         }
@@ -42,6 +41,16 @@ class AddMinus extends Base {
         }
         if (!positive.every( item => typeof item === 'boolean')) {
             throw new Error('Tous les éléments de positive doivent être des booléens')
+        }
+        if (operandes.length == 0){
+            return Scalar.ZERO;
+        }
+        if (operandes.length == 1) {
+            if (positive[0]) {
+                return operandes[0]
+            } else if (typeof operandes[0].opposite === 'function') {
+                return operandes[0].opposite()
+            }
         }
         return new AddMinus(PRIVATE, [...operandes], [...positive])
     }
@@ -176,50 +185,6 @@ class AddMinus extends Base {
         return false
     }
 
-    simplify() {
-        const childrenSim = this.#children.map( c => c.simplify() )
-        const children = []
-        const positive = []
-        for (let i=0; i<childrenSim.length; i++) {
-            const child = childrenSim[i]
-            if (child instanceof Scalar) {
-                if (child.isZero()) {
-                    // on ignore
-                    continue
-                }
-                // on ajoute au début
-                children.unshift(child)
-                positive.unshift(this.#positive[i])
-            } else {
-                // on ajoute à la fin
-                children.push(child)
-                positive.push(this.#positive[i])
-            }
-        }
-        // on réduit les scalaires au début
-        while (children.length >= 2 && children[0] instanceof Scalar && children[1] instanceof Scalar) {
-            let val1 = children.shift()
-            let pos1 = positive.shift()
-            let val2 = children.shift()
-            let pos2 = positive.shift()
-            let newVal
-            if (pos1 === pos2) {
-                newVal = new Scalar(val1.toDecimal().plus(val2.toDecimal()))
-            } else {
-                newVal = new Scalar(val1.toDecimal().minus(val2.toDecimal()))
-            }
-            if (!pos1) {
-                newVal = newVal.opposite()
-            }
-            if (newVal.isZero()) {
-                continue
-            }
-            children.unshift(newVal)
-            positive.unshift(true)
-        }
-        return new AddMinus(PRIVATE, children, positive)
-    }
-
     substituteVariable(varName, value) {
         const children = this.#children.map( c => c.substituteVariable(varName, value) )
         if (children.every( (c, i) => c === this.#children[i] )) {
@@ -250,12 +215,12 @@ class AddMinus extends Base {
      */
     toDecimal(values) {
         const children = this.#children.map( c => c.toDecimal(values) )
-        const acc = new Decimal(0)
+        let acc = new Decimal(0)
         for (let i=0; i<children.length; i++) {
             if (this.#positive[i]) {
-                acc.add( children[i] )
+                acc = acc.plus( children[i] )
             } else {
-                acc.sub( children[i] )
+                acc = acc.minus( children[i] )
             }
         }
         return acc
