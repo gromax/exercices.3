@@ -16,8 +16,6 @@ class AddMinus extends Base {
     /** @type {string|undefined} représentation tex */
     #stringTex;
 
-    _canBeDistributed = true
-
     static addFromList(operandes) {
         operandes = _.filter(operandes, function(item){return (!(item instanceof Scalar) || !item.isZero())})
         if (operandes.length == 0){
@@ -127,6 +125,10 @@ class AddMinus extends Base {
 
     get priority() {
         return 1;
+    }
+
+    get canBeDistributed() {
+        return true
     }
 
     /**
