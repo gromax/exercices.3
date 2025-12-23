@@ -188,7 +188,7 @@ function divSimplify(node) {
     }
     // simplification des scalaires
     if (leftSim instanceof Scalar && rightSim instanceof Scalar) {
-        return new Scalar(leftSim, rightSim)
+        return leftSim.div(rightSim)
     }
     return new Div(leftSim, rightSim)
 }
@@ -238,6 +238,16 @@ function addSimplify(node) {
     if (children.length > 0 && children[0] instanceof Scalar && children[0].isZero()) {
         children.shift()
         positive.shift()
+    }
+    if (children.length === 0) {
+        return Scalar.ZERO
+    }
+    if (children.length === 1) {
+        if (positive[0]) {
+            return children[0]  
+        } else {
+            return opposite(children[0])
+        }
     }
     return AddMinus.fromList(children, positive)
 }
