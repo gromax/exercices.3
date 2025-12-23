@@ -141,30 +141,17 @@ class AddMinus extends Base {
         }
         const scalars = this.#children.filter( (item) => item instanceof Scalar )
         if (scalars.length > 1) {
-            return false;
+            return false
         }
-        const c = this.childrenSignatures();
-        if (new Set(c).size < c.length) {
-            return false;
+        if (scalars.length == 1 && scalars[0].isZero()) {
+            return false
         }
-        if (c.includes('0')) {
+        // vérifie s'il existe des signatures semblables
+        const childrenSignatures = this.#children.map(c => c.signature().toString())
+        if (new Set(childrenSignatures).size < childrenSignatures.length) {
             return false;
         }
         return true;
-    }
-
-    childrenSignatures() {
-        // récupère les enfants pris dans un +/-
-        return this.#children.map(
-            (child) => {
-                const s = child.signature()
-                if (Array.isArray(s)) {
-                    return s.map( c => `(${c.text})^${c.exponent}` ).join('*')
-                } else {
-                    return `(${s.text})^${s.exponent}`
-                }
-            }
-        )
     }
 
     /**
@@ -239,23 +226,7 @@ class AddMinus extends Base {
         }
     }
 
-    /** recherche les opérandes des add/minus enfants
-     * @returns {[Array<Base>, Array<Base>]} les éléments en plus et les éléments en moins
-     */
-    childOperands() {
-        const factorsPlus = []
-        const factorsMinus = []
-        for (let i=0; i<this.#children.length; i++) {
-            if (this.#positive[i]) {
-                factorsPlus.push(this.#children[i])
-            } else {
-                factorsMinus.push(this.#children[i])
-            }
-        }
-        return [factorsPlus, factorsMinus]
-    }
-
-        /**
+    /**
      * transtypage -> string
      * @returns {string}
      */
