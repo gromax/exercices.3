@@ -1,7 +1,8 @@
 import { Scalar } from "../number/scalar";
 import { Function } from "../number/function";
 import { AddMinus } from "../number/add";
-import { Mult, Div } from '../number/mult';
+import { Mult } from '../number/mult';
+import { Div } from '../number/div';
 import { Power } from '../number/power';
 import { makeConstant, isConstant } from "../number/constant";
 import { makeSymbol, isSymbol } from "../number/symbol";
@@ -42,7 +43,7 @@ function build(rpn) {
             }
             let right = stack.pop();
             let left = stack.pop();
-            stack.push(new Mult(left, right));
+            stack.push(Mult.mult(left, right));
             continue;
         }
         if (item == "/") {
