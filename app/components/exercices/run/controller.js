@@ -189,7 +189,8 @@ const Controller = MnObject.extend ({
     try {
       if (showParams) {
         const paramsView = new ParamsView({
-          params: trial.get("init")
+          params: trial.get("init"),
+          newButton: trial.get("id") ? false : true
         });
         layoutView.showChildView('initParams', paramsView);
         paramsView.on("recycle", () => {
@@ -229,8 +230,8 @@ const Controller = MnObject.extend ({
       if (item === "") {
         continue;
       }
-      const itemScore = item.score(answers);
-      if (itemScore) {
+      if (typeof item.score === 'function') {
+        const itemScore = item.score(answers)
         trial.set("intScore", trial.get("intScore") + itemScore);
       }
       if (typeof item.view !== 'function') {
