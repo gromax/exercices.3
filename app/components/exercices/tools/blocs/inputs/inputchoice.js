@@ -89,10 +89,6 @@ class InputChoice extends InputBloc {
             return new ChoiceView({ model: model })
         })
     }
-
-    get score() {
-        return this._score || 0;
-    }
 }
 
 export default InputChoice;
