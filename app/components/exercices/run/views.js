@@ -33,7 +33,8 @@ const ParamsView = View.extend({
   },
   templateContext() {
     return {
-      params: this.getOption("params")
+      params: this.getOption("params"),
+      newButton: this.getOption("newButton")
     };
   }
 });
