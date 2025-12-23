@@ -3,9 +3,6 @@ import { Signature } from './signature'
 Decimal.set({ precision: 50, rounding: Decimal.ROUND_HALF_UP });
 
 class Base {
-    _canBeDistributed = false // pour test sur la distributivité
-    _isNumber = false         // pour test si le noeud est un nombre
-
     /**
      * transtypage vers string
      * @returns {string}
@@ -21,6 +18,10 @@ class Base {
         return this.toString();
     }
 
+    get isNumber() {
+        return false
+    }
+
     /**
      * priorité
      */
@@ -29,7 +30,7 @@ class Base {
     }
 
     get canBeDistributed() {
-        return this._canBeDistributed
+        return false
     }
 
     /**
