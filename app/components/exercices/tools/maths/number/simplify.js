@@ -1,6 +1,7 @@
 import Decimal from "decimal.js";
 import { AddMinus } from './add'
-import { Mult, Div, MultDiv } from './mult'
+import { Mult } from './mult'
+import { Div } from './div'
 import { Power } from './power'
 import { Scalar } from './scalar'
 import { isTypeConstant, E } from './constant'
@@ -179,7 +180,7 @@ function functionSimplify(node) {
 }
 
 function multSimplify(node) {
-    const factors = node.childFactors().map(f => simplify(f))
+    const factors = node.children.map(f => simplify(f))
     const scalarsFactors = factors.filter(f => f instanceof Scalar);
     let scalarFactor = Scalar.ONE;
     for (let sf of scalarsFactors) {
@@ -193,14 +194,10 @@ function multSimplify(node) {
         return scalarFactor
     }
 
-    const nonScalar = Mult.fromList(nonScalarFactors)
-    if (scalarFactor.isOne()) {
-        return nonScalar
+    if (!scalarFactor.isOne()) {
+        nonScalarFactors.unshift(scalarFactor)
     }
-    if (scalarFactor.toDecimal().equals(-1)) {
-        return opposite(nonScalar)
-    }
-    return new Mult(scalarFactor, nonScalar)
+    return Mult.fromList(nonScalarFactors)
 }
 
 function divSimplify(node) {
@@ -299,10 +296,15 @@ function decimalize(node) {
         return new Function(node.name, newChild)
     }
 
-    if (node instanceof MultDiv) {
+    if (node instanceof Mult) {
+        const children = node.children.map( decimalize )
+        return simplify( Mult.fromList(children) )
+    }
+
+    if (node instanceof Div) {
         const newLeft = decimalize(node.left)
         const newRight = decimalize(node.right)
-        return simplify(new node.constructor(newLeft, newRight))
+        return simplify(new Div(newLeft, newRight))
     }
 
     if (node instanceof Power) {
