@@ -229,7 +229,7 @@ const Controller = MnObject.extend ({
       if (item === "") {
         continue;
       }
-      const itemScore = item.score;
+      const itemScore = item.score(answers);
       if (itemScore) {
         trial.set("intScore", trial.get("intScore") + itemScore);
       }
@@ -256,7 +256,7 @@ const Controller = MnObject.extend ({
             trial.set("finished", true);
           }
           // mettre à jour le score
-          trial.set("intScore", trial.get("intScore") + item.score);
+          trial.set("intScore", trial.get("intScore") + item.score(data));
           // 4. poursuivre l'exécution de la pile jusqu'au prochain stop
           //    ce qui pourra amener à modifier l'état "finished" de l'exercice
           this.runExercice(mainPile, trial, layoutView);
