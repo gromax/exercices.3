@@ -98,8 +98,7 @@ class Scalar extends Base {
         // le dénominateur ne sera jamais de 1
         if (this.#denominator.equals(1)) {
             this.#denominator = null
-        }
-        if (this.#denominator.equals(0)) {
+        } else if (this.#denominator.equals(0)) {
             this.#value = new Decimal(NaN)
             this.#denominator = null
         }
