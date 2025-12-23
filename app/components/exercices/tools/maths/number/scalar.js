@@ -3,26 +3,25 @@ import { Signature } from "./signature"
 import Decimal from "decimal.js"
 
 /** Calcul du plus grand commun diviseur de deux entiers a et b
+ * Valable même pour a et b décimaux
  * @param {Decimal} a
  * @param {Decimal} b
  * @returns {Decimal}
  */
 function gcd(a, b) {
-    if (!a.isInteger() || !b.isInteger()) {
-        return Scalar.ONE
-    }
     if (b.isZero()) {
         return a
     }
     if (a.isZero()) {
         return b
     }
-    a = a.abs().toNumber()
-    b = b.abs().toNumber()
-    while (a % b !== 0) {
-        const r = a % b
+    a = a.abs()
+    b = b.abs()
+    let r = a.mod(b)
+    while (!r.isZero()) {
         a = b
         b = r
+        r = a.mod(b)
     }
     return new Decimal(b)
 }
@@ -94,8 +93,8 @@ class Scalar extends Base {
             this.#denominator = denominator.negated()
         }
         const gcdValue = gcd(this.#value, this.#denominator)
-        this.#value = this.#value.dividedBy(gcdValue)
-        this.#denominator = this.#denominator.dividedBy(gcdValue)
+        this.#value = this.#value.div(gcdValue)
+        this.#denominator = this.#denominator.div(gcdValue)
         // le dénominateur ne sera jamais de 1
         if (this.#denominator.equals(1)) {
             this.#denominator = null
