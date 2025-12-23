@@ -1,7 +1,8 @@
 import { Base } from "./base"
 import { Scalar } from "./scalar"
-import { Signature } from "./signature"
+import { Mult } from "./mult"
 import Decimal from "decimal.js"
+
 
 class Div extends Base {
     #left /** @type {Base} */
@@ -144,7 +145,7 @@ class Div extends Base {
         if (typeof this.#right.opposite === 'function') {
             return new Div(this.#left, this.#right.opposite());
         }
-        return new Mult(Scalar.MINUS_ONE, this);
+        return Mult.mult(Scalar.MINUS_ONE, this);
     }
 
     toDict() {
