@@ -1,4 +1,5 @@
-import Decimal from 'decimal.js';
+import Decimal from 'decimal.js'
+import { Signature } from './signature'
 Decimal.set({ precision: 50, rounding: Decimal.ROUND_HALF_UP });
 
 class Base {
@@ -73,16 +74,14 @@ class Base {
     /**
      * renvoie une signature, c'est à dire un objet avec un facteur scalair
      * et un texte représentant le contenu
-     * @returns {object}
+     * @returns {Signature}
      */
     signature() {
-        return {
-            scalarNum: Decimal(1),
-            scalarDen: Decimal(1),
-            exponent: 1,
-            text: `${this.toString()}`,
-            node: this
-        }
+        return new Signature(
+            {
+                [this.toString()]: 1
+            }
+        )
     }
 
     /**

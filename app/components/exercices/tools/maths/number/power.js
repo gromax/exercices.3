@@ -1,6 +1,6 @@
-import { A } from "@svgdotjs/svg.js";
-import { Base } from "./base";
-import Decimal from "decimal.js";
+import { Base } from "./base"
+import { Signature } from "./signature"
+import Decimal from "decimal.js"
 
 class Power extends Base {
     /** @type {Base} */
@@ -117,36 +117,12 @@ class Power extends Base {
         return base.pow(exposant);
     }
 
-    _powSignature(signature, n) {
-        if (Array.isArray(signature)) {
-            signature.forEach(item => {
-                this._powSignature(item, n)
-            })
-            return
-        }
-        if (signature.text != '1') {
-            signature.exponent *= n
-        }
-        signature.scalarNum = signature.scalarNum.pow(n)
-        signature.scalarDen = signature.scalarDen.pow(n)
-    }
-
     signature() {
-        const expoStr = String(this.#exposant)
-        if (/^[+-]?\d+$/.test(expoStr)) {
-            // expo entier
-            const n = parseInt(expoStr, 10)
-            const b = this.#base.signature()
-            this._powSignature(b, n)
-            return b
+        const expoValue = this.#exposant.toDecimal()
+        if (expoValue.isInteger()) {
+            return this.#base.signature().power(expoValue.toNumber())
         }
-        return {
-            scalarNum: Decimal(1),
-            scalarDen: Decimal(1),
-            exponent: 1,
-            text: `${this.toString()}`,
-            node: this
-        }
+        return super.signature()
     }
 
     substituteVariable(varName, value) {

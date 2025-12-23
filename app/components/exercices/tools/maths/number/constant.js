@@ -1,5 +1,6 @@
 import { Base } from "./base"
 import { Scalar } from "./scalar"
+import { Signature } from "./signature"
 import Decimal from "decimal.js"
 
 class Constant extends Base {
@@ -107,12 +108,7 @@ class Constant extends Base {
     }
 
     signature() {
-        return {
-            scalar:Decimal(1),
-            exponent:1,
-            text: this.toString(),
-            node:this
-        }
+        return new Signature({[this.#name]:1})
     }
 }
 

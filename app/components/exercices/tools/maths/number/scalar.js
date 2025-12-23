@@ -1,5 +1,6 @@
-import { Base } from "./base";
-import Decimal from "decimal.js";
+import { Base } from "./base"
+import { Signature } from "./signature"
+import Decimal from "decimal.js"
 
 class Scalar extends Base {
     static REGEX = new RegExp('\\d+[.,]?\\d*(E-?\\d+)?%?', 'i');
@@ -189,13 +190,7 @@ class Scalar extends Base {
     }
 
     signature() {
-        return {
-            scalarNum: this.#value,
-            scalarDen: Decimal(1),
-            exponent: 1,
-            text: '1',
-            node: Scalar.ONE
-        }
+        return new Signature()
     }
 
     multiplyBy(n) {

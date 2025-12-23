@@ -1,6 +1,6 @@
-import { Base } from "./base";
-import Decimal from "decimal.js";
-import { Scalar } from "./scalar";
+import { Base } from "./base"
+import { Signature } from "./signature"
+import Decimal from "decimal.js"
 
 class Function extends Base {
     /** @type {Base} */
@@ -111,8 +111,6 @@ class Function extends Base {
         return this.#stringEN
     }
 
-
-
     get name() {
         return this.#name;
     }
@@ -128,7 +126,6 @@ class Function extends Base {
     isExpanded() {
         return this.#child.isExpanded();
     }
-
 
     /**
      * si un nom est précisé, renvoie true si le nœud dépend de la variable,
@@ -180,45 +177,13 @@ class Function extends Base {
     }
 
     signature() {
-        if (this.#name === '(+)') {
+        if (this.#name === '(+)' || this.#name === '(-)') {
             return this.#child.signature()
         }
-        if (this.#name === '(-)') {
-            const s = this.#child.signature()
-            if (Array.isArray(s)) {
-                if (s.length === 0) {
-                    throw new Error("Impossible de calculer la signature de l'opposé d'un noeud vide")
-                }
-                s[0].scalarNum = s[0].scalarNum.mul(-1)
-            } else {
-                s.scalarNum = s.scalarNum.mul(-1)
-            }
-            return s
-        }
         if (this.#name === 'inverse') {
-            const s = this.#child.signature()
-            if (Array.isArray(s)) {
-                s.forEach(item => {
-                    const den = item.scalarDen
-                    item.scalarDen = item.scalarNum
-                    item.scalarNum = den
-                    item.exponent = -item.exponent
-                })
-            } else {
-                s.exponent = -s.exponent
-                const den = s.scalarDen
-                s.scalarDen = s.scalarNum
-                s.scalarNum = den
-            }
-            return s
+            return this.#child.signature().power(-1)
         }
-        return {
-            scalarNum: Decimal(1),
-            scalarDen: Decimal(1),
-            exponent: 1,
-            text: this.toString(),
-            node: this
-        }
+        return super.signature()
     }
 
     opposite() {

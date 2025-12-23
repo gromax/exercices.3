@@ -1,5 +1,6 @@
 import { Base } from "./base"
 import { Scalar } from "./scalar"
+import { Signature } from "./signature"
 import Decimal from "decimal.js"
 
 const GREEK_TO_TEX = {
@@ -135,13 +136,7 @@ class Symbol extends Base {
     }
 
     signature() {
-        return {
-            scalarNum:Decimal(1),
-            scalarDen:Decimal(1),
-            exponent:1,
-            text: this.#name,
-            node:this
-        }
+        return new Signature({[this.#name]:1})
     }
 
     substituteVariable(varName, value) {
