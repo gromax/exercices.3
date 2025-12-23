@@ -1,20 +1,24 @@
-import { Base } from "./base";
-import { Scalar } from "./scalar";
-import Decimal from "decimal.js";
+import { some } from "underscore"
+import { Base } from "./base"
+import { Scalar } from "./scalar"
+import Decimal from "decimal.js"
+import { Signature } from "./signature"
 
-class MultDiv extends Base {
-    _left; /** @type {Base} */
-    _right; /** @type {Base} */
+// Constante privée
+// sert à empêcher l'accès direct au constructeur
+const PRIVATE = Symbol('private');
+
+class Mult extends Base {
+    #children; /** @type {Base[]} */
+    #string = null /** @type {string|null} représentation texte */
+    #stringEN = null /** @type {string|null} représentation texte */
+    #stringTex = null /** @type {string|null} représentation tex */
 
     /**
      * accesseurs
      */
-    get left() {
-        return this._left;
-    }
-
-    get right() {
-        return this._right;
+    get children() {
+        return [...this.#children]
     }
 
     get priority() {
@@ -22,20 +26,55 @@ class MultDiv extends Base {
     }
 
     /**
-     * constructeur
-     * @param {Base} left 
-     * @param {Base} right
+     * 
+     * @param {Array} operandes 
+     * @returns {Mult, Scalar}
      */
-    constructor(left, right) {
-        super();
-        if (!(left instanceof Base)) {
-            throw new Error("left invalide");
+    static fromList(operandes) {
+        if (operandes.length == 0){
+            return Scalar.ONE
         }
-        if (!(right instanceof Base)) {
-            throw new Error("right invalide");
+        if (operandes.length == 1) {
+            return operandes[0]
         }
-        this._left = left;
-        this._right = right;
+        if (!operandes.every( item => item instanceof Base)) {
+            throw new Error('Tous les éléments de la liste doivent être des instances de Base')
+        }
+        return new Mult(PRIVATE, [...operandes])
+    }
+
+    static mult(left, right) {
+        if (!(left instanceof Base) || !(right instanceof Base)) {
+            throw new Error('Les deux opérandes doivent être des instances de Base')
+        }
+        if (left instanceof Scalar && left.isOne()) {
+            return right;
+        }
+        if (right instanceof Scalar && right.isOne()) {
+            return left;
+        }
+        const operandes = left instanceof Mult
+            ? left.children
+            : [left]
+        if (right instanceof Mult) {
+            operandes.push(...right.children)
+        } else {
+            operandes.push(right)
+        }
+        return new Mult(PRIVATE, operandes)
+    }
+
+    /**
+     * constructeur
+     * @param {symbol} token
+     * @param {Base[]} children
+     */
+    constructor(token, children) {
+        super()
+        if (token !== PRIVATE) {
+            throw new Error('Utilisez AddMinus.add ou AddMinus.minus pour créer une instance')
+        }
+        this.#children = children
     }
 
     /**
@@ -46,63 +85,62 @@ class MultDiv extends Base {
      */
     isFunctionOf(name){
         if (typeof name === 'undefined') {
-            return _.uniq(this._left.isFunctionOf().concat(this._right.isFunctionOf())).sort()
+            return _.uniq(_.flatten(this.#children.map(child => child.isFunctionOf()))).sort()
         }
-        return this._left.isFunctionOf(name) || this._right.isFunctionOf(name)
+        return some(this.#children, child => child.isFunctionOf(name))
     }
 
     substituteVariable(varName, value) {
-        const newLeft = this._left.substituteVariable(varName, value)
-        const newRight = this._right.substituteVariable(varName, value)
-        if (newLeft === this._left && newRight === this._right) {
-            // pas de changement
+        if (!this.isFunctionOf(varName)) {
             return this
         }
-        return new this.constructor(newLeft, newRight)
+        const children = this.#children.map( c => c.substituteVariable(varName, value) )
+        return new Mult(PRIVATE, children)
     }
 
     substituteVariables(values) {
-        const leftSub = this._left.substituteVariables(values)
-        const rightSub = this._right.substituteVariables(values)
-        if (leftSub === this._left && rightSub === this._right) {
+        const children = this.#children.map( c => c.substituteVariables(values) )
+        if (children.every((child, index) => child === this.#children[index])) {
             // pas de changement
             return this
         }
-        return new this.constructor(leftSub, rightSub);
+        return new Mult(PRIVATE, children);
     }
 
     toFixed(n) {
-        const newLeft = this._left.toFixed(n)
-        const newRight = this._right.toFixed(n)
-        return new this.constructor(newLeft, newRight)
+        const children = this.#children.map( c => c.toFixed(n) )
+        return new Mult(PRIVATE, children)
     }
-}
 
-
-class Mult extends MultDiv {
-    /** @type {string|null} représentation texte */
-    #string = null;
-    /** @type {string|null} représentation texte */
-    #stringEN = null;
-
-    /**
-     * 
-     * @param {Array} operandes 
-     * @returns {Mult, Scalar}
-     */
-    static fromList(operandes) {
-        if (operandes.length == 0){
-            return Scalar.ONE;
+    #toStringHelper(lang) {
+        let result = ''
+        for (let i=0; i<this.#children.length; i++) {
+            const child = this.#children[i]
+            let childStr
+            if (lang === 'en') {
+                childStr = child.toStringEn()
+            } else if (lang === 'tex') {
+                childStr = child.toTex()
+            } else {
+                childStr = String(child)
+            }
+            if (i !== 0 && !childStr.startsWith('-') || child.priority < this.priority) {
+                if (lang === 'tex') {
+                    childStr = `\\left(${childStr}\\right)`
+                } else {
+                    childStr = `(${childStr})`
+                }
+            }
+            if (i !== 0) {
+                if (lang === 'tex') {
+                    result += ' \\cdot '
+                } else {
+                    result += ' * '
+                }
+            }
+            result += childStr
         }
-        if (operandes.length == 1) {
-            return operandes[0];
-        }
-        let n = operandes.length;
-        let node = new Mult(operandes[n-2], operandes[n-1]);
-        for (let i=n-3; i>=0; i--) {
-            node = new Mult(operandes[i], node);
-        }
-        return node;
+        return result
     }
 
     /**
@@ -110,36 +148,17 @@ class Mult extends MultDiv {
      * @returns {string}
      */
     toString() {
-        if (this.#string == null) {
-            let left = this._left.priority < this.priority
-                ? `(${String(this._left)})`
-                : String(this._left);
-            let right = this._right.priority < this.priority
-                ? `(${String(this._right)})`
-                : String(this._right);
-            this.#string = `${left} * ${right}`;
+        if (!this.#string) {
+            this.#string = this.#toStringHelper('fr')
         }
         return this.#string;
     }
 
     toStringEn() {
-        if (this.#stringEN == null) {
-            this.#stringEN = `(${this._left.toStringEn()}) * (${this._right.toStringEn()})`
+        if (!this.#stringEN) {
+            this.#stringEN = this.#toStringHelper('en')
         }
         return this.#stringEN
-    }
-
-    isExpanded() {
-        if (!this._left.isExpanded() || !this._right.isExpanded()) {
-            return false;
-        }
-        if (this._left instanceof Scalar && this._right instanceof Scalar) {
-            return false;
-        }
-        if (this._left.canBeDistributed || this._right.canBeDistributed) {
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -147,13 +166,16 @@ class Mult extends MultDiv {
      * @returns {string}
      */
     toTex() {
-        let texLeft = this._left.priority < this.priority
-            ? `\\left(${this._left.toTex()}\\right)`
-            : this._left.toTex();
-        let texRight = this._right.priority < this.priority
-            ? `\\left(${this._right.toTex()}\\right)`
-            : this._right.toTex();
-        return `${texLeft} \\cdot ${texRight}`;
+        if (!this.#stringTex) {
+            this.#stringTex = this.#toStringHelper('tex')
+        }
+        return this.#stringTex
+    }
+
+
+    isExpanded() {
+        return !some(this.#children, child => !child.isExpanded())
+            && !some(this.#children, child => child.canBeDistributed)
     }
 
     /**
@@ -162,232 +184,49 @@ class Mult extends MultDiv {
      * @returns {Decimal}
      */
     toDecimal(values) {
-        let v = this._left.toDecimal(values);
-        return v.mul(this._right.toDecimal(values));
+        let acc = new Decimal(1)
+        for (let child of this.#children) {
+            let v = child.toDecimal(values)
+            acc = acc.mul(v)
+        }
+        return acc
     }
 
+    /**
+     * renvoie la signature de l'expression
+     * @returns {Signature}
+     */
     signature() {
-        let lefts = this._left.signature()
-        if (!Array.isArray(lefts)) {
-            lefts = [lefts]
+        const children = this.#children.map( c => c.signature() )
+        let s = new Signature()
+        for (let child of children) {
+            s = s.mult(child)
         }
-        let rights = this._right.signature()
-        if (!Array.isArray(rights)) {
-            rights = [rights]
-        }
-        for (let s of rights) {
-            let found = false
-            for (let s1 of lefts) {
-                if (s.text === s1.text) {
-                    // simplification
-                    s1.exponent += s.exponent
-                    s1.scalarNum = s1.scalarNum.mul(s.scalarNum)
-                    s1.scalarDen = s1.scalarDen.mul(s.scalarDen)
-                    found = true
-                    break
-                }
-            }
-            if (!found) {
-                lefts.push(s)
-            }
-        }
-        for (let item of lefts) {
-            if (item.scalarNum.equals(0)) {
-                return {
-                    scalarNum: Decimal(0),
-                    scalarDen: Decimal(1),
-                    exponent: 1,
-                    text: '0',
-                    node: Scalar.ZERO
-                }
-            }
-            if (item.exponent === 0) {
-                item.text = '1'
-                item.node = Scalar.ONE
-            }
-        }
-        const scalars = lefts.filter(item => item.text === '1')
-        const nonScalars = lefts.filter(item => item.text !== '1')
-        while (scalars.length > 1) {
-            const s1 = scalars.pop()
-            scalars[0].scalarNum = scalars[0].scalarNum.mul(s1.scalarNum)
-            scalars[0].scalarDen = scalars[0].scalarDen.mul(s1.scalarDen)
-        }
-        const result = [...scalars, ...nonScalars]
-        if (result.length === 1) {
-            return result[0]
-        }
-        return result.sort((a, b) => a.text.localeCompare(b.text))
-    }
-
-    /** recherche les facteurs dans les mults enfants
-     * @returns {Array<Base>} */
-    childFactors() {
-        const factorsLeft = this._left instanceof Mult
-            ? this._left.childFactors()
-            : [this._left];
-        const factorsRight = this._right instanceof Mult
-            ? this._right.childFactors()
-            : [this._right];
-        return factorsLeft.concat(factorsRight);
+        return s
     }
 
     opposite() {
         // recherche un enfant pour porter l'opposite
         // sinon multiplie par -1
-        if (typeof this.left.opposite === 'function') {
-            return new Mult(this.left.opposite(), this.right);
+        const children = [...this.#children]
+        for (let i=0; i<children.length; i++) {
+            const child = children[i]
+            if (typeof child.opposite === 'function') {
+                const newChild = child.opposite()
+                children[i] = newChild
+                return new Mult(PRIVATE, children)
+            }
         }
-        if (typeof this.right.opposite === 'function') {
-            return new Mult(this.left, this.right.opposite());
-        }
-        return new Mult(Scalar.MINUS_ONE, this);
+        children.unshift(Scalar.MINUS_ONE)
+        return new Mult(PRIVATE, children)
     }
 
     toDict() {
         return {
             type: "Mult",
-            left: this._left.toDict(),
-            right: this._right.toDict()
+            children: this.#children.map( child => child.toDict() )
         }
     }
 }
 
-
-class Div extends MultDiv {
-    /** @type {string|null} représentation texte */
-    #string = null
-    /** @type {string|null} représentation texte */
-    #stringEN = null
-
-    /**
-     * transtypage -> string
-     * @returns {string}
-     */
-    toString() {
-        if (this.#string != null) {
-            return this.#string
-        }
-        const left = this._left.priority <= this.priority
-            ? `(${String(this._left)})`
-            : String(this._left)
-        const right = this._right.priority <= this.priority
-            ? `(${String(this._right)})`
-            : String(this._right)
-        this.#string = `${left} / ${right}`
-        return this.#string;
-    }
-
-    toStringEn() {
-        if (this.#stringEN == null) {
-            this.#stringEN = `(${this._left.toStringEn()}) / (${this._right.toStringEn()})`
-        }
-        return this.#stringEN
-    }
-
-    isExpanded() {
-        if (!this.left.isExpanded() || !this.right.isExpanded()) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * renvoie une représentation tex
-     * @returns {string}
-     */
-    toTex() {
-        let texLeft = this._left.toTex();
-        let texRight = this._right.toTex();
-        return `\\frac{${texLeft}}{${texRight}}`;
-    }
-
-    /**
-     * evaluation numérique en decimal
-     * @param {object|undefined} values
-     * @returns {Decimal}
-     */
-    toDecimal(values) {
-        let left = this._left.toDecimal(values);
-        let right = this._right.toDecimal(values);
-        return left.dividedBy(right);
-    }
-
-    signature() {
-        let lefts = this._left.signature()
-        if (!Array.isArray(lefts)) {
-            lefts = [lefts]
-        }
-        let rights = this._right.signature()
-        if (!Array.isArray(rights)) {
-            rights = [rights]
-        }
-        for (let s of rights) {
-            let found = false
-            for (let s1 of lefts) {
-                if (s.text === s1.text) {
-                    // simplification
-                    s1.exponent -= s.exponent
-                    s1.scalarNum = s1.scalarNum.mul(s.scalarDen)
-                    s1.scalarDen = s1.scalarDen.mul(s.scalarNum)
-                    found = true
-                    break
-                }
-            }
-            if (!found) {
-                s.exponant = -s.exponent
-                const den = s.scalarDen
-                s.scalarDen = s.scalarNum
-                s.scalarNum = den
-                lefts.push(s)
-            }
-        }
-        for (let item of lefts) {
-            if (item.scalarNum.equals(0)) {
-                return {
-                    scalarNum: Decimal(0),
-                    scalarDen: Decimal(1),
-                    exponent: 1,
-                    text: '0',
-                    node: Scalar.ZERO
-                }
-            }
-            if (item.exponent === 0) {
-                item.text = '1'
-                item.node = Scalar.ONE
-            }
-        }
-        const scalars = lefts.filter(item => item.text === '1')
-        const nonScalars = lefts.filter(item => item.text !== '1')
-        while (scalars.length > 1) {
-            const s1 = scalars.pop()
-            scalars[0].scalarNum = scalars[0].scalarNum.mul(s1.scalarNum)
-            scalars[0].scalarDen = scalars[0].scalarDen.mul(s1.scalarDen)
-        }
-        const result = [...scalars, ...nonScalars]
-        if (result.length === 1) {
-            return result[0]
-        }
-        return result.sort((a, b) => a.text.localeCompare(b.text))
-    }
-
-    opposite() {
-        if (typeof this._left.opposite === 'function') {
-            return new Div(this._left.opposite(), this._right);
-        }
-        if (typeof this._right.opposite === 'function') {
-            return new Div(this._left, this._right.opposite());
-        }
-        return new Mult(Scalar.MINUS_ONE, this);
-    }
-
-    toDict() {
-        return {
-            type: "Div",
-            left: this._left.toDict(),
-            right: this._right.toDict()
-        }
-    }
-}
-
-export { Mult, Div, MultDiv};
+export { Mult };
