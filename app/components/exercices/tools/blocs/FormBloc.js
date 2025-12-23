@@ -112,13 +112,6 @@ class FormBloc extends Bloc {
             }
             views.push(child.resultView(data));
         }
-        const nbPoints = this._children.reduce(
-            (sum, child) => (typeof child.resultScore === "function")
-                ? sum + (child.resultScore(data) || 0)
-                : sum,
-            0
-        );
-        this._score = nbPoints;
         return _.flatten(views);
     }
 
@@ -127,8 +120,14 @@ class FormBloc extends Bloc {
      * @param {*} data 
      * @returns {number} le score final
      */
-    get score() {
-        return this._score || 0;
+    score(data) {
+        const nbPoints = this._children.reduce(
+            (sum, child) => (typeof child.resultScore === "function")
+                ? sum + (child.resultScore(data) || 0)
+                : sum,
+            0
+        )
+        return nbPoints
     }
 
     _needSubmit(answers) {
