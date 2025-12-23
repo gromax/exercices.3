@@ -16,8 +16,6 @@ class Constant extends Base {
 
     #name; /** @type{string} */
 
-    _isNumber = true
-
     constructor(name) {
         super()
         if (!Constant.isConstant(name)) {
@@ -67,6 +65,10 @@ class Constant extends Base {
      */
     toString() {
         return this.#name
+    }
+
+    get isNumber() {
+        return true
     }
 
     get priority() {
