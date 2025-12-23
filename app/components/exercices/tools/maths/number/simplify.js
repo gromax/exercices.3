@@ -1,4 +1,3 @@
-import Decimal from "decimal.js";
 import { AddMinus } from './add'
 import { Mult } from './mult'
 import { Div } from './div'
@@ -8,31 +7,6 @@ import { isTypeConstant, E } from './constant'
 import { isTypeSymbol } from './symbol'
 import { Base } from './base'
 import { Function } from './function'
-
-/** Calcul du plus grand commun diviseur de deux entiers a et b
- * @param {Decimal} a
- * @param {Decimal} b
- * @returns {Decimal}
- */
-function gcd(a, b) {
-    if (!a.isInteger() || !b.isInteger()) {
-        return Scalar.ONE
-    }
-    if (b.isZero()) {
-        return a
-    }
-    if (a.isZero()) {
-        return b
-    }
-    a = a.abs().toNumber()
-    b = b.abs().toNumber()
-    while (a % b !== 0) {
-        const r = a % b
-        a = b
-        b = r
-    }
-    return new Decimal(b)
-}
 
 /**
  * Renvoie l'opposé d'un noeud
@@ -184,7 +158,7 @@ function multSimplify(node) {
     const scalarsFactors = factors.filter(f => f instanceof Scalar);
     let scalarFactor = Scalar.ONE;
     for (let sf of scalarsFactors) {
-        scalarFactor = scalarFactor.multiplyBy(sf);
+        scalarFactor = scalarFactor.mult(sf);
     }
     if (scalarFactor.isZero()) {
         return Scalar.ZERO;
@@ -214,21 +188,7 @@ function divSimplify(node) {
     }
     // simplification des scalaires
     if (leftSim instanceof Scalar && rightSim instanceof Scalar) {
-        if (!rightSim.isPositive()) {
-            leftSim = leftSim.opposite()
-            rightSim = rightSim.opposite()
-        }
-        const leftVal = leftSim.toDecimal()
-        const rightVal = rightSim.toDecimal()
-        const gcdValue = gcd(leftVal, rightVal)
-        if (gcdValue.gt(1)) {
-            const newLeft = new Scalar(leftVal.dividedBy(gcdValue))
-            const newRight = new Scalar(rightVal.dividedBy(gcdValue))
-            if (newRight.isOne()) {
-                return newLeft
-            }
-            return new Div(newLeft, newRight)
-        }
+        return new Scalar(leftSim, rightSim)
     }
     return new Div(leftSim, rightSim)
 }
@@ -262,9 +222,9 @@ function addSimplify(node) {
         let pos2 = positive.shift()
         let newVal
         if (pos1 === pos2) {
-            newVal = new Scalar(val1.toDecimal().plus(val2.toDecimal()))
+            newVal = val1.plus(val2)
         } else {
-            newVal = new Scalar(val1.toDecimal().minus(val2.toDecimal()))
+            newVal = val1.minus(val2)
         }
         if (!pos1) {
             newVal = newVal.opposite()
