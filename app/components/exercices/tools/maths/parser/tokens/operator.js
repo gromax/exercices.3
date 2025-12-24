@@ -6,9 +6,9 @@ class TOperator {
      * @param {string} opType
      */
     constructor(opType) {
-        if (opType == "cdot") {
+        if (opType === "cdot" || opType === "×" || opType === "⋅") {
             this.#opType = "*";
-        } else if (opType =="÷") {
+        } else if (opType === "÷") {
             this.#opType = "/";
         } else {
             this.#opType = opType;
@@ -23,8 +23,8 @@ class TOperator {
         return this.#opType;
     }
 
-    static sREGEX = "[*\\+\\-\\/\\^÷;]|cdot";
-    static REGEX = new RegExp("[*\\+\\-\\/\\^÷;]|cdot", 'i');
+    static sREGEX = "[*×⋅\\+\\-\\/\\^÷;]|cdot";
+    static REGEX = new RegExp("[*×⋅\\+\\-\\/\\^÷;]|cdot", 'i');
 
     /**
      * renvoie le niveau de priorité
