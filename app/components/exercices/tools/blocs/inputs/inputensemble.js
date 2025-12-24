@@ -7,8 +7,12 @@ class InputEnsemble extends InputBloc {
     static LABEL = 'inputensemble'
     constructor(label, paramsString) {
         super(label, paramsString);
+        // le format sert à valider les bornes des intervalles
+        // on pourra donc avoir des bornes infinies
+        // autrement on autorisera numeric ou round:x ou erreur:x
+        // si aucun, ce sera numeric par défaut
         this._params.format = ['infini']; // par défaut pas de format
-        this._params.keyboard = ['infini', 'empty', 'union'];
+        this._params.keyboard = ['minfini', 'pinfini', 'empty', 'union'];
     }
 
     _customView(answers) {
