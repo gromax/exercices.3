@@ -117,7 +117,7 @@ class MyMath {
     static parseUser(expression) {
         // user ne va pas forcément respecter les * ou ce genre de détails
         // je vais donc préprocesser
-        if (/^[+-]?\s*(?:∞|inf|infinity|infty|infini)?$/.test(expression)) {
+        if (/^[+-]?\s*(?:∞|inf|infinity|infty|infini)$/.test(expression)) {
             expression = expression.startsWith('-') ? "-infinity" : "infinity";
         }
         try {
