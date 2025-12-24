@@ -36,6 +36,10 @@ class InputBloc extends Bloc {
      * @returns {number} le score final
      */
     resultScore(data) {
+        // pas encore répondu
+        if (typeof data[this.header] === 'undefined') {
+            return 0;
+        }
         if (this._score === null) {
             if (typeof this._calcResult !== 'function') {
                 throw new Error(`La méthode _calcResult doit être définie dans la sous-classe de InputBloc`);
