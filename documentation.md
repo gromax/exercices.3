@@ -590,6 +590,24 @@ Ici `@gn` qui aura été préalablement initialisé, contiendra une valeur parmi
 
 À l'affichage, les différentes possibilités sont mélangées, mais bien sûr, chaque réponse reste convenablement associée à sa clé.
 
+#### Bloc input ensemble
+
+Ci-dessous, deux exemple avec les solutions.
+
+```
+<form>
+<inputensemble:a>
+<tag:La réponse est [2;4]/>
+<solution:[2;4]/>
+</inputensemble>
+<inputensemble:b>
+<tag:La réponse est [2;4]union[10;15]/>
+<solution:[2;4]union[10;15]/>
+</inputensemble>
+```
+
+L'utilisateur se verra proposer des boutons pour l'infini, vide et union. Il devra écrire un ensemble valide, dans l'ordre, sans recouvrement. Des intervalles comme $[10;12] \cup [11;13]$ pourtant valides mathématiquement ne seront pas admis.
+
 #### Bloc Liste de choix
 
 ```
