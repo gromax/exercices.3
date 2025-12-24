@@ -1,13 +1,13 @@
 class TSymbol {
     /** @type {string} */
-    #name;
+    #name
   
     /**
      * constructeur
      * @param {string} name 
      */
     constructor (name) {
-        this.#name = name;
+        this.#name = name
     }
     
     /**
@@ -15,18 +15,18 @@ class TSymbol {
      * @returns {string}
      */
     toString() {
-        return this.#name;
+        return this.#name
     }
 
-    static sREGEX = "[∞πa-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*";
-    static REGEX = new RegExp("[∞πa-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*", 'i');
+    static sREGEX = "[∞πa-zA-Z_][a-zA-Z0-9_]*"
+    static REGEX = new RegExp("[∞πa-zA-Z_][a-zA-Z0-9_]*", 'i')
 
     /**
      * renvoie le niveau de priorité
      * @type {number}
      */
     get priority() {
-        return 0;
+        return 0
     }
 
     /**
@@ -34,7 +34,7 @@ class TSymbol {
      * @returns {boolean}
      */
     acceptOperOnLeft() {
-        return true;
+        return true
     }
 
     /**
@@ -42,7 +42,7 @@ class TSymbol {
      * @returns {boolean}
      */
     acceptOperOnRight() {
-        return true;
+        return true
     }
 
     /**
@@ -50,7 +50,7 @@ class TSymbol {
      * @returns {boolean}
      */
     operateOnLeft() {
-        return false;
+        return false
     }
 
     /**
@@ -58,7 +58,7 @@ class TSymbol {
      * @returns {boolean}
      */
     operateOnRight() {
-        return false;
+        return false
     }
 
 }
