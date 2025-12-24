@@ -2,7 +2,6 @@ import InputBloc from "./inputbloc"
 import { InputView, InputResultView } from "../../blocsviews/inputview"
 import { checkFormat, checkValue, formatValue } from "@mathstools/misc/check"
 import MyMath from "@mathstools/mymath"
-import { result } from "underscore"
 
 class InputEnsemble extends InputBloc {
     static LABEL = 'inputensemble'
