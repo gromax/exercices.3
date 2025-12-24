@@ -69,40 +69,50 @@ function checkInfiniteExpression(expr) {
 function checkFormat(expr, format = 'none') {
     // format peut être un tableau de formats acceptés
     if (Array.isArray(format)) {
-        const reponses = format.map(f => checkFormat(expr, f));
+        const reponses = format.map(f => checkFormat(expr, f))
         if (reponses.includes(true)) {
-            return true;
+            return true
         }
-        return reponses.join(' OU ');
+        return reponses.join(' OU ')
+    }
+    expr = expr.trim()
+    if (expr === '') {
+        return "Vous devez fournir une réponse non vide.";
     }
 
     if (format === 'empty') {
-        return checkEmptyExpression(expr);
+        return checkEmptyExpression(expr)
     }
 
     if (format === "infini")  {
-        return checkInfiniteExpression(expr);
+        return checkInfiniteExpression(expr)
     }
 
     if (format === 'numeric') {
-        return checkNumericExpression(expr);
+        return checkNumericExpression(expr)
     }
     if (/^round:[0-9]+$/.test(format)) {
-        return /^[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][+-]?\d+)?(?:\s*%)?$/.test(expr) ? true : "Vous devez fournir un nombre éventuellement approximé.";
+        return /^[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][+-]?\d+)?(?:\s*%)?$/.test(expr) ? true : "Vous devez fournir un nombre éventuellement approximé."
     }
     if (/^erreur:(?:[0-9]+(?:\.[0-9]+)?)|(?:\.[0-9]+)$/.test(format)) {
-        return /^[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][+-]?\d+)?(?:\s*%)?$/.test(expr) ? true : "Vous devez fournir un nombre éventuellement approximé.";
+        return /^[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][+-]?\d+)?(?:\s*%)?$/.test(expr) ? true : "Vous devez fournir un nombre éventuellement approximé."
     }
     if (format === 'expand') {
-        return checkIfExpand(expr);
+        return checkIfExpand(expr)
     }
 
     if (format !== 'none') {
         // format inconnu
-        console.warn(`Format inconnu : ${format}`);
+        console.warn(`Format inconnu : ${format}`)
     }
     // autres formats à ajouter ici
-    return true;
+    // il faut vérifier que le parse passe bien
+    try {
+        Parser.build(expr)
+        return true
+    } catch (e) {
+        return `Expression invalide : ${e.message}`
+    }
 }
 
 /**
