@@ -198,7 +198,7 @@ class Scalar extends Base {
             // si la valeur n'est pas satisfaisante, le contructeurr lève une erreur
             value = new Scalar(value)
         }
-        if (this.#denominator === null || value.#denominator === null) {
+        if (this.#denominator === null && value.#denominator === null) {
             // cas simple
             return new Scalar(this.#value.add(value.#value))
         }
@@ -234,7 +234,7 @@ class Scalar extends Base {
             value = new Scalar(value)
         }
         const newNumerator = this.#value.mul(value.#value)
-        if (this.#denominator === null || value.#denominator === null) {
+        if (this.#denominator === null && value.#denominator === null) {
             // cas simple
             return new Scalar(newNumerator)
         }
@@ -251,7 +251,7 @@ class Scalar extends Base {
             // si la valeur n'est pas satisfaisante, le contructeurr lève une erreur
             value = new Scalar(value)
         }
-        if (this.#denominator === null || value.#denominator === null) {
+        if (this.#denominator === null && value.#denominator === null) {
             // cas simple
             return new Scalar(this.#value, value.#value)
         }
