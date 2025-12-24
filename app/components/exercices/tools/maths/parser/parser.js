@@ -256,6 +256,8 @@ class Parser {
     #parse() {
         /** @type{string} */
         let expression = this.#saisie;
+        // Pour ceux qui écriraient ** au lieu de ^ comme en Python
+        expression = expression.replaceAll("**", "^");
         // correction des  \left et \right qui serait présent dans un champs de saisie latex
         expression = expression.replace(/\\\\/g, " ");
         expression = expression.replace(/left/g, " ");
@@ -268,7 +270,26 @@ class Parser {
       
         let matchList = expression.match(Parser.REGEX);
         if (!matchList) {
-          throw new Error("Aucun token valide reconnu !");
+            throw new Error("Aucun item valide reconnu !");
+        }
+        
+        // Vérifier qu'il n'y a pas de caractères non reconnus
+        let expressionSansEspaces = expression.replace(/\s+/g, "");
+        let tokensReconstitues = matchList.join("");
+        if (expressionSansEspaces !== tokensReconstitues) {
+          // Trouver le premier caractère problématique
+          let pos = 0;
+          let reconstituePos = 0;
+          while (pos < expressionSansEspaces.length) {
+            if (reconstituePos < tokensReconstitues.length && 
+                expressionSansEspaces[pos] === tokensReconstitues[reconstituePos]) {
+              pos++;
+              reconstituePos++;
+            } else {
+              throw new Error(`Caractère non reconnu : '${expressionSansEspaces[pos]}'.`);
+            }
+          }
+          throw new Error("Expression contient des caractères non reconnus.");
         }
         
         let tokensList = [];
