@@ -81,7 +81,8 @@ function build(rpn) {
     if (stack.length != 1) {
         throw new Error(`La pile devrait contenir un seul item à la fin et pas ${stack.length}.`);
     }
-    return stack.pop();
+    const result = stack.pop()
+    return result;
 }
 
 export { build };
