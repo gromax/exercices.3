@@ -131,6 +131,16 @@ class TkzTabBloc extends Bloc {
      * @returns {number} le score final
      */
     resultScore(data) {
+        for (let line of this._lines) {
+            if (line.type === 'inputvar' || line.type === 'inputsign') {
+                // on doit calculer le score
+                if (typeof data[line.name] === "undefined") {
+                    // donnée manquante
+                    return 0
+                }
+            }
+        }
+        // toutes les données sont présentes
         if (typeof this._score === "undefined") {
             this._calcResult(data)
         }
