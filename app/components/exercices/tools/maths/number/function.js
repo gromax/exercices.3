@@ -119,6 +119,10 @@ class Function extends Base {
         return 4;
     }
 
+    get startsWithMinus() {
+        return this.#name === '(-)';
+    }
+
     get child() {
         return this.#child;
     }
