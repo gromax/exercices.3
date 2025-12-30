@@ -17,7 +17,6 @@ class AddMinus extends Base {
     #stringTex;
 
     static addFromList(operandes) {
-        operandes = _.filter(operandes, function(item){return (!(item instanceof Scalar) || !item.isZero())})
         if (operandes.length == 0){
             return Scalar.ZERO;
         }
@@ -27,7 +26,18 @@ class AddMinus extends Base {
         if (!operandes.every( item => item instanceof Base)) {
             throw new Error('Tous les éléments de la liste doivent être des instances de Base')
         }
-        return new AddMinus(PRIVATE, operandes, new Array(operandes.length).fill(true))
+        // Il faut applatir des enfants qui sont aussi des AddMinus
+        const flat_operandes = _.flatten( operandes.map( item => (item instanceof AddMinus) ? item.children : item) )
+        const positive = _.flatten( operandes.map( item => (item instanceof AddMinus) ? item.positive : true) )
+        // il faut absorber les moins de certains opérandes
+        for (let i=0; i<flat_operandes.length; i++) {
+            const item = flat_operandes[i]
+            if (item.startsWithMinus && typeof item.opposite === 'function') {
+                positive[i] = !positive[i]
+                flat_operandes[i] = item.opposite()
+            }
+        }
+        return new AddMinus(PRIVATE, flat_operandes, positive)
     }
 
     static fromList(operandes, positive) {
@@ -50,7 +60,30 @@ class AddMinus extends Base {
                 return operandes[0].opposite()
             }
         }
-        return new AddMinus(PRIVATE, [...operandes], [...positive])
+        // Il faut applatir des enfants qui sont aussi des AddMinus
+        const flat_operandes = _.flatten( operandes.map( item => (item instanceof AddMinus) ? item.children : item) )
+        const flat_positive = []
+        for (let i=0; i<operandes.length; i++) {
+            const item = operandes[i]
+            const p = positive[i]
+            if (!(item instanceof AddMinus)) {
+                flat_positive.push(p)
+            } else {
+                const child_positive = item.positive
+                for (let j=0; j<child_positive.length; j++) {
+                    flat_positive.push( p ? child_positive[j] : !child_positive[j] )
+                }
+            }
+        }
+        // enfin il faut absorber les moins de certains opérandes
+        for (let i=0; i<flat_operandes.length; i++) {
+            const item = flat_operandes[i]
+            if (item.startsWithMinus && typeof item.opposite === 'function') {
+                flat_positive[i] = !flat_positive[i]
+                flat_operandes[i] = item.opposite()
+            }
+        }
+        return new AddMinus(PRIVATE, flat_operandes, flat_positive)
     }
 
     static add(left, right) {
@@ -260,16 +293,19 @@ class AddMinus extends Base {
     #toStringHelper(lang) {
         let result = ''
         for (let i=0; i<this.#children.length; i++) {
+            const child = this.#children[i]
             let childStr
             if (lang === 'en') {
-                childStr = this.#children[i].toStringEn()
+                childStr = child.toStringEn()
             } else if (lang === 'tex') {
-                childStr = this.#children[i].toTex()
+                childStr = child.toTex()
             } else {
-                childStr = String(this.#children[i])
+                childStr = String(child)
             }
             const sign = this.#positive[i] ? '+' : '-'
-            if (childStr.startsWith('-')) {
+            if (child.startsWithMinus) {
+                // ne devrait pas arriver
+                // puisque le signe - de l'enfant a déjà été absorbé
                 if (lang === 'tex') {
                     childStr = `\\left(${childStr}\\right)`
                 } else {
