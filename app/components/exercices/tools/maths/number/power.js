@@ -11,6 +11,8 @@ class Power extends Base {
     #string = null;
     /** @type {string|null} */
     #stringEN = null;
+    /** @type {string|null} */
+    #stringTex = null;
 
     /**
      * constructeur
@@ -29,29 +31,66 @@ class Power extends Base {
         this.#exposant = exposant;
     }
 
+    #toStringHelper(lang) {
+        let baseStr = lang === 'en'
+            ? this.#base.toStringEn()
+            : lang == 'tex'
+                ? this.#base.toTex()
+                : String(this.#base)
+        let exposantStr = lang === 'en'
+            ? this.#exposant.toStringEn()
+            : lang == 'tex'
+                ? this.#exposant.toTex()
+                : String(this.#exposant)
+        if (this.#base.priority <= this.priority) {
+            if (lang === 'tex') {
+                baseStr = `\\left(${baseStr}\\right)`
+            } else {
+                baseStr = `(${baseStr})`
+            }
+        }
+        if ((this.#exposant.priority <= this.priority) || (this.#exposant.startsWithMinus)) {
+            if (lang === 'tex') {
+                exposantStr = `\\left(${exposantStr}\\right)`
+            } else {
+                exposantStr = `(${exposantStr})`
+            }
+        }
+        if (lang === 'tex') {
+            return `${baseStr}^{${exposantStr}}`
+        } else {
+            return `${baseStr}^${exposantStr}`
+        }
+    }
+
+
     /**
      * transtypage -> string
      * @returns {string}
      */
     toString() {
-        if (this.#string != null) {
-            return this.#string;
+        if (this.#string === null) {
+            this.#string = this.#toStringHelper('fr')
         }
-        let base = this.#base.priority <= this.priority? `(${String(this.#base)})`:String(this.#base);
-        let exposant = this.#exposant.priority <= this.priority? `(${String(this.#exposant)})`:String(this.#exposant);
-        if (exposant.startsWith('-')) {
-            exposant = `(${exposant})`;
-        }
-        this.#string = `${base}^${exposant}`;
-        return this.#string;
+        return this.#string
     }
 
     toStringEn() {
-        if (this.#stringEN != null) {
-            return this.#stringEN;
+        if (this.#stringEN === null) {
+            this.#stringEN = this.#toStringHelper('en')
         }
-        this.#stringEN = `(${this.#base.toStringEn()}) ^ (${this.#exposant.toStringEn()})`
         return this.#stringEN
+    }
+
+    /**
+     * renvoie une représentation tex
+     * @returns {string}
+     */
+    toTex() {
+        if (this.#stringTex === null) {
+            this.#stringTex = this.#toStringHelper('tex')
+        }
+        return this.#stringTex
     }
 
     get priority() {
@@ -92,18 +131,6 @@ class Power extends Base {
             return _.uniq(this.#base.isFunctionOf().concat(this.#exposant.isFunctionOf())).sort();
         }
         return this.#base.isFunctionOf(name) || this.#exposant.isFunctionOf(name);
-    }
-
-    /**
-     * renvoie une représentation tex
-     * @returns {string}
-     */
-    toTex() {
-        let texBase = this.#base.priority <= this.priority
-            ? `\\left(${this.#base.toTex()}\\right)`
-            : this.#base.toTex();
-        let texExposant = this.#exposant.toTex();
-        return `${texBase}^{${texExposant}}`;
     }
 
     /**
