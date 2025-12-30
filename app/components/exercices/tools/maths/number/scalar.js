@@ -56,6 +56,34 @@ class Scalar extends Base {
         return new Scalar(chaine);
     }
 
+    static div(numerator, denominator) {
+        if (!(numerator instanceof Scalar)) {
+            numerator = new Scalar(numerator)
+        }
+        return numerator.div(denominator)
+    }
+
+    static mult(factor1, factor2) {
+        if (!(factor1 instanceof Scalar)) {
+            factor1 = new Scalar(factor1)
+        }
+        return factor1.mult(factor2)
+    }
+
+    static plus(addend1, addend2) {
+        if (!(addend1 instanceof Scalar)) {
+            addend1 = new Scalar(addend1)
+        }
+        return addend1.plus(addend2)
+    }
+
+    static minus(minuend, subtrahend) {
+        if (!(minuend instanceof Scalar)) {
+            minuend = new Scalar(minuend)
+        }
+        return minuend.minus(subtrahend)
+    }
+
     /**
      * teste si la chaîne est bien d'un scalaire
      * @param {string} chaine 
@@ -182,6 +210,14 @@ class Scalar extends Base {
 
     get priority() {
         return 10
+    }
+
+    get scalarFactor() {
+        return this
+    }
+
+    get withoutScalarFactor() {
+        return Scalar.ONE
     }
 
     isInteger() {
