@@ -40,6 +40,12 @@ class AddMinus extends Base {
         return new AddMinus(PRIVATE, flat_operandes, positive)
     }
 
+    /**
+     * Crée une somme à partir d'une liste d'opérandes et d'une liste de signes
+     * @param {Base[]} operandes 
+     * @param {boolean[]} positive 
+     * @returns {AddMinus}
+     */
     static fromList(operandes, positive) {
         if (operandes.length !== positive.length) {
             throw new Error('operandes et positive doivent avoir la même longueur')
