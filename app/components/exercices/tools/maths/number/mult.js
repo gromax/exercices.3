@@ -25,6 +25,13 @@ class Mult extends Base {
         return 2;
     }
 
+    get startsWithMinus() {
+        if (this.#children.length === 0) {
+            return false
+        }
+        return this.#children[0].startsWithMinus
+    }
+
     /**
      * 
      * @param {Array} operandes 
@@ -124,7 +131,7 @@ class Mult extends Base {
             } else {
                 childStr = String(child)
             }
-            if (i !== 0 && !childStr.startsWith('-') || child.priority < this.priority) {
+            if (i !== 0 && child.startsWithMinus || child.priority < this.priority) {
                 if (lang === 'tex') {
                     childStr = `\\left(${childStr}\\right)`
                 } else {
