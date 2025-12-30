@@ -29,7 +29,19 @@ class Base {
         return 0;
     }
 
+    /**
+     * prédicat : le noeud peut-il être distribué ?
+     * @return {boolean}
+     */
     get canBeDistributed() {
+        return false
+    }
+
+    /**
+     * prédicat : le noeud commence-t-il par un signe moins ?
+     * @returns {boolean}
+     */
+    get startsWithMinus() {
         return false
     }
 
