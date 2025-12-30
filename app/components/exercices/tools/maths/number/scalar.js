@@ -109,6 +109,10 @@ class Scalar extends Base {
         return true
     }
 
+    get startsWithMinus() {
+        return this.#value.isNegative()
+    }
+
     #getDenominator() {
         return this.#denominator || new Decimal(1)
     }
