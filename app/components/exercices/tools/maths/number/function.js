@@ -1,5 +1,4 @@
 import { Base } from "./base"
-import { Signature } from "./signature"
 import Decimal from "decimal.js"
 
 class Function extends Base {
@@ -127,8 +126,25 @@ class Function extends Base {
         return this.#child;
     }
 
-    isExpanded() {
-        return this.#child.isExpanded();
+    get scalarFactor() {
+        if (this.#name === '(+)') {
+            return this.#child.scalarFactor
+        }
+        if (this.#name === '(-)') {
+            let childFactor = this.#child.scalarFactor
+            if (childFactor === 1) {
+                childFactor === Scalar.ONE
+            }
+            return childFactor.opposite()
+        }
+        return 1
+    }
+
+    get withoutScalarFactor() {
+        if (this.#name === '(+)' || this.#name === '(-)') {
+            return this.#child.withoutScalarFactor
+        }
+        return this
     }
 
     /**

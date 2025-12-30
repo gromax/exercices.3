@@ -29,6 +29,14 @@ class Base {
         return 0;
     }
 
+    get scalarFactor() {
+        return 1
+    }
+
+    get withoutScalarFactor() {
+        return this
+    }
+
     /**
      * prédicat : le noeud peut-il être distribué ?
      * @return {boolean}
