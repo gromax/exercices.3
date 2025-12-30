@@ -21,8 +21,25 @@ class Div extends Base {
         return this.#right;
     }
 
+    get scalarFactor() {
+        return Scalar.div(this.#left.scalarFactor, this.#right.scalarFactor)
+    }
+
+    get withoutScalarFactor() {
+        const newLeft = this.#left.withoutScalarFactor
+        const newRight = this.#right.withoutScalarFactor
+        return Div.div(newLeft, newRight)
+    }
+
     get priority() {
         return 2;
+    }
+
+    static div(left, right) {
+        if (!(left instanceof Base) || !(right instanceof Base)) {
+            throw new Error('Les deux opérandes doivent être des instances de Base')
+        }
+        return new Div(left, right)
     }
 
     /**
