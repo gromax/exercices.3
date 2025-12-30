@@ -1,5 +1,4 @@
 import { Base } from "./base"
-import { Signature } from "./signature"
 import Decimal from "decimal.js"
 
 class Power extends Base {
