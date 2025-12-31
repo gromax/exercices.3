@@ -15,7 +15,7 @@ abstract class Item
     'integer' => PDO::PARAM_INT,
     'string' => PDO::PARAM_STR,
     'boolean' => PDO::PARAM_BOOL,
-    'dateHeure' => PDO::PARAM_STR,
+    'datetime' => PDO::PARAM_STR,
     'date' => PDO::PARAM_STR
   );
 
@@ -39,7 +39,7 @@ abstract class Item
       items de la forme
       'key' => array(
         'def' => "",       // valeur par défaut
-        'type'=> 'string', // type de donnée (string, integer, boolean, dateHeure, date)
+        'type'=> 'string', // type de donnée (string, integer, boolean, datetime, date)
         'foreign'=> 'table.key' // clé étrangère (optionnel)
         )
       )
@@ -395,7 +395,7 @@ abstract class Item
       case "boolean":
         $values[$key] = (boolean) $value;
         break;
-      case "dateHeure":
+      case "datetime":
         $values[$key] = $value;
         break;
       case "date":

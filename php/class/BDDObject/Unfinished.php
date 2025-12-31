@@ -16,7 +16,7 @@ final class Unfinished extends Trial
       'score' => ['def' => 0, 'type'=> 'integer'],        // score de l'essai
       'init' => ['def' => "", 'type'=> 'string'], // JSON des intialisations de l'exercice
       'answers' => ['def' => "", 'type'=> 'string'], // JSON des réponses de l'utilisateur
-      'date' => ['def' => date('Y-m-d'), 'type'=> 'date'], // date de l'essai
+      'date' => ['def' => date('Y-m-d H:i:s'), 'type'=> 'datetime'], // date de l'essai
       'finished' => ['def' => false, 'type'=> 'bool'], // si l'essai est terminé
       'idBDD' => ['def' => 0, 'type'=> 'integer', 'foreign' => 'trials.id'] // identifiant dans la table trials
     ] ;

@@ -19,7 +19,7 @@ final class Message extends Item
       'idOwner' => array( 'def' => null, 'type' => 'integer'),  // id de l'auteur
       'message' => array( 'def' => "", 'type'=> 'string'),    // contenu du message
       'aUE' => array( 'def' => "", 'type' => 'integer'),  // données relatives au contexte
-      'date' => array( 'def' => date('Y-m-d H:i:s'), 'type' => 'dateHeure'),  // Date-heure de création
+      'date' => array( 'def' => date('Y-m-d H:i:s'), 'type' => 'datetime'),  // Date-heure de création
       'lu' => array( 'def' => false, 'type'=>'boolean'),
       'idDest' => array( 'def' => null, 'type' => 'integer')
       );

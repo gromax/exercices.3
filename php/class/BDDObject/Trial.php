@@ -19,7 +19,7 @@ class Trial extends Item
       'score' => ['def' => 0, 'type'=> 'integer'],        // score de l'essai
       'init' => ['def' => "", 'type'=> 'string'], // JSON des intialisations de l'exercice
       'answers' => ['def' => "", 'type'=> 'string'], // JSON des réponses de l'utilisateur
-      'date' => ['def' => date('Y-m-d'), 'type'=> 'date'], // date de l'essai
+      'date' => ['def' => date('Y-m-d H:i:s'), 'type'=> 'datetime'], // date de l'essai
       'finished' => ['def' => false, 'type'=> 'bool'], // si l'essai est terminé
       'idExo' => ['def' => 0, 'type'=> 'integer', 'foreign' => 'exodevoirs.idExo'], // id du sujet
       'idOwner' => ['def' => 0, 'type'=> 'integer', 'foreign' => 'devoirs.idOwner'], // id du propriétaire du devoir
