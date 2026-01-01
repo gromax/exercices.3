@@ -25,7 +25,7 @@ class User extends Item
       'email' => ['def' => "", 'type'=> 'string'],       // email de l'utilisateur
       'rank' => ['def' => self::RANK_DISCONNECTED, 'type'=> 'integer'], // rang de l'utilisateur
       'idClasse' => ['def' => NULL, 'type'=> 'integer'],         // id de la classe
-      'date' => ['def' => date('Y-m-d'), 'type'=> 'date'], // date de création
+      'date' => ['def' => date('Y-m-d H:i:s'), 'type'=> 'datetime'], // date de création
       'nomClasse' => ['def' => "", 'type'=> 'string', 'foreign'=>'classes.nom'], // nom de la classe
       'idTeacher' => ['def' => 0, 'type'=> 'integer', 'foreign'=>'classes.idOwner'], // id du professeur
       'hash' => ['def' => "", 'type' => 'string', 'private' => true] // hash du mot de passe
