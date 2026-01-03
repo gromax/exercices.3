@@ -67,6 +67,16 @@ class Constant extends Base {
         return this.#name
     }
 
+    toStringEn() {
+        switch(this.#name) {
+            case 'infini': return 'infinity'
+            case 'inf': return 'infinity'
+            case '∞': return 'infinity'
+            case 'π': return 'pi'
+            default: return this.#name
+        }
+    }
+
     get isNumber() {
         return true
     }
