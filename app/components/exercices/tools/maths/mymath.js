@@ -117,9 +117,6 @@ class MyMath {
     static parseUser(expression) {
         // user ne va pas forcément respecter les * ou ce genre de détails
         // je vais donc préprocesser
-        if (/^[+-]?\s*(?:∞|inf|infinity|infty|infini)$/.test(expression)) {
-            expression = expression.startsWith('-') ? "-infinity" : "infinity";
-        }
         try {
             return new MyMath(PRIVATE, { mynumber: Parser.build(expression) });
         } catch (e) {
@@ -184,6 +181,7 @@ class MyMath {
         }
         return expression
             .replace(/,/g, '.')            // virgules → points décimaux
+            .replace(/∞|inf(?!\w)|infini(?!\w)/g, 'infinity') // ∞ → infinity
             .replace(/\blog\(/g, 'log10(') // log( → log10(
             .replace(/\bln\(/g, 'log(')    // ln( → log(
             .replace(/%/g, '/100');        // % → /100
@@ -271,11 +269,7 @@ class MyMath {
             return
         }
 
-        if (/^[+-]?\s*(?:inf|infini|infinity|∞)$/i.test(expression)) {
-            this.#expression = expression[0] === '-' ? "-infinity" : "infinity"
-        } else {
-            this.#expression = expression
-        }
+        this.#expression = expression
     }
 
     #getMyNumber() {
@@ -501,11 +495,11 @@ class MyMath {
     }
 
     isPlusInfinity() {
-        return this.#expression === 'infinity'
+        return this.#getNerdamerProcessed().eq('+infinity')
     }
 
     isMinusInfinity() {
-        return this.#expression === '-infinity'
+        return this.#getNerdamerProcessed().eq('-infinity')
     }
 
     expand() {
