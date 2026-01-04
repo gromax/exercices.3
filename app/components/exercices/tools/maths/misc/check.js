@@ -184,15 +184,14 @@ function checkValue(userValue, expectedValue, format = "none") {
     if (checkFormatResult !== true) {
         return false;
     }
-    if (typeof expectedValue !== 'string') {
-        expectedValue = String(expectedValue)
-    }
     // je traite d'abord les cas particuliers
-    if (checkInfiniteExpression(expectedValue) === true) {
-        return checkInfiniteExpression(userValue) === true && ((expectedValue[0]==='-') === (userValue[0] === '-'));
-    }
-    if (checkEmptyExpression(expectedValue) === true) {
+    if (checkEmptyExpression(String(expectedValue)) === true) {
         return checkEmptyExpression(userValue) === true;
+    }
+    const parsedExpected = MyMath.make(expectedValue);
+    if (parsedExpected.isInfinity()) {
+        return checkInfiniteExpression(userValue) === true
+            && parsedExpected.isMinusInfinity() === (userValue[0] === '-')
     }
 
     // je traite ensuite les cas où le format devrait être numérique
@@ -207,12 +206,12 @@ function checkValue(userValue, expectedValue, format = "none") {
     if (format === "numeric") {
         // numérique mais exacte. Une comparaison directe suffit
         //return MyMath.parseUser(userValue).compare(expectedValue, "==");
-        return MyMath.parseUser(userValue).pseudoEquality(expectedValue);
+        return MyMath.parseUser(userValue).pseudoEquality(parsedExpected);
     }
     if (format.startsWith("round:") || format.startsWith("erreur:")) {
         // Il faut une évaluation float des deux valeurs
         const userFloat = MyMath.parseUser(userValue).toFloat()
-        const expectedFloat = MyMath.toFloat(expectedValue)
+        const expectedFloat = parsedExpected.toFloat()
         if (isNaN(userFloat) || isNaN(expectedFloat)) {
             return false
         }
@@ -227,10 +226,10 @@ function checkValue(userValue, expectedValue, format = "none") {
     }
     if (format === "expand") {
         // comparaison d'expressions algébriques
-        return MyMath.parseUser(userValue).compare(`expand(${expectedValue})`, "==")
+        return MyMath.parseUser(userValue).compare(parsedExpected.expand(), "==")
     }
     // autres formats à ajouter ici
-    return MyMath.parseUser(userValue).expand().compare(`expand(${expectedValue})`, "==")
+    return MyMath.parseUser(userValue).expand().compare(parsedExpected.expand(), "==")
 }
 
 export {
