@@ -250,6 +250,27 @@ class Parser {
     }
 
     /**
+     * renvoie, s'il existe, le premier caractère non tokenizé, sinon null
+     * @param {string} expression
+     * @param {Array} tokens
+     * @returns {string|null}
+     */
+    #charNotTokenized(expression, tokens) {
+        // Vérifier qu'il n'y a pas de caractères non reconnus
+        const expressionSansEspaces = expression.replace(/\s+/g, "");
+        const tokensReconstitues = tokens.join("");
+        if (expressionSansEspaces !== tokensReconstitues) {
+            // Trouver le premier caractère problématique
+            for (let i=0; i<expressionSansEspaces.length; i++) {
+                if (i>=tokensReconstitues.length || expressionSansEspaces[i] !== tokensReconstitues[i]) {
+                    return expressionSansEspaces[i];
+                }
+            }
+        }
+        return null
+    }
+
+    /**
      * parse la chaîne fournie, renvoie true en cas de succès
      * @returns {boolean}
      */
@@ -279,22 +300,13 @@ class Parser {
         }
         
         // Vérifier qu'il n'y a pas de caractères non reconnus
-        let expressionSansEspaces = expression.replace(/\s+/g, "");
-        let tokensReconstitues = matchList.join("");
-        if (expressionSansEspaces !== tokensReconstitues) {
-          // Trouver le premier caractère problématique
-          let pos = 0;
-          let reconstituePos = 0;
-          while (pos < expressionSansEspaces.length) {
-            if (reconstituePos < tokensReconstitues.length && 
-                expressionSansEspaces[pos] === tokensReconstitues[reconstituePos]) {
-              pos++;
-              reconstituePos++;
+        const notTokenizedChar = this.#charNotTokenized(expression, matchList)
+        if (notTokenizedChar !== null) {
+            if (notTokenizedChar === '.' || notTokenizedChar === ',') {
+                throw new Error(`Séparateur décimal isolé : '${notTokenizedChar}'. Vérifiez.`)
             } else {
-              throw new Error(`Caractère non reconnu : '${expressionSansEspaces[pos]}'.`);
+                throw new Error(`Caractère non reconnu : '${notTokenizedChar}'.`)
             }
-          }
-          throw new Error("Expression contient des caractères non reconnus.");
         }
         
         let tokensList = [];
