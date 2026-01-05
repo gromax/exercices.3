@@ -200,10 +200,10 @@ class Mult extends Base {
         return this.#stringTex
     }
 
-
     isExpanded() {
         return !some(this.#children, child => !child.isExpanded())
             && !some(this.#children, child => child.canBeDistributed)
+            && this.#children.filter( c => c instanceof Scalar).length <= 1
     }
 
     /**
