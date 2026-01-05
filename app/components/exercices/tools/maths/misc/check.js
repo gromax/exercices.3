@@ -68,16 +68,17 @@ function checkInfiniteExpression(expr) {
  */
 function checkFormat(expr, format = 'none') {
     // format peut être un tableau de formats acceptés
+    expr = expr.trim()
+    if (expr === '') {
+        return "Vous devez fournir une réponse.";
+    }
+
     if (Array.isArray(format)) {
         const reponses = format.map(f => checkFormat(expr, f))
         if (reponses.includes(true)) {
             return true
         }
         return reponses.join(' OU ')
-    }
-    expr = expr.trim()
-    if (expr === '') {
-        return "Vous devez fournir une réponse non vide.";
     }
 
     if (format === 'empty') {

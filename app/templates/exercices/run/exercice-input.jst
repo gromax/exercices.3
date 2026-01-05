@@ -5,10 +5,10 @@
         <% _.each(keyboard, (params, key) => { %>
         <button type="button" class="btn btn-outline-primary js-keyboard" data-name="<%- key %>"><%= params.tag %></button>
         <% }) %>
-        <input type="text" class="form-control" id="<%- name %>" name="<%- name %>" value="<%- answer %>" required>
+        <input type="text" class="form-control" id="<%- name %>" name="<%- name %>" value="<%- answer %>">
     </div>
     <% } else { %>
-    <input type="text" class="form-control" id="<%- name %>" name="<%- name %>" value="<%- answer %>" required>
+    <input type="text" class="form-control" id="<%- name %>" name="<%- name %>" value="<%- answer %>">
     <% } %>
 </div>
 <div class="js-help-region mb-3"></div>
