@@ -256,6 +256,11 @@ class Parser {
     #parse() {
         /** @type{string} */
         let expression = this.#saisie;
+
+        if (expression.includes('.') && expression.includes(',')) {
+            throw new Error("Utilisez soit le point soit la virgule comme séparateur décimal, pas les deux.");
+        }
+
         // Pour ceux qui écriraient ** au lieu de ^ comme en Python
         expression = expression.replaceAll("**", "^");
         // correction des  \left et \right qui serait présent dans un champs de saisie latex
