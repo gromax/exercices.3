@@ -191,12 +191,8 @@ class MyMath {
         if (typeof expression !== 'string') {
             expression = String(expression);
         }
-        if (expression === 'infinity') {
-            return '+∞';
-        } else if (expression === '-infinity') {
-            return '-∞';
-        }
         return expression
+            .replace(/infinity/gi, '∞')            // points décimaux → virgules
             .replace(/\./g, ',')            // points décimaux → virgules
             .replace(/\blog\(/g, 'ln(')     // log( → ln(
             .replace(/\blog10\(/g, 'log('); // log10( → log(
@@ -228,6 +224,15 @@ class MyMath {
             const replacement = substituteParams(expr, params)
             if (typeof replacement === 'string' && replacement.startsWith('"') && replacement.endsWith('"')) {
                 return replacement.slice(1, -1)
+            }
+            if (Array.isArray(replacement)) {
+                if (format === 'b') {
+                    return replacement.map(r => String(r)).join(', ')
+                }
+                return replacement.map(r => MyMath.make(r).toFormat(format)).join(', ')
+            }
+            if (format === 'b') {
+                return String(replacement)
             }
             return MyMath.make(replacement).toFormat(format);
         });
