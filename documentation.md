@@ -407,6 +407,8 @@ Dans une zone de texte, on est susceptible d'ajouter une formule. On peut alors 
 
   * `{@x:f$}` pour float et latex. En effet, comme précisé dans la note ci-dessus, nerdamer convertit les nombres décimaux en fractions. Alors on est ennuyé si on veut un affichage avec nombres décimaux et en rendu latex. Ce format est là pour cela. On peut préciser un niveau d'approx, par exemple `{@x:3f$}`.
 
+  * `{@x:b}` pour un formatage brut, c'est à dire que `@x` est substitué (on prend sa valeur) mais on se contente de prendre sa version String sans chercher à faire un parse du contenu.
+
 Supposons que l'on ait produit un trinome de forme $a\cdot x^2 + b \cdot x + c$ et que l'on ait stocké dans des variables `@a`, `@b`, `@c` les valeurs des coefficients, générés aléatoirement pour les besoins de l'exercice.
 
 On pourrait croire qu'il suffit d'écrire `$@a x^2 + @b x + @c$` pour obtenir une représentation correcte du trinome.
@@ -942,6 +944,7 @@ La fonction `Alea.lagrangePolynome` tire `n+1` points au hasard, à coordonnées
   * `Table.sortFreqs` reçoit un tableau et renvoie un tableau de tableau `t` avec `t[0]` contenant la liste des valeurs en ordre croissant et `t[1]` la liste des effectifs.
   * `Table.filter` reçoit un tableau, un opérateur parmi `==, !=, <, <=, >, >=`, et une valeur. Renvoie le tableau des items satisfaisant le test.
   * `Table.toBrut` reçoit les tableaux `valeurs` et `effectifs` et reconstitue la série brute, dans l'ordre.
+  * `Table.sort` reçoit un tableau `valeurs` et renvoie une copie triée.
 
 #### Module Calc
 
@@ -964,3 +967,12 @@ La fonction `Alea.lagrangePolynome` tire `n+1` points au hasard, à coordonnées
   * `Dist.binCDF` reçoit `k`, `n` et `p` et renvoie la probabilité $p(X\leqsant k)$ avec $X$ suivant $\mathcal{B}(n;p)$
   * `Dist.binPDF` reçoit `k`, `n` et `p` et renvoie la probabilité $p(X = k)$ avec $X$ suivant $\mathcal{B}(n;p)$
 
+#### Module Str
+
+  * `Str.replace` reçoit `expression`, `searchValue` et `replaceValue`. Permet le remplacement. Fonctionne si `expression` est un tableau.
+  * `Str.prefix` reçoit `expression` et `prefix`. Ajoute le prefix à expression. Fonctionne si expression est un tableau.
+  * `Str.postfix` reçoit `expression` et `postfix`. Ajoute le postfix à expression. Fonctionne si expression est un tableau.
+
+#### Module Tkztab
+
+  * `sign` reçoit une `expression` et un tableau de `bornes`. Renvoie la chaîne représentant la ligne de signes comme dans un tableau TkzTab, en fonction des bornes. Il faut que les bornes correspondent car la fonction se contentera de calculer selon les bornes et aux milieux entre les bornes.
