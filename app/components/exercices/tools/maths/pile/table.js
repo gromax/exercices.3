@@ -24,6 +24,7 @@ class Table {
         'min': Table.min,
         'ECC2': Table.ECC2,
         'filter': Table.filter,
+        'sort': Table.sort,
     }
 
     static numberArray(arr) {
@@ -305,6 +306,18 @@ class Table {
             throw new Error(`L'opérateur ${operator} passé à Table.filter est invalide.`)
         }
         return values.filter((val) => MyMath.compare(val, value, operator))
+    }
+
+    /**
+     * Renvoi un tableau trié des valeurs
+     * @param {Array} values
+     * @return {Array} valeurs triées
+     */
+    static sort(values) {
+        if (!Array.isArray(values)) {
+            throw new Error(`L'argument de Table.sort doit être un tableau.`)
+        }
+        return [...values].sort((a, b) => MyMath.parseFloat(a) - MyMath.parseFloat(b))
     }
 }
 
