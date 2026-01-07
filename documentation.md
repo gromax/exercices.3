@@ -232,6 +232,14 @@ Il est possible de comparer des quantités en utilisant `==`, `!=`, `<`, `<=`, `
 
 Par exemple : `@a <= 3`
 
+##### exists
+
+Quand on conçoit un exercice avec options, selon les options, on peut définir divers paramètres. Il est donc utile de pouvoir utiliser quels paramètres sont définis ou pas.
+
+On peut donc utiliser un opérateur `exists`.
+
+Ainsi ce test est valide : `@a exists`. Ce test renvoie vraie si `@a` a bien été défini et faux sinon. On peut utliser le opérateurs logiques (voir ci-dessous), par exemple `@a exists and @b exists`.
+
 ##### Opérateurs logiques
 
 On peut structurer la condition logique avec les opérateurs `and` et `or`.

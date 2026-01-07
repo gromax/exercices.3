@@ -111,7 +111,7 @@ class BinaryLogicalOperator {
 
 class SimpleCondition {
     static parse(expr) {
-        const regex = /^(.*)(==|<=?|>=?|!=)(.*)$/;
+        const regex = /^(.*)(==|<=?|>=?|!=|exists)(.*)$/;
         const m = expr.match(regex);
         if (!m) {
             return null;
@@ -121,12 +121,24 @@ class SimpleCondition {
     }
 
     constructor(left, operator, right) {
-        this.left = left.trim();
-        this.operator = operator;
-        this.right = right.trim();
+        this.left = left.trim()
+        this.operator = operator
+        this.right = right.trim()
+        if (this.operator === 'exists') {
+            if (this.right !== '') {
+                throw new Error(`L'opérateur 'exists' ne doit pas avoir d'opérande à droite (${this.right}).`);
+            }
+            if (!/^@\w*$/.test(this.left)) {
+                throw new Error(`L'opérateur 'exists' doit être précédé d'un paramètre de forme @name valide (${this.left}).`);
+            }
+        }
     }
 
     evaluate(params) {
+        if (this.operator === 'exists') {
+            const paramName = this.left.substring(1);
+            return params.hasOwnProperty(paramName);
+        }
         const left = substituteParams(this.left, params)
         const right = substituteParams(this.right, params)
         if (Array.isArray(left)) {
