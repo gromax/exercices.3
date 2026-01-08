@@ -166,31 +166,29 @@ class TkzTabBloc extends Bloc {
                 tkzTab.addLine(line)
                 continue
             }
+            // forcémen inputvar ou inputsign
             const newLine = {
-                type: line.type,
+                type: line.type === 'inputvar' ? 'var' : 'sign',
                 tag: line.tag,
                 hauteur: line.hauteur,
-                line: line.solution
+                line: line.type === 'inputvar' ? line.solution : line.line
             }
-            if (line.type === 'inputvar' || line.type === 'inputsign') {
-                newLine.type = line.type === 'inputvar' ? 'var' : 'sign'
-                // on met de toute façon une ligne pour la correction
-                tkzTab.addLine(newLine).setSuccess(true)
-                const userValue = data[line.name] || ''
-                const solution = line.solution
-                if (line.type === 'inputvar' && TabVarLineInput.compare(solution, userValue)) {
-                    // bonne réponse
-                    count += 1
-                    continue
-                } else if (line.type === 'inputsign' && solution === userValue) {
-                    // bonne réponse
-                    count += 1
-                    continue
-                }
-                const wrongLine = { ...newLine }
-                wrongLine.line = userValue
-                tkzTab.addLine(wrongLine).setSuccess(false)
+            // on met de toute façon une ligne pour la correction
+            tkzTab.addLine(newLine).setSuccess(true)
+            const userValue = data[line.name] || ''
+            const solution = newLine.line
+            if (line.type === 'inputvar' && TabVarLineInput.compare(solution, userValue)) {
+                // bonne réponse
+                count += 1
+                continue
+            } else if (line.type === 'inputsign' && solution === userValue) {
+                // bonne réponse
+                count += 1
+                continue
             }
+            const wrongLine = { ...newLine }
+            wrongLine.line = userValue
+            tkzTab.addLine(wrongLine).setSuccess(false)
         }
         this._score = count
         this._resultView = new TkzTabView({
