@@ -4,6 +4,7 @@ class Tkztab {
     static NAME = 'Tkztab';
     static METHODS = {
         'sign': Tkztab.sign,
+        'ensemble': Tkztab.ensemble
     }
 
 
@@ -77,6 +78,57 @@ class Tkztab {
             line[2*i + 1] = valueMid > 0 ? '+' : (valueMid < 0 ? '-' : '0')
         }
         return line.join(',')
+    }
+
+    /**
+     * Renvoie une chaîne représentant un ensemble solution
+     * Pour une équation type expr > 0 ou exp >= 0...
+     * @param {MyMath} expr 
+     * @param {Array} bornes 
+     * @param {string} asked signe, 'p' (positif), 'n' (négatif), 'p0' (pos ou nul), 'n0' (neg ou nul)
+     */
+    static ensemble(expr, bornes, asked) {
+        if (!['p', 'n', 'p0', 'n0'].includes(asked)) {
+            throw new Error(`Tkztab.ensemble asked parameter invalide: asked=${asked}`)
+        }
+        const s = Tkztab.sign(expr, bornes).split(',')
+        const strBornes = bornes.map(b => String(b))
+        const inters = []
+        const pos = (asked === 'p' || asked === 'p0')
+        const nul = (asked === 'p0' || asked === 'n0')
+        // on prend les bornes des positifs
+        for (let i = 0; i < s.length; i++) {
+            if (i % 2 === 0) {
+                // c'est une borne
+                if (s[i] === 'z' && nul) {
+                    inters.push(['[', strBornes[i/2], strBornes[i/2], ']'])
+                }
+            } else {
+                // c'est une zone
+                if ((s[i] === '+')&& pos || (s[i] === '-')&& !pos) {
+                    inters.push([']', strBornes[(i-1)/2], strBornes[(i+1)/2], '['])
+                }
+            }
+        }
+        // on recolle les intervalles
+        const resInters = []
+        for (let inter of inters) {
+            if (resInters.length === 0) {
+                resInters.push(inter)
+                continue
+            }
+            const lastInter = resInters[resInters.length - 1]
+            if (lastInter[2] === inter[1] && (lastInter[3] === ']' || inter[0] === '[')) {
+                // on peut recoller
+                lastInter[2] = inter[2]
+                lastInter[3] = inter[3]
+            } else {
+                resInters.push(inter)
+            }
+        }
+        // on forme le résultat final
+        const resIntersStr = resInters.map(inter => inter[0]+inter[1]+';'+inter[2]+inter[3])
+        return resIntersStr.join('union')
     }
 }
 
