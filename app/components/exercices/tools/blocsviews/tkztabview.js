@@ -2,7 +2,6 @@ import { View } from 'backbone.marionette';
 import { SVG } from '@svgdotjs/svg.js';
 import tkztabview_tpl from '@templates/exercices/bloc/tkztab.jst'
 import renderTexInDomElement from '@common/rendertex';
-import { template } from 'underscore';
 
 const TkzTabView = View.extend({
     template: tkztabview_tpl,
