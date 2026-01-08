@@ -773,14 +773,15 @@ Naturellement, comme pour tous les params, on a le droit de placer des variables
 
 ##### input ligne tableau de signe
 
-La forme est `<inputsign:$f(x)$:2:,-,z,-,:b:,-,z,+,/>`
+La forme est `<inputsign:$f(x)$:2:,-,z,-,:b/>`
 
   * `inputsign` indique qu'il s'agit d'une ligne tableau de signe input
   * `$f(x)$` est l'entête (obligatoire)
   * `2` est la hauteur de la ligne, en unité (obligatoire, minimum 1)
-  * `,-,z,-,` est la valeur des signes tels qu'ils apparaîtront au moment de poser la question
+  * `,-,z,-,` est la réponse attendue
   * `b` est l'identifiant de la réponse, utilisée notamment pour la sauvegarde BDD
-  * `,-,z,+,` est la réponse attendue
+
+Au moment de poser la question, tous les signes seront mis à `+` mais les bornes seront celles de la solution.
 
 Un tableau contenant une ligne *inputsign* devrait être placé dans un bloc <form>.
 
@@ -984,3 +985,4 @@ La fonction `Alea.lagrangePolynome` tire `n+1` points au hasard, à coordonnées
 #### Module Tkztab
 
   * `sign` reçoit une `expression` et un tableau de `bornes`. Renvoie la chaîne représentant la ligne de signes comme dans un tableau TkzTab, en fonction des bornes. Il faut que les bornes correspondent car la fonction se contentera de calculer selon les bornes et aux milieux entre les bornes.
+  * `ensemble` reçoit `expression`, `bornes` et `asked`. Il faut avoir préparé les bornes du tableau de signe pour qu'elles correspondent à l'expression. On calcule les signes comme pour le tableau de signe. `asked` est égal à `p` (positif) ou `p0` (positif ou nul) ou `n` ou `n0`. Par exemple, si c'est `p` on renvoie sous forme d'une chaîne l'ensemble solution de `expression > 0`.
