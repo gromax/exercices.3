@@ -15,14 +15,11 @@ class TabSignLineInput extends TabSignLine {
      * @param {string} name nom de l'input
      * @param {string} solution valeur de la solution
      */
-    constructor(line, tag, offset, config, index, name, solution) {
-        super(line, tag, offset, config, index)
+    constructor(line, tag, offset, config, index, name) {
+        const muteLine = line.replaceAll('-','+')
+        super(muteLine, tag, offset, config, index)
         this._name = name
-        this._solution = solution
-        const s = 2 * this._config.size - 1
-        if (solution.split(',').length !== s) {
-            console.warn(`Invalid solution for sign line input: solution=${solution} and expected size=${s}`)
-        }
+        this._solution = line
     }
 
     /**

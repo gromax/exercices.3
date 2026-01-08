@@ -41,7 +41,7 @@ class TkzTab {
     }
 
     static #parseSign(key, options) {
-        const goodsize = (key === 'inputsign') ? 4 : 2
+        const goodsize = (key === 'inputsign') ? 3 : 2
         if (options.length !== goodsize) {
             throw new Error(`<${key}:${options.join(':')}/> Le paramètre '${key}' est mal formé.`)
         }
@@ -50,7 +50,7 @@ class TkzTab {
         if (key === 'inputsign') {
             const name = options[2]
             const solution = options[3]
-            return {type: 'inputsign', tag, line, name, solution}
+            return {type: 'inputsign', tag, line, name}
         }
         return {type: 'sign', tag, line}
     }
@@ -130,7 +130,7 @@ class TkzTab {
         } else if (line.type === 'inputvar') {
             return this.addVarLineInput(line.line, line.tag, line.hauteur, line.name, line.solution)
         } else if (line.type === 'inputsign') {
-            return this.addSignLineInput(line.line, line.tag, line.name, line.solution)
+            return this.addSignLineInput(line.line, line.tag, line.name)
         } else {
             console.warn(`Type de ligne inconnu : ${line.type}`)
         }
