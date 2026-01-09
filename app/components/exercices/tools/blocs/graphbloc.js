@@ -38,14 +38,24 @@ class GraphBloc extends Bloc {
         });
     }
 
-    _childToCreateFunction(item) {
-        if (typeof item.params.color !== 'undefined') {
-            const color = item.params.color;
+    /**
+     * assume que paramName est un paramètre de type couleur
+     * @param {*} item 
+     * @param {*} paramName 
+     */
+    #assignColor(item, paramName) {
+        if (typeof item.params[paramName] !== 'undefined') {
+            const color = item.params[paramName];
             const i = parseInt(color);
             if (!isNaN(i)) {
-                item.params.color = this._colors.getColor(i);
+                item.params[paramName] = this._colors.getColor(i);
             }
         }
+    }
+
+    _childToCreateFunction(item) {
+        this.#assignColor(item, 'strokeColor');
+        this.#assignColor(item, 'color');
         switch (item.tag) {
             case 'point':
                 return this._pointToCeateFunction(item);
