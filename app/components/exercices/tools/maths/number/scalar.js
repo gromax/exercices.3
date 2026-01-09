@@ -259,6 +259,18 @@ class Scalar extends Base {
         return this.plus(value.opposite())
     }
 
+    pow(exponent) {
+        if (exponent instanceof Scalar) {
+            // si exponent n'est pas un Scalar, on tente de le convertir
+            exponent = exponent.toDecimal()
+        } else {
+            exponent = new Decimal(exponent)
+        }
+        const numerator = this.#value.pow(exponent)
+        const den = this.#denominator !== null ? this.#denominator.pow(exponent) : null
+        return new Scalar(numerator, den)
+    }
+
     inverse() {
         if (this.isNaN() || this.#value.isZero()) {
             return Scalar.NAN
