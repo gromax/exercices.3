@@ -72,6 +72,9 @@ function powerSimplify(node) {
         if (sexposant.isOne()) {
             return sbase
         }
+        if ((sbase instanceof Scalar) && sexposant.isInteger()) {
+            return sbase.pow(sexposant)
+        }
     }
     if (sbase instanceof Scalar) {
         if (sbase.isZero()) {
