@@ -6,7 +6,7 @@ class Colors {
         'green',
         'orange',
         'purple',
-        'brown',
+        'sienna',
         'olive',
     ];
 
