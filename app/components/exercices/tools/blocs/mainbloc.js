@@ -244,16 +244,9 @@ class MainBloc extends Bloc {
                 }
                 continue;
             }
-            if (CondBloc.isUntil(item)) {
-                const success = item.doAffectations(params, options);
-                if (!success) {
-                    return null;
-                }
-                continue;
-            }
-            if (item instanceof IfBloc) {
-                const ifChildren = item.run({ ...params, ...options });
-                program.push(...ifChildren.reverse());
+            if ((item instanceof IfBloc) || CondBloc.isUntil(item)) {
+                const children = item.run({ ...params, ...options });
+                program.push(...children.reverse());
                 continue;
             }
             // doit être une affectation

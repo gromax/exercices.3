@@ -257,9 +257,11 @@ class CondBloc {
 }
 
 class Until extends Bloc {
-    MAXITERATIONS = 100;
+    static MAXITERATIONS = 100
+    #counter
     constructor(tag, paramsString) {
-        super(tag, paramsString, false);
+        super(tag, paramsString, false)
+        this.#counter = 0
         this._expression = CondBloc.parseExpression(paramsString);
     }
     
@@ -272,26 +274,36 @@ class Until extends Bloc {
             throw new Error("Impossible d'ajouter un enfant à un bloc fermé");
         }
         // until ne peut avoir que des affectations comme enfants
-        if (this.tag === IfBloc.UNTIL && !(child instanceof Affectation)) {
-            throw new Error("Un bloc <until> ne peut contenir que des affectations.");
+        if (!(child instanceof Affectation) && !(child instanceof IfBloc)) {
+            throw new Error("Un bloc <until> ne peut contenir que des affectations et des If.");
         }
         this._children.push(child);
     }
 
     run(params, caller) {
-        throw new Error("<until> ne peut être placé que dans le bloc init.");
+        // renvoie les enfants et le until ensuite en incrémentant le compteur
+        this.#counter += 1
+        if (this.#counter > Until.MAXITERATIONS) {
+            throw new Error(`<until> MAXITERATIONS = ${Until.MAXITERATIONS} dépassé.`)
+        }
+        if (this._expression.evaluate(params)) {
+            return []
+        }
+        const children = [...this._children]
+        children.push(this)
+        return children
     }
 
-    doAffectations(params, options) {
+    /*doAffectations(params, options) {
         let iterations = 0;
         do {
             for (const child of this._children) {
                 child.doAffectation(params, options);
             }
             iterations++;
-        } while (!this._expression.evaluate({...params, ...options}) && (iterations < this.MAXITERATIONS));
+        } while (! && (iterations < this.MAXITERATIONS));
         return iterations < this.MAXITERATIONS;
-    }
+    }*/
 }
 
 
