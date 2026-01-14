@@ -968,12 +968,15 @@ La fonction `Alea.lagrangePolynome` tire `n+1` points au hasard, à coordonnées
   * `round` reçoit une valeur `x` et un `entier`. Arrondi à n digits.
   * `expand` développe l'expression
   * `diff` dérive l'expression
+  * `max` reçoit `x` et `y` et renvoie le plus grand des deux
+  * `min` reçoit `x` et `y` et renvoie le plus petit des deux
+  * `simplify` reçoit `x` et en renvoie une version simplifiée
 
 #### Module Dist
 
   * `Dist.binomial` reçoit `n` et `p` et simule un aléa $\mathcal{B}(n;p)$
   * `Dist.binList` reçoit `count`, `n` et `p` et renvoie un tableau de `count` simulations de $\mathcal{B}(n;p)$
-  * `Dist.binCDF` reçoit `k`, `n` et `p` et renvoie la probabilité $p(X\leqsant k)$ avec $X$ suivant $\mathcal{B}(n;p)$
+  * `Dist.binCDF` reçoit `k`, `n` et `p` et renvoie la probabilité $p(X\leqslant k)$ avec $X$ suivant $\mathcal{B}(n;p)$
   * `Dist.binPDF` reçoit `k`, `n` et `p` et renvoie la probabilité $p(X = k)$ avec $X$ suivant $\mathcal{B}(n;p)$
 
 #### Module Str
