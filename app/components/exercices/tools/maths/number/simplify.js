@@ -190,8 +190,11 @@ function divSimplify(node) {
         return Scalar.NAN
     }
     // simplification des scalaires
-    if (leftSim instanceof Scalar && rightSim instanceof Scalar) {
+    if ((leftSim instanceof Scalar) && (rightSim instanceof Scalar)) {
         return leftSim.div(rightSim)
+    }
+    if ((leftSim instanceof Mult) && (rightSim instanceof Scalar)) {
+        return simplify(Mult.mult(leftSim, rightSim.inverse()))
     }
     return new Div(leftSim, rightSim)
 }
@@ -199,61 +202,70 @@ function divSimplify(node) {
 function addSimplify(node) {
     const childrenSim = node.children.map( c => simplify(c) )
     const currentPositive = node.positive
-    const children = []
-    const positive = []
+
+    // créer un dictionnaire selon les signatures
+    const groups = {}
     for (let i=0; i<childrenSim.length; i++) {
-        const child = childrenSim[i]
-        if (child instanceof Scalar) {
-            if (child.isZero()) {
-                // on ignore
-                continue
+        const node = childrenSim[i]
+        const p = currentPositive[i]
+        const sig = node.signature()
+        if (typeof groups[sig] === 'undefined') {
+            groups[sig] = {
+                items: [],
+                positive: []
             }
-            // on ajoute au début
-            children.unshift(child)
-            positive.unshift(currentPositive[i])
-        } else {
-            // on ajoute à la fin
-            children.push(child)
-            positive.push(currentPositive[i])
+        }
+        groups[sig].items.push(node)
+        groups[sig].positive.push(p)
+    }
+    // Ensuite on regroupe les termes pouvant l'être
+    const newChildren = []
+    const newPositive = []
+    for (const sig in groups) {
+        const group = groups[sig]
+        const [n, p] = _regroupeSameSignatur(group.items, group.positive)
+        if (n !== Scalar.ZERO) {
+            newChildren.push(n)
+            newPositive.push(p)
         }
     }
-    // on réduit les scalaires au début de la liste
-    while (children.length >= 2 && children[0] instanceof Scalar && children[1] instanceof Scalar) {
-        let val1 = children.shift()
-        let pos1 = positive.shift()
-        let val2 = children.shift()
-        let pos2 = positive.shift()
-        let newVal
-        if (pos1 === pos2) {
-            newVal = val1.plus(val2)
-        } else {
-            newVal = val1.minus(val2)
-        }
-        if (!pos1) {
-            newVal = newVal.opposite()
-        }
-        if (newVal.isZero()) {
-            continue
-        }
-        children.unshift(newVal)
-        positive.unshift(true)
-    }
-    if (children.length > 0 && children[0] instanceof Scalar && children[0].isZero()) {
-        children.shift()
-        positive.shift()
-    }
-    if (children.length === 0) {
-        return Scalar.ZERO
-    }
-    if (children.length === 1) {
-        if (positive[0]) {
-            return children[0]  
-        } else {
-            return opposite(children[0])
-        }
-    }
-    return AddMinus.fromList(children, positive)
+    return AddMinus.fromList(newChildren, newPositive)
 }
+
+/**
+ * Fonction auxiliaire pour produire la somme d'items ayant une même signature
+ * @param {Array<Base>} items 
+ * @param {Array<boolean>} positive 
+ * @returns {[Base,boolean]}
+ */
+function _regroupeSameSignatur(items, positive){
+    if (items.length != positive.length) {
+        throw new Error("items et positive doivent avoir même taille.")
+    }
+    if (items.length === 0) {
+        return [Scalar.ZERO, true]
+    }
+    if (items.length === 1) {
+        return [items[0], positive[0]]
+    }
+    // Il y a plusieurs termes avec même signature qu'il faut contracter
+    const scalars = items.map(n => {
+        const f = n.scalarFactor
+        return f === 1 ? Scalar.ONE : f
+    })
+    let scalar = Scalar.ZERO
+    for (let i=0; i<scalars.length; i++) {
+        if (positive[i]) {
+            scalar = scalar.plus(scalars[i])
+        } else {
+            scalar = scalar.minus(scalars[i])
+        }
+    }
+    const w = items[0].withoutScalarFactor
+    return [simplify(Mult.mult(scalar, w)), true]
+}
+
+
 
 function decimalize(node) {
     const d = node.toDecimal()
