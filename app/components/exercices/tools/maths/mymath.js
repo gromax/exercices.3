@@ -281,7 +281,7 @@ class MyMath {
         if (this.#mynumber != null) {
             return this.#mynumber
         }
-        this.#mynumber = simplify(Parser.build(this.#expression))
+        this.#mynumber = Parser.build(this.#expression)
         return this.#mynumber
     }
 
@@ -521,6 +521,10 @@ class MyMath {
 
     buildFunction() {
         return this.#getNerdamerProcessed().buildFunction();
+    }
+
+    simplify() {
+        return MyMath.make(simplify(this.#getMyNumber()))
     }
 }
 
