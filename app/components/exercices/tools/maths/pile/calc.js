@@ -16,6 +16,9 @@ class Calc {
         'expand': Calc.expand,
         'exp':Calc.exp,
         'diff': Calc.diff,
+        'max': Calc.max,
+        'min': Calc.min,
+        'simplify': Calc.simplify
     }
     static SHORTCUTS = {
         'abs': 'Calc.abs',
@@ -31,44 +34,54 @@ class Calc {
         'expand': 'Calc.expand',
         'exp': 'Calc.exp',
         'diff': 'Calc.diff',
+        'max': 'Calc.max',
+        'min': 'Calc.min',
+        'simplify': 'Calc.simplify'
     }
     static mult(x, y) {
-        const a = Number(x);
-        const b = Number(y);
-        if (isNaN(a) || isNaN(b)) {
-            return `${String(x)} * ${String(y)}`;
+        if ((typeof x === 'number') && (typeof y === 'number')) {
+            return x * y
         }
-        return a * b;
+        if ((typeof x === 'string') && (typeof y === 'string')) {
+            return `(${x})*(${y})`
+        }
+        return MyMath.make(`(${String(x)})*(${Sting(y)})`)
     }
 
     static divide(x, y) {
-        return `(${String(x)}) / (${String(y)})`;
+        if ((typeof x === 'string') && (typeof y === 'string')) {
+            return `(${x})/(${y})`
+        }
+        return MyMath.make(`(${String(x)})/(${Sting(y)})`)
     }
 
     static add(x, y) {
-        const a = MyMath.toNumber(x);
-        const b = MyMath.toNumber(y);
-        if (isNaN(a) || isNaN(b)) {
-            return `${String(x)} + ${String(y)}`;
+        if ((typeof x === 'number') && (typeof y === 'number')) {
+            return x - y
         }
-        return a + b;
+        if ((typeof x === 'string') && (typeof y === 'string')) {
+            return `(${x})+(${y})`
+        }
+        return MyMath.make(`(${String(x)})+(${Sting(y)})`)
     }
 
     static sub(x, y) {
-        const a = MyMath.toNumber(x);
-        const b = MyMath.toNumber(y);
-        if (isNaN(a) || isNaN(b)) {
-            return `${String(x)} - ${String(y)}`;
+        if ((typeof x === 'number') && (typeof y === 'number')) {
+            return x - y
         }
-        return a - b;
-    }
+        if ((typeof x === 'string') && (typeof y === 'string')) {
+            return `(${x})-(${y})`
+        }
+        return MyMath.make(`(${String(x)})-(${Sting(y)})`)    }
 
     static abs(x) {
-        const a = MyMath.toNumber(x);
-        if (isNaN(a)) {
-            return `abs(${String(x)})`;
+        if (typeof x === 'number') {
+            return Math.abs(x)
         }
-        return Math.abs(a);
+        if ((typeof x === 'string') && (typeof y === 'string')) {
+            return `abs(${x})`
+        }
+        return MyMath.make(`abs(${String(x)})`)
     }
 
     static sign(x) {
@@ -80,11 +93,13 @@ class Calc {
     }
 
     static exp(x) {
-        const a = MyMath.toNumber(x);
-        if (isNaN(a)) {
-            return `exp(${String(x)})`;
+        if (typeof x === 'number') {
+            return Math.exp(x)
         }
-        return Math.exp(a);
+        if ((typeof x === 'string') && (typeof y === 'string')) {
+            return `exp(${x})`
+        }
+        return MyMath.make(`exp(${String(x)})`)
     }
 
     static round(x, n) {
@@ -156,5 +171,39 @@ class Calc {
     static diff(expression) {
         return MyMath.make(expression).diff().toString();
     }
+
+    /**
+     * renvoie le max entre x et y
+     * @param {*} x 
+     * @param {*} y 
+     */
+    static max(x, y) {
+        if (MyMath.make(x).toFloat() > MyMath.make(y).toFloat()) {
+            return x
+        } else {
+            return y
+        }
+    }
+
+    /**
+     * renvoie le min entre x et y
+     * @param {*} x 
+     * @param {*} y 
+     */
+    static min(x, y) {
+        if (MyMath.make(x).toFloat() < MyMath.make(y).toFloat()) {
+            return x
+        } else {
+            return y
+        }
+    }
+
+    static simplify(x) {
+        if (typeof x === 'number') {
+            return x
+        }
+        const m = MyMath.make(x).simplify()
+    }
+
 }
 export default Calc;
