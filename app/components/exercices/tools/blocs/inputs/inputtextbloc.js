@@ -64,7 +64,8 @@ class InputTextBloc extends InputBloc {
                 value !== "expand" &&
                 value !== "empty" &&
                 !value.startsWith("round:") &&
-                !value.startsWith("erreur:")
+                !value.startsWith("erreur:") &&
+                !value.startsWith("var:")
             ) {
                 console.warn(`Format inconnu pour le bloc <input:${this.header}> : ${value}`);
             }
