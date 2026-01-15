@@ -45,14 +45,14 @@ class Calc {
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `(${x})*(${y})`
         }
-        return MyMath.make(`(${String(x)})*(${Sting(y)})`)
+        return MyMath.make(`(${String(x)})*(${String(y)})`)
     }
 
     static divide(x, y) {
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `(${x})/(${y})`
         }
-        return MyMath.make(`(${String(x)})/(${Sting(y)})`)
+        return MyMath.make(`(${String(x)})/(${String(y)})`)
     }
 
     static add(x, y) {
@@ -62,7 +62,7 @@ class Calc {
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `(${x})+(${y})`
         }
-        return MyMath.make(`(${String(x)})+(${Sting(y)})`)
+        return MyMath.make(`(${String(x)})+(${String(y)})`)
     }
 
     static sub(x, y) {
@@ -72,7 +72,7 @@ class Calc {
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `(${x})-(${y})`
         }
-        return MyMath.make(`(${String(x)})-(${Sting(y)})`)    }
+        return MyMath.make(`(${String(x)})-(${String(y)})`)    }
 
     static abs(x) {
         if (typeof x === 'number') {
