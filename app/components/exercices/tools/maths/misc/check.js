@@ -24,6 +24,28 @@ function checkNumericExpression(expr) {
     }
 }
 
+/**
+ * Test si l'expression n'a comme variable que celles présentes dans v
+ * @param {string} expr 
+ * @param {string} acceptedV
+ * @returns {string|boolean}
+ */
+function checkFormatWithVar(expr, acceptedV) {
+    try {
+        const objMath = Parser.build(expr);
+        const variables = objMath.isFunctionOf();
+        for (const v of variables) {
+            if (!acceptedV.includes(v)) {
+                return `L'expression ne doit pas dépendre de la variable ${v}.`;
+            }
+        }
+        return objMath.isExpanded() ? true : "Vous devez simplifier.";
+    } catch (e) {
+        // parsing error => pas numérique
+        return "Expression invalide.";
+    }
+}
+
 function checkIfExpand(expr) {
     try {
         const objMath = Parser.build(expr);
@@ -98,6 +120,13 @@ function checkFormat(expr, format = 'none') {
     if (/^erreur:(?:[0-9]+(?:\.[0-9]+)?)|(?:\.[0-9]+)$/.test(format)) {
         return /^[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][+-]?\d+)?(?:\s*%)?$/.test(expr) ? true : "Vous devez fournir un nombre éventuellement approximé."
     }
+
+    if (format.startsWith("var:")) {
+        const i = format.indexOf(':')
+        const v = format.substring(i+1)
+        return checkFormatWithVar(expr, v)
+    }
+
     if (format === 'expand') {
         return checkIfExpand(expr)
     }
