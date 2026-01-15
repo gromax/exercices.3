@@ -512,6 +512,7 @@ Voici les formats reconnus :
   * empty : indique que l'on accepte l'ensemble vide. On peut alors répondre par `'vide'` ou `'∅'`
   * infini : indique que l'on accepte un infin comme `'+inf'` ou `'-∞'`. Le signe est obligatoire même pour +
   * expand : indique que l'on attend une expression développée.
+  * var:x : indique que l'expression peut dépendre de x. on pourrait écrire `var:xn` pour autoriser une expression dépendant de `x` et de `n`.
 
 Il ne serait pas logique de proposer à la fois numeric et round mais on peut demander empty et numeric par exemple.
 
