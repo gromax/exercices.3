@@ -124,12 +124,12 @@ class Dist {
         
         // Calcul itératif avec récurrence
         const normFactor = (1 - p)
-        const remainingPowers = n
+        let remainingPowers = n
         let prob = 1 // P(X=0) (manque le facteur (1-p)^n)
         let cdf = 0 // idem
         // P(X = i+1) = P(X = i) * (n-i)/(i+1) * p/(1-p)
         const ratio = p/(1 - p)
-        for (let i = 0; i < k; i++) {
+        for (let i = 0; i <= k; i++) {
             cdf += prob
             // si cdf trop grand, normaliser
             while (cdf > 10 && remainingPowers > 0) {
@@ -166,7 +166,7 @@ class Dist {
         for (let i = k+1; i <= n; i++) {
             logProb += Math.log(i)
         }
-        for (let i = 1; i <= k; i++) {
+        for (let i = 1; i <= n-k; i++) {
             logProb -= Math.log(i)
         }
         logProb += k * Math.log(p) + (n - k) * Math.log(1 - p)
