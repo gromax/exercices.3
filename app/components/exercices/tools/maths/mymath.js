@@ -332,7 +332,7 @@ class MyMath {
     }
 
     toStringSimplified() {
-        return this.#getMyNumber().toString()
+        return simplify(this.#getMyNumber()).toString()
     }
 
     latex() {
