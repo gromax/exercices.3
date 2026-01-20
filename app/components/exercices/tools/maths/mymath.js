@@ -433,17 +433,10 @@ class MyMath {
      * @param {MyMath|string|number} right 
      */
     pseudoEquality(right) {
-        const lStr = this.toDecimal().toString()
-        const rStr = MyMath.make(right).toDecimal().toString()
-        if (lStr === rStr) {
-            return true
-        }
-        // On pourrait admettre un petit écart dû à du bruit de calcul
-        if (lStr.length < 40 || rStr.length < 40) {
-            return false
-        }
-        // On veut au moins 40 chiffres identiques
-        return (lStr.slice(0, 40) === rStr.slice(0, 40))
+        const lStr = this.toDecimal()
+        const rStr = MyMath.make(right).toDecimal()
+        // on admet un bruit de calcul très faible
+        return lStr.minus(rStr).abs().lt('1e-30')
     }
 
     compare(rightExpr, operator) {
