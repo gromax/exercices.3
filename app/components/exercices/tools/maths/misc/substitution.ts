@@ -4,7 +4,7 @@
  * @param {string} chaine 
  * @param {*} params 
  */
-function getValue(chaine, params) {
+function getValue(chaine:string, params:Record<string, any>):any {
     const m = chaine.match(/^@([A-Za-z_]\w*)(?:\.([A-Za-z_]\w*)|\[((?:@[A-Za-z_]\w*|[0-9]+)?)\])?$/);
     if (!m) {
         return null;
@@ -21,15 +21,18 @@ function getValue(chaine, params) {
  * @param {object} params 
  * @returns {*} la valeur du paramètre
  */
-function _getValueInternal(name, sub, index, params) {
+function _getValueInternal(name:string, sub:string|undefined, index:string|undefined, params:Record<string, any>):any {
     if (name === '__a') {
-        return _getAlea(sub);
+        if (sub === undefined) {
+            throw new Error(`@__a doit être suivi d'un modificateur.`)
+        }
+        return _getAlea(sub)
     }
     if (params[name] === undefined) {
-        throw new Error(`@${name} n'est pas défini.`);
+        throw new Error(`@${name} n'est pas défini.`)
     }
     if (sub === undefined && index === undefined) {
-        return params[name];
+        return params[name]
     }
     if (sub !== undefined) {
         if (params[name][sub] === undefined) {
@@ -37,19 +40,20 @@ function _getValueInternal(name, sub, index, params) {
         }
         return params[name][sub];
     }
+    // on a un index
     if (!Array.isArray(params[name])) {
-        throw new Error(`Le paramètre ${name} n'est pas un tableau.`);
+        throw new Error(`Le paramètre ${name} n'est pas un tableau.`)
     }
     if (index === "" && params.__i === undefined) {
-        throw new Error(`Pas d'index défini pour accéder à ${name}[]. Ajoutez <:n> à votre affectation.`);
+        throw new Error(`Pas d'index défini pour accéder à ${name}[]. Ajoutez <:n> à votre affectation.`)
     }
     const idx = (index === "")
         ? params.__i
-        : (/[0-9]+/.test(index) ? parseInt(index, 10) : parseInt(getValue(index, params), 10));
+        : (/[0-9]+/.test(index) ? parseInt(index, 10) : parseInt(getValue(index, params), 10))
     if (idx >= params[name].length){
-        throw new Error(`L'index ${idx} est hors limites pour le tableau ${name} de taille ${params[name].length}.`);
+        throw new Error(`L'index ${idx} est hors limites pour le tableau ${name} de taille ${params[name].length}.`)
     }
-    return params[name][idx];
+    return params[name][idx]
 }
 
 /**
@@ -59,29 +63,29 @@ function _getValueInternal(name, sub, index, params) {
  * @param {object} params les paramètres connus
  * @returns {string} une chaîne où les paramètres connus ont été remplacés par leur valeur
  */
-function substituteLabels(expr, params) {
+function substituteLabels(expr:string, params:Record<string, any>):string {
     return expr.replace(/@([A-Za-z_]\w*)(?:\.([A-Za-z_]\w*)|\[((?:@[A-Za-z_]\w*|[0-9]+)?)\])?/g, (match, name, sub, index) => {
         // on envisage que le tag soit de la forme __a._10
         // dans ce cas on remplace par une valeur aléatoire constante
         if (name=== '__a') {
-            return String(_getAlea(sub));
+            return String(_getAlea(sub))
         }
-        const replacement = _getValueInternal(name, sub, index, params);
-        if (replacement === null) {
-            return match;
-        }
+        const replacement = _getValueInternal(name, sub, index, params)
         if (typeof replacement === 'string'
             && replacement.startsWith('"')
             && replacement.endsWith('"')) {
             return replacement.slice(1, -1)
         }
-        return `(${String(replacement)})`;
+        return `(${String(replacement)})`
     });
 }
 
-function _getAlea(sub) {
-    const nStr = sub ? sub.slice(1) : '';
-    const aType = sub ? sub.charAt(0) : '';
+function _getAlea(sub:string): number | string {
+    if (!sub || sub.length === 0) {
+        throw new Error("Modificateur manquant pour un paramètre aléatoire.")
+    }
+    const nStr = sub ? sub.slice(1) : ''
+    const aType = sub ? sub.charAt(0) : ''
     // sub peut être de la forme
     // i# ou _# où # es un entier >=0 -> alea entier entre 0 et # exclu
     // I# ou _# où # es un entier >=0 -> alea entier entre 1 et # inclu
@@ -91,36 +95,36 @@ function _getAlea(sub) {
     // v# où # est une chaine représentant des variables -> choisit aléatoirement la variable
     if (aType === 'v') {
         if (nStr.length === 0) {
-            throw new Error("Liste de variables vide pour un paramètre aléatoire.");
+            throw new Error("Liste de variables vide pour un paramètre aléatoire.")
         }
-        const i = Math.floor(Math.random() * nStr.length);
-        return nStr.charAt(i);
+        const i = Math.floor(Math.random() * nStr.length)
+        return nStr.charAt(i)
     }
-    const n = Number(nStr);
+    const n = Number(nStr)
     if (isNaN(n) || !Number.isInteger(n) || n < 0) {
-        throw new Error(`Index invalide pour un paramètre aléatoire : ${match}`);
+        throw new Error(`Index invalide pour un paramètre aléatoire : @__a.${aType}${nStr}`)
     }
     switch (aType) {
         case 'f':
-            return Math.random() * n;
+            return Math.random() * n
         case 's':
-            return Math.floor(Math.random() * (2 * n-1)) - (n-1);
+            return Math.floor(Math.random() * (2 * n-1)) - (n-1)
         case 'S':
-            let value = Math.floor(Math.random() * (2 * n)) - n;
+            let value = Math.floor(Math.random() * (2 * n)) - n
             if (value >= 0) {
-                value += 1;
+                value += 1
             }
             return value;
         case 'I':
-            return Math.floor(Math.random() * n) + 1;
+            return Math.floor(Math.random() * n) + 1
         default:
-            return Math.floor(Math.random() * n);
+            return Math.floor(Math.random() * n)
     }
 }
 
-function substituteParams(expression, params) {
+function substituteParams(expression:any, params:Record<string, any>):any {
     if (Array.isArray(expression)) {
-        return expression.map(expr => substituteParams(expr, params));
+        return expression.map(expr => substituteParams(expr, params))
     }
     if (typeof expression !== 'string') {
         return expression
