@@ -4,27 +4,27 @@ import { Signature } from "./signature"
 import Decimal from "decimal.js"
 
 class Constant extends Base {
-    static NAMES = ['e', 'i', 'pi', 'π', '∞', 'inf', 'infinity', 'infini']
-    static TEX = {
+    static readonly NAMES = ['e', 'pi', 'π', '∞', 'inf', 'infinity', 'infini'] // i
+    static readonly TEX = {
         'e': 'e',
         'π': '\\pi',
-        'i': 'i',
+        //'i': 'i',
         '∞': '\\infty'
     }
     
-    static #list = {};
+    private static _list:Record<string, Constant> = {}
 
-    #name; /** @type{string} */
+    private _name:string /** @type{string} */
 
-    constructor(name) {
+    private constructor(name:string) {
         super()
         if (!Constant.isConstant(name)) {
             throw new Error(`${name} n'est pas une constante valide.`)
         }
-        this.#name = name
+        this._name = name
     }
 
-    static alias(name){
+    static alias(name:string):string {
         switch(name) {
             case 'inf': return '∞'
             case 'infinity': return '∞'
@@ -39,15 +39,15 @@ class Constant extends Base {
      * @param {string} chaine 
      * @return {null, Constant}
      */
-    static fromString(chaine) {
+    static fromString(chaine:string): Constant | null {
         if (!Constant.isConstant(chaine)) {
             return null;
         }
         const name = this.alias(chaine);
-        if (typeof this.#list[name] == 'undefined') {
-            this.#list[name] = new Constant(name);
+        if (typeof Constant._list[name] == 'undefined') {
+            Constant._list[name] = new Constant(name)
         }
-        return this.#list[name];
+        return Constant._list[name]
     }
 
     /**
@@ -55,7 +55,7 @@ class Constant extends Base {
      * @param {string} chaine 
      * @returns {boolean}
      */
-    static isConstant(chaine) {
+    static isConstant(chaine:string):boolean {
         return Constant.NAMES.includes(chaine)
     }
 
@@ -63,34 +63,38 @@ class Constant extends Base {
      * transtypage -> string
      * @returns {string}
      */
-    toString() {
-        return this.#name
+    toString():string {
+        return this._name
     }
 
-    toStringEn() {
-        switch(this.#name) {
+    toStringEn():string {
+        switch(this._name) {
             case 'infini': return 'infinity'
             case 'inf': return 'infinity'
             case '∞': return 'infinity'
             case 'π': return 'pi'
-            default: return this.#name
+            default: return this._name
         }
     }
 
-    get isNumber() {
+    get isNumber():boolean {
         return true
     }
 
-    get priority() {
+    get priority():number {
         return 10;
+    }
+
+    get scalarFactor():Scalar {
+        return Scalar.ONE
     }
 
     /**
      * renvoie une représentation tex
      * @returns {string}
      */
-    toTex() {
-        return Constant.TEX[this.#name];
+    toTex():string {
+        return Constant.TEX[this._name];
     }
 
     /**
@@ -98,47 +102,35 @@ class Constant extends Base {
      * @param {object|undefined} values
      * @returns {Decimal}
      */
-    toDecimal(values) {
-        switch (this.#name) {
-            case 'e': return Decimal.exp(1);
-            case 'π': return Decimal.acos(-1);
-            case 'i': return Decimal.I;
-            case '∞': return new Decimal(Infinity);
-            default: return new Decimal(NaN) ;
+    toDecimal(values:Record<string, Decimal|string|number>|undefined):Decimal {
+        switch (this._name) {
+            case 'e': return Decimal.exp(1)
+            case 'π': return Decimal.acos(-1)
+            //case 'i': return Decimal.I
+            case '∞': return new Decimal(Infinity)
+            default: return new Decimal(NaN)
         }
     }
 
-    toFixed(n) {
-        return new Scalar(this.toDecimal().toFixed(n))
+    toFixed(n:number):Scalar {
+        return new Scalar(this.toDecimal(undefined).toFixed(n))
     }
 
-    toDict() {
+    toDict():object {
         return {
             type: "Constant",
-            name: this.#name
+            name: this._name
         }
     }
 
-    signature() {
-        return new Signature({[this.#name]:1})
+    signature():Signature {
+        return new Signature({[this._name]:1})
     }
 }
 
 const E = Constant.fromString('e');
 const PI = Constant.fromString('pi');
-const I = Constant.fromString('i');
+//const I = Constant.fromString('i');
 const INFINI = Constant.fromString('infini');
 
-function isConstant(name){
-    return Constant.isConstant(name);
-}
-
-function makeConstant(name){
-    return Constant.fromString(name)
-}
-
-function isTypeConstant(obj){
-    return obj instanceof Constant;
-}
-
-export { makeConstant, isConstant, isTypeConstant, E, PI, I, INFINI }
+export { Constant, E, PI, INFINI } // I

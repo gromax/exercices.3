@@ -1,3 +1,6 @@
+import _ from 'underscore'
+
+import { Token } from './tokens/token'
 import { TNumber } from './tokens/number'
 import { TFunction } from './tokens/function'
 import { TOperator } from './tokens/operator'
@@ -5,20 +8,16 @@ import { TParenthesis } from './tokens/parenthesis'
 import { TSymbol } from './tokens/symbol'
 import { build } from './rpnbuilder'
 import { Scalar } from "../number/scalar"
-
-// Constante privée
-// sert à empêcher l'accès direct au constructeur
-const PRIVATE = Symbol('private');
-
+import { Base} from "../number/base"
 
 const TOKENS = [TNumber, TFunction, TOperator, TParenthesis, TSymbol]
 
 class Parser {
     /** @type{string} */
-    #saisie;
+    private _saisie:string
 
     /** @type{Array} */
-    #rpn;
+    private _rpn:Array<string>
 
     static REGEX = new RegExp ( _.map(TOKENS, function(tok){ return `(${tok.sREGEX})`; } ).join("|"), "gi");
 
@@ -27,42 +26,39 @@ class Parser {
      * @param {string} expr 
      * @returns {Parser}
      */
-    static build(expr) {
+    static build(expr:string|number): Base {
         if (typeof expr === "number") {
             return new Scalar(expr)
         }
         if (typeof expr !== "string") {
             expr = String(expr)
         }
-        return build(new Parser(PRIVATE, expr).rpn);
+        return build(new Parser(expr).rpn);
     }
 
     /**
      * constructeur
      * @param {string} saisie
      */
-    constructor(token, saisie) {
-        if (token !== PRIVATE) {
-            throw new Error('Utilisez Parser.build() pour utiliser le parser')
-        }
-        this.#saisie = saisie || "";
-        this.#rpn = [];
-        this.#parse();
+    private constructor(saisie:string) {
+        this._saisie = saisie || ""
+        this._rpn = []
+        this._parse()
     }
 
     /**
-     * @returns {Array} copie de l'attribut #rpn
+     * @returns {Array<string>} copie de l'attribut _rpn
      */
-    get rpn() {
-        return [...this.#rpn];
+    get rpn():Array<string> {
+        return [...this._rpn];
     }
 
     /**
      * construit un token
      * @param {string} tokenString
-     * @returns {TNumber|TSymbol|TFunction|TOperator|TParenthesis|null}
+     * @returns {Token}
      */
-    #createToken(tokenString) {
+    private _createToken(tokenString:string): Token {
         for (let oToken of TOKENS) {
             let regex = oToken.REGEX;
             if (regex.test(tokenString)) {
@@ -74,46 +70,45 @@ class Parser {
 
     /**
      * modifie les opérateurs + ou - qui n'ont pas une opérande sur leur gauche
-     * @param {Array} tokensList
+     * @param {Array<Token>} tokensList
      */
-    #correctBinaireToUnaire(tokensList) {
+    private _correctBinaireToUnaire(tokensList:Array<Token>): boolean {
         for (let i=0; i<tokensList.length; i++) {
-            /** @type{TNumber|TFunction|TOperator|TParenthesis|TSymbol} */
-            let oToken = tokensList[i];
+            let oToken = tokensList[i]
             let leftIsNotOperand = ((i==0) || !tokensList[i-1].acceptOperOnRight());
             if ((oToken instanceof TOperator) && (oToken.operateOnLeft()) && leftIsNotOperand && !oToken.changeToArityOne()){
                 throw new Error(`${oToken} devrait avoir potentiellement une opérande sur sa gauche`);
             }
         }
-        return true;
+        return true
     }
 
     /**
      * renvoie true si les parenthèses sont équilibrées
-     * @params {Array} tokens
+     * @params {Array<Token>} tokens
      * @returns {boolean}
      */
-    #parenthesesAreGood(tokens){
-        let ouvrants = [];
+    private _parenthesesAreGood(tokens:Array<Token>): boolean {
+        let ouvrants:Array<string> = [];
         for (let tok of tokens) {
             if (tok instanceof TParenthesis) {
                 if (tok.ouvrant) {
-                    ouvrants.push(tok.symbol);
+                    ouvrants.push(tok.symbol)
                     continue;
                 }
                 if (ouvrants.length == 0) {
-                    throw new Error(`${tok.symbol} n'a pas d'ouvrant.`);
+                    throw new Error(`${tok.symbol} n'a pas d'ouvrant.`)
                 }
-                let ouvrant = ouvrants.pop();
+                let ouvrant = ouvrants.pop()
                 if (ouvrant != tok.jumeau) {
-                    throw new Error(`${ouvrant} fermé par ${tok.jumeau}.`);
+                    throw new Error(`${ouvrant} fermé par ${tok.jumeau}.`)
                 }
             }
         }
         if (ouvrants.length != 0) {
-            throw new Error(`${ouvrants.pop()} n'a pas de fermant.`);
+            throw new Error(`${ouvrants.pop()} n'a pas de fermant.`)
         }
-        return true;
+        return true
     }
 
     /**
@@ -121,132 +116,132 @@ class Parser {
      * @params {Array} tokens Liste de tokens
      * @returns {Array|null} tokens corrigés ou null si échec
      */
-    #correctFracs(tokens) {
-        let correctedTokens = [];
-        let depthsFracs = [];
-        let depth = 0;
+    private _correctFracs(tokens:Array<Token>): Array<Token> {
+        let correctedTokens:Array<Token> = []
+        let depthsFracs:Array<number> = []
+        let depth = 0
         for (let token of tokens){
             if ((token instanceof TParenthesis) && token.ouvrant) {
-                depth += 1;
-                correctedTokens.push(token);
-                continue;
+                depth += 1
+                correctedTokens.push(token)
+                continue
             }
             if (String(token) == "frac") {
-                depthsFracs.push(depth);
-                continue;
+                depthsFracs.push(depth)
+                continue
             }
             if ((token instanceof TParenthesis) && token.fermant) {
                 depth -= 1;
                 if (depth <0) {
-                    throw new Error('frac: parenthèses mal équilibrées.');
+                    throw new Error('frac: parenthèses mal équilibrées.')
                 }
             }
-            correctedTokens.push(token);
+            correctedTokens.push(token)
             if ((depthsFracs.length>0) && (depthsFracs[depthsFracs.length-1] == depth)) {
                 depthsFracs.pop();
-                correctedTokens.push(new TOperator('/'));
+                correctedTokens.push(new TOperator('/'))
             }
         }
         if (depth>0) {
-            throw new Error('frac: parenthèses mal équilibrées.');
+            throw new Error('frac: parenthèses mal équilibrées.')
         }
         if (depthsFracs.length>0) {
-            throw new Error("frac: certains fracs manquent d'opérandes.");
+            throw new Error("frac: certains fracs manquent d'opérandes.")
         }
-        return correctedTokens;
+        return correctedTokens
     }
 
     /**
      * renvoie true si les opérateurs agissent comme il se doit à gauche et à droite
-     * @param {Array} tokens
+     * @param {Array<Token>} tokens
      * @returns {boolean}
      */
-    #verifyOperators(tokens) {
+    private _verifyOperators(tokens:Array<Token>): boolean {
         for (let i=0; i<tokens.length; i++) {
-            let tok = tokens[i];
+            let tok = tokens[i]
             if (tok.operateOnLeft()) {
                 if (i==0) {
-                    throw new Error(`${tok} en début d'expression.`);
+                    throw new Error(`${tok} en début d'expression.`)
                 }
                 if (!tokens[i-1].acceptOperOnRight()) {
-                    throw new Error(`${tokens[i-1]} à gauche de ${tok}.`);
+                    throw new Error(`${tokens[i-1]} à gauche de ${tok}.`)
                 }
             }
             if (tok.operateOnRight()) {
                 if (i==tokens.length-1) {
-                    throw new Error(`${tok} en fin d'expression.`);
+                    throw new Error(`${tok} en fin d'expression.`)
                 }
                 if (!tokens[i+1].acceptOperOnLeft()) {
-                    throw new Error(`${tok} à gauche de ${tokens[i+1]}.`);
+                    throw new Error(`${tok} à gauche de ${tokens[i+1]}.`)
                 }
             }
         }
-        return true;
+        return true
     }
 
     /**
      * renvoie la liste en notation polonaise inversée
-     * @params {Array} tokens
-     * @returns {Array} rpn
+     * @params {Array<Token>} tokens
+     * @returns {Array<Token>} rpn
      */
-    #buildRPN(tokens) {
-        let rpn = [];
-        let stack = [];
+    private _buildRPN(tokens:Array<Token>): Array<Token> {
+        let rpn:Array<Token> = []
+        let stack:Array<Token> = []
         for(let token of tokens) {
             if ((token instanceof TParenthesis) && token.ouvrant) {
-                stack.push(token);
-                continue;
+                stack.push(token)
+                continue
             }
-            if (token instanceof TParenthesis) {
+            if (token instanceof TParenthesis) { // fermant
                 while (stack.length>0) {
-                    let depile = stack.pop();
+                    let depile = stack.pop()
                     if (depile instanceof TParenthesis) {
-                        break;
+                        break
                     }
-                    rpn.push(depile);
+                    rpn.push(depile)
                 }
                 continue;
             }
             if (token.priority == 0) {
-                rpn.push(token);
-                continue;
+                rpn.push(token)
+                continue
             }
             while (stack.length > 0) {
-                let depile = stack[stack.length - 1];
+                let depile = stack[stack.length - 1]
                 if ((depile instanceof TParenthesis) || depile.priority < token.priority) {
-                    break;
+                    break
                 }
-                rpn.push(stack.pop());
+                rpn.push(stack.pop())
             }
-            stack.push(token);
+            stack.push(token)
         }            
         while (stack.length > 0) {
-            let depile = stack.pop();
+            let depile = stack.pop()
             if (!(depile instanceof TParenthesis)) {
-                rpn.push(depile);
+                rpn.push(depile)
             }
         }
-        return rpn;
+        return rpn
     }
 
     /**
      * renvoie la liste de tokens avec les * manquants
-     * @param {Array} tokens liste de tokens
-     * @return {Array} liste corrigée
+     * @param {Array<Token>} tokens liste de tokens
+     * @return {Array<Token>} liste corrigée
      */
-    #insertMissingMults(tokens){
-        let correctedTokens = [];
-        let n = tokens.length;
+    private _insertMissingMults(tokens:Array<Token>): Array<Token> {
+        let correctedTokens = []
+        let n = tokens.length
         for (let i=0; i<n-1; i++) {
-            correctedTokens.push(tokens[i]);
+            correctedTokens.push(tokens[i])
             if (tokens[i].acceptOperOnRight() && tokens[i+1].acceptOperOnLeft()) {
-                correctedTokens.push(new TOperator('*'));
+                correctedTokens.push(new TOperator('*'))
             }
         }
         if (n > 0) {
-            correctedTokens.push(tokens[n-1]);
+            correctedTokens.push(tokens[n-1])
         }
-        return correctedTokens;
+        return correctedTokens
     }
 
     /**
@@ -255,15 +250,15 @@ class Parser {
      * @param {Array} tokens
      * @returns {string|null}
      */
-    #charNotTokenized(expression, tokens) {
+    private _charNotTokenized(expression:string, tokens:Array<string>): string|null {
         // Vérifier qu'il n'y a pas de caractères non reconnus
-        const expressionSansEspaces = expression.replace(/\s+/g, "");
-        const tokensReconstitues = tokens.join("");
+        const expressionSansEspaces = expression.replace(/\s+/g, "")
+        const tokensReconstitues = tokens.join("")
         if (expressionSansEspaces !== tokensReconstitues) {
             // Trouver le premier caractère problématique
             for (let i=0; i<expressionSansEspaces.length; i++) {
                 if (i>=tokensReconstitues.length || expressionSansEspaces[i] !== tokensReconstitues[i]) {
-                    return expressionSansEspaces[i];
+                    return expressionSansEspaces[i]
                 }
             }
         }
@@ -274,33 +269,32 @@ class Parser {
      * parse la chaîne fournie, renvoie true en cas de succès
      * @returns {boolean}
      */
-    #parse() {
-        /** @type{string} */
-        let expression = this.#saisie;
+    private _parse():boolean {
+        let expression = this._saisie
 
         if (expression.includes('.') && expression.includes(',')) {
-            throw new Error("Utilisez soit le point soit la virgule comme séparateur décimal, pas les deux.");
+            throw new Error("Utilisez soit le point soit la virgule comme séparateur décimal, pas les deux.")
         }
 
         // Pour ceux qui écriraient ** au lieu de ^ comme en Python
-        expression = expression.replaceAll("**", "^");
+        expression = expression.replaceAll("**", "^")
         // correction des  \left et \right qui serait présent dans un champs de saisie latex
-        expression = expression.replace(/\\\\/g, " ");
-        expression = expression.replace(/left/g, " ");
-        expression = expression.replace(/right/g, " ");
+        expression = expression.replace(/\\\\/g, " ")
+        expression = expression.replace(/left/g, " ")
+        expression = expression.replace(/right/g, " ")
         // Les élèves utilisent la touche ²
-        expression = expression.replace(/²/g, "^2 ");
-        expression = expression.replace(/³/g, "^3 ");
+        expression = expression.replace(/²/g, "^2 ")
+        expression = expression.replace(/³/g, "^3 ")
         // Dans certains cas, le - est remplacé par un autre caractère plus long
-        expression = expression.replace(/−/g, "-");
+        expression = expression.replace(/−/g, "-")
       
-        let matchList = expression.match(Parser.REGEX);
+        let matchList = expression.match(Parser.REGEX)
         if (!matchList) {
-            throw new Error("Aucun item valide reconnu !");
+            throw new Error("Aucun item valide reconnu !")
         }
         
         // Vérifier qu'il n'y a pas de caractères non reconnus
-        const notTokenizedChar = this.#charNotTokenized(expression, matchList)
+        const notTokenizedChar = this._charNotTokenized(expression, matchList)
         if (notTokenizedChar !== null) {
             if (notTokenizedChar === '.' || notTokenizedChar === ',') {
                 throw new Error(`Séparateur décimal isolé : '${notTokenizedChar}'. Vérifiez.`)
@@ -308,39 +302,39 @@ class Parser {
                 throw new Error(`Caractère non reconnu : '${notTokenizedChar}'.`)
             }
         }
-        
-        let tokensList = [];
+
+        let tokensList: Array<Token> = []
         for (let strToken of matchList) {
-            let token = this.#createToken(strToken);
+            let token = this._createToken(strToken);
             if (token === null) {
                 return false;
             }
             tokensList.push(token);
         }
 
-        if (!this.#correctBinaireToUnaire(tokensList)) {
+        if (!this._correctBinaireToUnaire(tokensList)) {
             return false;
         }
 
-        if (!this.#parenthesesAreGood(tokensList)) {
+        if (!this._parenthesesAreGood(tokensList)) {
             return false;
         }
 
-        tokensList = this.#correctFracs(tokensList)
+        tokensList = this._correctFracs(tokensList)
         if (tokensList == null) {
             return false;
         }
 
-        tokensList = this.#insertMissingMults(tokensList);
+        tokensList = this._insertMissingMults(tokensList)
 
-        if (!this.#verifyOperators(tokensList)) {
+        if (!this._verifyOperators(tokensList)) {
             return false;
         }
 
-        let rpn = this.#buildRPN(tokensList);
-        this.#rpn = _.map(rpn, function(item){ return String(item);});
-        return true;
+        let rpn = this._buildRPN(tokensList)
+        this._rpn = _.map(rpn, function(item){ return String(item);})
+        return true
     }
 }
 
-export default Parser;
+export default Parser

@@ -1,40 +1,36 @@
-import { some } from "underscore"
+import _ from "underscore"
 import { Base } from "./base"
 import { Scalar } from "./scalar"
 import Decimal from "decimal.js"
 import { Signature } from "./signature"
 
-// Constante privée
-// sert à empêcher l'accès direct au constructeur
-const PRIVATE = Symbol('private');
-
 class Mult extends Base {
-    #children; /** @type {Base[]} */
-    #string = null /** @type {string|null} représentation texte */
-    #stringEN = null /** @type {string|null} représentation texte */
-    #stringTex = null /** @type {string|null} représentation tex */
+    private _children:Array<Base> /** @type {Base[]} */
+    private _string:string|null = null /** @type {string|null} représentation texte */
+    private _stringEN = null /** @type {string|null} représentation texte */
+    private _stringTex = null /** @type {string|null} représentation tex */
 
     /**
      * accesseurs
      */
-    get children() {
-        return [...this.#children]
+    get children():Array<Base> {
+        return [...this._children]
     }
 
-    get priority() {
-        return 2;
+    get priority():number {
+        return 2
     }
 
-    get scalarFactor() {
-        const factors = this.#children.map( child => child.scalarFactor ).filter( f => f !== 1 )
+    get scalarFactor():Scalar {
+        const factors = this._children.map( child => child.scalarFactor ).filter( f => f instanceof Scalar )
         if (factors.length === 0) {
-            return 1
+            return Scalar.ONE
         }
         return factors.reduce( (acc, val) => Scalar.mult(acc, val), Scalar.ONE )
     }
 
-    get withoutScalarFactor() {
-        const newChildren = this.#children
+    get withoutScalarFactor():Base {
+        const newChildren = this._children
             .map( child => child.withoutScalarFactor )
             .filter( c => c !== Scalar.ONE )
         if (newChildren.length === 0) {
@@ -43,14 +39,14 @@ class Mult extends Base {
         if (newChildren.length === 1) {
             return newChildren[0]
         }
-        return new Mult(PRIVATE, newChildren)
+        return new Mult(newChildren)
     }
 
-    get startsWithMinus() {
-        if (this.#children.length === 0) {
+    get startsWithMinus():boolean {
+        if (this._children.length === 0) {
             return false
         }
-        return this.#children[0].startsWithMinus
+        return this._children[0].startsWithMinus
     }
 
     /**
@@ -58,7 +54,7 @@ class Mult extends Base {
      * @param {Array} operandes 
      * @returns {Mult, Scalar}
      */
-    static fromList(operandes) {
+    static fromList(operandes:Array<Base>):Base {
         if (operandes.length == 0){
             return Scalar.ONE
         }
@@ -68,10 +64,10 @@ class Mult extends Base {
         if (!operandes.every( item => item instanceof Base)) {
             throw new Error('Tous les éléments de la liste doivent être des instances de Base')
         }
-        return new Mult(PRIVATE, [...operandes])
+        return new Mult([...operandes])
     }
 
-    static mult(left, right) {
+    static mult(left:Base, right:Base):Base {
         if (!(left instanceof Base) || !(right instanceof Base)) {
             throw new Error('Les deux opérandes doivent être des instances de Base')
         }
@@ -89,20 +85,16 @@ class Mult extends Base {
         } else {
             operandes.push(right)
         }
-        return new Mult(PRIVATE, operandes)
+        return new Mult(operandes)
     }
 
     /**
      * constructeur
-     * @param {symbol} token
      * @param {Base[]} children
      */
-    constructor(token, children) {
+    constructor(children: Array<Base>) {
         super()
-        if (token !== PRIVATE) {
-            throw new Error('Utilisez AddMinus.add ou AddMinus.minus pour créer une instance')
-        }
-        this.#children = children
+        this._children = children
     }
 
     /**
@@ -111,40 +103,40 @@ class Mult extends Base {
      * @param {string|undefined} name 
      * @returns {boolean|Array}
      */
-    isFunctionOf(name){
+    isFunctionOf(name:string|undefined):boolean|Array<string> {
         if (typeof name === 'undefined') {
-            return _.uniq(_.flatten(this.#children.map(child => child.isFunctionOf()))).sort()
+            return _.uniq(_.flatten(this._children.map(child => child.isFunctionOf(undefined) as Array<string>))).sort()
         }
-        return some(this.#children, child => child.isFunctionOf(name))
+        return _.some(this._children, child => child.isFunctionOf(name) as boolean)
     }
 
-    substituteVariable(varName, value) {
+    substituteVariable(varName:string, value:Base|string|Decimal|number):Base {
         if (!this.isFunctionOf(varName)) {
             return this
         }
-        const children = this.#children.map( c => c.substituteVariable(varName, value) )
-        return new Mult(PRIVATE, children)
+        const children = this._children.map( c => c.substituteVariable(varName, value) )
+        return new Mult(children)
     }
 
-    substituteVariables(values) {
-        const children = this.#children.map( c => c.substituteVariables(values) )
-        if (children.every((child, index) => child === this.#children[index])) {
+    substituteVariables(substitions:Record<string, Base|string|Decimal|number>):Base {
+        const children = this._children.map( c => c.substituteVariables(substitions) )
+        if (children.every((child, index) => child === this._children[index])) {
             // pas de changement
             return this
         }
-        return new Mult(PRIVATE, children);
+        return new Mult(children);
     }
 
-    toFixed(n) {
-        const children = this.#children.map( c => c.toFixed(n) )
-        return new Mult(PRIVATE, children)
+    toFixed(n:number):Base {
+        const children = this._children.map( c => c.toFixed(n) )
+        return new Mult(children)
     }
 
-    #toStringHelper(lang) {
+    private _toStringHelper(lang:string):string {
         let result = ''
-        for (let i=0; i<this.#children.length; i++) {
-            const child = this.#children[i]
-            let childStr
+        for (let i=0; i<this._children.length; i++) {
+            const child = this._children[i]
+            let childStr:string
             if (lang === 'en') {
                 childStr = child.toStringEn()
             } else if (lang === 'tex') {
@@ -175,35 +167,35 @@ class Mult extends Base {
      * transtypage -> string
      * @returns {string}
      */
-    toString() {
-        if (!this.#string) {
-            this.#string = this.#toStringHelper('fr')
+    toString():string {
+        if (!this._string) {
+            this._string = this._toStringHelper('fr')
         }
-        return this.#string;
+        return this._string;
     }
 
-    toStringEn() {
-        if (!this.#stringEN) {
-            this.#stringEN = this.#toStringHelper('en')
+    toStringEn():string {
+        if (!this._stringEN) {
+            this._stringEN = this._toStringHelper('en')
         }
-        return this.#stringEN
+        return this._stringEN
     }
 
     /**
      * renvoie une représentation tex
      * @returns {string}
      */
-    toTex() {
-        if (!this.#stringTex) {
-            this.#stringTex = this.#toStringHelper('tex')
+    toTex():string {
+        if (!this._stringTex) {
+            this._stringTex = this._toStringHelper('tex')
         }
-        return this.#stringTex
+        return this._stringTex
     }
 
-    isExpanded() {
-        return !some(this.#children, child => !child.isExpanded())
-            && !some(this.#children, child => child.canBeDistributed)
-            && this.#children.filter( c => c instanceof Scalar).length <= 1
+    isExpanded():boolean {
+        return !_.some(this._children, child => !child.isExpanded())
+            && !_.some(this._children, child => child.canBeDistributed)
+            && this._children.filter( c => c instanceof Scalar).length <= 1
     }
 
     /**
@@ -211,9 +203,9 @@ class Mult extends Base {
      * @param {object|undefined} values
      * @returns {Decimal}
      */
-    toDecimal(values) {
+    toDecimal(values:Record<string, Decimal|string|number>|undefined):Decimal {
         let acc = new Decimal(1)
-        for (let child of this.#children) {
+        for (let child of this._children) {
             let v = child.toDecimal(values)
             acc = acc.mul(v)
         }
@@ -224,8 +216,8 @@ class Mult extends Base {
      * renvoie la signature de l'expression
      * @returns {Signature}
      */
-    signature() {
-        const children = this.#children.map( c => c.signature() )
+    signature():Signature {
+        const children = this._children.map( c => c.signature() )
         let s = new Signature()
         for (let child of children) {
             s = s.mult(child)
@@ -233,26 +225,26 @@ class Mult extends Base {
         return s
     }
 
-    opposite() {
+    opposite():Base {
         // recherche un enfant pour porter l'opposite
         // sinon multiplie par -1
-        const children = [...this.#children]
+        const children = [...this._children]
         for (let i=0; i<children.length; i++) {
             const child = children[i]
-            if (typeof child.opposite === 'function') {
-                const newChild = child.opposite()
+            if (typeof (child as any).opposite === 'function') {
+                const newChild = (child as any).opposite()
                 children[i] = newChild
-                return new Mult(PRIVATE, children)
+                return new Mult(children)
             }
         }
         children.unshift(Scalar.MINUS_ONE)
-        return new Mult(PRIVATE, children)
+        return new Mult(children)
     }
 
-    toDict() {
+    toDict():object {
         return {
             type: "Mult",
-            children: this.#children.map( child => child.toDict() )
+            children: this._children.map( child => child.toDict() )
         }
     }
 }

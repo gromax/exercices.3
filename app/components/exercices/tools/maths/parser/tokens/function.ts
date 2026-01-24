@@ -1,64 +1,67 @@
-class TFunction {
+import { Token } from './token';
+
+class TFunction extends Token {
     /** @type {string} */
-    #name;
-    constructor(name) {
+    private name:string
+
+    constructor(name:string) {
+        super()
         if (name == 'racine') {
             name = 'sqrt';
         }
-        this.#name = name;
+        this.name = name;
     }
 
     /**
      * transtypage -> string
      * @returns {string}
      */
-    toString() {
-        return this.#name;
+    toString():string {
+        return this.name
     }
 
-    static sREGEX = "sqrt|racine|cos|sin|ln|log|exp|frac|sign";
-    static REGEX = new RegExp("sqrt|racine|cos|sin|ln|log|exp|frac|sign", 'i');
+    static readonly sREGEX = "sqrt|racine|cos|sin|ln|log|exp|frac|sign";
+    static readonly REGEX = new RegExp("sqrt|racine|cos|sin|ln|log|exp|frac|sign", 'i');
   
     /**
      * renvoie le niveau de priorité
      * @type {number}
      */
-    get priority() {
-        return 10;
+    get priority():number {
+        return 10
     }
 
     /**
      * prédicat : peut-il y avoir un opérateur binaire sur la gauche ?
      * @returns {boolean}
      */
-    acceptOperOnLeft() {
-        return true;
+    acceptOperOnLeft():boolean {
+        return true
     }
 
     /**
      * prédicat : peut-il y avoir un opérateur binaire sur la droite ?
      * @returns {boolean}
      */
-    acceptOperOnRight() {
-        return false;
+    acceptOperOnRight():boolean {
+        return false
     }
 
     /**
      * prédicat : Le token agit-il sur sa gauche ?
      * @returns {boolean}
      */
-    operateOnLeft() {
-        return false;
+    operateOnLeft():boolean {
+        return false
     }
 
     /**
      * prédicat : Le token agit-il sur sa droite ?
      * @returns {boolean}
      */
-    operateOnRight() {
-        return true;
+    operateOnRight():boolean {
+        return true
     }
-
 }
 
 export { TFunction }

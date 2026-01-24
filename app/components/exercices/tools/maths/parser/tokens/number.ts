@@ -1,66 +1,68 @@
-class TNumber {
+import { Token } from "./token"
+
+class TNumber extends Token {
     /** @type{string} */
-    #saisie;
+    private saisie:string
 
     /**
      * constructeur
      * @param {string} chaine 
      */
-    constructor(chaine) {
-        this.#saisie = chaine;
+    constructor(chaine:string) {
+        super()
+        this.saisie = chaine
     }
 
     /**
      * transtypage -> string
      * @returns {string}
      */
-    toString() {
-        return this.#saisie;
+    toString():string {
+        return this.saisie;
     }
 
-    static sREGEX = '\\d+[.,]?\\d*(E-?\\d+)?%?';
-    static REGEX = new RegExp('\\d+[.,]?\\d*(E-?\\d+)?%?', 'i');
+    static readonly sREGEX = '\\d+[.,]?\\d*(E-?\\d+)?%?'
+    static readonly REGEX = new RegExp('\\d+[.,]?\\d*(E-?\\d+)?%?', 'i')
 
     /**
      * renvoie le niveau de priorité
      * @type {number}
      */
-    get priority() {
-        return 0;
+    get priority():number {
+        return 0
     }
 
     /**
      * prédicat : peut-il y avoir un opérateur binaire sur la gauche ?
      * @returns {boolean}
      */
-    acceptOperOnLeft() {
-        return true;
+    acceptOperOnLeft(): boolean {
+        return true
     }
 
     /**
      * prédicat : peut-il y avoir un opérateur binaire sur la droite ?
      * @returns {boolean}
      */
-    acceptOperOnRight() {
-        return true;
+    acceptOperOnRight(): boolean {
+        return true
     }
 
     /**
      * prédicat : Le token agit-il sur sa gauche ?
      * @returns {boolean}
      */
-    operateOnLeft() {
-        return false;
+    operateOnLeft(): boolean {
+        return false
     }
 
     /**
      * prédicat : Le token agit-il sur sa droite ?
      * @returns {boolean}
      */
-    operateOnRight() {
-        return false;
+    operateOnRight(): boolean {
+        return false
     }
-
 }
 
 export { TNumber }

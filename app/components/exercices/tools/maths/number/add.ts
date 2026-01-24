@@ -1,27 +1,24 @@
-import { Base } from "./base";
-import { Scalar } from "./scalar";
-import Decimal from "decimal.js";
-
-// Constante privée
-// sert à empêcher l'accès direct au constructeur
-const PRIVATE = Symbol('private');
+import _ from "underscore"
+import { Base } from "./base"
+import { Scalar } from "./scalar"
+import Decimal from "decimal.js"
 
 class AddMinus extends Base {
-    #children; /** @type {Base[]} */
-    #positive; /** @type {boolean[]} */
+    private _children:Array<Base> /** @type {Base[]} */
+    private _positive:Array<boolean> /** @type {boolean[]} */
     /** @type {string|undefined} représentation texte */
-    #string;
+    private _string:string|undefined
     /** @type {string|undefined} représentation texte version anglaise */
-    #stringEN;
+    private _stringEN:string|undefined
     /** @type {string|undefined} représentation tex */
-    #stringTex;
+    private _stringTex:string|undefined
 
-    static addFromList(operandes) {
+    static addFromList(operandes:Array<Base>):Base {
         if (operandes.length == 0){
-            return Scalar.ZERO;
+            return Scalar.ZERO
         }
         if (operandes.length == 1) {
-            return operandes[0];
+            return operandes[0]
         }
         if (!operandes.every( item => item instanceof Base)) {
             throw new Error('Tous les éléments de la liste doivent être des instances de Base')
@@ -32,21 +29,21 @@ class AddMinus extends Base {
         // il faut absorber les moins de certains opérandes
         for (let i=0; i<flat_operandes.length; i++) {
             const item = flat_operandes[i]
-            if (item.startsWithMinus && typeof item.opposite === 'function') {
+            if (item.startsWithMinus && typeof (item as any).opposite === 'function') {
                 positive[i] = !positive[i]
-                flat_operandes[i] = item.opposite()
+                flat_operandes[i] = (item as any).opposite()
             }
         }
-        return new AddMinus(PRIVATE, flat_operandes, positive)
+        return new AddMinus(flat_operandes, positive)
     }
 
     /**
      * Crée une somme à partir d'une liste d'opérandes et d'une liste de signes
      * @param {Base[]} operandes 
      * @param {boolean[]} positive 
-     * @returns {AddMinus}
+     * @returns {Base}
      */
-    static fromList(operandes, positive) {
+    static fromList(operandes:Array<Base>, positive:Array<boolean>):Base {
         if (operandes.length !== positive.length) {
             throw new Error('operandes et positive doivent avoir la même longueur')
         }
@@ -62,8 +59,8 @@ class AddMinus extends Base {
         if (operandes.length == 1) {
             if (positive[0]) {
                 return operandes[0]
-            } else if (typeof operandes[0].opposite === 'function') {
-                return operandes[0].opposite()
+            } else if (typeof (operandes[0] as any).opposite === 'function') {
+                return (operandes[0] as any).opposite()
             }
         }
         // Il faut applatir des enfants qui sont aussi des AddMinus
@@ -84,103 +81,103 @@ class AddMinus extends Base {
         // enfin il faut absorber les moins de certains opérandes
         for (let i=0; i<flat_operandes.length; i++) {
             const item = flat_operandes[i]
-            if (item.startsWithMinus && typeof item.opposite === 'function') {
+            if (item.startsWithMinus && typeof (item as any).opposite === 'function') {
                 flat_positive[i] = !flat_positive[i]
-                flat_operandes[i] = item.opposite()
+                flat_operandes[i] = (item as any).opposite()
             }
         }
-        return new AddMinus(PRIVATE, flat_operandes, flat_positive)
+        return new AddMinus(flat_operandes, flat_positive)
     }
 
-    static add(left, right) {
-        let children, positive
+    static add(left:Base, right:Base):AddMinus {
+        let children:Array<Base>, positive:Array<boolean>
         if (!(left instanceof Base) || !(right instanceof Base)) {
             throw new Error('Les deux arguments doivent être des instances de Base')
         }
         if (left instanceof AddMinus) {
-            children = left.#children
-            positive = left.#positive
+            children = left._children
+            positive = left._positive
         } else {
             children = [left]
             positive = [true]
         }
         if (right instanceof AddMinus) {
-            children = [...children, ...right.#children]
-            positive = [...positive, ...right.#positive]
+            children = [...children, ...right._children]
+            positive = [...positive, ...right._positive]
         } else {
             children.push(right)
             positive.push(true)
         }
-        return new AddMinus(PRIVATE, children, positive)
+        return new AddMinus(children, positive)
     }
 
-    static minus(left, right) {
-        let children, positive
+    static minus(left:Base, right:Base):AddMinus {
+        let children:Array<Base>, positive:Array<boolean>
         if (!(left instanceof Base) || !(right instanceof Base)) {
             throw new Error('Les deux arguments doivent être des instances de Base')
         }
         if (left instanceof AddMinus) {
-            children = left.#children
-            positive = left.#positive
+            children = left._children
+            positive = left._positive
         } else {
             children = [left]
             positive = [true]
         }
         if (right instanceof AddMinus) {
-            children = [...children, ...right.#children]
-            positive = [...positive, ...right.#positive.map( p => !p)]
+            children = [...children, ...right._children]
+            positive = [...positive, ...right._positive.map( p => !p)]
         } else {
             children.push(right)
             positive.push(false)
         }
-        return new AddMinus(PRIVATE, children, positive)
+        return new AddMinus(children, positive)
     }
 
     /**
      * constructeur
-     * @param {symbol} token
      * @param {Base[]} children 
      * @param {boolean[]} positive
      */
-    constructor(token, children, positive) {
-        if (token !== PRIVATE) {
-            throw new Error('Utilisez AddMinus.add ou AddMinus.minus pour créer une instance')
-        }
+    constructor(children:Array<Base>, positive:Array<boolean>) {
         super()
-        this.#children = children
-        this.#positive = positive
+        this._children = children
+        this._positive = positive
     }
 
     /**
      * accesseurs
      */
-    get children() {
-        return [...this.#children]
+    get children(): Array<Base> {
+        return [...this._children]
     }
 
-    get positive() {
-        return [...this.#positive]
+    get positive():Array<boolean> {
+        return [...this._positive]
     }
 
-    get priority() {
+    get priority(): number {
         return 1;
     }
 
-    get canBeDistributed() {
+    get canBeDistributed():boolean {
         return true
+    }
+
+    get scalarFactor():Scalar {
+        return Scalar.ONE
     }
 
     /**
      * prédicat : le noeud est-il développé
      * @returns {boolean}
      */
-    isExpanded() {
-        for (let item of this.#children) {
+    isExpanded():boolean {
+        for (let item of this._children) {
             if (!item.isExpanded()) {
                 return false;
             }
         }
-        const scalars = this.#children.filter( (item) => item instanceof Scalar )
+        const scalars = this._children.filter( (item) => item instanceof Scalar )
         if (scalars.length > 1) {
             return false
         }
@@ -188,7 +185,7 @@ class AddMinus extends Base {
             return false
         }
         // vérifie s'il existe des signatures semblables
-        const childrenSignatures = this.#children.map(c => c.signature().toString())
+        const childrenSignatures = this._children.map(c => c.signature().toString())
         if (new Set(childrenSignatures).size < childrenSignatures.length) {
             return false;
         }
@@ -201,11 +198,11 @@ class AddMinus extends Base {
      * @param {string|undefined} name 
      * @returns {boolean|Array}
      */
-    isFunctionOf(name){
+    isFunctionOf(name:string|undefined): boolean|Array<string> {
         if (typeof name == 'undefined') {
-            return _.uniq(_.flatten(this.#children.map( c => c.isFunctionOf() ))).sort()
+            return _.uniq(_.flatten(this._children.map( c => c.isFunctionOf(undefined) as Array<string> ))).sort()
         }
-        for (let item of this.#children) {
+        for (let item of this._children) {
             if (item.isFunctionOf(name)) {
                 return true
             }
@@ -213,27 +210,27 @@ class AddMinus extends Base {
         return false
     }
 
-    substituteVariable(varName, value) {
-        const children = this.#children.map( c => c.substituteVariable(varName, value) )
-        if (children.every( (c, i) => c === this.#children[i] )) {
+    substituteVariable(varName:string, value:Base|string|Decimal|number):Base {
+        const children = this._children.map( c => c.substituteVariable(varName, value) )
+        if (children.every( (c, i) => c === this._children[i] )) {
             // pas de changement
             return this
         }
-        return new AddMinus(PRIVATE, children, this.#positive)
+        return new AddMinus(children, this._positive)
     }
 
-    substituteVariables(values) {
-        const children = this.#children.map( c => c.substituteVariable(varName, value) )
-        if (children.every( (c, i) => c === this.#children[i] )) {
+    substituteVariables(substitutions:Record<string, Base|string|Decimal|number>):Base {
+        const children = this._children.map( c => c.substituteVariables(substitutions) )
+        if (children.every( (c, i) => c === this._children[i] )) {
             // pas de changement
             return this
         }
-        return new AddMinus(PRIVATE, children, this.#positive)
+        return new AddMinus(children, this._positive)
     }
 
-    toFixed(n) {
-        const children = this.#children.map( c => c.toFixed(n) )
-        return new AddMinus(PRIVATE, children, this.#positive)
+    toFixed(n:number):Base {
+        const children = this._children.map( c => c.toFixed(n) )
+        return new AddMinus(children, this._positive)
     }
 
     /**
@@ -241,11 +238,11 @@ class AddMinus extends Base {
      * @param {object|undefined} values
      * @returns {Decimal}
      */
-    toDecimal(values) {
-        const children = this.#children.map( c => c.toDecimal(values) )
+    toDecimal(values:Record<string, Decimal|string|number>|undefined):Decimal {
+        const children = this._children.map( c => c.toDecimal(values) )
         let acc = new Decimal(0)
         for (let i=0; i<children.length; i++) {
-            if (this.#positive[i]) {
+            if (this._positive[i]) {
                 acc = acc.plus( children[i] )
             } else {
                 acc = acc.minus( children[i] )
@@ -254,16 +251,16 @@ class AddMinus extends Base {
         return acc
     }
 
-    opposite() {
-        const newPositive = this.#positive.map( p => !p )
-        return new AddMinus(PRIVATE, this.#children, newPositive)
+    opposite():Base {
+        const newPositive = this._positive.map( p => !p )
+        return new AddMinus(this._children, newPositive)
     }
 
-    toDict() {
+    toDict():object {
         return {
             type: "AddMinus",
-            children: this.#children.map( c => c.toDict() ),
-            signs: this.#positive.map( p => p ? '+' : '-' ),
+            children: this._children.map( c => c.toDict() ),
+            signs: this._positive.map( p => p ? '+' : '-' ),
         }
     }
 
@@ -271,36 +268,36 @@ class AddMinus extends Base {
      * transtypage -> string
      * @returns {string}
      */
-    toString() {
-        if (!this.#string) {
-            this.#string = this.#toStringHelper('fr')
+    toString():string {
+        if (!this._string) {
+            this._string = this._toStringHelper('fr')
         }
-        return this.#string
+        return this._string
     }
 
-    toStringEn() {
-        if (!this.#stringEN) {
-            this.#stringEN = this.#toStringHelper('en')
+    toStringEn():string {
+        if (!this._stringEN) {
+            this._stringEN = this._toStringHelper('en')
         }
-        return this.#stringEN
+        return this._stringEN
     }
 
     /**
      * renvoie une représentation tex
      * @returns {string}
      */
-    toTex() {
-        if (!this.#stringTex) {
-            this.#stringTex = this.#toStringHelper('tex')
+    toTex():string {
+        if (!this._stringTex) {
+            this._stringTex = this._toStringHelper('tex')
         }
-        return this.#stringTex
+        return this._stringTex
     }
 
-    #toStringHelper(lang) {
+    private _toStringHelper(lang) {
         let result = ''
-        for (let i=0; i<this.#children.length; i++) {
-            const child = this.#children[i]
-            let childStr
+        for (let i=0; i<this._children.length; i++) {
+            const child = this._children[i]
+            let childStr:string
             if (lang === 'en') {
                 childStr = child.toStringEn()
             } else if (lang === 'tex') {
@@ -308,7 +305,7 @@ class AddMinus extends Base {
             } else {
                 childStr = String(child)
             }
-            const sign = this.#positive[i] ? '+' : '-'
+            const sign = this._positive[i] ? '+' : '-'
             if (child.startsWithMinus) {
                 // ne devrait pas arriver
                 // puisque le signe - de l'enfant a déjà été absorbé

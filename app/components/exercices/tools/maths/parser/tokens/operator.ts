@@ -1,17 +1,20 @@
-class TOperator {
+import { Token } from "./token";
+
+class TOperator extends Token {
     /** @type {string} */
-    #opType;
+    private opType:string
     
     /** constructeur
      * @param {string} opType
      */
-    constructor(opType) {
+    constructor(opType:string) {
+        super()
         if (opType === "cdot" || opType === "×" || opType === "⋅") {
-            this.#opType = "*";
+            this.opType = "*";
         } else if (opType === "÷") {
-            this.#opType = "/";
+            this.opType = "/";
         } else {
-            this.#opType = opType;
+            this.opType = opType;
         }
     }
 
@@ -19,35 +22,35 @@ class TOperator {
      * transtypage -> string
      * @returns {string}
      */
-    toString() {
-        return this.#opType;
+    toString():string {
+        return this.opType;
     }
 
-    static sREGEX = "[*×⋅\\+\\-\\/\\^÷;]|cdot";
-    static REGEX = new RegExp("[*×⋅\\+\\-\\/\\^÷;]|cdot", 'i');
+    static readonly sREGEX = "[*×⋅\\+\\-\\/\\^÷;]|cdot"
+    static readonly REGEX = new RegExp("[*×⋅\\+\\-\\/\\^÷;]|cdot", 'i')
 
     /**
      * renvoie le niveau de priorité
      * @type {number}
      */
-    get priority() {
-        switch (this.#opType) {
+    get priority():number {
+        switch (this.opType) {
             case "^":
-                return 9;
+                return 9
             case "(-)":
-                return 8;
+                return 8
             case "(+)":
-                return 8;
+                return 8
             case "*":
-                return 7;
+                return 7
             case "/":
-                return 7;
+                return 7
             case "+":
-                return 6;
+                return 6
             case "-":
-                return 6;
+                return 6
             default:
-                return 1;
+                return 1
         }
     }
 
@@ -55,48 +58,48 @@ class TOperator {
      * prédicat : peut-il y avoir un opérateur binaire sur la gauche ?
      * @returns {boolean}
      */
-    acceptOperOnLeft() {
-        return (this.#opType == "(-)") || (this.#opType =="(+)");
+    acceptOperOnLeft():boolean {
+        return (this.opType == "(-)") || (this.opType =="(+)")
     }
 
     /**
      * prédicat : peut-il y avoir un opérateur binaire sur la droite ?
      * @returns {boolean}
      */
-    acceptOperOnRight() {
-        return false;
+    acceptOperOnRight():boolean {
+        return false
     }
 
     /**
      * prédicat : Le token agit-il sur sa gauche ?
      * @returns {boolean}
      */
-    operateOnLeft() {
-        return !((this.#opType == "(-)") || (this.#opType == "(+)"));
+    operateOnLeft():boolean {
+        return !((this.opType == "(-)") || (this.opType == "(+)"))
     }
 
     /**
      * prédicat : Le token agit-il sur sa droite ?
      * @returns {boolean}
      */
-    operateOnRight() {
-        return true;
+    operateOnRight():boolean {
+        return true
     }
 
     /**
      * essaie de changer l'opérateur binaire en une version unaire
      * @returns {boolean}
      */
-    changeToArityOne() {
-        if (this.#opType == '-') {
-            this.#opType = '(-)';
+    changeToArityOne():boolean {
+        if (this.opType == '-') {
+            this.opType = '(-)';
             return true;
-        } else if (this.#opType == '+') {
-            this.#opType = "(+)";
+        } else if (this.opType == '+') {
+            this.opType = "(+)";
             return true;
         }
         return false;
     }
 }
 
-export { TOperator };
+export { TOperator }

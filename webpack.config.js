@@ -29,6 +29,12 @@ const webpackCommon = {
   // ==========================================
   module: {
     rules: [
+      // Transpile TypeScript avec ts-loader
+      {
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        use: 'ts-loader'
+      },
       // Transpile JS avec Babel (ES6+ → ES5 pour compatibilité navigateurs)
       {
         test: /\.js?$/,
@@ -91,6 +97,7 @@ const webpackCommon = {
     })
   ],
   resolve: {
+    extensions: ['.ts', '.tsx', '.js', '.json'],
     modules: [path.resolve(__dirname, './app'), 'node_modules'],
     alias: {
       '@components': path.resolve(__dirname, 'app/components'),

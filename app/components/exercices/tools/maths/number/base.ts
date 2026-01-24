@@ -1,39 +1,38 @@
 import Decimal from 'decimal.js'
 import { Signature } from './signature'
+import { Scalar } from './scalar'
 Decimal.set({ precision: 50, rounding: Decimal.ROUND_HALF_UP });
 
-class Base {
+abstract class Base {
     /**
      * transtypage vers string
      * @returns {string}
      */
-    toString() {
+    toString():string {
         return "(?)";
     }
 
     /**
      * transtypage vers string version anglaise
      */
-    toStringEn() {
+    toStringEn():string {
         return this.toString();
     }
 
-    get isNumber() {
+    get isNumber():boolean {
         return false
     }
 
     /**
      * priorité
      */
-    get priority() {
+    get priority():number {
         return 0;
     }
 
-    get scalarFactor() {
-        return 1
-    }
+    abstract get scalarFactor():Scalar
 
-    get withoutScalarFactor() {
+    get withoutScalarFactor():Base {
         return this
     }
 
@@ -41,7 +40,7 @@ class Base {
      * prédicat : le noeud peut-il être distribué ?
      * @return {boolean}
      */
-    get canBeDistributed() {
+    get canBeDistributed():boolean {
         return false
     }
 
@@ -49,7 +48,7 @@ class Base {
      * prédicat : le noeud commence-t-il par un signe moins ?
      * @returns {boolean}
      */
-    get startsWithMinus() {
+    get startsWithMinus():boolean {
         return false
     }
 
@@ -59,7 +58,7 @@ class Base {
      * @param {string|undefined} name 
      * @returns {boolean|Array}
      */
-    isFunctionOf(name){
+    isFunctionOf(name:string|undefined):boolean|Array<string> {
         if (typeof name == 'undefined') {
             return []
         }
@@ -71,7 +70,7 @@ class Base {
      * nombre + nombre ou nombre * nombre son développés
      * @returns {boolean}
      */
-    isExpanded() {
+    isExpanded():boolean {
         return true;
     }
 
@@ -79,7 +78,7 @@ class Base {
      * renvoie une représentation tex
      * @returns {string}
      */
-    toTex() {
+    toTex():string {
         return "(?)"
     }
 
@@ -88,7 +87,7 @@ class Base {
      * @param {object|undefined} values
      * @returns {Decimal}
      */
-    toDecimal(values) {
+    toDecimal(values:Record<string, Decimal|string|number>|undefined):Decimal {
         return new Decimal(NaN);
     }
 
@@ -97,7 +96,7 @@ class Base {
      * et un texte représentant le contenu
      * @returns {Signature}
      */
-    signature() {
+    signature():Signature {
         return new Signature(
             {
                 [this.toString()]: 1
@@ -109,8 +108,8 @@ class Base {
      * prédicat : le noeud est-il nul ?
      * @returns {boolean}
      */
-    isZero() {
-        const d = this.toDecimal()
+    isZero():boolean {
+        const d = this.toDecimal(undefined)
         return d.equals(0)
     }
 
@@ -118,7 +117,7 @@ class Base {
      * prédicat : le noeud est-il égal à 1 ?
      * @returns {boolean}
      */
-    isOne() {
+    isOne():boolean {
         return false;
     }
 
@@ -128,7 +127,7 @@ class Base {
      * @param {Base|number} value 
      * @returns {Base}
      */
-    substituteVariable(varName, value) {
+    substituteVariable(varName:string, value:Base|string|Decimal|number):Base {
         return this;
     }
 
@@ -137,24 +136,24 @@ class Base {
      * @param {object} substitutions de forme {varName: Base|number, ...}
      * @returns {Base}
      */
-    substituteVariables(substitutions) {
+    substituteVariables(substitutions:Record<string, Base|string|Decimal|number>):Base {
         return this;
     }
 
     /**
      * construit une fonction à partir du noeud
-     * @param {Array<string>} order ordre des variables
+     * @param {Array<string>|undefined} order ordre des variables
      * @returns {Function}
      */
-    buildFunction(order) {
-        if (typeof order === 'undefined') {
-            order = this.isFunctionOf()
-        }
+    buildFunction(order:Array<string>|undefined):(...args:any)=>number {
+        const _order = typeof order === 'undefined'
+            ? this.isFunctionOf(undefined) as Array<string>
+            : order
         const self = this
         return function(...args) {
             let values = {}
-            for (let i = 0; i < order.length; i++) {
-                values[order[i]] = args[i];
+            for (let i = 0; i < _order.length; i++) {
+                values[_order[i]] = args[i];
             }
             return self.substituteVariables(values).toDecimal(values).toNumber()
         }
@@ -162,19 +161,19 @@ class Base {
 
     /**
      * Transforme to les décimaux en une version fixée à n chiffres
-     * @param {*} n 
-     * @returns 
+     * @param {number} n 
+     * @returns {Base}
      */
-    toFixed(n) {
+    toFixed(n:number):Base {
         return this
     }
 
     /**
      * renvoie une version dictionnaire du noeud
      */
-    toDict() {
+    toDict():object {
         return { type: "Base" }
     }
 }
 
-export { Base };
+export { Base }

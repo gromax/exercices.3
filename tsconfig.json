@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "ESNext",
+    "lib": ["ES2021", "DOM"],
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./app",
+    "strict": false,
+    "allowJs": true,
+    "checkJs": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "types": ["jquery", "underscore"],
+    "baseUrl": "./app",
+    "paths": {
+      "@components/*": ["components/*"],
+      "@entities/*": ["components/entities/*"],
+      "@mathstools/*": ["components/exercices/tools/maths/*"],
+      "@styles/*": ["styles/*"],
+      "@common/*": ["components/common/*"]
+    }
+  },
+  "include": ["app/**/*.ts", "app/**/*.tsx"],
+  "exclude": ["node_modules", "public", "dist"]
+}

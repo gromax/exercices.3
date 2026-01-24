@@ -3,8 +3,8 @@ import { Mult } from './mult'
 import { Div } from './div'
 import { Power } from './power'
 import { Scalar } from './scalar'
-import { isTypeConstant, E } from './constant'
-import { isTypeSymbol } from './symbol'
+import { Constant, E } from './constant'
+import { Symbol } from './symbol'
 import { Base } from './base'
 import { Function } from './function'
 import { simplify } from './simplify'
@@ -14,10 +14,10 @@ import { simplify } from './simplify'
  * @param {Base} node 
  * @returns {Base}
  */
-function derivate(node) {
+function derivate(node:Base):Base {
     if (node instanceof Scalar
-        || isTypeConstant(node)
-        || isTypeSymbol(node)) {
+        || (node instanceof Constant)
+        || (node instanceof Symbol)) {
         return Scalar.ZERO
     }
 
@@ -34,7 +34,7 @@ function derivate(node) {
             Mult.mult(uPrime, v),
             Mult.mult(u, vPrime)
         )
-        const denominator = Power.power(v, new Scalar(2))
+        const denominator = new Power(v, new Scalar(2))
         return simplify(Div.div(numerator, denominator))
     }
 
@@ -47,7 +47,7 @@ function derivate(node) {
             termFactors[i] = childrenPrime[i]
             terms.push(Mult.fromList(termFactors))
         }
-        return simplify(AddMinus.addfromList(terms))
+        return simplify(AddMinus.addFromList(terms))
     }
 
     if (node instanceof Function) {
@@ -79,7 +79,7 @@ function derivate(node) {
         }
         if (node.name === 'inverse') {
             const numerator = Mult.mult(Scalar.MINUS_ONE, childPrime)
-            const denominator = Power.power(child, new Scalar(2))
+            const denominator = new Power(child, new Scalar(2))
             return simplify(Div.div(numerator, denominator))
         }
         if (node.name === 'sin') {
@@ -95,7 +95,7 @@ function derivate(node) {
 
     if (node instanceof Power) {
         const base = node.base
-        const exponent = node.exponent
+        const exponent = node.exposant
         const basePrime = derivate(base)
         const exponentPrime = derivate(exponent)
         const factor = AddMinus.add(

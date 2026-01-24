@@ -2,7 +2,7 @@
  * Check if the userValue matches the expected format.
  */
 
-import Parser from '../parser/parser.js'
+import Parser from '../parser/parser'
 import MyMath from '@mathstools/mymath'
 
 

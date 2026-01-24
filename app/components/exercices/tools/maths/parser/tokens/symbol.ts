@@ -1,31 +1,34 @@
-class TSymbol {
+import { Token } from "./token"
+
+class TSymbol extends Token {
     /** @type {string} */
-    #name
+    private _name
   
     /**
      * constructeur
      * @param {string} name 
      */
-    constructor (name) {
-        this.#name = name
+    constructor (name:string) {
+        super()
+        this._name = name
     }
     
     /**
      * transtypage -> string
      * @returns {string}
      */
-    toString() {
-        return this.#name
+    toString():string {
+        return this._name
     }
 
-    static sREGEX = "[∞πa-zA-Z_][a-zA-Z0-9_]*"
-    static REGEX = new RegExp("[∞πa-zA-Z_][a-zA-Z0-9_]*", 'i')
+    static readonly sREGEX = "[∞πa-zA-Z_][a-zA-Z0-9_]*"
+    static readonly REGEX = new RegExp("[∞πa-zA-Z_][a-zA-Z0-9_]*", 'i')
 
     /**
      * renvoie le niveau de priorité
      * @type {number}
      */
-    get priority() {
+    get priority():number {
         return 0
     }
 
@@ -33,7 +36,7 @@ class TSymbol {
      * prédicat : peut-il y avoir un opérateur binaire sur la gauche ?
      * @returns {boolean}
      */
-    acceptOperOnLeft() {
+    acceptOperOnLeft(): boolean {
         return true
     }
 
@@ -41,7 +44,7 @@ class TSymbol {
      * prédicat : peut-il y avoir un opérateur binaire sur la droite ?
      * @returns {boolean}
      */
-    acceptOperOnRight() {
+    acceptOperOnRight(): boolean {
         return true
     }
 
@@ -49,7 +52,7 @@ class TSymbol {
      * prédicat : Le token agit-il sur sa gauche ?
      * @returns {boolean}
      */
-    operateOnLeft() {
+    operateOnLeft(): boolean {
         return false
     }
 
@@ -57,7 +60,7 @@ class TSymbol {
      * prédicat : Le token agit-il sur sa droite ?
      * @returns {boolean}
      */
-    operateOnRight() {
+    operateOnRight(): boolean {
         return false
     }
 

@@ -8,7 +8,7 @@ import Decimal from "decimal.js"
  * @param {Decimal} b
  * @returns {Decimal}
  */
-function gcd(a, b) {
+function gcd(a:Decimal, b:Decimal):Decimal {
     if (b.isZero()) {
         return a
     }
@@ -27,57 +27,57 @@ function gcd(a, b) {
 }
 
 class Scalar extends Base {
-    static REGEX = new RegExp('\\d+[.,]?\\d*(E-?\\d+)?%?', 'i');
+    static REGEX = new RegExp('\\d+[.,]?\\d*(E-?\\d+)?%?', 'i')
     /** @type {Scalar} */
-    static ONE;
+    static ONE: Scalar
     /** @type {Scalar} */
-    static ZERO;
+    static ZERO: Scalar
     /** @type {Scalar} */
-    static MINUS_ONE;
+    static MINUS_ONE: Scalar
     /** @type {Scalar} */
-    static NAN;
+    static NAN: Scalar
 
     /** @type{string} */
-    #chaine = ""
+    private _chaine = ""
     /** @type{Decimal} */
-    #value = new Decimal(NaN)
+    private _value = new Decimal(NaN)
     /** @type{Decimal|null} */
-    #denominator = null
+    private _denominator: Decimal | null = null
 
     /**
      * tente la fabrication d'un Scalar à partir d'une chaine
      * @param {string} chaine 
      * @return {null, Scalar}
      */
-    static fromString(chaine) {
+    static fromString(chaine:string):Scalar|null {
         if (!Scalar.REGEX.test(chaine)) {
-            return null;
+            return null
         }
-        return new Scalar(chaine);
+        return new Scalar(chaine)
     }
 
-    static div(numerator, denominator) {
+    static div(numerator:Scalar|number|string, denominator:Scalar|number|string): Scalar {
         if (!(numerator instanceof Scalar)) {
             numerator = new Scalar(numerator)
         }
         return numerator.div(denominator)
     }
 
-    static mult(factor1, factor2) {
+    static mult(factor1:Scalar|number|string, factor2:Scalar|number|string): Scalar {
         if (!(factor1 instanceof Scalar)) {
             factor1 = new Scalar(factor1)
         }
         return factor1.mult(factor2)
     }
 
-    static plus(addend1, addend2) {
+    static plus(addend1:Scalar|number|string, addend2:Scalar|number|string): Scalar {
         if (!(addend1 instanceof Scalar)) {
             addend1 = new Scalar(addend1)
         }
         return addend1.plus(addend2)
     }
 
-    static minus(minuend, subtrahend) {
+    static minus(minuend:Scalar|number|string, subtrahend:Scalar|number|string): Scalar {
         if (!(minuend instanceof Scalar)) {
             minuend = new Scalar(minuend)
         }
@@ -89,7 +89,7 @@ class Scalar extends Base {
      * @param {string} chaine 
      * @returns {boolean}
      */
-    static isScalar(chaine) {
+    static isScalar(chaine:string):boolean {
         return Scalar.REGEX.test(chaine)
     }
 
@@ -98,14 +98,14 @@ class Scalar extends Base {
      * @param {string|Decimal|number} entree 
      * @param {Decimal|null} denominator
      */
-    constructor(entree, denominator = null) {
-        super();
+    constructor(entree: string|Decimal|number, denominator:Decimal|null = null) {
+        super()
         if (typeof entree == 'string') {
-            this.#makeFromString(entree)
+            this._makeFromString(entree)
         } else if (typeof entree == 'number') {
-            this.#makeFromNumber(entree)
+            this._makeFromNumber(entree)
         } else if (entree instanceof Decimal) {
-            this.#makeFromDecimal(entree)
+            this._makeFromDecimal(entree)
         } else {
             throw new Error(`entree = ${entree} invalide pour un Scalar`)
         }
@@ -115,56 +115,56 @@ class Scalar extends Base {
         }
         // le signe sera toujours porté par le numérateur
         if (denominator.isPositive()) {
-            this.#denominator = denominator
+            this._denominator = denominator
         } else {
-            this.#value = this.#value.negated()
-            this.#denominator = denominator.negated()
+            this._value = this._value.negated()
+            this._denominator = denominator.negated()
         }
-        const gcdValue = gcd(this.#value, this.#denominator)
-        this.#value = this.#value.div(gcdValue)
-        this.#denominator = this.#denominator.div(gcdValue)
+        const gcdValue = gcd(this._value, this._denominator)
+        this._value = this._value.div(gcdValue)
+        this._denominator = this._denominator.div(gcdValue)
         // le dénominateur ne sera jamais de 1
-        if (this.#denominator.equals(1)) {
-            this.#denominator = null
-        } else if (this.#denominator.equals(0)) {
-            this.#value = new Decimal(NaN)
-            this.#denominator = null
+        if (this._denominator.equals(1)) {
+            this._denominator = null
+        } else if (this._denominator.equals(0)) {
+            this._value = new Decimal(NaN)
+            this._denominator = null
         }
-        this.#chaine = this.toString()
+        this._chaine = this.toString()
     }
 
-    get isNumber() {
+    get isNumber():boolean {
         return true
     }
 
-    get startsWithMinus() {
-        return this.#value.isNegative()
+    get startsWithMinus():boolean {
+        return this._value.isNegative()
     }
 
-    #getDenominator() {
-        return this.#denominator || new Decimal(1)
+    private _getDenominator() {
+        return this._denominator || new Decimal(1)
     }
 
     /**
      * auxiliaire constructureur pour une chaine
      * @param {string} chaine 
      */
-    #makeFromString(chaine) {
+    private _makeFromString(chaine:string):void {
         if (!Scalar.isScalar(chaine)) {
             throw new Error(`entree = ${chaine} invalide pour un Scalar`)
         }
         chaine = chaine.trim()
         let percent = false
-        this.#chaine = chaine
+        this._chaine = chaine
         chaine = chaine.replace(',', '.')
         let i = chaine.indexOf('%')
         if (i >= 0) {
             percent = true
             chaine = chaine.substring(0,i).trim()
         }
-        this.#value = new Decimal(chaine)
+        this._value = new Decimal(chaine)
         if (percent) {
-            this.#value = this.#value.div(100)
+            this._value = this._value.div(100)
         }
     }
 
@@ -172,85 +172,85 @@ class Scalar extends Base {
      * auxiliaire constructeur pour un Number
      * @param {number}
      */
-    #makeFromNumber(n) {
-        this.#chaine = String(n)
-        this.#value = new Decimal(n)
+    private _makeFromNumber(n:number):void {
+        this._chaine = String(n)
+        this._value = new Decimal(n)
     }
 
     /**
      * auxiliaire constructeur pour un Decimal
      * @param {Decimal} d
      */
-    #makeFromDecimal(d) {
-        this.#chaine = d.toString()
-        this.#value = d
+    private _makeFromDecimal(d:Decimal):void {
+        this._chaine = d.toString()
+        this._value = d
     }
 
     /**
      * trantypage
      * @return {string}
      */
-    toString() {
-        const numerator = this.#value.toString().replace('.', ',')
-        if (this.#denominator === null) {
+    toString():string {
+        const numerator = this._value.toString().replace('.', ',')
+        if (this._denominator === null) {
             return numerator;
         }
-        const denominator = this.#denominator.toString().replace('.', ',')
+        const denominator = this._denominator.toString().replace('.', ',')
         return `${numerator} / ${denominator}`
     }
 
-    toStringEn() {
-        const numerator = this.#value.toString()
-        if (this.#denominator === null) {
+    toStringEn():string {
+        const numerator = this._value.toString()
+        if (this._denominator === null) {
             return numerator;
         }
-        const denominator = this.#denominator.toString()
+        const denominator = this._denominator.toString()
         return `${numerator} / ${denominator}`
     }
 
-    get priority() {
+    get priority():number {
         return 10
     }
 
-    get scalarFactor() {
+    get scalarFactor():Scalar {
         return this
     }
 
-    get withoutScalarFactor() {
+    get withoutScalarFactor():Scalar {
         return Scalar.ONE
     }
 
     isInteger() {
-        return this.#value.isInteger() && (this.#denominator === null)
+        return this._value.isInteger() && (this._denominator === null)
     }
 
-    get floatValue() {
-        const numValue = this.#value.toNumber()
-        if (this.#denominator === null) {
+    get floatValue():number {
+        const numValue = this._value.toNumber()
+        if (this._denominator === null) {
             return numValue
         }
-        return numValue / this.#denominator.toNumber()
+        return numValue / this._denominator.toNumber()
     }
 
-    plus(value) {
+    plus(value: Scalar|number|string): Scalar {
         if (!(value instanceof Scalar)) {
             // si value n'est pas un Scalar, on tente de le convertir
             // si la valeur n'est pas satisfaisante, le contructeurr lève une erreur
             value = new Scalar(value)
         }
-        if (this.#denominator === null && value.#denominator === null) {
+        if (this._denominator === null && value._denominator === null) {
             // cas simple
-            return new Scalar(this.#value.add(value.#value))
+            return new Scalar(this._value.add(value._value))
         }
         // cas avec dénominateurs
-        const deno = this.#getDenominator()
-        const valDeno = value.#getDenominator()
-        const numerator = this.#value.mul(valDeno).add(value.#value.mul(deno))
+        const deno = this._getDenominator()
+        const valDeno = value._getDenominator()
+        const numerator = this._value.mul(valDeno).add(value._value.mul(deno))
         const denominator = deno.mul(valDeno)
         return new Scalar(numerator, denominator)
     }
 
-    minus(value) {
+    minus(value: Scalar|number|string): Scalar {
         if (!(value instanceof Scalar)) {
             // si value n'est pas un Scalar, on tente de le convertir
             // si la valeur n'est pas satisfaisante, le contructeurr lève une erreur
@@ -259,57 +259,54 @@ class Scalar extends Base {
         return this.plus(value.opposite())
     }
 
-    pow(exponent) {
-        if (exponent instanceof Scalar) {
-            // si exponent n'est pas un Scalar, on tente de le convertir
-            exponent = exponent.toDecimal()
-        } else {
-            exponent = new Decimal(exponent)
-        }
-        const numerator = this.#value.pow(exponent)
-        const den = this.#denominator !== null ? this.#denominator.pow(exponent) : null
+    pow(exponent: Scalar|number|string): Scalar {
+        const _expo = exponent instanceof Scalar
+            ? exponent.toDecimal(undefined)
+            : new Decimal(exponent)
+        const numerator = this._value.pow(_expo)
+        const den = this._denominator !== null ? this._denominator.pow(_expo) : null
         return new Scalar(numerator, den)
     }
 
-    inverse() {
-        if (this.isNaN() || this.#value.isZero()) {
+    inverse():Scalar {
+        if (this.isNaN() || this._value.isZero()) {
             return Scalar.NAN
         }
-        const deno = this.#getDenominator()
-        return new Scalar(deno, this.#value)
+        const deno = this._getDenominator()
+        return new Scalar(deno, this._value)
     }
 
-    mult(value) {
+    mult(value: Scalar|number|string):Scalar {
         if (!(value instanceof Scalar)) {
             // si value n'est pas un Scalar, on tente de le convertir
             // si la valeur n'est pas satisfaisante, le contructeurr lève une erreur
             value = new Scalar(value)
         }
-        const newNumerator = this.#value.mul(value.#value)
-        if (this.#denominator === null && value.#denominator === null) {
+        const newNumerator = this._value.mul(value._value)
+        if (this._denominator === null && value._denominator === null) {
             // cas simple
             return new Scalar(newNumerator)
         }
         // cas avec dénominateurs
-        const deno = this.#getDenominator()
-        const valDeno = value.#getDenominator()
+        const deno = this._getDenominator()
+        const valDeno = value._getDenominator()
         const newDenominator = deno.mul(valDeno)
         return new Scalar(newNumerator, newDenominator)
     }
 
-    div(value) {
+    div(value: Scalar|number|string):Scalar {
         if (!(value instanceof Scalar)) {
             // si value n'est pas un Scalar, on tente de le convertir
             // si la valeur n'est pas satisfaisante, le contructeurr lève une erreur
             value = new Scalar(value)
         }
-        if (this.#denominator === null && value.#denominator === null) {
+        if (this._denominator === null && value._denominator === null) {
             // cas simple
-            return new Scalar(this.#value, value.#value)
+            return new Scalar(this._value, value._value)
         }
         // cas avec dénominateurs
-        const newNumerator = this.#value.mul(value.#getDenominator())
-        const newDenominator = this.#getDenominator().mul(value.#value)
+        const newNumerator = this._value.mul(value._getDenominator())
+        const newDenominator = this._getDenominator().mul(value._value)
         return new Scalar(newNumerator, newDenominator)
     }
 
@@ -317,47 +314,47 @@ class Scalar extends Base {
      * Renvoie vrai si == 1
      * @returns { boolean }
      */
-    isOne() {
-        return this.#value.equals(1) && (this.#denominator === null)
+    isOne(): boolean {
+        return this._value.equals(1) && (this._denominator === null)
     }
 
     /**
      * Renvoie vrai si == 1
      * @returns { boolean }
      */
-    isZero() {
-        return this.#value.equals(0)
+    isZero(): boolean {
+        return this._value.equals(0)
     }
 
     /**
      * renvoie true si c'est un NaN
      * @returns {boolean}
      */
-    isNaN() {
-        return this.#value.isNaN()
+    isNaN():boolean {
+        return this._value.isNaN()
     }
 
     /**
      * renvoie -this
      * @returns {Scalar}
      */
-    opposite() {
+    opposite(): Scalar {
         if (this.isNaN()) {
             return this
         }
-        return new Scalar(this.#value.negated(), this.#denominator)
+        return new Scalar(this._value.negated(), this._denominator)
     }
 
     /**
      * renvoie une représentation tex
      * @returns {string}
      */
-    toTex() {
-        const numerator = this.#value.toString().replace('.', ',')
-        if (this.#denominator === null) {
+    toTex():string {
+        const numerator = this._value.toString().replace('.', ',')
+        if (this._denominator === null) {
             return numerator;
         }
-        const denominator = this.#denominator.toString().replace('.', ',')
+        const denominator = this._denominator.toString().replace('.', ',')
         return `\\frac{${numerator}}{${denominator}}`
     }
 
@@ -366,42 +363,42 @@ class Scalar extends Base {
      * @param {object|undefined} values
      * @returns {Decimal}
      */
-    toDecimal(values) {
-        const numerator = this.#value
-        if (this.#denominator === null) {
+    toDecimal(values:Record<string, Decimal|string|number>|undefined):Decimal {
+        const numerator = this._value
+        if (this._denominator === null) {
             return numerator
         }
-        return numerator.div(this.#denominator)
+        return numerator.div(this._denominator)
     }
 
-    signature() {
+    signature():Signature {
         return new Signature()
     }
 
-    toFixed(n) {
-        return new Scalar(this.toDecimal().toFixed(n))
+    toFixed(n:number):Base {
+        return new Scalar(this.toDecimal(undefined).toFixed(n))
     }
 
-    toDict() {
-        if (this.#denominator === null) {
+    toDict():object {
+        if (this._denominator === null) {
             return {
                 type: "Scalar",
-                chaine: this.#chaine,
-                decimal: this.toDecimal(),
-                number: this.#value.toNumber()
+                chaine: this._chaine,
+                decimal: this.toDecimal(undefined),
+                number: this._value.toNumber()
             }
         }
         return {
             type: "Scalar",
-            chaine: this.#chaine,
-            decimal: this.toDecimal(),
-            numerator: this.#value.toNumber(),
-            denominator: this.#denominator.toNumber()
+            chaine: this._chaine,
+            decimal: this.toDecimal(undefined),
+            numerator: this._value.toNumber(),
+            denominator: this._denominator.toNumber()
         }
     }
 
     isPositive() {
-        return this.#value.isPositive()
+        return this._value.isPositive()
     }
 }
 

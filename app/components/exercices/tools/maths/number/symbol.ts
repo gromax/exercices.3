@@ -57,13 +57,15 @@ const GREEK_TO_TEX = {
 
 
 class Symbol extends Base {
-    #name; /** @type{string} */
-    static REGEX = new RegExp("[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*", 'i');
-    static #liste = {};
+    private _name:string /** @type{string} */
+    static readonly REGEX = new RegExp("[a-zA-Z_\\x7f-\\xff][a-zA-Z0-9_\\x7f-\\xff]*", 'i')
+    
+    // la liste permet de garantir l'unicité des Symbol
+    private static _liste:Record<string, Symbol> = {}
 
-    constructor(name) {
-        super();
-        this.#name = name;
+    private constructor(name:string) {
+        super()
+        this._name = name
     }
 
     /**
@@ -71,14 +73,14 @@ class Symbol extends Base {
      * @param {string} chaine 
      * @return {null, Symbol}
      */
-    static fromString(chaine) {
+    static fromString(chaine:string): Symbol | null {
         if (!Symbol.isSymbol(chaine)) {
             return null;
         }
-        if (typeof this.#liste[chaine] == 'undefined') {
-            this.#liste[chaine] = new Symbol(chaine);
+        if (typeof this._liste[chaine] == 'undefined') {
+            this._liste[chaine] = new Symbol(chaine);
         }
-        return this.#liste[chaine];
+        return this._liste[chaine];
     }
 
     /**
@@ -86,16 +88,20 @@ class Symbol extends Base {
      * @param {string} chaine 
      * @returns {boolean}
      */
-    static isSymbol(chaine) {
-        return Symbol.REGEX.test(chaine);
+    static isSymbol(chaine:string):boolean {
+        return Symbol.REGEX.test(chaine)
     }    
 
-    toString() {
-        return this.#name;
+    toString():string {
+        return this._name
     }
 
-    get priority() {
-        return 10;
+    get priority():number {
+        return 10
+    }
+
+    get scalarFactor():Scalar {
+        return Scalar.ONE
     }
 
     /**
@@ -104,22 +110,22 @@ class Symbol extends Base {
      * @param {string|undefined} name 
      * @returns {boolean|Array}
      */
-    isFunctionOf(name){
-        if (typeof name == 'undefined') {
-            return [this.#name];
+    isFunctionOf(name:string|undefined):boolean|Array<string> {
+        if (typeof name === 'undefined') {
+            return [this._name];
         }
-        return this.#name == name;
+        return this._name === name;
     }
 
     /**
      * renvoie une représentation tex
      * @returns {string}
      */
-    toTex() {
-        if (this.#name in GREEK_TO_TEX) {
-            return GREEK_TO_TEX[this.#name];
+    toTex():string {
+        if (this._name in GREEK_TO_TEX) {
+            return GREEK_TO_TEX[this._name];
         }
-        return this.#name;
+        return this._name;
     }
 
     /**
@@ -127,54 +133,40 @@ class Symbol extends Base {
      * @param {object|undefined} values
      * @returns {Decimal}
      */
-    toDecimal(values) {
-        let v = new Decimal(NaN);
-        if ((typeof values !== 'undefined') && (values[this.#name] !== 'undefined')) {
-            v = new Decimal(values[this.#name]);
-        }
-        return v;
+    toDecimal(values:Record<string, Decimal|string|number>):Decimal {
+        return ((typeof values !== 'undefined') && (values[this._name] !== 'undefined'))
+            ? new Decimal(values[this._name])
+            : new Decimal(NaN)
     }
 
-    signature() {
-        return new Signature({[this.#name]:1})
+    signature():Signature {
+        return new Signature({[this._name]:1})
     }
 
-    substituteVariable(varName, value) {
-        if (this.#name === varName) {
+    substituteVariable(varName:string, value:Base|string|Decimal|number):Base {
+        if (this._name === varName) {
             if (value instanceof Base) {
                 return value
             } else {
                 return new Scalar(value)
             }
         }
-        return this;
+        return this
     }
 
-    substituteVariables(values) {
-        if (this.#name in values) {
-            return this.substituteVariable(this.#name, values[this.#name])
+    substituteVariables(substitions:Record<string, Base|string|Decimal|number>):Base {
+        if (this._name in substitions) {
+            return this.substituteVariable(this._name, substitions[this._name])
         }
         return this
     }
 
-    toDict() {
+    toDict():object {
         return {
             type: "Symbol",
-            name: this.#name
+            name: this._name
         }
     }
 }
 
-function makeSymbol(name) {
-    return Symbol.fromString(name);
-}
-
-function isSymbol(name) {
-    return Symbol.isSymbol(name);
-}
-
-function isTypeSymbol(obj){
-    return obj instanceof Symbol;
-}
-
-export { makeSymbol, isSymbol, isTypeSymbol };
+export { Symbol }

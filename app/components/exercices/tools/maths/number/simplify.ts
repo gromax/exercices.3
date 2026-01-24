@@ -3,8 +3,8 @@ import { Mult } from './mult'
 import { Div } from './div'
 import { Power } from './power'
 import { Scalar } from './scalar'
-import { isTypeConstant, E } from './constant'
-import { isTypeSymbol } from './symbol'
+import { Constant, E } from './constant'
+import { Symbol } from './symbol'
 import { Base } from './base'
 import { Function } from './function'
 
@@ -13,9 +13,9 @@ import { Function } from './function'
  * @param {Base} node 
  * @returns {Base}
  */
-function opposite(node) {
-    if (typeof node.opposite === 'function') {
-        return node.opposite()
+function opposite(node:Base):Base {
+    if (typeof (node as any).opposite === 'function') {
+        return (node as any).opposite()
     }
     return simplify(new Function('(-)', node))
 }
@@ -25,10 +25,10 @@ function opposite(node) {
  * @param {Base} node 
  * @returns {Base}
  */
-function simplify(node) {
+function simplify(node:Base):Base {
     if (node instanceof Scalar
-        || isTypeConstant(node)
-        || isTypeSymbol(node)) {
+        || (node instanceof Constant)
+        || (node instanceof Symbol)) {
         return node
     }
 
@@ -53,10 +53,10 @@ function simplify(node) {
 
 /**
  * simplification d'une puissance
- * @param {Base} node
+ * @param {Power} node
  * @returns {Base}
  */
-function powerSimplify(node) {
+function powerSimplify(node:Power):Base {
     const base = node.base
     const exposant = node.exposant
     const sbase = simplify(base)
@@ -93,7 +93,7 @@ function powerSimplify(node) {
     return new Power(sbase, sexposant)
 }
 
-function functionSimplify(node) {
+function functionSimplify(node:Function):Base {
     const funcName = node.name
     const child = node.child
     const childSim = simplify(child)
@@ -101,8 +101,8 @@ function functionSimplify(node) {
         return childSim;
     }
     if (funcName === '(-)') {
-        if (typeof childSim.opposite === 'function') {
-            return childSim.opposite();
+        if (typeof (childSim as any).opposite === 'function') {
+            return (childSim as any).opposite();
         }
     }
     if (childSim instanceof Function && childSim.name == 'exp' && funcName == 'ln') {
@@ -124,7 +124,7 @@ function functionSimplify(node) {
         return simplify(new Div(Scalar.ONE, childSim))
     }
 
-    const d = childSim.toDecimal()
+    const d = childSim.toDecimal(undefined)
     if (funcName === 'sign') {
         if (d.isZero()) {
             return Scalar.ZERO
@@ -156,7 +156,7 @@ function functionSimplify(node) {
     return new Function(funcName, childSim)
 }
 
-function multSimplify(node) {
+function multSimplify(node:Mult):Base {
     const factors = node.children.map(f => simplify(f))
     const scalarsFactors = factors.filter(f => f instanceof Scalar);
     let scalarFactor = Scalar.ONE;
@@ -177,7 +177,7 @@ function multSimplify(node) {
     return Mult.fromList(nonScalarFactors)
 }
 
-function divSimplify(node) {
+function divSimplify(node:Div):Base {
     let leftSim = simplify(node.left)
     let rightSim = simplify(node.right)
     if (leftSim.isZero()) {
@@ -199,7 +199,7 @@ function divSimplify(node) {
     return new Div(leftSim, rightSim)
 }
 
-function addSimplify(node) {
+function addSimplify(node: AddMinus): Base {
     const childrenSim = node.children.map( c => simplify(c) )
     const currentPositive = node.positive
 
@@ -208,7 +208,7 @@ function addSimplify(node) {
     for (let i=0; i<childrenSim.length; i++) {
         const node = childrenSim[i]
         const p = currentPositive[i]
-        const sig = node.signature()
+        const sig = String(node.signature())
         if (typeof groups[sig] === 'undefined') {
             groups[sig] = {
                 items: [],
@@ -238,7 +238,7 @@ function addSimplify(node) {
  * @param {Array<boolean>} positive 
  * @returns {[Base,boolean]}
  */
-function _regroupeSameSignatur(items, positive){
+function _regroupeSameSignatur(items:Array<Base>, positive:Array<boolean>):[Base,boolean] {
     if (items.length != positive.length) {
         throw new Error("items et positive doivent avoir même taille.")
     }
@@ -249,10 +249,7 @@ function _regroupeSameSignatur(items, positive){
         return [items[0], positive[0]]
     }
     // Il y a plusieurs termes avec même signature qu'il faut contracter
-    const scalars = items.map(n => {
-        const f = n.scalarFactor
-        return f === 1 ? Scalar.ONE : f
-    })
+    const scalars = items.map(n => n.scalarFactor)
     let scalar = Scalar.ZERO
     for (let i=0; i<scalars.length; i++) {
         if (positive[i]) {
@@ -265,16 +262,14 @@ function _regroupeSameSignatur(items, positive){
     return [simplify(Mult.mult(scalar, w)), true]
 }
 
-
-
-function decimalize(node) {
-    const d = node.toDecimal()
+function decimalize(node:Base):Base {
+    const d = node.toDecimal(undefined)
     if (!d.isNaN()) {
         return new Scalar(d)
     }
     if (node instanceof AddMinus) {
-        const children = node.children.map( decimalize )
-        return simplify( AddMinus.fromList(children, node.positive) )
+        const children = node.children.map(decimalize)
+        return simplify(AddMinus.fromList(children, node.positive))
     }
     if (node instanceof Function) {
         const newChild = decimalize(node.child)
@@ -282,8 +277,8 @@ function decimalize(node) {
     }
 
     if (node instanceof Mult) {
-        const children = node.children.map( decimalize )
-        return simplify( Mult.fromList(children) )
+        const children = node.children.map(decimalize)
+        return simplify(Mult.fromList(children))
     }
 
     if (node instanceof Div) {

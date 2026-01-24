@@ -3,12 +3,12 @@
  * @description Represents the signature of a mathematical expression.
  */
 class Signature {
-    #nodes /** @type{{text: number}} */
-    constructor(nodes = {}) {
-        this.#nodes = nodes
-        for (let key in this.#nodes) {
-            if (this.#nodes[key] === 0) {
-                delete this.#nodes[key]
+    private _nodes:Record<string, number> /** @type{{text: number}} */
+    constructor(nodes:Record<string, number> = {}) {
+        this._nodes = nodes
+        for (let key in this._nodes) {
+            if (this._nodes[key] === 0) {
+                delete this._nodes[key]
             }
         }
     }
@@ -18,10 +18,10 @@ class Signature {
      * @param {Signature|{text: number}} signature 
      * @returns {Signature}
      */
-    mult(signature) {
-        const nodes = {... this.#nodes}
+    mult(signature:Signature|Record<string, number>):Signature {
+        const nodes = {... this._nodes}
         const multNode = signature instanceof Signature
-            ? signature.#nodes
+            ? signature._nodes
             : signature
         for (let key in multNode) {
             if (nodes[key]) {
@@ -38,10 +38,10 @@ class Signature {
      * @param {Signature|{text: number}} signature 
      * @returns {Signature}
      */
-    div(signature) {
-        const nodes = {... this.#nodes}
+    div(signature:Signature|Record<string, number>):Signature {
+        const nodes = {... this._nodes}
         const divNode = signature instanceof Signature
-            ? signature.#nodes
+            ? signature._nodes
             : signature
         for (let key in divNode) {
             if (nodes[key]) {
@@ -54,8 +54,8 @@ class Signature {
     }
 
 
-    power(exponent) {
-        const nodes = {... this.#nodes}
+    power(exponent: number):Signature {
+        const nodes = {... this._nodes}
         for (let key in nodes) {
             nodes[key] *= exponent
         }
@@ -67,11 +67,11 @@ class Signature {
      * standardisée pour permettre les comparaisons
      * @returns {string}
      */
-    toString() {
-        const parts = []
-        const keys = Object.keys(this.#nodes).sort()
+    toString():string {
+        const parts:Array<string> = []
+        const keys = Object.keys(this._nodes).sort()
         for (let key of keys) {
-            const exponent = this.#nodes[key]
+            const exponent = this._nodes[key]
             parts.push(`(${key})^${exponent}`)
         }
         return parts.join('*')
