@@ -1,27 +1,30 @@
+import _ from 'underscore'
 import MyMath from '../mymath'
+
+type InputType = string | number | MyMath
+
 class Alea {
-    static NAME = 'Alea'
-    static METHODS = {
+    static readonly NAME = 'Alea'
+    static readonly METHODS = {
         'entier': Alea.entier,
         'signe': Alea.signe,
         'lagrangePolynome': Alea.lagrangePolynome,
-        'binomial': Alea.binomial,
-        'binomialList': Alea.binomialList,
         'choice': Alea.choice
     };
-    static entier(min, max) {
+
+    static entier(min:InputType, max:InputType):number {
         const a = MyMath.toNumber(min);
         const b = MyMath.toNumber(max);
-        min = Math.min(a, b);
-        max = Math.max(a, b);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
+        const _min = Math.min(a, b);
+        const _max = Math.max(a, b);
+        return Math.floor(Math.random() * (_max - _min + 1)) + _min;
     }
 
-    static signe() {
+    static signe():number {
         return Math.random() < 0.5 ? -1 : 1;
     }
 
-    static choice(tab) {
+    static choice<T>(tab:Array<T>):T {
         if (!Array.isArray(tab) || tab.length === 0) {
             throw new Error("Paramètre invalide pour Alea.choice");
         }
@@ -29,29 +32,35 @@ class Alea {
         return tab[index];
     }
 
-    static lagrangePolynome(xmin, ymin, xmax, ymax, n) {
-        xmin = MyMath.toNumber(xmin);
-        ymin = MyMath.toNumber(ymin);
-        xmax = MyMath.toNumber(xmax);
-        ymax = MyMath.toNumber(ymax);
-        n = MyMath.toNumber(n);
-        if (isNaN(xmin) || isNaN(ymin) || isNaN(xmax) || isNaN(ymax) || isNaN(n) || n < 0) {
-            throw new Error("Paramètres invalides pour Alea.laplacePolynome");
+    static lagrangePolynome(
+        xmin:InputType,
+        ymin:InputType,
+        xmax:InputType,
+        ymax:InputType,
+        n:InputType
+    ):string {
+        const _xmin = MyMath.toNumber(xmin);
+        const _ymin = MyMath.toNumber(ymin);
+        const _xmax = MyMath.toNumber(xmax);
+        const _ymax = MyMath.toNumber(ymax);
+        const _n = MyMath.toNumber(n);
+        if (isNaN(_xmin) || isNaN(_ymin) || isNaN(_xmax) || isNaN(_ymax) || isNaN(_n) || _n < 0) {
+            throw new Error("Paramètres invalides pour Alea.lagrangePolynome");
         }
         const xvalues = [];
-        while (xvalues.length < n+1) {
-            const x = Math.floor(Math.random()*(xmax-xmin+1))+xmin;
+        while (xvalues.length < _n+1) {
+            const x = Math.floor(Math.random()*(_xmax-_xmin+1)) + _xmin;
             if (!xvalues.includes(x)) {
                 xvalues.push(x);
             }
         }
-        const yvalues = [];
-        for (let i=0; i<n+1; i++) {
-            const y = Math.floor(Math.random()*(ymax-ymin+1))+ymin;
+        const yvalues:Array<number> = [];
+        for (let i=0; i<_n+1; i++) {
+            const y = Math.floor(Math.random()*(_ymax-_ymin+1))+_ymin;
             yvalues.push(y);
         }
         let expression = "0";
-        for (let i=0; i<=n; i++) {
+        for (let i=0; i<=_n; i++) {
             // on exprime un produit de (x - xj), j != i
             const monomes = _.reduce(xvalues, (acc, xj, j) => {
                 if (j != i) {

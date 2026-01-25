@@ -1,12 +1,13 @@
 import MyMath from "../mymath"
 
+type InputType = string | number | MyMath
+
 class Tkztab {
-    static NAME = 'Tkztab';
-    static METHODS = {
+    static readonly NAME = 'Tkztab';
+    static readonly METHODS = {
         'sign': Tkztab.sign,
         'ensemble': Tkztab.ensemble
     }
-
 
     /**
      * renvoie la ligne de signes correspondant à l'expression et bornes
@@ -14,12 +15,12 @@ class Tkztab {
      * @param {Array} bornes 
      * @returns {String} ligne de signes
      */
-    static sign(expr, bornes) {
+    static sign(expr:InputType, bornes:Array<InputType>): string {
         const f = MyMath.make(expr)
         if (bornes.length < 2) {
             throw new Error("Tkztab.sign nécessite au moins deux bornes.")
         }
-        bornes = bornes.map(b => (typeof b === 'number' ? b : MyMath.make(b).toFloat())).sort((a, b) => a - b)
+        const f_bornes = bornes.map(MyMath.toFloat).sort((a, b) => a - b)
         const variables = f.variables
         const n = bornes.length
         if (variables.length == 0) {
@@ -27,9 +28,9 @@ class Tkztab {
             const value = f.toFloat()
             const schar = value > 0 ? '+' : (value < 0 ? '-' : '0')
             const ssep = value === 0 ? 'z' : 't'
-            const line = Array.from({ length: 2*n-1 }, (_, i) => i%2==0 ? ssep : schar)
+            const line:Array<string> = Array.from({ length: 2*n-1 }, (_, i) => i%2==0 ? ssep : schar)
             for (let i = 0; i < n; i++) {
-                if (Math.abs(bornes[i]) === Infinity) {
+                if (Math.abs(f_bornes[i]) === Infinity) {
                     line[2*i] = ''
                 }
             }
@@ -46,9 +47,9 @@ class Tkztab {
                 return NaN
             }
         })
-        const line = Array.from({ length: 2*n-1 }, (_, i) => i%2==0 ? 't' : '+')
+        const line:Array<string> = Array.from({ length: 2*n-1 }, (_, i) => i%2==0 ? 't' : '+')
         for (let i = 0; i < n; i++) {
-            if (Math.abs(bornes[i]) === Infinity) {
+            if (Math.abs(f_bornes[i]) === Infinity) {
                 line[2*i] = ''
             } else if (values[i] == 0) {
                 line[2*i] = 'z'
@@ -57,23 +58,23 @@ class Tkztab {
             }
         }
         // cas particulier de -Infinity, +Infinity
-        if (bornes.length == 2 && bornes[0] === -Infinity && bornes[1] === Infinity) {
+        if (f_bornes.length == 2 && f_bornes[0] === -Infinity && f_bornes[1] === Infinity) {
             // On peut calculer le signe en 0
             const value0 = f.sub(varName, 0).toFloat()
             line[1] = value0 > 0 ? '+' : (value0 < 0 ? '-' : '0')
             return line.join(',')
         }
         // sinon si on -infini à gauche on fait comme si c'était le suivant -10
-        if (bornes[0] === -Infinity) {
-            bornes[0] = bornes[1] - 10
+        if (f_bornes[0] === -Infinity) {
+            f_bornes[0] = f_bornes[1] - 10
         }
         // idem pour +infini
-        if (bornes[n-1] === Infinity) {
-            bornes[n-1] = bornes[n-2] + 10
+        if (f_bornes[n-1] === Infinity) {
+            f_bornes[n-1] = f_bornes[n-2] + 10
         }
         // mainteant on peut utiliser les centres de chaque intervalle
         for (let i = 0; i < n-1; i++) {
-            const mid = (bornes[i] + bornes[i+1]) / 2
+            const mid = (f_bornes[i] + f_bornes[i+1]) / 2
             const valueMid = f.sub(varName, mid).toFloat()
             line[2*i + 1] = valueMid > 0 ? '+' : (valueMid < 0 ? '-' : '0')
         }
@@ -87,7 +88,7 @@ class Tkztab {
      * @param {Array} bornes 
      * @param {string} asked signe, 'p' (positif), 'n' (négatif), 'p0' (pos ou nul), 'n0' (neg ou nul)
      */
-    static ensemble(expr, bornes, asked) {
+    static ensemble(expr:InputType, bornes:Array<InputType>, asked:string): string {
         if (!['p', 'n', 'p0', 'n0'].includes(asked)) {
             throw new Error(`Tkztab.ensemble asked parameter invalide: asked=${asked}`)
         }

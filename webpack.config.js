@@ -105,6 +105,7 @@ const webpackCommon = {
       '@mathstools': path.resolve(__dirname, 'app/components/exercices/tools/maths'),
       '@styles': path.resolve(__dirname, 'app/styles'),
       '@common': path.resolve(__dirname, 'app/components/common'),
+      '@types': path.resolve(__dirname, 'app/components/types'),
       '@templates': path.resolve(__dirname, 'app/templates'),
       'jsxgraph/distrib/jsxgraph.css': require('path').resolve(__dirname, 'node_modules/jsxgraph/distrib/jsxgraph.css')
       // Ajoute d'autres alias si besoin

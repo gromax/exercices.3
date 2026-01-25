@@ -15,13 +15,16 @@
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "types": ["jquery", "underscore"],
+    "typeRoots": ["./app/types", "./node_modules/@types"],
     "baseUrl": "./app",
     "paths": {
       "@components/*": ["components/*"],
       "@entities/*": ["components/entities/*"],
       "@mathstools/*": ["components/exercices/tools/maths/*"],
       "@styles/*": ["styles/*"],
-      "@common/*": ["components/common/*"]
+      "@common/*": ["components/common/*"],
+      "@types": ["components/types"],
+      "@types/*": ["components/types/*"]
     }
   },
   "include": ["app/**/*.ts", "app/**/*.tsx"],

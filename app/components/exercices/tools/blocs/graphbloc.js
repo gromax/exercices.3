@@ -1,6 +1,6 @@
 import Bloc from "./bloc.js";
 import GraphView from "../blocsviews/graphview";
-import MyMath from "../maths/mymath.js";
+import MyMath from "../maths/mymath";
 import Colors from "../colors.js";
 
 class GraphBloc extends Bloc {

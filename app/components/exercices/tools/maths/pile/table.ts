@@ -1,8 +1,10 @@
 import MyMath from "../mymath"
 
+type InputType = string | number | MyMath
+
 class Table {
-    static NAME = 'Table';
-    static METHODS = {
+    static readonly NAME = 'Table';
+    static readonly METHODS = {
         'indice': Table.indice,
         'indices': Table.indices,
         'sortFreqs': Table.sortFreqs,
@@ -27,14 +29,14 @@ class Table {
         'sort': Table.sort,
     }
 
-    static numberArray(arr) {
+    static numberArray(arr:Array<InputType>):Array<number> {
         if (!Array.isArray(arr)) {
             throw new Error(`L'argument de Table.numberArray doit être un tableau.`);
         }
         return arr.map(v => MyMath.parseFloat(v));
     }
 
-    static stringArray(arr) {
+    static stringArray(arr:Array<any>):Array<string> {
         if (!Array.isArray(arr)) {
             throw new Error(`L'argument de Table.stringArray doit être un tableau.`)
         }
@@ -42,14 +44,14 @@ class Table {
     }
 
 
-    static indice(val, arr) {
+    static indice(val:any, arr:Array<any>):number {
         if (!Array.isArray(arr)) {
             throw new Error(`Le second argument de Table.indice doit être un tableau.`);
         }
         return arr.map(v => String(v)).indexOf(String(val))
     }
 
-    static indices(val, arr) {
+    static indices(val:any, arr:Array<any>):Array<number> {
         if (!Array.isArray(arr)) {
             throw new Error(`Le second argument de Table.indices doit être un tableau.`);
         }
@@ -68,7 +70,7 @@ class Table {
      * @param {Array} arr 
      * @return {Array<Array,Array>} [valeurs, effectifs]
      */
-    static sortFreqs(arr) {
+    static sortFreqs(arr:Array<InputType>):[Array<number>, Array<number>] {
         if (!Array.isArray(arr)) {
             throw new Error(`L'argument de Table.sortFreqs doit être un tableau.`);
         }
@@ -95,7 +97,7 @@ class Table {
      * @param {Array} values 
      * @param {Array} effectifs 
      */
-    static toBrut(values, effectifs) {
+    static toBrut(values:Array<any>, effectifs:Array<InputType>):Array<any> {
         if (!Array.isArray(values) || !Array.isArray(effectifs)) {
             throw new Error(`Les arguments de Table.toBrut doivent être des tableaux.`);
         }
@@ -103,110 +105,110 @@ class Table {
             throw new Error(`Les tableaux passés à Table.toBrut doivent avoir la même taille.`);
         }
         const result = []
-        effectifs = Table.numberArray(effectifs)
+        const f_effectifs = Table.numberArray(effectifs)
         for (let i = 0; i < values.length; i++) {
-            for (let j = 0; j < effectifs[i]; j++) {
+            for (let j = 0; j < f_effectifs[i]; j++) {
                 result.push(values[i])
             }
         }
         return result
     }
 
-    static size(arr) {
+    static size(arr:Array<any>):number {
         if (!Array.isArray(arr)) {
             throw new Error(`L'argument de Table.size doit être un tableau.`);
         }
         return arr.length
     }
 
-    static sum(arr) {
+    static sum(arr:Array<InputType>):number {
         if (!Array.isArray(arr)) {
             throw new Error(`L'argument de Table.sum doit être un tableau.`)
         }
-        arr = Table.numberArray(arr)
-        return arr.reduce((acc, val) => acc + val, 0)
+        const f_arr = Table.numberArray(arr)
+        return f_arr.reduce((acc, val) => acc + val, 0)
     }
 
-    static product(arr1, arr2) {
+    static product(arr1:Array<InputType>, arr2:Array<InputType>):Array<number> {
         if (!Array.isArray(arr1) || !Array.isArray(arr2)) {
             throw new Error(`Les arguments de Table.product doivent être des tableaux.`);
         }
         if (arr1.length !== arr2.length) {
             throw new Error(`Les tableaux passés à Table.product doivent avoir la même taille.`);
         }
-        arr1 = Table.numberArray(arr1)
-        arr2 = Table.numberArray(arr2)
-        return arr1.map((val, index) => val * arr2[index])
+        const f_arr1 = Table.numberArray(arr1)
+        const f_arr2 = Table.numberArray(arr2)
+        return f_arr1.map((val, index) => val * f_arr2[index])
     }
 
-    static average(values) {
+    static average(values:Array<InputType>):number {
         if (!Array.isArray(values)) {
             throw new Error(`L'argument de Table.average doit être un tableau.`)
         }
         if (values.length === 0) {
             throw new Error(`Le tableau passé à Table.average est vide.`)
         }
-        values = Table.numberArray(values)
-        return Table.sum(values) / values.length
+        const f_values = Table.numberArray(values)
+        return Table.sum(f_values) / f_values.length
     }
 
-    static average2(values, effectifs) {
+    static average2(values:Array<InputType>, effectifs:Array<InputType>):number {
         if (!Array.isArray(values) || !Array.isArray(effectifs)) {
             throw new Error(`Les arguments de Table.average doivent être des tableaux.`)
         }
         if (values.length !== effectifs.length) {
             throw new Error(`Les tableaux passés à Table.average doivent avoir la même taille.`)
         }
-        values = Table.numberArray(values)
-        effectifs = Table.numberArray(effectifs)
-        const N = Table.sum(effectifs)
+        const f_values = Table.numberArray(values)
+        const f_effectifs = Table.numberArray(effectifs)
+        const N = Table.sum(f_effectifs)
         if (N === 0) {
             throw new Error(`La somme des effectifs est nulle dans Table.average.`)
         }
-        return Table.sum(Table.product(values, effectifs)) / N
+        return Table.sum(Table.product(f_values, f_effectifs)) / N
     }
 
-    static covariance(values1, values2) {
+    static covariance(values1:Array<InputType>, values2:Array<InputType>):number {
         if (!Array.isArray(values1) || !Array.isArray(values2)) {
             throw new Error(`Les arguments de Table.covariance doivent être des tableaux.`);
         }
         if (values1.length !== values2.length) {
             throw new Error(`Les tableaux passés à Table.covariance doivent avoir la même taille.`);
         }
-        values1 = Table.numberArray(values1)
-        values2 = Table.numberArray(values2)
-        const m1 = Table.average(values1)
-        const m2 = Table.average(values2)
+        const f_values1 = Table.numberArray(values1)
+        const f_values2 = Table.numberArray(values2)
+        const m1 = Table.average(f_values1)
+        const m2 = Table.average(f_values2)
         let cov = 0;
-        for (let i = 0; i < values1.length; i++) {
-            cov += (values1[i] - m1) * (values2[i] - m2)
+        for (let i = 0; i < f_values1.length; i++) {
+            cov += (f_values1[i] - m1) * (f_values2[i] - m2)
         }
-        return cov / values1.length
+        return cov / f_values1.length
     }
 
-    static variance(values) {
-        values = Table.numberArray(values)
-        const m = Table.average(values)
-        const squaredDiffs = values.map((val) => (val - m) ** 2)
+    static variance(values:Array<InputType>):number {
+        const f_values = Table.numberArray(values)
+        const m = Table.average(f_values)
+        const squaredDiffs = f_values.map((val) => (val - m) ** 2)
         return Table.average(squaredDiffs)
     }
 
-    static std(values) {
+    static std(values:Array<InputType>):number {
         return Math.sqrt(Table.variance(values));
     }
 
-    static variance2(values, effectifs) {
-        values = Table.numberArray(values)
+    static variance2(values:Array<InputType>, effectifs:Array<InputType>):number {
+        const f_values = Table.numberArray(values)
         const m = Table.average2(values, effectifs);
-        const squaredDiffs = values.map((val) => (val - m) ** 2)
+        const squaredDiffs = f_values.map((val) => (val - m) ** 2)
         return Table.average2(squaredDiffs, effectifs);
     }
 
-    static std2(values, effectifs) {
+    static std2(values:Array<InputType>, effectifs:Array<InputType>):number {
         return Math.sqrt(Table.variance2(values, effectifs));
     }
 
-    static mediane2(values, effectifs) {
+    static mediane2(values:Array<InputType>, effectifs:Array<InputType>):number {
         if (!Array.isArray(values) || !Array.isArray(effectifs)) {
             throw new Error(`Les arguments de Table.mediane doivent être des tableaux.`);
         }
@@ -217,31 +219,31 @@ class Table {
         if (N === 0) {
             throw new Error(`La somme des effectifs est nulle dans Table.mediane.`);
         }
-        values = Table.numberArray(values)
-        effectifs = Table.numberArray(effectifs)
+        const f_values = Table.numberArray(values)
+        const f_effectifs = Table.numberArray(effectifs)
         let cumulative = 0;
-        for (let i = 0; i < effectifs.length; i++) {
-            cumulative += effectifs[i]
+        for (let i = 0; i < f_effectifs.length; i++) {
+            cumulative += f_effectifs[i]
             if (2*cumulative == N) {
-                return (values[i]+values[i+1])/2
+                return (f_values[i]+f_values[i+1])/2
             }
             if (2*cumulative > N) {
-                return values[i]
+                return f_values[i]
             }
         }
     }
 
-    static max(values) {
-        values = Table.numberArray(values)
-        return Math.max(...values);
+    static max(values:Array<InputType>):number {
+        const f_values = Table.numberArray(values)
+        return Math.max(...f_values);
     }
 
-    static min(values) {
-        values = Table.numberArray(values)
-        return Math.min(...values);
+    static min(values:Array<InputType>):number {
+        const f_values = Table.numberArray(values)
+        return Math.min(...f_values);
     }
 
-    static quantile2(values, effectifs, q) {
+    static quantile2(values:Array<InputType>, effectifs:Array<InputType>, q:number):number {
         if (!Array.isArray(values) || !Array.isArray(effectifs)) {
             throw new Error(`Les arguments de Table.quantile doivent être des tableaux.`);
         }
@@ -252,41 +254,40 @@ class Table {
         if (N === 0) {
             throw new Error(`La somme des effectifs est nulle dans Table.quantile.`)
         }
-        values = Table.numberArray(values)
-        effectifs = Table.numberArray(effectifs)
+        const f_values = Table.numberArray(values)
+        const f_effectifs = Table.numberArray(effectifs)
         let cumulative = 0
-        for (let i = 0; i < effectifs.length; i++) {
-            cumulative += effectifs[i];
+        for (let i = 0; i < f_effectifs.length; i++) {
+            cumulative += f_effectifs[i];
             if (cumulative >= q * N) {
-                return values[i]
+                return f_values[i]
             }
         }
     }
 
     /**
      * Renvoie l'effectif des individus ayant une valeur
-     * <= value
+     * inférieure ou égale à value
      * @param {Array} values 
      * @param {Array} effectifs 
      * @param {number} value 
      * @returns 
      */
-    static ECC2(values, effectifs, value) {
+    static ECC2(values:Array<InputType>, effectifs:Array<InputType>, value:InputType):number {
         if (!Array.isArray(values) || !Array.isArray(effectifs)) {
             throw new Error(`Les arguments de Table.quantile doivent être des tableaux.`)
         }
         if (values.length !== effectifs.length) {
             throw new Error(`Les tableaux passés à Table.quantile doivent avoir la même taille.`)
         }
-        value = MyMath.parseFloat(value)
-        values = Table.numberArray(values)
-        effectifs = Table.numberArray(effectifs)
+        const f_value = MyMath.parseFloat(value)
+        const f_values = Table.numberArray(values)
+        const f_effectifs = Table.numberArray(effectifs)
         let cumulative = 0
-        for (let i = 0; i < effectifs.length; i++) {
-            if (values[i] > value) {
-                return cumulative
+        for (let i = 0; i < f_effectifs.length; i++) {
+            if (f_values[i] <= f_value) {
+                cumulative += f_effectifs[i]
             }
-            cumulative += effectifs[i]
         }
         return cumulative
     }
@@ -297,15 +298,15 @@ class Table {
      * @param {string} operator parmi ==, !=, <, <=, >, >=
      * @param {*} value 
      */
-    static filter(values, operator, value) {
+    static filter(values:Array<InputType>, operator:string, value: InputType):Array<InputType> {
         if (!Array.isArray(values)) {
             throw new Error(`Les arguments de Table.filter doivent être des tableaux.`)
         }
-        value = MyMath.parseFloat(value)
+        const f_value = MyMath.parseFloat(value)
         if (!['==', '!=', '<', '<=', '>', '>='].includes(operator)) {
             throw new Error(`L'opérateur ${operator} passé à Table.filter est invalide.`)
         }
-        return values.filter((val) => MyMath.compare(val, value, operator))
+        return values.filter((val) => MyMath.compare(val, f_value, operator))
     }
 
     /**
@@ -313,11 +314,15 @@ class Table {
      * @param {Array} values
      * @return {Array} valeurs triées
      */
-    static sort(values) {
+    static sort(values:Array<InputType>):Array<InputType> {
         if (!Array.isArray(values)) {
             throw new Error(`L'argument de Table.sort doit être un tableau.`)
         }
-        return [...values].sort((a, b) => MyMath.parseFloat(a) - MyMath.parseFloat(b))
+        // pour éviter de calculer à chaque comparaison le parse des valeurs
+        // je les calcule une fois pour toutes puis je trie en utilisant ces valeurs
+        const couples = values.map((val) => [val, MyMath.parseFloat(val)])
+        couples.sort((a, b) => (a[1] as number) - (b[1] as number))
+        return couples.map((c) => c[0])
     }
 }
 
