@@ -6,6 +6,8 @@ import Str from './str'
 import Tkztab from './tkztab'
 import MyMath from '../mymath';
 import { getValue, substituteLabels, substituteParams } from '../misc/substitution';
+import { NestedArray } from '@components/types'
+type InputType = string | number | MyMath
 
 const MODULES = {
     'Alea': Alea,
@@ -16,7 +18,7 @@ const MODULES = {
     'Tkztab': Tkztab,
 };
 
-function _tryAsPile(expression, params) {
+function _tryAsPile(expression:string, params:Record<string, InputType>):null|InputType {
     let expr = expression.trim();
     if (! /^<P:.*>$/.test(expr)) {
         return null;
@@ -30,7 +32,7 @@ function _tryAsPile(expression, params) {
     return _executePile(pile);
 }
 
-function _executePile(pile) {
+function _executePile(pile:Array<string>):InputType {
     const operandes = [];
     pile.reverse();
     if (pile.length === 0) return null;
@@ -80,7 +82,7 @@ function _executePile(pile) {
  * @param {object} params 
  * @returns 
  */
-function evaluate(expression, params) {
+function evaluate(expression:NestedArray<InputType>, params:Record<string, InputType>):NestedArray<InputType> {
     if (typeof expression === 'string') {
         const pileResult = _tryAsPile(expression, params)
         if (pileResult !== null) {
@@ -101,7 +103,7 @@ function evaluate(expression, params) {
 
     }
     if (Array.isArray(expression)) {
-        return expression.map(expr => MyMath.make(expr))
+        return expression.map(expr => evaluate(expr, params))
     }
     return MyMath.make(expression)
 }

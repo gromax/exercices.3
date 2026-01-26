@@ -522,8 +522,9 @@ class MyMath {
         return new MyMath({ nerdamer: this._getNerdamerProcessed().expand() })
     }
 
-    sub(varName:string, value:any):MyMath {
-        return new MyMath({ nerdamer: this._getNerdamerProcessed().sub(varName, String(value)) })
+    sub(varName:string, value:AcceptedInput):MyMath {
+        const valueStr = MyMath.normalization(MyMath.make(value).toString());
+        return new MyMath({ nerdamer: this._getNerdamerProcessed().sub(varName, valueStr) })
     }
 
     diff():MyMath {

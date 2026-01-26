@@ -1,8 +1,12 @@
 import MyMath from '../mymath';
+import { NestedArray } from '@components/types';
+
+type InputType = string | number | MyMath
+
 
 class Calc {
-    static NAME = 'Calc'
-    static METHODS = {
+    static readonly NAME = 'Calc'
+    static readonly METHODS = {
         'mult': Calc.mult,
         'divide': Calc.divide,
         'add': Calc.add,
@@ -20,7 +24,7 @@ class Calc {
         'min': Calc.min,
         'simplify': Calc.simplify
     }
-    static SHORTCUTS = {
+    static readonly SHORTCUTS = {
         'abs': 'Calc.abs',
         '*': 'Calc.mult',
         '+': 'Calc.add',
@@ -38,7 +42,7 @@ class Calc {
         'min': 'Calc.min',
         'simplify': 'Calc.simplify'
     }
-    static mult(x, y) {
+    static mult(x: InputType, y: InputType): InputType {
         if ((typeof x === 'number') && (typeof y === 'number')) {
             return x * y
         }
@@ -48,14 +52,14 @@ class Calc {
         return MyMath.make(`(${String(x)})*(${String(y)})`)
     }
 
-    static divide(x, y) {
+    static divide(x: InputType, y: InputType): string|MyMath {
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `(${x})/(${y})`
         }
         return MyMath.make(`(${String(x)})/(${String(y)})`)
     }
 
-    static add(x, y) {
+    static add(x: InputType, y: InputType): InputType {
         if ((typeof x === 'number') && (typeof y === 'number')) {
             return x - y
         }
@@ -65,7 +69,7 @@ class Calc {
         return MyMath.make(`(${String(x)})+(${String(y)})`)
     }
 
-    static sub(x, y) {
+    static sub(x: InputType, y: InputType): InputType {
         if ((typeof x === 'number') && (typeof y === 'number')) {
             return x - y
         }
@@ -74,17 +78,17 @@ class Calc {
         }
         return MyMath.make(`(${String(x)})-(${String(y)})`)    }
 
-    static abs(x) {
+    static abs(x: InputType): InputType {
         if (typeof x === 'number') {
             return Math.abs(x)
         }
-        if ((typeof x === 'string') && (typeof y === 'string')) {
+        if (typeof x === 'string') {
             return `abs(${x})`
         }
         return MyMath.make(`abs(${String(x)})`)
     }
 
-    static sign(x) {
+    static sign(x: InputType): number|string {
         const a = MyMath.toNumber(x);
         if (isNaN(a)) {
             return `sign(${String(x)})`;
@@ -92,17 +96,17 @@ class Calc {
         return Math.sign(a);
     }
 
-    static exp(x) {
+    static exp(x: InputType): InputType {
         if (typeof x === 'number') {
             return Math.exp(x)
         }
-        if ((typeof x === 'string') && (typeof y === 'string')) {
+        if (typeof x === 'string') {
             return `exp(${x})`
         }
         return MyMath.make(`exp(${String(x)})`)
     }
 
-    static round(x, n) {
+    static round(x: InputType, n: InputType):string|number {
         const a = MyMath.toNumber(x)
         const digits = MyMath.toInteger(n)
         if (isNaN(a)) {
@@ -123,7 +127,7 @@ class Calc {
      * @param {string} name nom de la variable
      * @param {string|number|array} value 
      */
-    static substitute(expr, name, value) {
+    static substitute(expr:InputType, name:string, value:NestedArray<InputType>):NestedArray<string> {
         if (Array.isArray(value)) {
             return value.map(v => Calc.substitute(expr, name, v));
         }
@@ -131,7 +135,7 @@ class Calc {
     }
 
     /** Développe l'expression */
-    static expand(expr) {
+    static expand(expr:InputType):string {
         return MyMath.make(expr).expand().toString();
     }
 
@@ -142,7 +146,7 @@ class Calc {
      * @param {string} varName 
      * @returns {array} liste des solutions
      */
-    static solve(exprLeft, exprRight, varName) {
+    static solve(exprLeft:string, exprRight:string, varName:string):Array<string> {
         return MyMath.solveInR(exprLeft, exprRight, varName);
     }
 
@@ -151,7 +155,7 @@ class Calc {
      * @param {string} expression 
      * @returns 
      */
-    static float(expression) {
+    static float(expression:NestedArray<InputType>):NestedArray<number> {
         if (Array.isArray(expression)) {
             return expression.map(expr => Calc.float(expr));
         }
@@ -168,7 +172,7 @@ class Calc {
      * @param {string|MyMath} expression 
      * @returns 
      */
-    static diff(expression) {
+    static diff(expression:InputType):string {
         return MyMath.make(expression).diff().toString();
     }
 
@@ -177,7 +181,7 @@ class Calc {
      * @param {*} x 
      * @param {*} y 
      */
-    static max(x, y) {
+    static max(x:InputType, y:InputType):InputType {
         if (MyMath.make(x).toFloat() > MyMath.make(y).toFloat()) {
             return x
         } else {
@@ -190,7 +194,7 @@ class Calc {
      * @param {*} x 
      * @param {*} y 
      */
-    static min(x, y) {
+    static min(x:InputType, y:InputType):InputType {
         if (MyMath.make(x).toFloat() < MyMath.make(y).toFloat()) {
             return x
         } else {
@@ -198,7 +202,7 @@ class Calc {
         }
     }
 
-    static simplify(x) {
+    static simplify(x:InputType):number|MyMath {
         if (typeof x === 'number') {
             return x
         }
