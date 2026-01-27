@@ -426,7 +426,7 @@ class MyMath {
      * @param {string} dot caractère utilisé pour le séparateur décimal
      * @returns {string}
      */
-    toFixed(n:null, dot:string = '.'):string {
+    toFixed(n:number, dot:string = '.'):string {
         if (dot === '.') {
             return this._getMyNumber().toDecimal(undefined).toFixed(n)
         }

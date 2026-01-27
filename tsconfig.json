@@ -23,6 +23,7 @@
       "@mathstools/*": ["components/exercices/tools/maths/*"],
       "@styles/*": ["styles/*"],
       "@common/*": ["components/common/*"],
+      "@templates/*": ["templates/*"],
       "@types": ["components/types"],
       "@types/*": ["components/types/*"]
     }

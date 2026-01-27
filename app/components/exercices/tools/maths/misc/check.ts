@@ -5,22 +5,23 @@
 import Parser from '../parser/parser'
 import MyMath from '@mathstools/mymath'
 
+type InputType = string | number | MyMath
 
-function checkNumericExpression(expr) {
+function checkNumericExpression(expr:string): string|boolean {
     try {
-        const objMath = Parser.build(expr);
-        const variables = objMath.isFunctionOf();
+        const objMath = Parser.build(expr)
+        const variables = objMath.isFunctionOf(undefined) as Array<string>
         if (variables.length > 0) {
-            return `Expression numérique attendue (pas de ${variables.join(', ')}).`;
+            return `Expression numérique attendue (pas de ${variables.join(', ')}).`
         }
         if (objMath.toString().includes('∞')) {
-            return "Expression numérique attendue (pas d'infini).";
+            return "Expression numérique attendue (pas d'infini)."
         }
         // on souhaite également que l'expression soit développée
-        return objMath.isExpanded() ? true : "Vous devez simplifier.";
+        return objMath.isExpanded() ? true : "Vous devez simplifier."
     } catch (e) {
         // parsing error => pas numérique
-        return "Expression invalide.";
+        return "Expression invalide."
     }
 }
 
@@ -30,31 +31,31 @@ function checkNumericExpression(expr) {
  * @param {string} acceptedV
  * @returns {string|boolean}
  */
-function checkFormatWithVar(expr, acceptedV) {
+function checkFormatWithVar(expr:string, acceptedV:string): string|boolean {
     try {
-        const objMath = Parser.build(expr);
-        const variables = objMath.isFunctionOf();
+        const objMath = Parser.build(expr)
+        const variables = objMath.isFunctionOf(undefined) as Array<string>
         for (const v of variables) {
             if (!acceptedV.includes(v)) {
-                return `L'expression ne doit pas dépendre de la variable ${v}.`;
+                return `L'expression ne doit pas dépendre de la variable ${v}.`
             }
         }
-        return objMath.isExpanded() ? true : "Vous devez simplifier.";
+        return objMath.isExpanded() ? true : "Vous devez simplifier."
     } catch (e) {
         // parsing error => pas numérique
-        return "Expression invalide.";
+        return "Expression invalide."
     }
 }
 
-function checkIfExpand(expr) {
+function checkIfExpand(expr:string): string|boolean {
     try {
-        const objMath = Parser.build(expr);
+        const objMath = Parser.build(expr)
         return objMath.isExpanded()
             ? true
-            : "Vous devez développer et simplifier.";
+            : "Vous devez développer et simplifier."
     } catch (e) {
         // parsing error => pas numérique
-        return "Expression invalide.";
+        return "Expression invalide."
     }
 }
 
@@ -64,10 +65,10 @@ function checkIfExpand(expr) {
  * @param {string} expr 
  * @returns {boolean|string}
  */
-function checkEmptyExpression(expr) {
+function checkEmptyExpression(expr:string): boolean|string {
     return ['vide', '∅', 'empty'].includes(expr)
         ? true
-        : "Vous devez répondre 'vide' ou '∅' pour indiquer l'ensemble vide.";
+        : "Vous devez répondre 'vide' ou '∅' pour indiquer l'ensemble vide."
 }
 
 /**
@@ -76,10 +77,10 @@ function checkEmptyExpression(expr) {
  * @param {string} expr 
  * @returns {boolean|string}
  */
-function checkInfiniteExpression(expr) {
+function checkInfiniteExpression(expr:string): boolean|string {
     return /^[-+]\s*(?:∞|inf|infini|infinity)$/.test(expr)
         ? true
-        : "Vous devez fournir une valeur infinie (ex: +inf, -∞).";
+        : "Vous devez fournir une valeur infinie (ex: +inf, -∞)."
 }
 
 /**
@@ -88,11 +89,11 @@ function checkInfiniteExpression(expr) {
  * @param {Array|string} format 
  * @returns {boolean|string} true if format is correct, error message otherwise
  */
-function checkFormat(expr, format = 'none') {
+function checkFormat(expr:string, format:string|Array<string> = 'none'): boolean|string {
     // format peut être un tableau de formats acceptés
     expr = expr.trim()
     if (expr === '') {
-        return "Vous devez fournir une réponse.";
+        return "Vous devez fournir une réponse."
     }
 
     if (Array.isArray(format)) {
@@ -151,54 +152,52 @@ function checkFormat(expr, format = 'none') {
  * @param {string|Array} format 
  * @returns {string} le format choisi
  */
-function formatValue(value, format = "none") {
+function formatValue(value:any|Array<any>, format: string|Array<string> = "none"):string|Array<string> {
     // format peut être un tableau ou non
     // il faudrait voir les cas empty, infini qui sont à part et peuvent être en plus
     // puis les autres qui devraient être uniques
     if (Array.isArray(value)) {
-        return value.map(val => formatValue(val, format));
+        return value.map(val => formatValue(val, format) as string)
     }
-    if (typeof value !== 'string') {
-        value = String(value)
-    }
+    const str_value = String(value)
     if (
         (format === "infini") || (Array.isArray(format) && format.includes("infini"))
-        && checkInfiniteExpression(value) === true
+        && checkInfiniteExpression(str_value) === true
        ) {
-        return value[0] === '-' ? '$-\\infty$' : '$+\\infty$';
+        return str_value[0] === '-' ? '$-\\infty$' : '$+\\infty$'
     }
     if (
         (format === "empty") || (Array.isArray(format) && format.includes("empty"))
-        && checkEmptyExpression(value) === true
+        && checkEmptyExpression(str_value) === true
        ) {
-        return '$\\emptyset$';
+        return '$\\emptyset$'
     }
     if (Array.isArray(format)) {
         // premier cas, format était un tableau. Il faut donc chercher le format non empty et non infini
-        const formatChoisi = format.filter(f => f !== 'empty' && f !== 'infini');
+        const formatChoisi = format.filter(f => f !== 'empty' && f !== 'infini')
         if (formatChoisi.length > 1) {
-            console.warn("Le format choisi contient des types inconmpatibles : " + formatChoisi.join(', ') + ".");
+            console.warn("Le format choisi contient des types inconmpatibles : " + formatChoisi.join(', ') + ".")
         }
-        format = formatChoisi.length === 1 ? formatChoisi[0] : 'none';
+        format = formatChoisi.length === 1 ? formatChoisi[0] : 'none'
     }
     // il pourrait arriver que le format choisi soit "empty" ou "infini" et qu'il
     // n'est pas convenu pour la valeur attendue. Ce cas revient à none
     if (format === 'empty' || format === 'infini') {
-        format = 'none';
+        format = 'none'
     }
     if (/^round:[0-9]+$/.test(format)) {
-        const n = Number(format.split(':')[1]);
-        return MyMath.toFormat(value, `${n}f`);
+        const n = Number(format.split(':')[1])
+        return MyMath.toFormat(str_value, `${n}f`)
     }
     if (/^erreur:(?:[0-9]+(?:\.[0-9]+)?)|(?:\.[0-9]+)$/.test(format)) {
-        const err = Number(format.split(':')[1]);
-        const n = Math.ceil(Math.log10(1 / err));
-        return `${MyMath.toFormat(value, `${n+1}f`)} ± ${String(err).replace('.', ',')}`;
+        const err = Number(format.split(':')[1])
+        const n = Math.ceil(Math.log10(1 / err))
+        return `${MyMath.toFormat(str_value, `${n+1}f`)} ± ${String(err).replace('.', ',')}`
     }
     if (!['none', 'numeric', 'expand'].includes(format)) {
-        console.warn(`Format inconnu : ${format}`);
+        console.warn(`Format inconnu : ${format}`)
     }
-    return `$${MyMath.latex(value)}$`;
+    return `$${MyMath.latex(str_value)}$`
 }
 
 
@@ -209,16 +208,16 @@ function formatValue(value, format = "none") {
  * @param {string|Array<string>} format 
  * @returns {boolean} true si la valeur est correcte
  */
-function checkValue(userValue, expectedValue, format = "none") {
-    const checkFormatResult = checkFormat(userValue, format);
+function checkValue(userValue:string, expectedValue:InputType, format:string|Array<string> = "none"):boolean {
+    const checkFormatResult = checkFormat(userValue, format)
     if (checkFormatResult !== true) {
-        return false;
+        return false
     }
     // je traite d'abord les cas particuliers
     if (checkEmptyExpression(String(expectedValue)) === true) {
-        return checkEmptyExpression(userValue) === true;
+        return checkEmptyExpression(userValue) === true
     }
-    const parsedExpected = MyMath.make(expectedValue);
+    const parsedExpected = MyMath.make(expectedValue)
     if (parsedExpected.isInfinity()) {
         return checkInfiniteExpression(userValue) === true
             && parsedExpected.isMinusInfinity() === (userValue[0] === '-')
@@ -230,13 +229,13 @@ function checkValue(userValue, expectedValue, format = "none") {
     // mais pas d'avoir "numeric" et "round:x" dans le même tableau
     // donc je prends le premier format non "empty" ou "inf" dans le tableau
     if (Array.isArray(format)) {
-        format = format.find(f => f !== 'empty' && f !== 'inf') || 'none';
+        format = format.find(f => f !== 'empty' && f !== 'inf') || 'none'
     }
 
     if (format === "numeric") {
         // numérique mais exacte. Une comparaison directe suffit
-        //return MyMath.parseUser(userValue).compare(expectedValue, "==");
-        return MyMath.parseUser(userValue).pseudoEquality(parsedExpected);
+        //return MyMath.parseUser(userValue).compare(expectedValue, "==")
+        return MyMath.parseUser(userValue).pseudoEquality(parsedExpected)
     }
     if (format.startsWith("round:") || format.startsWith("erreur:")) {
         // Il faut une évaluation float des deux valeurs
@@ -256,14 +255,14 @@ function checkValue(userValue, expectedValue, format = "none") {
     }
     if (format === "expand") {
         // comparaison d'expressions algébriques
-        return MyMath.parseUser(userValue).compare(parsedExpected.expand(), "==")
+        return MyMath.parseUser(userValue).compare(parsedExpected.expand(), "==") as boolean
     }
     // autres formats à ajouter ici
-    return MyMath.parseUser(userValue).expand().compare(parsedExpected.expand(), "==")
+    return MyMath.parseUser(userValue).expand().compare(parsedExpected.expand(), "==") as boolean
 }
 
 export {
     checkFormat,
     checkValue,
     formatValue
-};
+}
