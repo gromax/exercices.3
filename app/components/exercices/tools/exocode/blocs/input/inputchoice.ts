@@ -1,7 +1,7 @@
 import InputBloc from './inputbloc'
-import { ChoiceManager } from '../choice'
+import ChoiceManager from '../choicemanager'
 import { ChoicesView, ChoiceView, ChoiceFormLayout } from '../../views/choice'
-import Colors from '../../../colors'
+import Colors from '../../colors'
 import { View } from 'backbone.marionette'
 
 type AnyView = View<any>|Array<View<any>>

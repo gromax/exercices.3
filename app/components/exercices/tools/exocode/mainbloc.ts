@@ -6,15 +6,15 @@ import TextBloc from "./blocs/textbloc"
 import InputTextBloc from "./blocs/input/inputtextbloc"
 import InputEnsemble from "./blocs/input/inputensemble"
 import RadioBloc from "./blocs/input/radiobloc"
-import FormBloc from "./FormBloc"
+import FormBloc from "./blocs/FormBloc"
 import Parameter from "./parameter"
 import Option from "./option"
 import Halt from "./halt"
 import GraphBloc from "./blocs/graphbloc"
 import TkzTabBloc from "./blocs/tkztabbloc"
-import { ChoiceBloc } from "./blocs/choice"
+import ChoiceBloc from "./blocs/choice"
 import InputChoice from "./blocs/input/inputchoice"
-import Colors from "../colors"
+import Colors from "./colors"
 
 const TRYNUMBER = 100;
 
