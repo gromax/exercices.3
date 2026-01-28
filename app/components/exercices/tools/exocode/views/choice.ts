@@ -1,7 +1,7 @@
 import { View, CollectionView } from 'backbone.marionette'
 import choice_tpl from '@templates/exercices/bloc/choice-item.jst'
 import form_choice_layout_tpl from '@templates/exercices/bloc/form-choice-layout.jst'
-import renderTexInDomElement from '../../../common/rendertex'
+import renderTexInDomElement from '../../../../common/rendertex'
 
 const ChoiceView = View.extend({
     template: choice_tpl,

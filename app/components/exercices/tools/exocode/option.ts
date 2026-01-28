@@ -1,5 +1,5 @@
 import { getValue } from '@mathstools/misc/substitution'
-import Bloc from './bloc'
+import Bloc from './blocs/bloc'
 import MyMath from '@mathstools/mymath'
 
 class Option {

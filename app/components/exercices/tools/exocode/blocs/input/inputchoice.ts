@@ -1,11 +1,18 @@
 import InputBloc from './inputbloc'
 import { ChoiceManager } from '../choice'
-import { ChoicesView, ChoiceView, ChoiceFormLayout } from '../../blocsviews/choice'
+import { ChoicesView, ChoiceView, ChoiceFormLayout } from '../../views/choice'
+import Colors from '../../../colors'
+import { View } from 'backbone.marionette'
+
+type AnyView = View<any>|Array<View<any>>
 
 class InputChoice extends InputBloc {
     static LABELS = ['inputchoice', 'inputchoix', 'choixinput', 'choiceinputchoix']
+    private _colors:Colors
+    private _manager?:ChoiceManager
 
-    nombrePts() {
+
+    nombrePts():number {
         return Object.keys(this._options || {}).length
     }
 
@@ -13,7 +20,7 @@ class InputChoice extends InputBloc {
      * Définir les couleurs à utiliser
      * @param {Colors} colors
      */
-    setColors(colors) {
+    setColors(colors:Colors):void {
         this._colors = colors
     }
 
@@ -24,9 +31,9 @@ class InputChoice extends InputBloc {
      * @param {string|undefined} userValue 
      * @returns {true|string} true si ok, message d'erreur sinon
      */
-    validation(userValue) {
+    validation(userValue?:string):true|string {
         if (typeof userValue === 'undefined') {
-            return this.header
+            return this._name
         }
         if (userValue.includes('0')) {
             return "Vous devez faire un choix pour tous les items."
@@ -34,7 +41,7 @@ class InputChoice extends InputBloc {
         return true
     }
 
-    _getManager() {
+    private _getManager():ChoiceManager {
         if (typeof this._manager === 'undefined') {
             this._manager = new ChoiceManager(
                 this._params,
@@ -45,7 +52,8 @@ class InputChoice extends InputBloc {
         }
         return this._manager
     }
-    _customView(answers) {
+
+    protected _getView(answers:Record<string, string>):AnyView {
         const manager = this._getManager()
         const vmax = typeof this._params.max !== 'undefined'
             ? Math.max(parseInt(this._params.max), manager.valuemax)
@@ -79,15 +87,16 @@ class InputChoice extends InputBloc {
 
     /**
      * Calcule le score et la vue
-     * @param {*} data 
+     * @param {Record<string, string>} userData 
      */
-    _calcResult(data) {
-        const userValue = data[this.header] || ''
+    protected _calcResult(userData:Record<string, string>):[AnyView, number] {
+        const userValue = userData[this.header] || ''
         const manager = this._getManager()
-        this._score = manager.verification(userValue)
-        this._resultView = manager.collection.map(model => {
+        const score = manager.verification(userValue)
+        const resultView = manager.collection.map(model => {
             return new ChoiceView({ model: model })
         })
+        return [resultView, score]
     }
 }
 

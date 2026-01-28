@@ -1,7 +1,9 @@
 import Bloc from './bloc.js'
 import { View } from 'backbone.marionette'
-import TextView from '../blocsviews/textview.js';
-import HelpView from '../blocsviews/helpview.js';
+import TextView from '../views/textview.js';
+import HelpView from '../views/helpview.js';
+
+type AnyView = View<any>|Array<View<any>>
 
 class TextBloc extends Bloc {
     static readonly LABELS = ['text', 'texte', 'warning', 'aide', 'info', 'help'];
@@ -25,7 +27,7 @@ class TextBloc extends Bloc {
         return this.tag === 'help' || this.tag === 'aide';
     }
 
-    _customView(answers:Record<string, string>):View {
+    protected _getView(answers:Record<string, string>):AnyView {
         const content = this._children;
         if (this.isHelp()) {
             return new HelpView({

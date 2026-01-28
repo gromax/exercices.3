@@ -1,8 +1,8 @@
 import Bloc from "./bloc";
-import TkzTabView from "../blocsviews/tkztabview";
-import Colors from "../colors";
-import TkzTab from "../blocsviews/tkztab/tkztab";
-import TabVarLineInput from "../blocsviews/tkztab/tabvarlineinput"
+import TkzTabView from "../views/tkztabview";
+import Colors from "../../colors";
+import TkzTab from "../views/tkztab/tkztab";
+import TabVarLineInput from "../views/tkztab/tabvarlineinput"
 class TkzTabBloc extends Bloc {
     static LABELS = ['tkztab']
 

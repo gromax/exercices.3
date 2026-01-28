@@ -1,7 +1,7 @@
 import Bloc from "./bloc.js";
-import GraphView from "../blocsviews/graphview";
-import MyMath from "../maths/mymath";
-import Colors from "../colors.js";
+import GraphView from "../views/graphview.js";
+import MyMath from "../../maths/mymath.js";
+import Colors from "../../colors.js";
 
 class GraphBloc extends Bloc {
     static LABELS = ['graph', 'graphe'];

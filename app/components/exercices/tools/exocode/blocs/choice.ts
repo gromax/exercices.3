@@ -1,7 +1,7 @@
 import { Model, Collection } from 'backbone'
 import Bloc from "./bloc"
-import Colors from "../colors"
-import { ChoicesView } from "../blocsviews/choice"
+import Colors from "../../colors"
+import { ChoicesView } from "../views/choice"
 import { View } from 'backbone.marionette'
 
 class ChoiceManager {

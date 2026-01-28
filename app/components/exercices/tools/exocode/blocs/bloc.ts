@@ -4,9 +4,11 @@
  */
 
 import _ from 'underscore'
-import UnknownView from '../blocsviews/unknownview.js'
-import TableView from '../blocsviews/tableview.js'
+import UnknownView from '../views/unknownview.js'
+import TableView from '../views/tableview.js'
 import { View } from 'backbone.marionette'
+
+type AnyView = View<any>|Array<View<any>>
 
 class Bloc {
     protected _children:Array<Bloc>
@@ -17,7 +19,6 @@ class Bloc {
     protected _tag:string
     protected _defaultOption?:string
     protected _options?:Record<string, string>
-    protected _customView?:(answers:Record<string, string>)=>View
 
     constructor(tag:string, paramsString:string, closed:boolean) {
         this._children = []
@@ -121,13 +122,7 @@ class Bloc {
         return this
     }
 
-    view(answers:Record<string, string>):View {
-        if (!this._runned) {
-            throw new Error("Le bloc doit être exécuté avant de pouvoir générer des vues.")
-        }
-        if (typeof this._customView === 'function') {
-            return this._customView(answers)
-        }
+    protected _getView(answers:Record<string, string>):AnyView {
         if (this._tag === 'table') {
             return new TableView({
                 rows: this._params.rows || [],
@@ -136,6 +131,13 @@ class Bloc {
             })
         }
         return new UnknownView({ name:this.tag, code: this.toString() })
+    }
+
+    view(answers:Record<string, string>):AnyView {
+        if (!this._runned) {
+            throw new Error("Le bloc doit être exécuté avant de pouvoir générer des vues.")
+        }
+        return this._getView(answers)
     }
 
     parseOption():[string, string, Record<string, string>] {

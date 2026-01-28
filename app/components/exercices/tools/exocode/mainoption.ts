@@ -1,121 +1,34 @@
-import { IfBloc, CondBloc } from "./ifbloc"
-import Affectation from "./affectation"
-import Bloc from "./bloc"
-import TextNode from "./textnode"
-import TextBloc from "./textbloc"
-import InputTextBloc from "./inputs/inputtextbloc"
-import InputEnsemble from "./inputs/inputensemble"
-import RadioBloc from "./inputs/radiobloc"
-import FormBloc from "./FormBloc"
-import Parameter from "./parameter"
+import Bloc from "./blocs/bloc"
+import MainBloc from "./mainbloc";
 import Option from "./option"
-import Halt from "./halt"
-import GraphBloc from "./graphbloc"
-import TkzTabBloc from "./tkztabbloc"
-import { ChoiceBloc } from "./choice"
-import InputChoice from "./inputs/inputchoice"
-import Colors from "../colors"
 
-const TRYNUMBER = 100;
+class MainOptionBloc {
+    private _children:Array<Bloc>;
 
-class MainBloc extends Bloc {
     /*
      * Méthodes statiques 
      */
-    static parseOptions(content) {
-        const mainBlock = MainBloc._parse(content);
+    static parseOptions(content:string) {
+        const mainBlock = MainOptionBloc._parse(content);
         return mainBlock._parseOptions();
     }
 
-    static parseParams(code, options) {
-        code = code || "";
-        options = options || {};
-        if (typeof options === 'string') {
-            options = JSON.parse(options);
-        }
-        const main = MainBloc._parse(code);
-        for (let attempt = 1; attempt <= TRYNUMBER; attempt++) {
-            const result = main._getInit(options);
-            if (result !== null) {
-                return result;
-            }
-        }
-        throw new Error(`Impossible d'initialiser les paramètres de l'exercice après ${TRYNUMBER} essais.`);
-    }
-
-    static runCode(code, params, options) {
-        const main = MainBloc._parse(code);
-        return main.run(params, options);
-    }
-        
     /**
      * Fonction qui analyse le contenu d'un exercice et renvoie un objet représentant sa structure
      * @param {string} content le contenu à analyser
-     * @returns {object} l'objet représentant la structure de l'exercice
+     * @returns {MainOptionBloc} l'objet représentant la structure de l'exercice
      */
-    static _parse(content) {
-        const colors = new Colors(); // instancie une palette pour les blocs qui en auraient besoin
-        const lines = content.split('\n');
-        const mainBlock = new MainBloc();
-        const stack = [mainBlock];
+    private static _parse(content:string):MainOptionBloc {
+        const lines = content.split('\n')
+        const mainBlock = new MainOptionBloc()
+        const stack = [mainBlock]
 
         for (const line of lines) {
-            if (line.startsWith('#')) {
-                continue;
-            }
-            const beforeHash = line.split('#')[0];
+            const beforeHash = line.split('#')[0]
             const trimmed = beforeHash.trim();
-            if (trimmed === '</main>') {
-                throw new Error("Erreur de syntaxe : fin de bloc main interdite");
-            }
-
-            if (CondBloc.isElse(trimmed)) {
-                stack[stack.length-1].closeIfBranch();
-                continue;
-            }
-            const condition = CondBloc.tryParse(trimmed);
-            if (CondBloc.isNeeded(condition)) {
-                stack[stack.length-1].push(condition);
-                continue;
-            } else if (CondBloc.isUntil(condition)) {
-                stack.push(condition);
-                continue;
-            } else if (condition !== null) {
-                if ((condition.tag !== IfBloc.IF)&&(!(stack[stack.length-1] instanceof IfBloc))) {
-                    throw new Error(`Erreur de syntaxe : ${condition.tag} sans if ou elif préalable`);
-                }
-                if (condition.tag === IfBloc.ELIF) {
-                    stack[stack.length-1].closeIfBranch();
-                }
-                stack.push(condition);
-                continue;
-            }
-
-            // je dois test options avant affectation
-            // car en cas de @x => ... cela pourrait être pris
-            // pour une affectation
             const option = Option.parse(trimmed);
             if (option) {
                 stack[stack.length-1].push(option);
-                continue;
-            }
-
-            const affectation = Affectation.parse(trimmed);
-            if (affectation) {
-                stack[stack.length-1].push(affectation);
-                continue;
-            }
-            if (trimmed === IfBloc.END) {
-                // ferme tous les blocs elif jusqu'au if.
-                let item;
-                do {
-                    item = stack.pop();
-                    if (!(item instanceof IfBloc)) {
-                        throw new Error(`Erreur de syntaxe : fin de condition referme <${item.tag}>`);
-                    }
-                    item.close();
-                    stack[stack.length-1].push(item);
-                } while (item.tag !== IfBloc.IF); // s'arrêtera forcément au pire sur le bloc MainBloc
                 continue;
             }
 
@@ -131,9 +44,7 @@ class MainBloc extends Bloc {
                 continue;
             }
 
-
-
-            const bloc = MainBloc.parseBloc(trimmed);
+            const bloc = MainBloc._parseBloc(trimmed);
             if (bloc) {
                 if (typeof bloc.setColors === 'function') {
                     // si le bloc nécessite une palette de couleurs
@@ -175,7 +86,7 @@ class MainBloc extends Bloc {
         return mainBlock;
     }
 
-    static parseBloc(line) {
+    private static _parseBloc(line:string):Bloc|null {
         const regex = /^<(\w+)\s*(:\s*[^>/]+)?>$/;
         const m = line.match(regex);
         if (m=== null) {
@@ -216,9 +127,12 @@ class MainBloc extends Bloc {
     /**
      * Constructeur
      */
-    constructor() {
-        super('main', '', false);
-        this._run = null;
+    private constructor() {
+        this._children = [];
+    }
+
+    push(child:Bloc):void {
+        this._children.push(child);
     }
 
     /**
@@ -226,7 +140,7 @@ class MainBloc extends Bloc {
      * @param {object} options 
      * @returns {object|null} un objet de paramètres ou null si échec
      */
-    _getInit(options) {
+    private _getInit(options) {
         const params = {};
         let program = [...this.children].reverse();
         while (program.length > 0) {

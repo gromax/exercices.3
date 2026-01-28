@@ -264,5 +264,6 @@ function checkValue(userValue:string, expectedValue:InputType, format:string|Arr
 export {
     checkFormat,
     checkValue,
-    formatValue
+    formatValue,
+    InputType
 }

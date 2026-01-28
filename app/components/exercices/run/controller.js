@@ -1,4 +1,4 @@
-import { MnObject, Region } from 'backbone.marionette'
+import { MnObject } from 'backbone.marionette'
 import {
   OptionsView,
   ParamsView,
@@ -8,7 +8,7 @@ import {
   PanelProfTrialView
 } from './views.js'
 import { Item as ExerciceTry } from '../trial.js'
-import MainBloc from '../tools/blocs/mainbloc.js';
+import MainBloc from '../tools/exocode/mainbloc.js';
 import renderTexInDomElement from '../../common/rendertex';
 
 const Controller = MnObject.extend ({

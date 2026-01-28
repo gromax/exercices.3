@@ -1,6 +1,6 @@
 import { getValue } from '../maths/misc/substitution.js';
 import MyMath from '@mathstools/mymath';
-import Bloc from './bloc'
+import Bloc from './blocs/bloc.js'
 
 class Parameter {
     private _tag:string

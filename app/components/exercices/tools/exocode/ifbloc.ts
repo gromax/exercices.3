@@ -1,4 +1,4 @@
-import Bloc from './bloc'
+import Bloc from './blocs/bloc'
 import MyMath from '../maths/mymath'
 import Affectation from './affectation'
 import { substituteParams } from '../maths/misc/substitution'

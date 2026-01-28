@@ -1,6 +1,6 @@
-import Bloc from "./bloc";
-import FormView from "../blocsviews/formview.js";
-import ResultsView from "../blocsviews/resultsview.js";
+import Bloc from "./blocs/bloc";
+import FormView from "./views/formview.js";
+import ResultsView from "./views/resultsview.js";
 
 /* Il faut vérifier les answers dans entity et choisir si on affiche
    le formulaire ou pas. */
