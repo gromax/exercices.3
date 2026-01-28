@@ -32,6 +32,7 @@
     "@babel/core": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
     "@types/backbone": "^1.4.23",
+    "@types/backbone.marionette": "^3.3.19",
     "@types/jquery": "^3.5.33",
     "@types/node": "^25.0.10",
     "@types/underscore": "^1.13.0",

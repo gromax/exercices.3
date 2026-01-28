@@ -1,14 +1,15 @@
-import Bloc from './bloc.js';
+import Bloc from './bloc.js'
+import { View } from 'backbone.marionette'
 import TextView from '../blocsviews/textview.js';
 import HelpView from '../blocsviews/helpview.js';
 
 class TextBloc extends Bloc {
-    static LABELS = ['text', 'texte', 'warning', 'aide', 'info', 'help'];
-    constructor(tag, paramsString) {
+    static readonly LABELS = ['text', 'texte', 'warning', 'aide', 'info', 'help'];
+    constructor(tag:string, paramsString:string) {
         super(tag, paramsString, false);
     }
 
-    run(params, caller) {
+    run(params:Record<string, any>, caller:any):this {
         if (this._runned) {
             // déjà exécuté
             return this;
@@ -20,11 +21,11 @@ class TextBloc extends Bloc {
         return this;
     }
 
-    isHelp() {
+    isHelp():boolean {
         return this.tag === 'help' || this.tag === 'aide';
     }
 
-    _customView(answers) {
+    _customView(answers:Record<string, string>):View {
         const content = this._children;
         if (this.isHelp()) {
             return new HelpView({
@@ -32,6 +33,7 @@ class TextBloc extends Bloc {
                 paragraphs: content,
             });
         }
+        
         return new TextView({
             header: this._params["header"] || false,
             subtitle: this._params["subtitle"] || false,

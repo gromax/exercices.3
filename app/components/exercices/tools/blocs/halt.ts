@@ -1,6 +1,6 @@
 class Halt {
     static REGEX = /^<(halt|stop)\/?>$/;
-    static parse(line) {
+    static parse(line:string):Halt|null {
         const m = line.match(Halt.REGEX);
         if (m) {
             return new Halt();
@@ -12,13 +12,13 @@ class Halt {
     constructor() {
     }
 
-    run(params, caller) {
+    run(params:Record<string, any>, caller:any):null {
         return null;
     }
 
-    toString() {
+    toString():string {
         return `<HALT>`;
     }
 }
-    
+
 export default Halt;

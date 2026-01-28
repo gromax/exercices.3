@@ -26,7 +26,7 @@ class InputChoice extends InputBloc {
      */
     validation(userValue) {
         if (typeof userValue === 'undefined') {
-            return this.header;
+            return this.header
         }
         if (userValue.includes('0')) {
             return "Vous devez faire un choix pour tous les items."
@@ -51,7 +51,7 @@ class InputChoice extends InputBloc {
             ? Math.max(parseInt(this._params.max), manager.valuemax)
             : manager.valuemax
 
-        const n = this._options ? Object.keys(this._options).length : 0;
+        const n = this._options ? Object.keys(this._options).length : 0
         const layout = new ChoiceFormLayout({
             name: this.header,
             value: '0'.repeat(n),
@@ -69,12 +69,12 @@ class InputChoice extends InputBloc {
                 manager.squaresOnly,
                 layout.$el.find(`input[name="${this.header}"]`),
                 manager.notShuffledCollection
-            );
-        });
+            )
+        })
         layout.on('render', function() {
-            layout.showChildView('content', view);
-        });
-        return layout;
+            layout.showChildView('content', view)
+        })
+        return layout
     }
 
     /**
@@ -91,4 +91,4 @@ class InputChoice extends InputBloc {
     }
 }
 
-export default InputChoice;
+export default InputChoice

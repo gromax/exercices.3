@@ -1,10 +1,12 @@
-import { substituteLabels, getValue } from '../maths/misc/substitution.js';
+import { getValue } from '../maths/misc/substitution.js';
 import MyMath from '@mathstools/mymath';
-
+import Bloc from './bloc'
 
 class Parameter {
-    static REGEX = /^<(\w+(?:\[\])?)\s*:(.*)\/>$/;
-    static parse(line) {
+    private _tag:string
+    private _param:string
+    static readonly REGEX = /^<(\w+(?:\[\])?)\s*:(.*)\/>$/;
+    static parse(line:string):Parameter|null {
         const m = line.match(Parameter.REGEX);
         if (m) {
             return new Parameter(m[1], m[2]);
@@ -13,21 +15,20 @@ class Parameter {
         }
     }
 
-    constructor(tag, param) {
+    constructor(tag:string, paramsString:string) {
         this._tag = tag;
-        this._param = param.trim();
-        this._parent = null;
+        this._param = paramsString.trim();
     }
 
-    run(params, caller) {
-        if (caller && typeof caller.setParam === 'function') {
+    run(params:Record<string, any>, caller:Bloc):null {
+        if (caller instanceof Bloc) {
             this._param = getValue(this._param, params) ?? MyMath.substituteExpressions(this._param, params);
             caller.setParam(this._tag, this._param);
         }
         return null;
     }
 
-    toString() {
+    toString():string {
         return `<${this._tag} : ${this._param} />`;
     }
 }

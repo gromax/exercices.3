@@ -2,8 +2,17 @@ import { Model, Collection } from 'backbone'
 import Bloc from "./bloc"
 import Colors from "../colors"
 import { ChoicesView } from "../blocsviews/choice"
+import { View } from 'backbone.marionette'
 
 class ChoiceManager {
+    private _params:Record<string, any>
+    private _colors:Colors
+    private _options?:Record<string, string>
+    private _isform:boolean
+    private _collection:Collection<Model>
+    private _notShuffledCollection:Collection<Model>
+    private _valuemax:number
+
     /**
      * constructeur
      * @param {object} params paramètres du bloc parent
@@ -11,7 +20,12 @@ class ChoiceManager {
      * @param {object} options options de choix
      * @param {boolean} isform indique si c'est un formulaire
      */
-    constructor(params, colors, options, isform) {
+    constructor(
+        params:Record<string, any>,
+        colors:Colors,
+        options:Record<string, string>,
+        isform:boolean
+    ) {
         this._params = params || {}
         this._colors = colors
         this._valuemax = 0
@@ -20,19 +34,19 @@ class ChoiceManager {
         this._makeCollection()
     }
 
-    _shuffle() {
+    private _shuffle():void {
         this._collection = new Collection(this._collection.shuffle())
     }
 
-    get valuemax() {
+    get valuemax():number {
         return this._valuemax
     }
 
-    get squaresOnly() {
+    get squaresOnly():boolean {
         return (typeof this._params.onlysquares == 'undefined') || Boolean(this._params.onlysquares)
     }
 
-    _makeCollection() {
+    private _makeCollection():void {
         this._collection = new Collection()
         const squareOnly = this.squaresOnly
         if (typeof this._options === 'undefined') {
@@ -93,20 +107,22 @@ class ChoiceManager {
 
 
 class ChoiceBloc extends Bloc {
-    static LABELS = ['choices', 'choix']
-    constructor(label, paramsString) {
-        super(label, paramsString, false)
+    private _colors?:Colors
+    static readonly LABELS = ['choices', 'choix']
+    
+    constructor(tag:string, paramsString:string) {
+        super(tag, paramsString, false)
     }
 
     /**
      * Définir les couleurs à utiliser
      * @param {Colors} colors
      */
-    setColors(colors) {
+    setColors(colors:Colors):void {
         this._colors = colors
     }
 
-    _customView(answers) {
+    _customView(answers:Record<string, string>):View {
         const manager = new ChoiceManager(this._params, this._colors, this._options, false)
         return new ChoicesView({
             collection: manager.collection,
