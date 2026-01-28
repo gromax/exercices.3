@@ -1,57 +1,68 @@
-import Bloc from "./bloc";
-import FormView from "../views/formview.js";
-import ResultsView from "../views/resultsview.js";
+import _ from "underscore"
+import Bloc from "./bloc"
+import FormView from "../views/formview.js"
+import ResultsView from "../views/resultsview.js"
+import { View } from "backbone.marionette"
+
+type AnyView = View<any>|Array<View<any>>
+
 
 /* Il faut vérifier les answers dans entity et choisir si on affiche
    le formulaire ou pas. */
 
 class FormBloc extends Bloc {
-    static LABELS = ['form', 'formulaire'];
-    _customView(answers) {
+    static readonly LABELS = ['form', 'formulaire']
+    protected _getView(answers:Record<string, string>):AnyView {
         if (this._needSubmit(answers)) {
             // Il faut afficher le formulaire
-            return this._viewFormCase(answers);
+            return this._viewFormCase(answers)
         }
         // Sinon, on affiche les résultats
-        const views = this.resultsViews(answers);
+        const views = this._resultsViews(answers)
         const resultView = new ResultsView()
         resultView.on('render', () => {
-            const container = resultView.el.querySelector('.js-items');
+            const container = resultView.el.querySelector('.js-items')
             views.forEach( v => {
-                v.render()
-                container.appendChild( v.el )
-            });
-        });
-        return resultView;
+                (v as any).render()
+                container.appendChild( (v as any).el )
+            })
+        })
+        return resultView
     }
 
-    _viewFormCase(answers) {
-        const subViews = [];
+    private _viewFormCase(answers:Record<string, string>):AnyView {
+        const subViews:Array<AnyView> = []
         for (const child of this._children) {
             if (typeof child.view === "function") {
-                const subView = child.view(answers);
-                subViews.push(subView);
+                const subView = child.view(answers)
+                subViews.push(subView)
             }
         }
         const formView = new FormView({
             blocParent: this,
             name: this.header,
             subViews: subViews
-        });
-        return formView;
+        })
+        return formView
     }
 
     /**
      * helper pour gérer le message d'erreur de champ manquant
+     * @param {Record<string, string>} userData
      * @param {Array<string>|string} name
-     * @param {object} errors
+     * @returns {Record<string, string>} un objet d'erreurs
      */
-    _champManquantError(data, name, errors) {
+    private _champManquantError(userData:Record<string, string>, name:Array<string>|string):Record<string, string> {
+        const errors = {}
         if (Array.isArray(name)) {
-            name.forEach(n => this._champManquantError(data, n, errors));
+            for (let n of name) {
+                if (!(n in userData)) {
+                    errors[n] = "Champ manquant"
+                }
+            }
             return errors
         }
-        if (!(name in data)) {
+        if (!(name in userData)) {
             errors[name] = "Champ manquant"
         }
         return errors
@@ -59,28 +70,28 @@ class FormBloc extends Bloc {
 
     /**
      * Validation des données du formulaire
-     * @param {object} data 
+     * @param {Record<string, string>} userData 
      * @returns {object|null} un objet d'erreurs ou null si tout est ok
      */
-    validation(data) {
+    validation(userData:Record<string, string>):object|null {
         let errors = {}
         for (const child of this._children) {
-            if (typeof child.validation !== "function") {
+            if (typeof (child as any).validation !== "function") {
                 continue
             }
-            const name = child.validation()
+            const name = (child as any).validation()
             if (name === '' || name === null || typeof name === 'undefined') {
                 continue
             }
-            const childErrors = this._champManquantError(data, name, {})
+            const childErrors = this._champManquantError(userData, name)
             if (Object.keys(childErrors).length > 0) {
                 errors = {...errors, ...childErrors}
                 continue
             }
-            const dataValue = Array.isArray(name)
-                ? name.map(n => data[n])
-                : data[name]
-            const v = child.validation(dataValue) // si tableau, les value sont dans le même ordre que les name
+            const dataValue:string|Array<string> = Array.isArray(name)
+                ? name.map(n => userData[n])
+                : userData[name]
+            const v = (child as any).validation(dataValue) // si tableau, les value sont dans le même ordre que les name
             if (v === true) {
                 continue
             }
@@ -94,68 +105,68 @@ class FormBloc extends Bloc {
             }
         }
         if (Object.keys(errors).length > 0) {
-            return errors;
+            return errors
         }
-        return null;
+        return null
     }
 
     /**
      * Vérification des réponses
-     * @param {object} data 
+     * @param {Record<string, string>} userData 
      * @returns {Array<Marionette.View>} un tabeau de vues
      */
-    resultsViews(data) {
-        const views = [];
+    private _resultsViews(userData:Record<string, string>):Array<AnyView> {
+        const views:Array<AnyView> = []
         for (const child of this._children) {
-            if (typeof child.resultView !== "function") {
-                continue;
+            if (typeof (child as any).resultView !== "function") {
+                continue
             }
-            views.push(child.resultView(data));
+            views.push((child as any).resultView(userData))
         }
-        return _.flatten(views);
+        return _.flatten(views)
     }
 
     /**
      * Renvoie le score
-     * @param {*} data 
+     * @param {Record<string, string>} userData 
      * @returns {number} le score final
      */
-    score(data) {
+    score(userData:Record<string, string>):number {
         const nbPoints = this._children.reduce(
-            (sum, child) => (typeof child.resultScore === "function")
-                ? sum + (child.resultScore(data) || 0)
+            (sum, child) => (typeof (child as any).resultScore === "function")
+                ? sum + ((child as any).resultScore(userData) || 0)
                 : sum,
             0
         )
         return nbPoints
     }
 
-    _needSubmit(answers) {
+    private _needSubmit(userData:Record<string, string>):boolean {
         // Si une des questions n'a pas de réponse, il faut soumettre
         for (const child of this._children) {
-            if (typeof child.validation !== "function") {
+            if (typeof (child as any).validation !== "function") {
                 continue
             }
-            const name = child.validation()
+            const name = (child as any).validation()
             if (name === '' || name === null || typeof name === 'undefined') {
                 continue
             }
             if (Array.isArray(name)) {
                 for (let n of name) {
-                    if (!answers[n]) {
-                        return true;
+                    if (!userData[n]) {
+                        return true
                     }
                 }
-            } else if (!answers[name]) {
-                return true;
+            } else if (!userData[name]) {
+                return true
             }
         }
-        return false;
+        return false
     }
 
 }
 
-export default FormBloc;
+export default FormBloc
 
 
 /*
