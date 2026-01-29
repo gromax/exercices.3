@@ -1,10 +1,9 @@
 import Bloc from "../bloc"
 import FormItemImplementation from "../../implementation/formitem"
-import { View } from "backbone.marionette"
-
-type AnyView = View<any>|Array<View<any>>
+import { AnyView } from "@types"
 
 abstract class InputBloc extends Bloc implements FormItemImplementation {
+    readonly IMPLEMENTATION_FORMITEM = true
     protected _resultView?:AnyView
     protected _score?:number
     protected _name:string

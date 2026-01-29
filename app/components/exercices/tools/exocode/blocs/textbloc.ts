@@ -1,39 +1,47 @@
 import Bloc from './bloc.js'
-import { View } from 'backbone.marionette'
-import TextView from '../views/textview.js';
-import HelpView from '../views/helpview.js';
-
-type AnyView = View<any>|Array<View<any>>
+import { AnyView, InputType } from "@types"
+import TextView from '../views/textview'
+import HelpView from '../views/helpview'
+import TextNode from '../textnode'
 
 class TextBloc extends Bloc {
-    static readonly LABELS = ['text', 'texte', 'warning', 'aide', 'info', 'help'];
+    static readonly LABELS = ['text', 'texte', 'warning', 'aide', 'info', 'help']
+    protected _text:Array<string> = []
+
     constructor(tag:string, paramsString:string) {
-        super(tag, paramsString, false);
+        super(tag, paramsString, false)
     }
 
-    run(params:Record<string, any>, caller:any):this {
+    run(params:Record<string, InputType>, caller:any):this {
         if (this._runned) {
             // déjà exécuté
-            return this;
+            return this
         }
-        super.run(params, caller);
+        super.run(params, caller)
         // pour un bloc de texte ne conserve que le texte
-        this._children = this._children.filter(item => typeof item === 'string');
-        this._children = this._children.join('\n').split('\n\n');
-        return this;
+        this._text = this._children.filter(
+            (child): child is TextNode => child instanceof TextNode
+        ).map(
+            child => child.text
+        )
+        return this
     }
 
-    isHelp():boolean {
-        return this.tag === 'help' || this.tag === 'aide';
+    get text():Array<string> {
+        return this._text
+    }
+
+    get isHelp():boolean {
+        return this.tag === 'help' || this.tag === 'aide'
     }
 
     protected _getView(answers:Record<string, string>):AnyView {
-        const content = this._children;
-        if (this.isHelp()) {
+        const content = this._children
+        if (this.isHelp) {
             return new HelpView({
                 subtitle: this._params["header"] || this._params["subtitle"] || false,
                 paragraphs: content,
-            });
+            })
         }
         
         return new TextView({
@@ -43,8 +51,8 @@ class TextBloc extends Bloc {
             footer: this._params["footer"] || false,
             info: this.tag === "info",
             warning: this.tag === 'warning',
-        });
+        })
     }
 }
 
-export default TextBloc;
+export default TextBloc

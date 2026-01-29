@@ -2,9 +2,7 @@ import InputBloc from './inputbloc'
 import ChoiceManager from '../choicemanager'
 import { ChoicesView, ChoiceView, ChoiceFormLayout } from '../../views/choice'
 import Colors from '../../colors'
-import { View } from 'backbone.marionette'
-
-type AnyView = View<any>|Array<View<any>>
+import { AnyView } from "@types"
 
 class InputChoice extends InputBloc {
     static LABELS = ['inputchoice', 'inputchoix', 'choixinput', 'choiceinputchoix']

@@ -1,5 +1,7 @@
-class Halt {
-    static REGEX = /^<(halt|stop)\/?>$/;
+import Node from "../node"
+
+class Halt extends Node{
+    static readonly REGEX = /^<(halt|stop)\/?>$/;
     static parse(line:string):Halt|null {
         const m = line.match(Halt.REGEX);
         if (m) {
@@ -10,9 +12,10 @@ class Halt {
     }
 
     constructor() {
+        super("halt")
     }
 
-    run(params:Record<string, any>, caller:any):null {
+    run(params:any, caller:any):null {
         return null;
     }
 

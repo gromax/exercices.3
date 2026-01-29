@@ -1,8 +1,10 @@
 import { getValue } from '@mathstools/misc/substitution'
 import Bloc from './blocs/bloc'
 import MyMath from '@mathstools/mymath'
+import Node from './node'
+import { InputType } from "@types"
 
-class Option {
+class Option extends Node{
     private _key:string
     private _value:string
 
@@ -17,6 +19,7 @@ class Option {
     }
 
     private constructor(key:string, value:string) {
+        super("option")
         this._key = key;
         this._value = value.trim();
     }
@@ -29,7 +32,7 @@ class Option {
         return this._value;
     }
 
-    run(params:Record<string, any>, caller:Bloc):null {
+    run(params:Record<string, InputType>, caller:Bloc):null {
         const key = this._key.startsWith('@')
             ? getValue(this._key, params)
             : this._key;
@@ -41,7 +44,7 @@ class Option {
         return null;
     }
 
-    toString() {
+    toString():string {
         return `${this._key} => ${this._value}`;
     }
 }

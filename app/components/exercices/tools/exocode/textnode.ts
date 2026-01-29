@@ -1,29 +1,33 @@
 import MyMath from '@mathstools/mymath'
-import { getValue  } from '../maths/misc/substitution.js'
+import { InputType } from '@mathstools/misc/check'
+import Node from './node'
 
-class TextNode {
+class TextNode extends Node {
     private _text:string
 
     constructor(text:string) {
-       this._text = text
+        super('text')
+        this._text = text
     }
 
     toString():string {
        return this._text
     }
 
-    run(params:Record<string, any>, caller:any):string|void {
-        if (/^\?@([A-Za-z_]\w*)(?:\.([A-Za-z_]\w*)|\[((?:@[A-Za-z_]\w*|[0-9]+)?)\])?$/.test(this._text)) {
-            // c'est un log
-            const varName = this._text.slice(1);
-            console.info(getValue(varName, params) ?? this._text)
-        } else {
-            return MyMath.substituteExpressions(this._text, params)
+    run(params:Record<string, InputType>, caller:any):TextNode|null {
+        if (!this._runned) {
+            this._text = MyMath.substituteExpressions(this._text, params)
+            this._runned = true
         }
+        return this
     }
 
     get text():string {
         return this._text
+    }
+
+    appendText(text:string) {
+        this._text += '\n' + text
     }
 }
 

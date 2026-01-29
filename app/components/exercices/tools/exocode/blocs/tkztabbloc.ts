@@ -1,23 +1,33 @@
 import Bloc from "./bloc";
 import TkzTabView from "../views/tkztabview";
-import Colors from "../../colors";
 import TkzTab from "../views/tkztab/tkztab";
 import TabVarLineInput from "../views/tkztab/tabvarlineinput"
-class TkzTabBloc extends Bloc {
-    static LABELS = ['tkztab']
+import Colors from "../colors"
+import { AnyView, InputType, TabLineConfig } from "@types";
+import FormItemImplementation from "../implementation/formitem"
 
-    constructor(label, paramsString) {
-        super(label, paramsString, false)
+class TkzTabBloc extends Bloc implements FormItemImplementation {
+    readonly IMPLEMENTATION_FORMITEM = true
+    static readonly LABELS = ['tkztab']
+
+    private _lines:Array<TabLineConfig>
+    private _color:string
+    private _colors?:Colors
+    private _tkzTab?:TkzTab
+    private _resultView?:AnyView
+    private _score?:number
+
+    constructor(tag:string, paramsString:string) {
+        super(tag, paramsString, false)
         this._lines = []
         this._color = 'black'
-        this._tkzTab = null
     }
 
     /**
      * Définir les couleurs à utiliser
      * @param {Colors} colors 
      */
-    setColors(colors) {
+    setColors(colors:Colors):void {
         this._colors = colors
     }
 
@@ -25,7 +35,7 @@ class TkzTabBloc extends Bloc {
      * calcule le tkztab au besoin
      * @returns {TkzTab} le tkztab construit
      */
-    _getTkzTab() {
+    private _getTkzTab():TkzTab {
         if (this._params.xlist === undefined) {
             throw new Error("<tkztab/> Le paramètre 'xlist' est obligatoire.")
         }
@@ -37,8 +47,8 @@ class TkzTabBloc extends Bloc {
         return this._tkzTab
     }
 
-    _getConfig() {
-        const config = {
+    private _getConfig():Record<string,number|string> {
+        const config:Record<string,number|string> = {
             color: this._color,
             xtag: this._params.tag || "$x$",
         }
@@ -66,23 +76,24 @@ class TkzTabBloc extends Bloc {
      * @param {object} answers 
      * @returns 
      */
-    _customView(answers) {
+    protected _getView(answers:Record<string,string>):AnyView {
         return new TkzTabView({
             tkzTab: this._getTkzTab(),
         })
     }
 
-    setParam(key, value) {
+    setParam(key:string, value:InputType):void {
         if (TkzTab.LINESTYPES.includes(key)) {
             this._lines.push(TkzTab.parseLine(key, value))
             return
         }
         if (key === 'color') {
-            const n = parseInt(value)
+            const stringValue = String(value)
+            const n = parseInt(stringValue)
             if (!isNaN(n)) {
                 value = this._colors.getColor(n)
             }
-            this._color = value
+            this._color = stringValue
             return
         }
         super.setParam(key, value)
@@ -93,9 +104,9 @@ class TkzTabBloc extends Bloc {
      * renvoi true si ok, message d'erreur sinon
      * si pas d'argument, renvoie le name à valider
      * @param {string|undefined} userValue 
-     * @returns {true|string} true si ok, message d'erreur sinon
+     * @returns {boolean|Array<string>} true si ok, message d'erreur sinon
      */
-    validation(userValue) {
+    validation(userValue?:any):Array<string>|boolean {
         if (typeof userValue === 'undefined') {
             return this._lines.map(line => line.name || '').filter(name => name !== '')
         }
@@ -108,18 +119,20 @@ class TkzTabBloc extends Bloc {
      * c'est le nombre de lignes inputvar ou inputsign
      * @returns {number} le nombre de points total
      */
-    nombrePts() {
+    nombrePts():number {
         return this._lines.filter(line => TkzTab.INPUTLABELS.includes(line.type)).length
     }
 
     /**
      * renvoie la vue résultat. La calcule au besoin
-     * @param {*} data 
+     * @param {*} userData 
      * @returns {View} la vue résultat
      */
-    resultView(data) {
+    resultView(userData:Record<string,string>):AnyView {
         if (typeof this._resultView === "undefined") {
-            this._calcResult(data)
+            const [view, score] = this._calcResult(userData)
+            this._resultView = view
+            this._score = score
         }
         return this._resultView
     }
@@ -127,14 +140,14 @@ class TkzTabBloc extends Bloc {
     /**
      * Renvoie le score final
      * le calcule au besoin
-     * @param {*} data 
+     * @param {Record<string,string>} userData 
      * @returns {number} le score final
      */
-    resultScore(data) {
+    resultScore(userData:Record<string,string>):number {
         for (let line of this._lines) {
             if (line.type === 'inputvar' || line.type === 'inputsign') {
                 // on doit calculer le score
-                if (typeof data[line.name] === "undefined") {
+                if (typeof userData[line.name] === "undefined") {
                     // donnée manquante
                     return 0
                 }
@@ -142,16 +155,18 @@ class TkzTabBloc extends Bloc {
         }
         // toutes les données sont présentes
         if (typeof this._score === "undefined") {
-            this._calcResult(data)
+            const [view, score] = this._calcResult(userData)
+            this._resultView = view
+            this._score = score
         }
         return this._score
     }
     
     /**
      * Calcule le score et la vue
-     * @param {*} data 
+     * @param {Record<string,string>} userData 
      */
-    _calcResult(data) {
+    protected _calcResult(userData:Record<string,string>):[AnyView,number] {
         // on va calculer un tableau résultat.
         // les lignes inputvar donneront lieu à une correction
         // en ajoutant une ligne en vert si elle est juste
@@ -175,7 +190,7 @@ class TkzTabBloc extends Bloc {
             }
             // on met de toute façon une ligne pour la correction
             tkzTab.addLine(newLine).setSuccess(true)
-            const userValue = data[line.name] || ''
+            const userValue = userData[line.name] || ''
             const solution = newLine.line
             if (line.type === 'inputvar' && TabVarLineInput.compare(solution, userValue)) {
                 // bonne réponse
@@ -190,11 +205,11 @@ class TkzTabBloc extends Bloc {
             wrongLine.line = userValue
             tkzTab.addLine(wrongLine).setSuccess(false)
         }
-        this._score = count
-        this._resultView = new TkzTabView({
+        const resultView = new TkzTabView({
             tkzTab: tkzTab,
             result:true
         })
+        return [resultView, count]
     }
 
 

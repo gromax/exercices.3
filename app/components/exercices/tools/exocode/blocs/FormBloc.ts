@@ -2,10 +2,7 @@ import _ from "underscore"
 import Bloc from "./bloc"
 import FormView from "../views/formview.js"
 import ResultsView from "../views/resultsview.js"
-import { View } from "backbone.marionette"
-
-type AnyView = View<any>|Array<View<any>>
-
+import { AnyView } from "@types"
 
 /* Il faut vérifier les answers dans entity et choisir si on affiche
    le formulaire ou pas. */
@@ -31,13 +28,11 @@ class FormBloc extends Bloc {
     }
 
     private _viewFormCase(answers:Record<string, string>):AnyView {
-        const subViews:Array<AnyView> = []
-        for (const child of this._children) {
-            if (typeof child.view === "function") {
-                const subView = child.view(answers)
-                subViews.push(subView)
-            }
-        }
+        const subViews:Array<AnyView> = this._children.filter(
+            (child): child is Bloc => child instanceof Bloc
+        ).map(
+            (child) => child.view(answers)
+        )
         const formView = new FormView({
             blocParent: this,
             name: this.header,

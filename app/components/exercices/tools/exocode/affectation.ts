@@ -1,8 +1,10 @@
-import { getValue } from '../maths/misc/substitution'
-import evaluate from '../maths/pile/evaluation';
+import { getValue } from '@mathstools/misc/substitution'
+import evaluate from '@mathstools/pile/evaluation';
+import Node from './node'
 
-class Affectation {
-    private _tag:string
+import { InputType } from "@types"
+
+class Affectation extends Node {
     private _value:string
     private _repeater:string|undefined
     private _isArray:boolean
@@ -20,7 +22,7 @@ class Affectation {
     }
 
     private constructor(tag:string, repeater:string|undefined, value:string, isArray:boolean, approxOrder:string|undefined) {
-        this._tag = tag
+        super(tag)
         this._value = value
         this._repeater = repeater
         this._isArray = isArray
@@ -30,10 +32,10 @@ class Affectation {
     /**
      * Réalise l'affectation dans params
      * protectedParams sont des paramètres protégés qui ne peuvent pas être modifiés
-     * @param {object} params 
-     * @param {object} protectedParams 
+     * @param {Record<string,InputType>} params 
+     * @param {Record<string,InputType>} protectedParams 
      */
-    doAffectation(params:Record<string, any>, protectedParams:Record<string, any>):void {
+    doAffectation(params:Record<string, InputType>, protectedParams:Record<string, InputType>):void {
         if (this._tag in protectedParams) {
             // situation anormale, on ne peut pas écraser un paramètre protégé
             throw new Error(`Le paramètre ${this._tag} est protégé et ne peut pas être redéfini.`);

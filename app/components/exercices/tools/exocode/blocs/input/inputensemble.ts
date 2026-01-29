@@ -1,12 +1,8 @@
-import InputBloc from "./inputbloc"
-import { InputView, InputResultView } from "../../views/inputview"
+import { InputResultView } from "../../views/inputview"
 import InputTextBloc from "./inputtextbloc"
 import { checkFormat, checkValue, formatValue } from "@mathstools/misc/check"
 import MyMath from "@mathstools/mymath"
-import { View } from 'backbone.marionette'
-import { A } from "@svgdotjs/svg.js"
-
-type AnyView = View<any>|Array<View<any>>
+import { AnyView } from "@types"
 
 
 class InputEnsemble extends InputTextBloc {

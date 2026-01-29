@@ -2,11 +2,9 @@ import _ from "underscore"
 import InputBloc from "./inputbloc"
 import { InputView, InputResultView } from "../../views/inputview"
 import { checkFormat, checkValue, formatValue, InputType } from "@mathstools/misc/check"
-import { View } from 'backbone.marionette'
+import { View } from "backbone.marionette"
+import { AnyView } from "@types"
 import TextBloc from "../textbloc"
-
-type AnyView = View<any>|Array<View<any>>
-
 
 class InputTextBloc extends InputBloc {
     static LABEL = 'input'
@@ -14,7 +12,9 @@ class InputTextBloc extends InputBloc {
     protected _getView(answers:Record<string, string>):AnyView {
         // On peut accepter un bloc de texte de type aide
         // D'autres enfants seront ignorés
-        const aideBlocs = this._children.filter(child => (child instanceof TextBloc) && child.isHelp())
+        const aideBlocs:Array<TextBloc> = this._children.filter(
+            (child): child is TextBloc => child instanceof TextBloc && child.isHelp
+        )
         if (aideBlocs.length > 1) {
             console.warn(`Le bloc <input:${this.header}> contient plusieurs blocs d'aide. Seul le premier sera pris en compte.`)
         }

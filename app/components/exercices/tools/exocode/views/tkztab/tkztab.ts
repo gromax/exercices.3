@@ -49,7 +49,6 @@ class TkzTab {
         const line = options[1]
         if (key === 'inputsign') {
             const name = options[2]
-            const solution = options[3]
             return {type: 'inputsign', tag, line, name}
         }
         return {type: 'sign', tag, line}

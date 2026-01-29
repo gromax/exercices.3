@@ -2,9 +2,7 @@ import _ from "underscore"
 import InputBloc from "./inputbloc.js"
 import RadioView from "../../views/radioview.js"
 import { InputResultView } from "../../views/inputview.js"
-import { View } from "backbone.marionette"
-
-type AnyView = View<any>|Array<View<any>>
+import { AnyView } from "@types"
 
 class RadioBloc extends InputBloc {
     protected _options:Record<string, string>

@@ -4,29 +4,26 @@
  */
 
 import _ from 'underscore'
-import UnknownView from '../views/unknownview.js'
-import TableView from '../views/tableview.js'
-import { View } from 'backbone.marionette'
+import UnknownView from '../views/unknownview'
+import TableView from '../views/tableview'
+import Node from '../node'
+import FormItemImplementation from '../implementation/formitem'
+import { InputType, AnyView } from '@types'
 
-type AnyView = View<any>|Array<View<any>>
-
-class Bloc {
-    protected _children:Array<Bloc>
+class Bloc extends Node {
+    protected _children:Array<Node>
     protected _closed:boolean
     protected _paramsString:string
     protected _params:Record<string, any>
-    protected _runned:boolean
-    protected _tag:string
     protected _defaultOption?:string
     protected _options?:Record<string, string>
 
     constructor(tag:string, paramsString:string, closed:boolean) {
+        super(tag)
         this._children = []
         this._closed = closed || false
         this._paramsString = paramsString
         this._params = { header:paramsString }
-        this._runned = false
-        this._tag = tag
     }
 
     /**
@@ -37,7 +34,7 @@ class Bloc {
      * @param {string} key 
      * @param {*} value 
      */
-    setParam(key:string, value:any):void {
+    setParam(key:string, value:InputType):void {
         const realKey = key.endsWith('[]')
             ? key.slice(0, -2)
             : key
@@ -65,11 +62,7 @@ class Bloc {
         return this._params
     }
 
-    get tag():string {
-        return this._tag
-    }
-
-    get children():Array<Bloc> {
+    get children():Array<Node> {
         return [...this._children]
     }
 
@@ -81,7 +74,7 @@ class Bloc {
         return this._closed
     }
 
-    push(child:Bloc):void {
+    push(child:Node):void {
         if (this.closed) {
             throw new Error("Impossible d'ajouter un enfant à un bloc fermé")
         }
@@ -96,7 +89,7 @@ class Bloc {
      * @param {Object} params
      * @param {Bloc|null} caller le bloc appelant
      */
-    run(params:Record<string, any>, caller:Bloc|null = null):Bloc|Array<Bloc> {
+    run(params:Record<string, any>, caller:Bloc|null = null):Bloc|Array<Node> {
         if (this._runned) {
             throw new Error(`Le bloc <${this.tag}> a déjà été exécuté.`)
         }
@@ -173,8 +166,8 @@ class Bloc {
     nombrePts():number {
         let count = 0
         for (const item of this._children){
-            if (typeof item.nombrePts === 'function') {
-                count += item.nombrePts()
+            if (typeof (item as any).IMPLEMENTATION_FORMITEM != 'undefined') {
+                count += ((item as unknown) as FormItemImplementation).nombrePts()
             }
         }
         return count

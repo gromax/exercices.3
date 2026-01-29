@@ -103,6 +103,7 @@ const webpackCommon = {
       '@components': path.resolve(__dirname, 'app/components'),
       '@entities': path.resolve(__dirname, 'app/components/entities'),
       '@mathstools': path.resolve(__dirname, 'app/components/exercices/tools/maths'),
+      '@exocode': path.resolve(__dirname, 'app/components/exercices/tools/exocode'),
       '@styles': path.resolve(__dirname, 'app/styles'),
       '@common': path.resolve(__dirname, 'app/components/common'),
       '@types': path.resolve(__dirname, 'app/components/types'),

@@ -21,6 +21,7 @@
       "@components/*": ["components/*"],
       "@entities/*": ["components/entities/*"],
       "@mathstools/*": ["components/exercices/tools/maths/*"],
+      "@exocode/*": ["components/exercices/tools/exocode/*"],
       "@styles/*": ["styles/*"],
       "@common/*": ["components/common/*"],
       "@templates/*": ["templates/*"],

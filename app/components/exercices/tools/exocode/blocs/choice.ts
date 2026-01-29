@@ -1,10 +1,8 @@
 import Bloc from "./bloc"
 import Colors from "../colors"
 import { ChoicesView } from "../views/choice"
-import { View } from 'backbone.marionette'
+import { AnyView } from '@types'
 import ChoiceManager from './choicemanager'
-
-type AnyView = View<any>|Array<View<any>>
 
 class ChoiceBloc extends Bloc {
     private _colors?:Colors
