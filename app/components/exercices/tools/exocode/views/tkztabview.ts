@@ -21,8 +21,8 @@ const TkzTabView = View.extend({
         }
     },
     
-    onClickTabvar(e) {
-        const target = e.currentTarget
+    onClickTabvar(e:MouseEvent) {
+        const target = e.currentTarget as HTMLElement
         const lineIndex = parseInt(target.getAttribute('data-lineindex'))
         const xIndex = parseInt(target.getAttribute('data-xindex'))
         const xpos = target.getAttribute('data-xpos')
@@ -30,30 +30,30 @@ const TkzTabView = View.extend({
         this.render()
     },
 
-    onClickTabsign(e) {
-        const target = e.currentTarget
+    onClickTabsign(e:MouseEvent) {
+        const target = e.currentTarget as HTMLElement
         const lineIndex = parseInt(target.getAttribute('data-lineindex'))
         const xIndex = parseInt(target.getAttribute('data-xindex'))
         this.getOption('tkzTab').toggleSign(lineIndex, xIndex)
         this.render()
     },
 
-    onRender() {
-        this.svgGroup = this.el.querySelector('.tkztab-content');
+    onRender():void {
+        this.svgGroup = this.el.querySelector('.tkztab-content')
         const tkzTab = this.getOption('tkzTab')
-        const svgConainer = this.el.querySelector('.tkztab-svg');
-        svgConainer.setAttribute('viewBox', `0 0 ${tkzTab.width} ${tkzTab.height}`);
-        const draw = SVG().addTo(this.svgGroup);
-        tkzTab.render(draw, this.el.querySelector('.js-complement'));
+        const svgConainer = this.el.querySelector('.tkztab-svg')
+        svgConainer.setAttribute('viewBox', `0 0 ${tkzTab.width} ${tkzTab.height}`)
+        const draw = SVG().addTo(this.svgGroup)
+        tkzTab.render(draw, this.el.querySelector('.js-complement'))
         // On rend les textes en LaTeX
-        renderTexInDomElement(this.el);
+        renderTexInDomElement(this.el)
     },
 
-    className() {
+    className():string {
         return this.getOption("result") === true
             ? 'list-group-item list-group-item-dark'
             : ''
     },
-});
+})
 
-export default TkzTabView;
+export default TkzTabView

@@ -1,7 +1,9 @@
 import { View, CollectionView } from 'backbone.marionette'
+import { Model, Collection } from 'backbone'
 import choice_tpl from '@templates/exercices/bloc/choice-item.jst'
 import form_choice_layout_tpl from '@templates/exercices/bloc/form-choice-layout.jst'
 import renderTexInDomElement from '../../../../common/rendertex'
+import Colors from "../colors"
 
 const ChoiceView = View.extend({
     template: choice_tpl,
@@ -17,12 +19,18 @@ const ChoiceView = View.extend({
     /**
      * Répond à un clic sur un item de la liste de choix
      * @param {number} vmax valeur max pour le choix
-     * @param {Color} colorSet jeu de couleurs
+     * @param {Colors} colorSet jeu de couleurs
      * @param {boolean} squareOnly indique si on utilise des pictogrammes ou non
      * @param {HTMLElement} inputNode nœud input associé
      * @param {Collection} notshuffledCollection 
      */
-    itemClick(vmax, colorSet, squareOnly, inputNode, notshuffledCollection) {
+    itemClick(
+        vmax:number,
+        colorSet:Colors,
+        squareOnly:boolean,
+        inputNode:JQuery<HTMLElement>,
+        notshuffledCollection:Collection
+    ):void {
         const model = this.model
         let idx = model.get('index')
         idx += 1
@@ -49,7 +57,7 @@ const ChoiceView = View.extend({
 const ChoicesView = CollectionView.extend({
     childView: ChoiceView,
     childViewEventPrefix: 'item',
-    childViewOptions(model) {
+    childViewOptions(model:Model) {
         return {
             button: this.getOption("button") || false
         };

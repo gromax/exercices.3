@@ -1,6 +1,6 @@
-import { View } from 'backbone.marionette';
-import exercice_input_tpl from '@templates/exercices/run/exercice-input.jst';
-import result_tpl from '@templates/exercices/bloc/input-result.jst';
+import { View } from 'backbone.marionette'
+import exercice_input_tpl from '@templates/exercices/run/exercice-input.jst'
+import result_tpl from '@templates/exercices/bloc/input-result.jst'
 
 const KEYS = {
     'sqrt': { tag: '$\\sqrt{x}$', pre:'sqrt(' , post: ')' },
@@ -45,7 +45,7 @@ const InputView = View.extend({
             tag: this.getOption("tag"),
             answer: this.getOption("answer"),
             keyboard: this._getKeyboard()
-        };
+        }
     },
     events: {
         'click button.js-keyboard': 'onKeyboardPress',
@@ -63,9 +63,9 @@ const InputView = View.extend({
         helpRegion: '.js-help-region'
     },
 
-    onKeyboardPress(e) {
+    onKeyboardPress(e:MouseEvent) {
         e.preventDefault()
-        const keyName = $(e.currentTarget).data('name')
+        const keyName = $(e.currentTarget as HTMLElement).data('name')
         if (keyName === 'help') {
             this._keyboardHelp()
             return
@@ -80,30 +80,30 @@ const InputView = View.extend({
         let newValue = ''
         if (end - start == 0) {
             const replacement = params.rep || ((params.pre || '') + (params.post || '')) || ''
-            newValue = value.slice(0, start) + replacement + value.slice(end);
+            newValue = value.slice(0, start) + replacement + value.slice(end)
         } else if (params.pre) {
             const post = params.post || ''
-            newValue = value.slice(0, start) + params.pre + value.slice(start, end) + post + value.slice(end);
+            newValue = value.slice(0, start) + params.pre + value.slice(start, end) + post + value.slice(end)
         } else {
             const replacement = params.rep || ((params.pre || '') + (params.post || '')) || ''
-            newValue = value.slice(0, start) + replacement + value.slice(end);
+            newValue = value.slice(0, start) + replacement + value.slice(end)
         }
-        const input = this.el.querySelector('input[name="' + this.getOption("name") + '"]');
-        input.value = newValue;
-        input.focus();
+        const input = this.el.querySelector('input[name="' + this.getOption("name") + '"]')
+        input.value = newValue
+        input.focus()
     },
 
     _keyboardHelp() {
-        const helpRegionEl = this.el.querySelector('.js-help-region');
-        const cards = helpRegionEl.querySelectorAll('.card');
-        cards.forEach(card => card.classList.toggle('show'));
+        const helpRegionEl = this.el.querySelector('.js-help-region')
+        const cards = helpRegionEl.querySelectorAll('.card')
+        cards.forEach(card => card.classList.toggle('show'))
     },
 
     _getInputSelection() {
-        const input = this.el.querySelector('input[name="' + this.getOption("name") + '"]');
-        return { start: input.selectionStart, end: input.selectionEnd, value: input.value };
+        const input = this.el.querySelector('input[name="' + this.getOption("name") + '"]')
+        return { start: input.selectionStart, end: input.selectionEnd, value: input.value }
     }
-});
+})
 
 const InputResultView = View.extend({
     template: result_tpl,
@@ -111,14 +111,14 @@ const InputResultView = View.extend({
     className() {
         return this.getOption("success")
             ? 'list-group-item list-group-item-success'
-            : 'list-group-item list-group-item-danger';
+            : 'list-group-item list-group-item-danger'
     },
 
     templateContext() {
         return {
             message: this.getOption("message"),
-        };
+        }
     }
-});
+})
 
-export { InputView, InputResultView };
+export { InputView, InputResultView }

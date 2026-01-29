@@ -16,7 +16,7 @@ const HelpView = View.extend({
     };
   },
 
-  onToggleCollapse() {
+  onToggleCollapse():void {
     const target = this.el.querySelector('.card');
     if (target) {
       target.classList.toggle('show');
