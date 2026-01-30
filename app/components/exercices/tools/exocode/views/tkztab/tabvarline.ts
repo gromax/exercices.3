@@ -1,5 +1,6 @@
-import TabLine from "./tabline.js"
-import TabVarItem from "./tabvaritem.js"
+import _ from "underscore"
+import { TabLine, TConfig } from "./tabline"
+import { TabVarItem } from "./tabvaritem"
 
 class TabVarLine extends TabLine {
     static MIN_HAUTEUR = 1
@@ -7,7 +8,9 @@ class TabVarLine extends TabLine {
     /**
      * @type {Array} liste des items de la ligne
      */
-    _values = [];
+    protected _values:Array<TabVarItem>
+
+    protected _items:Array<string>
 
     /**
      * Constructeur
@@ -15,25 +18,33 @@ class TabVarLine extends TabLine {
      * de forme -/$12$,+/$y$,...
      * On autorise les formes de tkz-tab :
      * -/val, +/val, R, -D/val, +D/val, D-/val, D+/val, -D-/val/val, -D+/val/val, +D-/val/val, +D+/val/val
-     * @param {string|Array} line texte qui a la forme -/val,+/val,R,...
+     * @param {string|Array<string>} line texte qui a la forme -/val,+/val,R,...
      * @param {string} tag tag de la ligne (ex: "f(x)")
      * @param {number} hauteur hauteur de la ligne en nombre d'unités verticales, doit être au moins 3
      * @param {number} offset décalage vertical de la ligne
-     * @param {object} config configuration de la ligne
+     * @param {TConfig} config configuration de la ligne
      * @param {number} index index de la ligne dans le tableau
      */
-    constructor (line, tag, hauteur, offset, config, index) {
+    constructor (
+        line:string|Array<string>,
+        tag:string,
+        hauteur:number,
+        offset:number,
+        config:TConfig,
+        index:number
+    ) {
         super(tag, hauteur, offset, config, index)
         const items = typeof line === "string"
             ? line.split(',').map( x => x.trim() )
             : line
         while (items.length < this._config.size) items.push('') // On s'assure une longueur minimum
         while (items.length > this._config.size) items.pop() // On s'assure d'une longueur maximum
+        this._values = []
         this._items = items
         this._calcSubItems()
     }
 
-    _calcSubItems() {
+    protected _calcSubItems():void {
         const subItems = _.map(
             this._items,
             (item, index) => TabVarItem.make(
@@ -47,7 +58,7 @@ class TabVarLine extends TabLine {
         this._values = _.flatten(filtered)
     }
 
-    _renderRight () {
+    protected _renderRight():void {
         for (let item of this._values) {
             item.render(this._hauteur, this._y0, this._svg)
         }

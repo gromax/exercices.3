@@ -1,19 +1,40 @@
-import SVG from "@svgdotjs/svg.js"
+import { Svg, G } from "@svgdotjs/svg.js"
+import { TConfig } from "./tabline"
 import createTextForeignObject from "./foreignobject"
+
+type TYPos = "-" | "" | "+" | "D" | "R"
+type TXPos = "" | "-" | "+"
 
 class TabVarItem {
     static BUTTON_COLOR = '#ff66ff'
     static BUTTON_SIZE_RATIO = 0.820
 
     static RATIO = 0.2 // ratio de la taille de la flèche par rapport à la hauteur de la ligne
+
+    private _xIndex:number
+    private _xpos:TXPos
+    private _ypos:TYPos
+    private _tag:string
+    private _config:TConfig
+    private _lineIndex:number
+
     /**
      * Constructeur d'un item de TabVar
      * @param {number} xIndex - index de la position en x (0, 1, 2, ...)
-     * @param {string} xpos - position horizontale de l'item ("", "+", "-")
-     * @param {string} ypos - position verticale de l'item ("+", "-", "R")
+     * @param {TXPos} xpos - position horizontale de l'item ("", "+", "-")
+     * @param {TYPos} ypos - position verticale de l'item ("+", "-", "R")
      * @param {string} tag - tag de l'item (texte affiché)
+     * @param {TConfig} config
+     * @param {number} lineIndex
      */
-    constructor (xIndex, xpos, ypos, tag, config, lineIndex) {
+    private constructor (
+        xIndex:number,
+        xpos:TXPos,
+        ypos:TYPos,
+        tag:string,
+        config:TConfig,
+        lineIndex:number
+    ) {
         this._xIndex = xIndex
         this._xpos = xpos
         this._ypos = ypos
@@ -22,7 +43,12 @@ class TabVarItem {
         this._lineIndex = lineIndex
     }
 
-    static make(index, tag, config, lineIndex) {
+    static make(
+        index:number,
+        tag:string,
+        config:TConfig,
+        lineIndex:number
+    ):TabVarItem|Array<TabVarItem>|null {
         // tag a la forme "+/value" ou encore "-D+/value/value" ou même "+"
         const tabTag = tag.split('/')
         switch(tabTag[0]) {
@@ -93,9 +119,9 @@ class TabVarItem {
      * construit la représentation svg
      * @param {number} h hauteur de la ligne en unités
      * @param {number} y0 décalage vertical de la ligne
-     * @param {SVG} svgParent élément SVG parent
+     * @param {SVG|G} svgParent élément SVG parent
      */
-    render (h, y0, svgParent) {
+    render (h:number, y0:number, svgParent:Svg|G) {
         const d = this._config.espcl
         const m = this._config.margin
         const lgt = this._config.lgt
@@ -107,9 +133,9 @@ class TabVarItem {
         if (this._ypos === "D") {
             // double barre
             svgParent.line(x-2, y0, x-2, y0 + hl)
-                .stroke({color: this._config.color, 'stroke-width':1})
+                .stroke({color: this._config.color, width:1})
             svgParent.line(x+2, y0, x+2, y0 + hl)
-                .stroke({color: this._config.color, 'stroke-width':1})
+                .stroke({color: this._config.color, width:1})
             return
         }
 
@@ -139,11 +165,16 @@ class TabVarItem {
     /**
      * trace la flèche vers l'item précédent
      * @param {TabVarItem} itemPrev item précédent
-     * @param {SVG} svgParent élément SVG parent
+     * @param {SVG|G} svgParent élément SVG parent
      * @param {number} y0 décalage vertical de la ligne
      * @param {number} h hauteur de la ligne en unités
      */
-    renderPrevArrow(itemPrev, svgParent, y0, h) {
+    renderPrevArrow(
+        itemPrev:TabVarItem,
+        svgParent:Svg|G,
+        y0:number,
+        h:number
+    ) {
         if (!itemPrev || itemPrev.isD() || this.isD() || itemPrev.isR() || this.isR()) {
             return
         }
@@ -181,9 +212,13 @@ class TabVarItem {
      * constructruit un bouton svg
      * @param {number} h hauteur de la ligne en unités
      * @param {number} y0 décalage vertical de la ligne
-     * @param {SVG} svgParent élément SVG parent
+     * @param {Svg|G} svgParent élément SVG parent
      */
-    renderButton( h, y0, svgParent) {
+    renderButton(
+        h:number,
+        y0:number,
+        svgParent:Svg|G
+    ) {
         if (this.isD() || this.isR()) {
             return
         }
@@ -212,4 +247,4 @@ class TabVarItem {
 
 }
 
-export default TabVarItem
+export { TabVarItem, TXPos, TYPos }

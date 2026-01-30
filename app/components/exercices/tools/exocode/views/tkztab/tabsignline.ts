@@ -1,12 +1,12 @@
-import TabLine from "./tabline.js"
+import { TabLine, TConfig } from "./tabline"
 
 class TabSignLine extends TabLine {
     static STROKE_WIDTH = 4
     
     /**
-     * @type {Array} liste des étiquettes de la ligne : z, d, t, +, -...
+     * @type {Array<string>} liste des étiquettes de la ligne : z, d, t, +, -...
      */
-    _tags;
+    _tags:Array<string>
 
     /**
      * Constructeur de la ligne de signes
@@ -20,7 +20,13 @@ class TabSignLine extends TabLine {
      * @param {object} config configuration de la ligne
      * @param {number} index index de la ligne dans le tableau
      */
-    constructor(line, tag, offset, config, index) {
+    constructor(
+        line:string,
+        tag:string,
+        offset:number,
+        config:TConfig,
+        index:number
+    ) {
         super(tag, 1, offset, config, index)
         this._tags = typeof line === "string"
             ? line.split(',')
@@ -30,7 +36,7 @@ class TabSignLine extends TabLine {
         while (this._tags.length > s) this._tags.pop() // On s'assure une longueur maximum
     }
 
-    _renderRight() {
+    protected _renderRight() {
         const d = this._config.espcl // espace entre valeurs, comme dans tkz-tab
         for (let j=0; j < this._tags.length; j++) {
             const tag = this._tags[j]
@@ -45,7 +51,7 @@ class TabSignLine extends TabLine {
         }
     }
 
-    _drawVertLines(tag, x) {
+    protected _drawVertLines(tag:string, x:number):void {
         const svg = this._svg
         const backgroundColor = this._config.backgroundColor || 'white'
         const hl = this._hauteur * this._config.pixelsYUnit
@@ -55,7 +61,7 @@ class TabSignLine extends TabLine {
             case "z":
                 // ligne avec zéro
                 svg.line(x, y0 ,x, y0 + hl)
-                    .stroke({color, 'stroke-width':2})
+                    .stroke({color, width:2})
                 svg.circle(15)
                     .attr({stroke: color, fill: backgroundColor, 'stroke-width':2})
                     .center(x, y0 + hl/2)
@@ -63,14 +69,14 @@ class TabSignLine extends TabLine {
             case "d":
                 // double barre
                 svg.line(x-2, y0, x-2, y0 + hl)
-                    .stroke({color, 'stroke-width':1})
+                    .stroke({ color, width:1 })
                 svg.line(x+2, y0, x+2, y0 + hl)
-                    .stroke({color, 'stroke-width':1})
+                    .stroke({ color, width:1 })
                 return
             case "t":
                 // simple ligne
                 svg.line(x, y0, x, y0 + hl)
-                    .stroke({color, dasharray:'5 5', 'stroke-width':.5})
+                    .stroke({color, dasharray:'5 5', width:.5})
         }
     }
 
@@ -80,19 +86,28 @@ class TabSignLine extends TabLine {
      * @param {string} tag 
      * @param {number} x 
      */
-    _drawItem(index, tag, x) {
+    protected _drawItem(index, tag, x):void {
         // En face d'une zone
         const color = this._config.color
         const hl = this._hauteur * this._config.pixelsYUnit
         const y0 = this._y0 + hl/2
         const svg = this._svg
         if (tag === "+") {
-            svg.line(x, y0 - 10, x, y0 + 10).stroke({color, 'stroke-width':this.constructor.STROKE_WIDTH})
-            svg.line(x - 10, y0 , x + 10, y0).stroke({color, 'stroke-width':this.constructor.STROKE_WIDTH})
+            svg.line(x, y0 - 10, x, y0 + 10).stroke({
+                color,
+                width:(this.constructor as typeof TabSignLine).STROKE_WIDTH
+            })
+            svg.line(x - 10, y0 , x + 10, y0).stroke({
+                color,
+                width:(this.constructor as typeof TabSignLine).STROKE_WIDTH
+            })
         } else if (tag === "-") {
-            svg.line(x-10, y0, x+10, y0).stroke({color, 'stroke-width':this.constructor.STROKE_WIDTH})
+            svg.line(x-10, y0, x+10, y0).stroke({
+                color,
+                width:(this.constructor as typeof TabSignLine).STROKE_WIDTH
+            })
         }
     }
 }
 
-export default TabSignLine;
+export default TabSignLine

@@ -1,13 +1,19 @@
 import TabVarLine from "./tabvarline"
+import { TConfig } from "./tabline"
+import { TXPos } from "./tabvaritem"
+import { Svg, G } from '@svgdotjs/svg.js'
 
 class TabVarLineInput extends TabVarLine {
+    private _name:string
+    private _solution:string
+
     /**
      * compare les positions de deux lignes, sans tenir compte des valeurs
      * @param {string} a 
      * @param {string} b 
      * @returns {boolean} true si les positions sont identiques
      */
-    static compare(a, b) {
+    static compare(a:string, b:string):boolean {
         const aTags = a.split(',').map( x => x.trim().split('/')[0] )
         const bTags = b.split(',').map( x => x.trim().split('/')[0] )
         if (aTags.length !== bTags.length) return false
@@ -23,16 +29,25 @@ class TabVarLineInput extends TabVarLine {
      * de forme -/$12$,+/$y$,...
      * On autorise les formes de tkz-tab :
      * -/val, +/val, R, -D/val, +D/val, D-/val, D+/val, -D-/val/val, -D+/val/val, +D-/val/val, +D+/val/val
-     * @param {string|Array} line texte qui a la forme -/val,+/val,R,...
+     * @param {string|Array<string>} line texte qui a la forme -/val,+/val,R,...
      * @param {string} tag tag de la ligne (ex: "f(x)")
      * @param {number} hauteur hauteur de la ligne en nombre d'unités verticales, doit être au moins 3
      * @param {number} offset décalage vertical de la ligne
-     * @param {object} config configuration de la ligne
+     * @param {TConfig} config configuration de la ligne
      * @param {number} index index de la ligne dans le tableau
      * @param {string} name nom de l'input
      * @param {string} solution valeur de la solution
      */
-    constructor (line, tag, hauteur, offset, config, index, name, solution) {
+    constructor (
+        line:string|Array<string>,
+        tag:string,
+        hauteur:number,
+        offset:number,
+        config:TConfig,
+        index:number,
+        name:string,
+        solution:string
+    ) {
         super(line, tag, hauteur, offset, config, index)
         this._name = name
         this._solution = solution
@@ -45,9 +60,9 @@ class TabVarLineInput extends TabVarLine {
     /**
      * Bascule la position de l'item d'un tabvar
      * @param {number} xindex 
-     * @param {string} xpos 
+     * @param {TXPos} xpos 
      */
-    togglePosItem(xindex, xpos) {
+    togglePosItem(xindex:number, xpos:TXPos):void {
         if (xindex < 0 || xindex >= this._items.length) {
             console.warn(`Invalid xIndex for var line button click: xIndex=${xindex}`)
             return
@@ -79,15 +94,15 @@ class TabVarLineInput extends TabVarLine {
 
     /**
      * trace la ligne et ajoute le champ input
-     * @param {SVG} draw élément SVG de la ligne
+     * @param {Svg} draw élément SVG de la ligne
      * @param {HTMLElement} divComplement élément HTML complémentaire
      */
-    render (draw, divComplement) {
+    render (draw:Svg, divComplement:HTMLElement):void {
         super.render(draw, divComplement)
         this._addInput(divComplement)
     }
 
-    _addInput (divComplement) {
+    protected _addInput (divComplement:HTMLElement):void {
         const input = document.createElement('input')
         input.type = 'hidden'
         input.name = this._name
@@ -95,7 +110,7 @@ class TabVarLineInput extends TabVarLine {
         divComplement.appendChild(input)
     }
 
-    _renderRight () {
+    protected _renderRight():void {
         super._renderRight()
         for (let item of this._values) {
             item.renderButton(this._hauteur, this._y0, this._svg)

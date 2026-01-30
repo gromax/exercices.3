@@ -1,22 +1,21 @@
-import TabLine from "./tabline.js"
-import createTextForeignObject from "./foreignobject.js"
+import { TabLine, TConfig } from "./tabline"
+import createTextForeignObject from "./foreignobject"
 
 class TabHeaderLine extends TabLine {
-    static MIN_HAUTEUR = 1;
+    static MIN_HAUTEUR = 1
     /**
      * @type {Array} liste des valeurs x
      */
-    _xList;
+    private _xList:Array<string>
 
     /**
      * Constructeur de la ligne d'en-tête de tableau
-     * @param {Array} xList 
+     * @param {Array<string>} xList 
      * @param {string} tag
-     * @param {number} hauteur hauteur de la ligne en nombre d'unités verticales 
-     * @param {object} config configuration de la ligne
+     * @param {TConfig} config configuration de la ligne
      */
-    constructor(xList, tag, config) {
-        super(tag, config.headerHeight, 0, config)
+    constructor(xList:Array<string>, tag:string, config:TConfig) {
+        super(tag, config.headerHeight, 0, config, -1)
         this._xList = xList
     }
 

@@ -3,6 +3,21 @@ import TabVarLine from "./tabvarline"
 import TabVarLineInput from "./tabvarlineinput"
 import TabSignLine from "./tabsignline"
 import TabSignLineInput from "./tabsignlineinput"
+import { TConfig } from "./tabline"
+import { TXPos } from "./tabvaritem"
+import { Svg } from '@svgdotjs/svg.js'
+
+
+type TLineType = "sign" | "var" | "inputvar" | "inputsign"
+type TLineConfig = {
+    type:TLineType,
+    tag:string,
+    hauteur?:number,
+    line:string,
+    name?:string,
+    solution?:string
+}
+type TLineObject = TabHeaderLine | TabVarLine | TabSignLineInput | TabSignLine | TabSignLineInput
 
 class TkzTab {
     static LINESTYPES = [
@@ -10,18 +25,22 @@ class TkzTab {
     ]
     static INPUTLABELS = ['inputvar', 'inputsign']
 
+    private _offset:number
+    private _config:TConfig
+    private _xList:Array<string>
+    private _lines:Array<TLineObject>
 
-    static parseLine(key, value) {
+    static parseLine(key:string, value:string):TLineConfig {
         const options = value.split(':').map( x => x.trim() )
         if (key === 'sign' || key === 'inputsign') {
-            return TkzTab.#parseSign(key, options)
+            return TkzTab._parseSign(key, options)
         } else if (key === 'var' || key === 'inputvar') {
-            return TkzTab.#parseVar(key, options)
+            return TkzTab._parseVar(key, options)
         }
         throw new Error(`Type de ligne inconnu : ${key}`)
     }
 
-    static #parseVar(key, options) {
+    private static _parseVar(key:string, options:Array<string>):TLineConfig {
         const goodsize = (key === 'inputvar') ? 5 : 3
         if (options.length !== goodsize) {
             throw new Error(`<${key}:${options.join(':')}/> Le paramètre '${key}' est mal formé.`)
@@ -40,7 +59,7 @@ class TkzTab {
         return {type: 'var', tag, hauteur, line}
     }
 
-    static #parseSign(key, options) {
+    private static _parseSign(key:string, options:Array<string>):TLineConfig {
         const goodsize = (key === 'inputsign') ? 3 : 2
         if (options.length !== goodsize) {
             throw new Error(`<${key}:${options.join(':')}/> Le paramètre '${key}' est mal formé.`)
@@ -56,20 +75,24 @@ class TkzTab {
 
     /**
      * Constructeur de la vue tableau de variation
-     * @param {Array|string} x_list liste des valeurs x
+     * @param {Array<string>|string} x_list liste des valeurs x
      * @param {object} config configuration du tableau
      */
-    constructor (x_list, config) {
+    constructor (
+        x_list:string|Array<string>,
+        config:TConfig
+    ) {
         this._offset = 0 // position du curseur vertical
-        const defaultConfig = {
+        const defaultConfig:TConfig = {
             xtag:"$x$",
             headerHeight:1,
             lgt:100,
             margin:20,
-            marginArrow:15,
             espcl:150,
             pixelsYUnit:40,
-            color:"#000000"
+            color:"#000000",
+            width:0,
+            size:0
         }
         this._config = {...defaultConfig, ...config}
         this._xList = typeof x_list === "string"
@@ -77,6 +100,7 @@ class TkzTab {
             : x_list
         this._config.size = this._xList.length
         this._config.width = this._config.lgt + (this._config.size - 1)*this._config.espcl + 2*this._config.margin
+
         const x_tag = this._config.xtag
         const header = new TabHeaderLine(this._xList, x_tag, this._config)
         this._offset += header.hauteur
@@ -89,7 +113,11 @@ class TkzTab {
      * @param {number} xIndex indice de l'item dans la ligne
      * @param {string} xpos position de l'item '+', '-' ou ''
      */
-    togglePosItem(lineIndex, xIndex, xpos) {
+    togglePosItem(
+        lineIndex:number,
+        xIndex:number,
+        xpos:TXPos
+    ):void {
         if (lineIndex < 1 || lineIndex >= this._lines.length) {
             console.warn(`indice de ligne invalide : ${lineIndex}`)
             return
@@ -108,7 +136,10 @@ class TkzTab {
      * @param {number} xIndex 
      * @returns 
      */
-    toggleSign(lineIndex, xIndex) {
+    toggleSign(
+        lineIndex:number,
+        xIndex:number
+    ):void {
         if (lineIndex < 1 || lineIndex >= this._lines.length) {
             console.warn(`indice de ligne invalide : ${lineIndex}`)
             return
@@ -121,7 +152,7 @@ class TkzTab {
         line.toggleItem(xIndex)
     }
 
-    addLine(line) {
+    addLine(line:TLineConfig):TLineObject {
         if (line.type === 'sign') {
             return this.addSignLine(line.line, line.tag)
         } else if (line.type === 'var') {
@@ -135,7 +166,7 @@ class TkzTab {
         }
     }
 
-    addLines(lines) {
+    addLines(lines:Array<TLineConfig>):void {
         for (let line of lines) {
             this.addLine(line)
         }
@@ -148,7 +179,11 @@ class TkzTab {
      * @param {number} hauteur hauteur de la ligne en nombre d'unités verticales
      * @returns {TabVarLine} l'objet créé pour chaînage
      */
-    addVarLine (line, tag, hauteur) {
+    private addVarLine (
+        line:string|Array<string>,
+        tag:string,
+        hauteur:number
+    ):TabVarLine {
         const index = this._lines.length
         const tabvarline = new TabVarLine(line, tag, hauteur, this._offset, this._config, index)
         this._offset += tabvarline.hauteur
@@ -165,7 +200,13 @@ class TkzTab {
      * @param {string} solution valeur de la solution
      * @returns {TabVarLineInput} l'objet créé pour chaînage
      */
-    addVarLineInput (line, tag, hauteur, name, solution) {
+    private addVarLineInput(
+        line:string|Array<string>,
+        tag:string,
+        hauteur:number,
+        name:string,
+        solution:string
+    ):TabVarLineInput {
         const index = this._lines.length
         const tabvarlineInput = new TabVarLineInput(line, tag, hauteur, this._offset, this._config, index, name, solution)
         this._offset += tabvarlineInput.hauteur
@@ -179,7 +220,10 @@ class TkzTab {
      * @param {string} tag tag de la ligne (ex: "f(x)")
      * @returns {TabSignLine} l'objet créé pour chaînage
      */
-    addSignLine (line, tag) {
+    private addSignLine (
+        line:string,
+        tag:string
+    ):TabSignLine {
         const index = this._lines.length
         const tabsignline = new TabSignLine(line, tag, this._offset, this._config, index)
         this._offset += tabsignline.hauteur
@@ -192,12 +236,15 @@ class TkzTab {
      * @param {string} line chaîne décrivant la ligne (ex: "z,+,z")
      * @param {string} tag tag de la ligne (ex: "f(x)")
      * @param {string} name nom de l'input
-     * @param {string} solution valeur de la solution
      * @returns {TabSignLineInput} l'objet créé pour chaînage
      */
-    addSignLineInput (line, tag, name, solution) {
+    private addSignLineInput (
+        line:string,
+        tag:string,
+        name:string,
+    ):TabSignLineInput {
         const index = this._lines.length
-        const tabsignlineinput = new TabSignLineInput(line, tag, this._offset, this._config, index, name, solution)
+        const tabsignlineinput = new TabSignLineInput(line, tag, this._offset, this._config, index, name)
         this._offset += tabsignlineinput.hauteur
         this._lines.push(tabsignlineinput)
         return tabsignlineinput
@@ -206,10 +253,10 @@ class TkzTab {
     /**
      * Trace le tableau de variation dans le dessin SVG
      * le complément permet de stocker des éléments HTML (ex: input)
-     * @param {SVG} draw 
+     * @param {Svg} draw 
      * @param {HTMLElement} divComplement 
      */
-    render (draw, divComplement) {
+    render (draw:Svg, divComplement:HTMLElement):void {
         const lines = this._lines
         const w = this._config.width
         const h = this._offset * this._config.pixelsYUnit
@@ -219,15 +266,15 @@ class TkzTab {
         }
     }
 
-    get inputsNumber() {
+    get inputsNumber():number {
         return this._lines.filter( line => (line instanceof TabVarLineInput || line instanceof TabSignLineInput) ).length
     }
 
-    get width() {
+    get width():number {
         return this._config.width
     }
 
-    get height() {
+    get height():number {
         return this._offset * this._config.pixelsYUnit
     }
 }

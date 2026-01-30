@@ -34,6 +34,7 @@
     "@types/backbone": "^1.4.23",
     "@types/backbone.marionette": "^3.3.19",
     "@types/jquery": "^3.5.33",
+    "@types/katex": "^0.16.8",
     "@types/node": "^25.0.10",
     "@types/underscore": "^1.13.0",
     "babel-loader": "^9.1.3",

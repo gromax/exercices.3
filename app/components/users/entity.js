@@ -1,4 +1,3 @@
-import { type } from "jquery";
 import { MyModel, MyCollection } from "../common/entity";
 import Ranks from "../common/ranks";
 
