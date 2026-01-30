@@ -4,8 +4,7 @@
 
 import Parser from '../parser/parser'
 import MyMath from '@mathstools/mymath'
-
-type InputType = string | number | MyMath
+import { InputType } from '@types'
 
 function checkNumericExpression(expr:string): string|boolean {
     try {

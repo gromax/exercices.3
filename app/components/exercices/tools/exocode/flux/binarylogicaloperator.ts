@@ -1,5 +1,5 @@
 import LogicalNode from "./logicalnode"
-import { InputType } from "@types"
+import { InputType, TParams } from "@types"
 
 class BinaryLogicalOperator extends LogicalNode {
     private symbol:string
@@ -29,7 +29,7 @@ class BinaryLogicalOperator extends LogicalNode {
         stack.push(this);
     }
 
-    evaluate(params:Record<string,InputType>):boolean|Array<boolean> {
+    evaluate(params:TParams):boolean|Array<boolean> {
         if (this._left === null || this._right === null) {
             throw new Error("Erreur d'évaluation de l'expression conditionnelle");
         }

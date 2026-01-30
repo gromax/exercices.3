@@ -1,6 +1,7 @@
 import { getValue } from '../maths/misc/substitution.js';
 import MyMath from '@mathstools/mymath';
 import Bloc from './blocs/bloc.js'
+import { TParams } from "@types"
 
 class Parameter {
     private _tag:string
@@ -20,7 +21,7 @@ class Parameter {
         this._param = paramsString.trim();
     }
 
-    run(params:Record<string, any>, caller:Bloc):null {
+    run(params:TParams, caller:Bloc):null {
         if (caller instanceof Bloc) {
             this._param = getValue(this._param, params) ?? MyMath.substituteExpressions(this._param, params);
             caller.setParam(this._tag, this._param);

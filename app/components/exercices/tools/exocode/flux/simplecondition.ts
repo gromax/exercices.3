@@ -1,6 +1,6 @@
 import MyMath from '../../maths/mymath'
 import { substituteParams } from '../../maths/misc/substitution'
-import { InputType } from "@types"
+import { NestedArray, TParams } from "@types"
 import LogicalNode from './logicalnode'
 
 class SimpleCondition extends LogicalNode {
@@ -33,28 +33,14 @@ class SimpleCondition extends LogicalNode {
         }
     }
 
-    evaluate(params:Record<string,InputType>):boolean|Array<boolean> {
+    evaluate(params:TParams):NestedArray<boolean> {
         if (this.operator === 'exists') {
             const paramName = this.left.substring(1)
             return params.hasOwnProperty(paramName)
         }
         const left = substituteParams(this.left, params)
         const right = substituteParams(this.right, params)
-        if (Array.isArray(left)) {
-            if (Array.isArray(right)) {
-                if (left.length !== right.length) {
-                    throw new Error("Erreur d'évaluation de l'expression conditionnelle : tailles incompatibles")
-                }
-                return left.map((v, i) => MyMath.compare(v, right[i], this.operator) as boolean)
-            } else {
-                return left.map(v => MyMath.compare(v, right, this.operator) as boolean)
-            }
-        }
-        if (Array.isArray(right)) {
-            return right.map(v => MyMath.compare(left, v, this.operator) as boolean)
-        }
-        
-        return MyMath.compare(left, right, this.operator) as boolean
+        return MyMath.compare(left, right, this.operator)
     }
 
     toString():string {

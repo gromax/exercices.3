@@ -1,6 +1,5 @@
 import MyMath from "../mymath"
-
-type InputType = string | number | MyMath
+import { InputType } from "@types"
 
 class Tkztab {
     static readonly NAME = 'Tkztab';

@@ -1,5 +1,5 @@
 import Bloc from './bloc.js'
-import { AnyView, InputType } from "@types"
+import { AnyView, TParams } from "@types"
 import TextView from '../views/textview'
 import HelpView from '../views/helpview'
 import TextNode from '../textnode'
@@ -12,7 +12,7 @@ class TextBloc extends Bloc {
         super(tag, paramsString, false)
     }
 
-    run(params:Record<string, InputType>, caller:any):this {
+    run(params:TParams, caller:any):this {
         if (this._runned) {
             // déjà exécuté
             return this

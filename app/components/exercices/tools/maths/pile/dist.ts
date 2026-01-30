@@ -3,9 +3,9 @@
  * Implémente des fonctions pour la loi binomiale et autres
  */
 
-type InputType = string | number | MyMath
-
+import { InputType } from "@types"
 import MyMath from '../mymath'
+
 class Dist {
     static readonly NAME = 'Dist'
     static readonly METHODS = {

@@ -2,7 +2,7 @@ import Bloc from "../blocs/bloc"
 import Node from "../node"
 import LogicalNode from "./logicalnode"
 import parseExpression from "./logicalparser"
-import { InputType } from "@types"
+import { InputType, TParams } from "@types"
 import IfBloc from "./ifbloc"
 import Affectation from "../affectation"
 
@@ -32,13 +32,17 @@ class Until extends Bloc {
         this._children.push(child);
     }
 
-    run(params:Record<string,InputType>, caller:any):Array<Node> {
+    run(params:TParams, caller:any):Array<Node> {
         // renvoie les enfants et le until ensuite en incrémentant le compteur
         this._counter += 1
         if (this._counter > Until.MAXITERATIONS) {
             throw new Error(`<until> MAXITERATIONS = ${Until.MAXITERATIONS} dépassé.`)
         }
-        if (this._expression.evaluate(params)) {
+        const success = this._expression.evaluate(params)
+        if (Array.isArray(success)) {
+            throw new Error("<until> : La condition ne devrait pas renvoyer un tableau")
+        }
+        if (success) {
             return []
         }
         const children = [...this._children]

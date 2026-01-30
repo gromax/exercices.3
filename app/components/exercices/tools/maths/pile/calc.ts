@@ -1,8 +1,5 @@
 import MyMath from '../mymath';
-import { NestedArray } from '@components/types';
-
-type InputType = string | number | MyMath
-
+import { NestedArray, InputType } from '@types';
 
 class Calc {
     static readonly NAME = 'Calc'

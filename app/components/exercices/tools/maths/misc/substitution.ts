@@ -1,10 +1,12 @@
+import { TParams, InputType, NestedArray } from "@types"
+
 /**
  * Si chaine est de la forme @name.sub
  * avec name dans params, alors renvoie params[name][sub]
  * @param {string} chaine 
- * @param {*} params 
+ * @param {TParams} params 
  */
-function getValue(chaine:string, params:Record<string, any>):any {
+function getValue(chaine:string, params:TParams):any {
     const m = chaine.match(/^@([A-Za-z_]\w*)(?:\.([A-Za-z_]\w*)|\[((?:@[A-Za-z_]\w*|[0-9]+)?)\])?$/);
     if (!m) {
         return null;
@@ -18,10 +20,15 @@ function getValue(chaine:string, params:Record<string, any>):any {
  * @param {string} name nom du paramètre
  * @param {string|undefined} sub nom éventuel d'un attribut (.sub)
  * @param {string|undefined} index indice éventuel ([index])
- * @param {object} params 
+ * @param {TParams} params 
  * @returns {*} la valeur du paramètre
  */
-function _getValueInternal(name:string, sub:string|undefined, index:string|undefined, params:Record<string, any>):any {
+function _getValueInternal(
+    name:string,
+    sub:string|undefined,
+    index:string|undefined,
+    params:TParams
+):NestedArray<InputType> {
     if (name === '__a') {
         if (sub === undefined) {
             throw new Error(`@__a doit être suivi d'un modificateur.`)
@@ -48,7 +55,7 @@ function _getValueInternal(name:string, sub:string|undefined, index:string|undef
         throw new Error(`Pas d'index défini pour accéder à ${name}[]. Ajoutez <:n> à votre affectation.`)
     }
     const idx = (index === "")
-        ? params.__i
+        ? params.__i as number
         : (/[0-9]+/.test(index) ? parseInt(index, 10) : parseInt(getValue(index, params), 10))
     if (idx >= params[name].length){
         throw new Error(`L'index ${idx} est hors limites pour le tableau ${name} de taille ${params[name].length}.`)
@@ -60,10 +67,10 @@ function _getValueInternal(name:string, sub:string|undefined, index:string|undef
  * remplace les labels @label dans une expression par leur valeur
  * On prévoit toujours des parenthèses autour de la valeur substituée au cas où ce soit une expression
  * @param {string} expr une expression
- * @param {object} params les paramètres connus
+ * @param {TParams} params les paramètres connus
  * @returns {string} une chaîne où les paramètres connus ont été remplacés par leur valeur
  */
-function substituteLabels(expr:string, params:Record<string, any>):string {
+function substituteLabels(expr:string, params:TParams):string {
     return expr.replace(/@([A-Za-z_]\w*)(?:\.([A-Za-z_]\w*)|\[((?:@[A-Za-z_]\w*|[0-9]+)?)\])?/g, (match, name, sub, index) => {
         // on envisage que le tag soit de la forme __a._10
         // dans ce cas on remplace par une valeur aléatoire constante
@@ -122,7 +129,7 @@ function _getAlea(sub:string): number | string {
     }
 }
 
-function substituteParams(expression:any, params:Record<string, any>):any {
+function substituteParams(expression:NestedArray<any>, params:TParams):NestedArray<InputType> {
     if (Array.isArray(expression)) {
         return expression.map(expr => substituteParams(expr, params))
     }

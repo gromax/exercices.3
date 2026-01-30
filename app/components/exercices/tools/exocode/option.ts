@@ -2,7 +2,7 @@ import { getValue } from '@mathstools/misc/substitution'
 import Bloc from './blocs/bloc'
 import MyMath from '@mathstools/mymath'
 import Node from './node'
-import { InputType } from "@types"
+import { InputType, TParams } from "@types"
 
 class Option extends Node{
     private _key:string
@@ -32,7 +32,7 @@ class Option extends Node{
         return this._value;
     }
 
-    run(params:Record<string, InputType>, caller:Bloc):null {
+    run(params:TParams, caller:Bloc):null {
         const key = this._key.startsWith('@')
             ? getValue(this._key, params)
             : this._key;

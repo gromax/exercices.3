@@ -8,13 +8,13 @@ import UnknownView from '../views/unknownview'
 import TableView from '../views/tableview'
 import Node from '../node'
 import FormItemImplementation from '../implementation/formitem'
-import { InputType, AnyView } from '@types'
+import { InputType, AnyView, TParams } from '@types'
 
 class Bloc extends Node {
     protected _children:Array<Node>
     protected _closed:boolean
     protected _paramsString:string
-    protected _params:Record<string, any>
+    protected _params:TParams
     protected _defaultOption?:string
     protected _options?:Record<string, string>
 
@@ -86,10 +86,10 @@ class Bloc extends Node {
      * et effectue les substitutions de texte nécessaire
      * de façon à obtenir un bloc de texte final qui pourra
      * être rendu.
-     * @param {Object} params
+     * @param {TParams} params
      * @param {Bloc|null} caller le bloc appelant
      */
-    run(params:Record<string, any>, caller:Bloc|null = null):Bloc|Array<Node> {
+    run(params:TParams, caller:Bloc|null = null):Bloc|Array<Node> {
         if (this._runned) {
             throw new Error(`Le bloc <${this.tag}> a déjà été exécuté.`)
         }

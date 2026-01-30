@@ -1,5 +1,5 @@
 import MyMath from '@mathstools/mymath'
-import { InputType } from '@mathstools/misc/check'
+import { TParams } from '@types'
 import Node from './node'
 
 class TextNode extends Node {
@@ -14,7 +14,7 @@ class TextNode extends Node {
        return this._text
     }
 
-    run(params:Record<string, InputType>, caller:any):TextNode|null {
+    run(params:TParams, caller:any):TextNode|null {
         if (!this._runned) {
             this._text = MyMath.substituteExpressions(this._text, params)
             this._runned = true

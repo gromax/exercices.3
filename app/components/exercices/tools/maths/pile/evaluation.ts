@@ -6,8 +6,7 @@ import Str from './str'
 import Tkztab from './tkztab'
 import MyMath from '../mymath';
 import { getValue, substituteLabels, substituteParams } from '../misc/substitution';
-import { NestedArray } from '@components/types'
-type InputType = string | number | MyMath
+import { NestedArray, InputType, TParams } from '@types'
 
 const MODULES = {
     'Alea': Alea,
@@ -18,7 +17,7 @@ const MODULES = {
     'Tkztab': Tkztab,
 };
 
-function _tryAsPile(expression:string, params:Record<string, InputType>):null|InputType {
+function _tryAsPile(expression:string, params:TParams):null|InputType {
     let expr = expression.trim();
     if (! /^<P:.*>$/.test(expr)) {
         return null;
@@ -82,7 +81,13 @@ function _executePile(pile:Array<string>):InputType {
  * @param {object} params 
  * @returns 
  */
-function evaluate(expression:NestedArray<InputType>, params:Record<string, InputType>):NestedArray<InputType> {
+function evaluate(
+    expression:NestedArray<InputType>,
+    params:TParams
+):NestedArray<InputType> {
+    if (Array.isArray(expression)) {
+        return expression.map(expr => evaluate(expr, params))
+    }
     if (typeof expression === 'string') {
         const pileResult = _tryAsPile(expression, params)
         if (pileResult !== null) {
@@ -91,7 +96,7 @@ function evaluate(expression:NestedArray<InputType>, params:Record<string, Input
         if (expression.startsWith('[') && expression.endsWith(']')) {
             // liste
             const vals = expression.slice(1, -1).split(',').map(v => v.trim())
-            return vals.map(v => MyMath.make(substituteParams(v, params)) )
+            return evaluate(vals, params)
         }
         expression = substituteParams(expression, params)
         if (typeof expression === 'string'
@@ -100,12 +105,8 @@ function evaluate(expression:NestedArray<InputType>, params:Record<string, Input
             // chaîne de caractères
             return expression
         }
-
     }
-    if (Array.isArray(expression)) {
-        return expression.map(expr => evaluate(expr, params))
-    }
-    return MyMath.make(expression)
+    return MyMath.make(expression as InputType)
 }
 
 export default evaluate

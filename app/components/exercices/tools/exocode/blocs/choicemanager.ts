@@ -1,8 +1,9 @@
 import { Model, Collection } from 'backbone'
+import { TParams } from "@types"
 import Colors from "../colors"
 
 class ChoiceManager {
-    private _params:Record<string, any>
+    private _params:TParams
     private _colors:Colors
     private _options?:Record<string, string>
     private _isform:boolean
@@ -12,13 +13,13 @@ class ChoiceManager {
 
     /**
      * constructeur
-     * @param {object} params paramètres du bloc parent
+     * @param {TParams} params paramètres du bloc parent
      * @param {Colors} colors couleurs à utiliser
      * @param {object} options options de choix
      * @param {boolean} isform indique si c'est un formulaire
      */
     constructor(
-        params:Record<string, any>,
+        params:TParams,
         colors:Colors,
         options:Record<string, string>,
         isform:boolean
@@ -75,7 +76,7 @@ class ChoiceManager {
      * @param {string} userValue 
      * @return {number} le nombre de bonnes réponses
      */
-    verification(userValue) {
+    verification(userValue:string):number {
         let count = 0
         for (let i = 0; i < this._notShuffledCollection.length; i++) {
             const model = this._notShuffledCollection.at(i)
@@ -93,11 +94,11 @@ class ChoiceManager {
         return count
     }
 
-    get collection() {
+    get collection():Collection {
         return this._collection
     }
 
-    get notShuffledCollection() {
+    get notShuffledCollection():Collection {
         return this._notShuffledCollection
     }
 }

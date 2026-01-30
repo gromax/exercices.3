@@ -14,8 +14,10 @@ import { substituteParams } from './misc/substitution'
 import { Base } from './number/base'
 import { simplify, decimalize } from './number/simplify'
 import Decimal from 'decimal.js'
+import { TParams, InputType, NestedArray } from "@types"
 
-type AcceptedInput = MyMath | string | number | Base
+
+type AcceptedInput = InputType | Base
 interface MyMathOptions {
     expression?: string,
     nerdamer?: nerdamer.Expression,
@@ -187,18 +189,18 @@ class MyMath {
      * @returns {boolean} le résultat de la comparaison
      */
     static compare(
-        leftExpr:AcceptedInput|Array<AcceptedInput>,
-        rightExpr:AcceptedInput|Array<AcceptedInput>,
+        leftExpr:NestedArray<AcceptedInput>,
+        rightExpr:NestedArray<AcceptedInput>,
         operator:string
-    ):boolean|Array<boolean>{
+    ):NestedArray<boolean>{
         if (Array.isArray(leftExpr)) {
             if (Array.isArray(rightExpr)) {
                 if (leftExpr.length !== rightExpr.length) {
                     throw new Error('Les deux tableaux doivent avoir la même longueur pour une comparaison élément par élément.');
                 }
-                return leftExpr.map((le, i) => MyMath.make(le).compare(rightExpr[i], operator) as boolean);
+                return leftExpr.map((le, i) => MyMath.compare(le, rightExpr[i], operator) as boolean);
             } else {
-                return leftExpr.map(le => MyMath.make(le).compare(rightExpr, operator) as boolean);
+                return MyMath.make(rightExpr).compare(leftExpr, MyMath.reverseOperator(operator))
             }
         }
         return MyMath.make(leftExpr).compare(rightExpr, operator)
@@ -248,23 +250,32 @@ class MyMath {
      * remplace les expressions de la forme {expression:format}
      * par la valeur évaluée de l'expression au format spécifié
      */
-    static substituteExpressions(texte:string, params:Record<string, any>):string {
+    static substituteExpressions(texte:string, params:TParams):string {
         return texte.replace(/\{([^:{}]+):\s*([\w]*(?:\$)?)?\}/g, (match, expr, format) => {
             const replacement = substituteParams(expr, params)
             if (typeof replacement === 'string' && replacement.startsWith('"') && replacement.endsWith('"')) {
                 return replacement.slice(1, -1)
             }
-            if (Array.isArray(replacement)) {
-                if (format === 'b') {
-                    return replacement.map(r => String(r)).join(', ')
-                }
-                return replacement.map(r => MyMath.make(r).toFormat(format)).join(', ')
-            }
-            if (format === 'b') {
-                return String(replacement)
-            }
-            return MyMath.make(replacement).toFormat(format);
+            return MyMath._substituteExpressionsHelper(replacement, format, 0)
         });
+    }
+
+    private static _substituteExpressionsHelper(
+        replacement:NestedArray<InputType>,
+        format:string,
+        depth:number
+    ):string {
+        if (Array.isArray(replacement)) {
+            const res = replacement.map(r => MyMath._substituteExpressionsHelper(r, format, depth+1)).join(', ')
+            if (depth>0) {
+                return `[${res}]`
+            }
+            return res
+        }
+        if (format === 'b') {
+            return String(replacement)
+        }
+        return MyMath.make(replacement).toFormat(format)
     }
 
     // Méthodes d'instance
@@ -457,7 +468,7 @@ class MyMath {
         return lStr.minus(rStr).abs().lt('1e-30')
     }
 
-    compare(rightExpr:AcceptedInput|Array<AcceptedInput>, operator:string):boolean|Array<boolean> {
+    compare(rightExpr:NestedArray<AcceptedInput>, operator:string):NestedArray<boolean> {
         if (Array.isArray(rightExpr)) {
             return rightExpr.map(r => this.compare(r, operator) as boolean)
         }

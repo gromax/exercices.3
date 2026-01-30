@@ -2,7 +2,7 @@ import { getValue } from '@mathstools/misc/substitution'
 import evaluate from '@mathstools/pile/evaluation';
 import Node from './node'
 
-import { InputType } from "@types"
+import { TParams, NestedArray, InputType } from "@types"
 
 class Affectation extends Node {
     private _value:string
@@ -32,10 +32,10 @@ class Affectation extends Node {
     /**
      * Réalise l'affectation dans params
      * protectedParams sont des paramètres protégés qui ne peuvent pas être modifiés
-     * @param {Record<string,InputType>} params 
-     * @param {Record<string,InputType>} protectedParams 
+     * @param {TParams} params 
+     * @param {TParams} protectedParams 
      */
-    doAffectation(params:Record<string, InputType>, protectedParams:Record<string, InputType>):void {
+    doAffectation(params:TParams, protectedParams:TParams):void {
         if (this._tag in protectedParams) {
             // situation anormale, on ne peut pas écraser un paramètre protégé
             throw new Error(`Le paramètre ${this._tag} est protégé et ne peut pas être redéfini.`);
@@ -56,7 +56,7 @@ class Affectation extends Node {
                 value = (value as any).toFixed(this._approxOrder)
             }
             if (this._isArray) {
-                params[this._tag].push(value)
+                (params[this._tag] as Array<NestedArray<InputType>>).push(value)
             } else {
                 params[this._tag] = value
             }
@@ -102,7 +102,7 @@ class Affectation extends Node {
         return `@${this._tag} = ${this._value}`;
     }
 
-    run(params:Record<string, any>, caller:any):null {
+    run(params:TParams, caller:any):null {
         this.doAffectation(params, {});
         return null;
     }

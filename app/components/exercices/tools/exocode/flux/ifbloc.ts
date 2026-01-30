@@ -2,7 +2,7 @@ import Bloc from '../blocs/bloc'
 import parseExpression from './logicalparser'
 import LogicalNode from './logicalnode'
 import Node from "../node"
-import { InputType } from "@types"
+import { TParams } from "@types"
 
 
 class IfBloc extends Bloc {
@@ -30,7 +30,7 @@ class IfBloc extends Bloc {
         this._ifClosed = true;
     }
 
-    private _evaluateCondition(params:Record<string,InputType>):boolean {
+    private _evaluateCondition(params:TParams):boolean {
         if (!this._expression) {
             return true;
         }
@@ -67,7 +67,7 @@ class IfBloc extends Bloc {
         return out;
     }
 
-    run(params:Record<string,InputType>, caller:any):Array<Node> {
+    run(params:TParams, caller:any):Array<Node> {
         const result = this._evaluateCondition(params);
         const ifChildren = result ? this._children : this._elseChildren;
         return ifChildren;

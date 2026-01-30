@@ -1,7 +1,5 @@
 import MyMath from "../mymath"
-import type { NestedArray } from "@types"
-
-type InputType = string | number | MyMath
+import type { NestedArray, InputType } from "@types"
 
 class Str {
     static NAME = 'Str';

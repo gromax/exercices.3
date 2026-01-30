@@ -1,7 +1,7 @@
-import { InputType } from "@types"
+import { TParams, NestedArray } from "@types"
 
 abstract class LogicalNode {
-    abstract evaluate(params:Record<string,InputType>):boolean|Array<boolean>
+    abstract evaluate(params:TParams):NestedArray<boolean>
     abstract toString():string
 }
 

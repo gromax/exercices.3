@@ -1,5 +1,4 @@
-import { InputType } from "@mathstools/misc/check"
-import Bloc from "./blocs/bloc"
+import { TParams } from "@types"
 
 abstract class Node {
     protected _tag: string
@@ -14,7 +13,7 @@ abstract class Node {
         return this._tag
     }
 
-    abstract run(params:Record<string, InputType>, caller:any):null|Node|Array<Node>
+    abstract run(params:TParams, caller:any):null|Node|Array<Node>
 }
 
 export default Node
