@@ -138,6 +138,13 @@ class MyMath {
         }
     }
 
+    static toFixedArray(expression:NestedArray<AcceptedInput>, n:number):NestedArray<string> {
+        if (Array.isArray(expression)) {
+            return expression.map(item => MyMath.toFixedArray(item, n))
+        }
+        return MyMath.make(expression).toFixed(n)
+    }
+
     static toFloat(expression:AcceptedInput):number {
         if (typeof expression === 'number') {
             return expression;
