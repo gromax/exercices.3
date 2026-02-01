@@ -43,6 +43,10 @@ abstract class Node {
 
     }
 
+    get empty():boolean {
+        return false
+    }
+
     abstract run(params:TParams):TRunResult
 }
 
