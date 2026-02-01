@@ -1,7 +1,7 @@
 import _ from "underscore"
 import Bloc from "./bloc"
-import FormView from "../views/formview.js"
-import ResultsView from "../views/resultsview.js"
+import FormView from "../views/formview"
+import ResultsView from "../views/resultsview"
 import { AnyView } from "@types"
 
 /* Il faut vérifier les answers dans entity et choisir si on affiche

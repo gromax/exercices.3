@@ -1,5 +1,5 @@
 import _ from "underscore"
-import Bloc from './bloc.js'
+import Bloc from './bloc'
 import { AnyView, NestedInput } from "@types"
 import TableView from '../views/tableview'
 

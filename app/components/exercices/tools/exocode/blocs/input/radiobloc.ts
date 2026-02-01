@@ -1,7 +1,7 @@
 import _ from "underscore"
-import InputBloc from "./inputbloc.js"
-import RadioView from "../../views/radioview.js"
-import { InputResultView } from "../../views/inputview.js"
+import InputBloc from "./inputbloc"
+import RadioView from "../../views/radioview"
+import { InputResultView } from "../../views/inputview"
 import { AnyView } from "@types"
 
 class RadioBloc extends InputBloc {

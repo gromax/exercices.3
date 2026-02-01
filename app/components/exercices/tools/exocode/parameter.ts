@@ -1,4 +1,4 @@
-import { getValue } from '../maths/misc/substitution.js'
+import { getValue } from '../maths/misc/substitution'
 import MyMath from '@mathstools/mymath'
 import { TParams, NestedInput } from "@types"
 import { Node, TRunResult } from "./node"

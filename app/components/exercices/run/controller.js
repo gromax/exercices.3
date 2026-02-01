@@ -8,7 +8,7 @@ import {
   PanelProfTrialView
 } from './views.js'
 import { Item as ExerciceTry } from '../trial.js'
-import MainBloc from '../tools/exocode/mainbloc.js';
+import MainBloc from '../tools/exocode/mainbloc';
 import renderTexInDomElement from '../../common/rendertex';
 
 const Controller = MnObject.extend ({

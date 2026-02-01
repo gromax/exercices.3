@@ -1,4 +1,4 @@
-import Bloc from './bloc.js'
+import Bloc from './bloc'
 import { AnyView, TParams } from "@types"
 import TextView from '../views/textview'
 import HelpView from '../views/helpview'

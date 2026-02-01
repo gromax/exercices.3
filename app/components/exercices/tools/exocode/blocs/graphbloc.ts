@@ -1,7 +1,7 @@
 import _ from "underscore"
-import Bloc from "./bloc.js"
-import GraphView from "../views/graphview.js"
-import MyMath from "../../maths/mymath.js"
+import Bloc from "./bloc"
+import GraphView from "../views/graphview"
+import MyMath from "../../maths/mymath"
 import { View } from "backbone.marionette"
 import JXG from 'jsxgraph'
 
