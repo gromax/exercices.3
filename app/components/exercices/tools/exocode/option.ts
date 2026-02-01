@@ -1,8 +1,7 @@
 import { getValue } from '@mathstools/misc/substitution'
-import Bloc from './blocs/bloc'
 import MyMath from '@mathstools/mymath'
-import Node from './node'
-import { InputType, TParams } from "@types"
+import { Node, TRunResult } from './node'
+import { TParams } from "@types"
 
 class Option extends Node{
     private _key:string
@@ -32,16 +31,19 @@ class Option extends Node{
         return this._value;
     }
 
-    run(params:TParams, caller:Bloc):null {
+    getValue(params:TParams):[string,string] {
         const key = this._key.startsWith('@')
             ? getValue(this._key, params)
-            : this._key;
-        const value = MyMath.substituteExpressions(this._value, params);
-        if (!caller) {
-            throw new Error("L'option doit être exécutée dans le contexte d'un bloc appelant.")
+            : this._key
+        if (Array.isArray(key)) {
+            throw new Error(`${this.toString()} : Une clé d'option ne peut être un tableau`)
         }
-        caller.setOption(key, value);
-        return null;
+        const value = MyMath.substituteExpressions(this._value, params);
+        return [String(key), value]
+    }
+
+    run(params:TParams):TRunResult {
+        return "nothing"
     }
 
     toString():string {

@@ -12,12 +12,12 @@ class TextBloc extends Bloc {
         super(tag, paramsString, false)
     }
 
-    run(params:TParams, caller:any):this {
+    run(params:TParams):this {
         if (this._runned) {
             // déjà exécuté
             return this
         }
-        super.run(params, caller)
+        super.run(params)
         // pour un bloc de texte ne conserve que le texte
         this._text = this._children.filter(
             (child): child is TextNode => child instanceof TextNode

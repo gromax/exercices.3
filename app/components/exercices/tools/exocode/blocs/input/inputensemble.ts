@@ -14,7 +14,7 @@ class InputEnsemble extends InputTextBloc {
         // on pourra donc avoir des bornes infinies
         // autrement on autorisera numeric ou round:x ou erreur:x
         // si aucun, ce sera numeric par défaut
-        this._params.format = ['infini'] // par défaut pas de format
+        this._format = ['infini'] // par défaut pas de format
         this._params.keyboard = ['minfini', 'pinfini', 'empty', 'union']
     }
 
@@ -29,8 +29,8 @@ class InputEnsemble extends InputTextBloc {
         if (typeof userValue === 'undefined') {
             return this._name
         }
-        if (this._params.format.length == 1) {
-            this._params.format.push('numeric')
+        if (this._format.length == 1) {
+            (this._format as Array<string>).push('numeric')
         }
         const val = userValue.trim()
         const results = this._cutInterval(val)
@@ -40,12 +40,12 @@ class InputEnsemble extends InputTextBloc {
         let last = null
         for (const item of results) {
             const lb = item.lowerBound
-            const verif = checkFormat(lb, this._params.format)
+            const verif = checkFormat(lb, this._format)
             if (verif !== true) {
                 return `La borne inférieure '${lb}' n'est pas au bon format : ${verif}`
             }
             const ub = item.upperBound
-            const verif2 = checkFormat(ub, this._params.format)
+            const verif2 = checkFormat(ub, this._format)
             if (verif2 !== true) {
                 return `La borne supérieure '${ub}' n'est pas au bon format : ${verif2}`
             }
@@ -111,8 +111,8 @@ class InputEnsemble extends InputTextBloc {
         const userValueTag = userValue.includes('\\') ? `$${userValue}$` : userValue
         const solution = this.params.solution
         const tag = this.params.tag
-        if (this._params.format.length == 1) {
-            this._params.format.push('numeric')
+        if (this._format.length == 1) {
+            (this._format as Array<string>).push('numeric')
         }
         const entete = tag?`${tag} : `:''
         if (!solution) {
@@ -176,11 +176,11 @@ class InputEnsemble extends InputTextBloc {
             ) {
                 return false
             }
-            const lbComp = checkValue(r.lowerBound, s.lowerBound, this._params.format)
+            const lbComp = checkValue(r.lowerBound, s.lowerBound, this._format)
             if (lbComp !== true) {
                 return false
             }
-            const ubComp = checkValue(r.upperBound, s.upperBound, this._params.format)
+            const ubComp = checkValue(r.upperBound, s.upperBound, this._format)
             if (ubComp !== true) {
                 return false
             }
@@ -200,8 +200,8 @@ class InputEnsemble extends InputTextBloc {
             return '$\\emptyset$'
         }
         return '$'+results.map(item => {
-            const lb = formatValue(item.lowerBound, this._params.format).slice(1,-1) // pour enlever les $
-            const ub = formatValue(item.upperBound, this._params.format).slice(1,-1)
+            const lb = formatValue(item.lowerBound, this._format).slice(1,-1) // pour enlever les $
+            const ub = formatValue(item.upperBound, this._format).slice(1,-1)
             return `\\left${item.lowerBracket}${lb}\\,${ub}\\right${item.upperBracket}`
         }).join(' \\cup ')+'$'
     }

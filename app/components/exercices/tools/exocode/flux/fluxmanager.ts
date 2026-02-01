@@ -32,11 +32,6 @@ class FluxManager {
     static isNeeded(item:any):boolean {
         return (item !== null && item instanceof Needed);
     }
-
-    static isUntil(item:any):boolean {
-        return (item !== null && item instanceof Until);
-    }
-
 }
 
 export default FluxManager

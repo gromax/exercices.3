@@ -1,4 +1,4 @@
 export type { NestedArray } from "./NestedArray"
-export type { InputType, TParams, NestedInput } from "./InputType"
+export type { InputType, TParams, NestedInput, TOptions } from "./InputType"
 export type { AnyView } from "./AnyView"
-export type { TabLineConfig } from "./TabLineConfig"
+export type { TabLineConfig, TLineType } from "./TabLineConfig"

@@ -1,13 +1,13 @@
-import Node from "../node"
+import { Node, TRunResult } from "../node"
 
 class Halt extends Node{
-    static readonly REGEX = /^<(halt|stop)\/?>$/;
+    static readonly REGEX = /^<(halt|stop)\/?>$/
     static parse(line:string):Halt|null {
-        const m = line.match(Halt.REGEX);
+        const m = line.match(Halt.REGEX)
         if (m) {
-            return new Halt();
+            return new Halt()
         } else {
-            return null;
+            return null
         }
     }
 
@@ -15,13 +15,13 @@ class Halt extends Node{
         super("halt")
     }
 
-    run(params:any, caller:any):null {
-        return null;
+    run(params:any):TRunResult {
+        return "halt"
     }
 
     toString():string {
-        return `<HALT>`;
+        return `<HALT>`
     }
 }
 
-export default Halt;
+export default Halt

@@ -1,6 +1,6 @@
 import { getValue } from '@mathstools/misc/substitution'
 import evaluate from '@mathstools/pile/evaluation'
-import Node from './node'
+import { Node, TRunResult } from './node'
 import MyMath from "@mathstools/mymath"
 import { TParams, NestedArray, InputType, NestedInput } from "@types"
 
@@ -126,9 +126,9 @@ class Affectation extends Node {
         return `@${this._tag} = ${this._expression}`
     }
 
-    run(params:TParams, caller:any):null {
+    run(params:TParams):TRunResult {
         this.doAffectation(params, {})
-        return null
+        return "nothing"
     }
 }
 

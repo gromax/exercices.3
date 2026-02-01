@@ -1,9 +1,9 @@
+import _ from "underscore"
 import Bloc from "./bloc";
 import TkzTabView from "../views/tkztabview";
 import TkzTab from "../views/tkztab/tkztab";
 import TabVarLineInput from "../views/tkztab/tabvarlineinput"
-import Colors from "../colors"
-import { AnyView, InputType, TabLineConfig } from "@types";
+import { AnyView, InputType, NestedInput, TabLineConfig, TLineType } from "@types";
 import FormItemImplementation from "../implementation/formitem"
 
 class TkzTabBloc extends Bloc implements FormItemImplementation {
@@ -12,23 +12,15 @@ class TkzTabBloc extends Bloc implements FormItemImplementation {
 
     private _lines:Array<TabLineConfig>
     private _color:string
-    private _colors?:Colors
     private _tkzTab?:TkzTab
     private _resultView?:AnyView
     private _score?:number
+    private _xList?:Array<string>|string
 
     constructor(tag:string, paramsString:string) {
         super(tag, paramsString, false)
         this._lines = []
         this._color = 'black'
-    }
-
-    /**
-     * Définir les couleurs à utiliser
-     * @param {Colors} colors 
-     */
-    setColors(colors:Colors):void {
-        this._colors = colors
     }
 
     /**
@@ -41,7 +33,7 @@ class TkzTabBloc extends Bloc implements FormItemImplementation {
         }
         if (this._tkzTab === null) {
             const config = this._getConfig()
-            this._tkzTab = new TkzTab(this._params.xlist, config)
+            this._tkzTab = new TkzTab(this._xList, config)
             this._tkzTab.addLines(this._lines)
         }
         return this._tkzTab
@@ -50,7 +42,7 @@ class TkzTabBloc extends Bloc implements FormItemImplementation {
     private _getConfig():Record<string,number|string> {
         const config:Record<string,number|string> = {
             color: this._color,
-            xtag: this._params.tag || "$x$",
+            xtag: String(this._params.tag) || "$x$",
         }
 
         if (this.params.pixelsperline !== undefined) {
@@ -82,12 +74,18 @@ class TkzTabBloc extends Bloc implements FormItemImplementation {
         })
     }
 
-    setParam(key:string, value:InputType):void {
+    setParam(key:string, value:NestedInput):void {
         if (TkzTab.LINESTYPES.includes(key)) {
+            if (typeof value !== 'string') {
+                throw new Error("<tkztab> format de la ligne invalide : key")
+            }
             this._lines.push(TkzTab.parseLine(key, value))
             return
         }
         if (key === 'color') {
+            if (Array.isArray(value)) {
+                throw new Error(`<tkztab>, le paramètre ${key} ne devrait pas être un tableau.`)
+            }
             const stringValue = String(value)
             const n = parseInt(stringValue)
             if (!isNaN(n)) {
@@ -95,6 +93,11 @@ class TkzTabBloc extends Bloc implements FormItemImplementation {
             }
             this._color = stringValue
             return
+        }
+        if (key === "xlist") {
+            this._xList = (Array.isArray(value))
+                ? _.flatten(value).map(item => String(item))
+                : String(value)
         }
         super.setParam(key, value)
     }
@@ -182,8 +185,9 @@ class TkzTabBloc extends Bloc implements FormItemImplementation {
                 continue
             }
             // forcémen inputvar ou inputsign
+            const newtype:TLineType = line.type === 'inputvar' ? 'var' : 'sign'
             const newLine = {
-                type: line.type === 'inputvar' ? 'var' : 'sign',
+                type: newtype,
                 tag: line.tag,
                 hauteur: line.hauteur,
                 line: line.type === 'inputvar' ? line.solution : line.line

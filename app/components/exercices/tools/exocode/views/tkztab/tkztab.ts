@@ -1,3 +1,4 @@
+import _ from "underscore"
 import TabHeaderLine from "./header"
 import TabVarLine from "./tabvarline"
 import TabVarLineInput from "./tabvarlineinput"
@@ -6,17 +7,9 @@ import TabSignLineInput from "./tabsignlineinput"
 import { TConfig } from "./tabline"
 import { TXPos } from "./tabvaritem"
 import { Svg } from '@svgdotjs/svg.js'
+import { TabLineConfig } from "@types"
 
 
-type TLineType = "sign" | "var" | "inputvar" | "inputsign"
-type TLineConfig = {
-    type:TLineType,
-    tag:string,
-    hauteur?:number,
-    line:string,
-    name?:string,
-    solution?:string
-}
 type TLineObject = TabHeaderLine | TabVarLine | TabSignLineInput | TabSignLine | TabSignLineInput
 
 class TkzTab {
@@ -30,7 +23,7 @@ class TkzTab {
     private _xList:Array<string>
     private _lines:Array<TLineObject>
 
-    static parseLine(key:string, value:string):TLineConfig {
+    static parseLine(key:string, value:string):TabLineConfig {
         const options = value.split(':').map( x => x.trim() )
         if (key === 'sign' || key === 'inputsign') {
             return TkzTab._parseSign(key, options)
@@ -40,7 +33,7 @@ class TkzTab {
         throw new Error(`Type de ligne inconnu : ${key}`)
     }
 
-    private static _parseVar(key:string, options:Array<string>):TLineConfig {
+    private static _parseVar(key:string, options:Array<string>):TabLineConfig {
         const goodsize = (key === 'inputvar') ? 5 : 3
         if (options.length !== goodsize) {
             throw new Error(`<${key}:${options.join(':')}/> Le paramètre '${key}' est mal formé.`)
@@ -59,7 +52,7 @@ class TkzTab {
         return {type: 'var', tag, hauteur, line}
     }
 
-    private static _parseSign(key:string, options:Array<string>):TLineConfig {
+    private static _parseSign(key:string, options:Array<string>):TabLineConfig {
         const goodsize = (key === 'inputsign') ? 3 : 2
         if (options.length !== goodsize) {
             throw new Error(`<${key}:${options.join(':')}/> Le paramètre '${key}' est mal formé.`)
@@ -79,8 +72,8 @@ class TkzTab {
      * @param {object} config configuration du tableau
      */
     constructor (
-        x_list:string|Array<string>,
-        config:TConfig
+        x_list:any,
+        config:Record<string,number|string>
     ) {
         this._offset = 0 // position du curseur vertical
         const defaultConfig:TConfig = {
@@ -152,7 +145,7 @@ class TkzTab {
         line.toggleItem(xIndex)
     }
 
-    addLine(line:TLineConfig):TLineObject {
+    addLine(line:TabLineConfig):TLineObject {
         if (line.type === 'sign') {
             return this.addSignLine(line.line, line.tag)
         } else if (line.type === 'var') {
@@ -166,7 +159,7 @@ class TkzTab {
         }
     }
 
-    addLines(lines:Array<TLineConfig>):void {
+    addLines(lines:Array<TabLineConfig>):void {
         for (let line of lines) {
             this.addLine(line)
         }

@@ -3,11 +3,12 @@ import InputBloc from "./inputbloc"
 import { InputView, InputResultView } from "../../views/inputview"
 import { checkFormat, checkValue, formatValue, InputType } from "@mathstools/misc/check"
 import { View } from "backbone.marionette"
-import { AnyView } from "@types"
+import { AnyView, NestedInput } from "@types"
 import TextBloc from "../textbloc"
 
 class InputTextBloc extends InputBloc {
     static LABEL = 'input'
+    protected _format?:string|Array<string>
     
     protected _getView(answers:Record<string, string>):AnyView {
         // On peut accepter un bloc de texte de type aide
@@ -55,8 +56,11 @@ class InputTextBloc extends InputBloc {
         return view
     }
 
-    setParam(key:string, value:any):void {
+    setParam(key:string, value:NestedInput):void {
         if (key === 'format') {
+            if (typeof value !== "string") {
+                throw new Error("<format> devrait être un texte.")
+            }
             if (value === "inf") {
                 console.warn(`Le format "inf" pour le bloc <input:${this.header}> est obsolète. Utilisez "infini" à la place.`)
                 value = "infini"
@@ -83,7 +87,8 @@ class InputTextBloc extends InputBloc {
             } else if (value === "empty") {
                 this.setParam('keyboard', "empty")
             }
-            
+            this._format = this.assignNew(this._format, value)
+            return
         }
         super.setParam(key, value)
     }
@@ -99,7 +104,7 @@ class InputTextBloc extends InputBloc {
         if (typeof userValue === 'undefined') {
             return this._name
         }
-        return checkFormat(userValue, this._params.format || 'none')
+        return checkFormat(userValue, this._format || 'none')
     }
 
     /**
@@ -112,7 +117,7 @@ class InputTextBloc extends InputBloc {
         const userValueTag = userValue.includes('\\') ? `$${userValue}$` : userValue
         const solution = this.params.solution
         const tag = this.params.tag
-        const format = this._params.format || 'none'
+        const format = this._format || 'none'
         const entete = tag?`${tag} : `:''
         if (!solution) {
             const score = 0
@@ -164,7 +169,7 @@ class InputTextBloc extends InputBloc {
         if (Array.isArray(solution)) {
             return solution.some(sol => this._verify(userValue, sol))
         }
-        return checkValue(userValue, solution, this._params.format || 'none')
+        return checkValue(userValue, solution, this._format || 'none')
     }
 }
 

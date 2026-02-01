@@ -1,4 +1,5 @@
-import { TParams, InputType, NestedArray } from "@types"
+import { TParams, InputType, NestedArray, NestedInput } from "@types"
+import MyMath from "../mymath";
 
 /**
  * Si chaine est de la forme @name.sub
@@ -6,13 +7,37 @@ import { TParams, InputType, NestedArray } from "@types"
  * @param {string} chaine 
  * @param {TParams} params 
  */
-function getValue(chaine:string, params:TParams):any {
+function getValue(chaine:string, params:TParams):NestedInput {
     const m = chaine.match(/^@([A-Za-z_]\w*)(?:\.([A-Za-z_]\w*)|\[((?:@[A-Za-z_]\w*|[0-9]+)?)\])?$/);
     if (!m) {
         return null;
     }
     const [, name, sub, index] = m;
     return _getValueInternal(name, sub, index, params);
+}
+
+function _getIndex(index:string, params:TParams):number {
+    if (index === "") {
+        if (typeof params.__i !== "number") {
+            throw new Error(`Index indéfini !`)
+        }
+        return params.__i
+    }
+    if (/[0-9]+/.test(index)) {
+        return parseInt(index, 10)
+    }
+    const v = getValue(index, params)
+    if (Array.isArray(v)) {
+        throw new Error(`On demandait une valeur unique, pas un tableau`)
+    }
+    if (v instanceof MyMath) {
+        return Math.round(v.toFloat())
+    }
+    const n = parseInt(String(v), 10)
+    if (isNaN(n)) {
+        throw new Error(`${index} est index non valide`)
+    }
+    return n
 }
 
 /**
@@ -28,7 +53,7 @@ function _getValueInternal(
     sub:string|undefined,
     index:string|undefined,
     params:TParams
-):NestedArray<InputType> {
+):NestedInput {
     if (name === '__a') {
         if (sub === undefined) {
             throw new Error(`@__a doit être suivi d'un modificateur.`)
@@ -54,9 +79,7 @@ function _getValueInternal(
     if (index === "" && params.__i === undefined) {
         throw new Error(`Pas d'index défini pour accéder à ${name}[]. Ajoutez <:n> à votre affectation.`)
     }
-    const idx = (index === "")
-        ? params.__i as number
-        : (/[0-9]+/.test(index) ? parseInt(index, 10) : parseInt(getValue(index, params), 10))
+    const idx = _getIndex(index, params)
     if (idx >= params[name].length){
         throw new Error(`L'index ${idx} est hors limites pour le tableau ${name} de taille ${params[name].length}.`)
     }

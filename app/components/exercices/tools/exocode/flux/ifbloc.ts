@@ -1,7 +1,7 @@
 import Bloc from '../blocs/bloc'
 import parseExpression from './logicalparser'
 import LogicalNode from './logicalnode'
-import Node from "../node"
+import { Node } from "../node"
 import { TParams } from "@types"
 
 
@@ -28,6 +28,16 @@ class IfBloc extends Bloc {
             throw new Error("La branche if est déjà fermée. Vérifiez l'enchaînement de vos if, elif, else.");
         }
         this._ifClosed = true;
+    }
+
+    closeIfNecessary(previous:any) {
+        if (this.tag === IfBloc.IF) {
+            return
+        }
+        if (!(previous instanceof IfBloc)) {
+            throw new Error("<elif> non précédé par <if> ou <elif>")
+        }
+        previous.closeIfBranch()
     }
 
     private _evaluateCondition(params:TParams):boolean {
@@ -67,7 +77,7 @@ class IfBloc extends Bloc {
         return out;
     }
 
-    run(params:TParams, caller:any):Array<Node> {
+    run(params:TParams):Array<Node> {
         const result = this._evaluateCondition(params);
         const ifChildren = result ? this._children : this._elseChildren;
         return ifChildren;

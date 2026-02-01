@@ -1,8 +1,8 @@
 import Bloc from "../blocs/bloc"
-import Node from "../node"
+import { Node, TRunResult } from "../node"
 import LogicalNode from "./logicalnode"
 import parseExpression from "./logicalparser"
-import { InputType, TParams } from "@types"
+import { TParams } from "@types"
 import IfBloc from "./ifbloc"
 import Affectation from "../affectation"
 
@@ -29,10 +29,10 @@ class Until extends Bloc {
         if (!(child instanceof Affectation) && !(child instanceof IfBloc)) {
             throw new Error("Un bloc <until> ne peut contenir que des affectations et des If.");
         }
-        this._children.push(child);
+        this._children.push(child as Node);
     }
 
-    run(params:TParams, caller:any):Array<Node> {
+    run(params:TParams):Array<Node> {
         // renvoie les enfants et le until ensuite en incrémentant le compteur
         this._counter += 1
         if (this._counter > Until.MAXITERATIONS) {

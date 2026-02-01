@@ -2,7 +2,6 @@ import _ from "underscore"
 import Bloc from "./bloc.js"
 import GraphView from "../views/graphview.js"
 import MyMath from "../../maths/mymath.js"
-import Colors from "../colors.js"
 import { View } from "backbone.marionette"
 import JXG from 'jsxgraph'
 
@@ -10,20 +9,11 @@ type AnyView = View<any>|Array<View<any>>
 
 class GraphBloc extends Bloc {
     static readonly LABELS = ['graph', 'graphe']
-    private _colors:Colors
     private xmin:number
     private xmax:number
     private ymin:number
     private ymax:number
     private items:Record<string, any>
-
-    /**
-     * Définir les couleurs à utiliser
-     * @param {Colors} colors 
-     */
-    setColors(colors:Colors):void {
-        this._colors = colors
-    }
 
     protected _getView(answers:Record<string, string>):AnyView {
         this.xmin = this.params.xmin !== undefined ? Number(this.params.xmin) : -5

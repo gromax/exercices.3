@@ -1,37 +1,36 @@
-import { getValue } from '../maths/misc/substitution.js';
-import MyMath from '@mathstools/mymath';
-import Bloc from './blocs/bloc.js'
-import { TParams } from "@types"
+import { getValue } from '../maths/misc/substitution.js'
+import MyMath from '@mathstools/mymath'
+import { TParams, NestedInput } from "@types"
+import { Node, TRunResult } from "./node"
 
-class Parameter {
-    private _tag:string
+class Parameter extends Node {
     private _param:string
-    static readonly REGEX = /^<(\w+(?:\[\])?)\s*:(.*)\/>$/;
+    static readonly REGEX = /^<(\w+(?:\[\])?)\s*:(.*)\/>$/
     static parse(line:string):Parameter|null {
-        const m = line.match(Parameter.REGEX);
+        const m = line.match(Parameter.REGEX)
         if (m) {
-            return new Parameter(m[1], m[2]);
+            return new Parameter(m[1], m[2])
         } else {
-            return null;
+            return null
         }
     }
 
     constructor(tag:string, paramsString:string) {
-        this._tag = tag;
-        this._param = paramsString.trim();
+        super(tag)
+        this._param = paramsString.trim()
     }
 
-    run(params:TParams, caller:Bloc):null {
-        if (caller instanceof Bloc) {
-            this._param = getValue(this._param, params) ?? MyMath.substituteExpressions(this._param, params);
-            caller.setParam(this._tag, this._param);
-        }
-        return null;
+    getParam(params:TParams):NestedInput {
+        return getValue(this._param, params) ?? MyMath.substituteExpressions(this._param, params)
+    }
+
+    run(params:TParams):TRunResult {
+        return "nothing"
     }
 
     toString():string {
-        return `<${this._tag} : ${this._param} />`;
+        return `<${this._tag} : ${this._param} />`
     }
 }
 
-export default Parameter;
+export default Parameter

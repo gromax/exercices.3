@@ -4,11 +4,13 @@
  */
 
 import _ from 'underscore'
-import UnknownView from '../views/unknownview'
-import TableView from '../views/tableview'
-import Node from '../node'
+import { Node, TRunResult } from '../node'
+import { AnyView, TParams, NestedInput } from '@types'
 import FormItemImplementation from '../implementation/formitem'
-import { InputType, AnyView, TParams } from '@types'
+import UnknownView from '../views/unknownview'
+import Colors from '../colors'
+import Parameter from '../parameter'
+import Option from '../option'
 
 class Bloc extends Node {
     protected _children:Array<Node>
@@ -17,6 +19,7 @@ class Bloc extends Node {
     protected _params:TParams
     protected _defaultOption?:string
     protected _options?:Record<string, string>
+    protected _colors?:Colors
 
     constructor(tag:string, paramsString:string, closed:boolean) {
         super(tag)
@@ -27,14 +30,22 @@ class Bloc extends Node {
     }
 
     /**
+     * Définir les couleurs à utiliser
+     * @param {Colors} colors 
+     */
+    setColors(colors:Colors):void {
+        this._colors = colors
+    }
+
+    /**
      * Ajoute un paramètre au bloc
      * Si ce paramètre existe déjà, le paramètre devient un tableau
      * [] n'est donc requis que si on veut forcer  un tableau
      * avec une seule valeur
      * @param {string} key 
-     * @param {*} value 
+     * @param {NestedInput} value 
      */
-    setParam(key:string, value:InputType):void {
+    setParam(key:string, value:NestedInput):void {
         const realKey = key.endsWith('[]')
             ? key.slice(0, -2)
             : key
@@ -87,9 +98,8 @@ class Bloc extends Node {
      * de façon à obtenir un bloc de texte final qui pourra
      * être rendu.
      * @param {TParams} params
-     * @param {Bloc|null} caller le bloc appelant
      */
-    run(params:TParams, caller:Bloc|null = null):Bloc|Array<Node> {
+    run(params:TParams):Bloc|Array<Node> {
         if (this._runned) {
             throw new Error(`Le bloc <${this.tag}> a déjà été exécuté.`)
         }
@@ -102,11 +112,21 @@ class Bloc extends Node {
         this._children = []
         while (pile.length > 0) {
             let item = pile.pop()
-            const runned = item.run(params, this)
-            if (runned === null) {
+            if (item instanceof Parameter) {
+                const result = item.getParam(params)
+                this.setParam(item.tag, result)
                 continue
             }
-            if (Array.isArray(runned)) {
+            if (item instanceof Option) {
+                const [key, value] = item.getValue(params)
+                this.setOption(key, value)
+            }
+            const runned:TRunResult = item.run(params)
+            if (runned === "halt") {
+                break
+            } else if (runned === "nothing") {
+                continue
+            } else if (Array.isArray(runned)) {
                 pile.push(...runned.reverse())
             } else {
                 this._children.push(runned)
@@ -116,13 +136,6 @@ class Bloc extends Node {
     }
 
     protected _getView(answers:Record<string, string>):AnyView {
-        if (this._tag === 'table') {
-            return new TableView({
-                rows: this._params.rows || [],
-                rowheaders: this._params.rowheaders || null,
-                colheaders: this._params.colheaders || null
-            })
-        }
         return new UnknownView({ name:this.tag, code: this.toString() })
     }
 
