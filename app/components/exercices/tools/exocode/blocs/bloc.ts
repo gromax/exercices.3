@@ -74,7 +74,7 @@ class Bloc extends Node {
     }
 
     get children():Array<Node> {
-        return [...this._children]
+        return this._children.filter(item => !item.empty)
     }
 
     close():void {
@@ -185,6 +185,8 @@ class Bloc extends Node {
         }
         return count
     }
+
+
 
 }
 
