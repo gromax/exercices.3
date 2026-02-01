@@ -7,14 +7,10 @@ import Bloc from "./blocs/bloc"
 import TextNode from "./textnode"
 import Parameter from "./parameter"
 import Option from "./option"
-import Halt from "./flux/halt"
 import Colors from "./colors"
-import { Node, TRunResult } from "./node"
+import { Node } from "./node"
 import Until from "./flux/until"
 import { TParams, TOptions } from "@types"
-
-const TRYNUMBER = 100
-
 
 class Stack {
     _nodes:Array<Bloc>
@@ -58,30 +54,6 @@ class MainBloc {
         this._mainBloc = container
     }
 
-    /*
-     * Méthodes statiques 
-     */
-    static parseOptions(content:string) {
-        const mainBlock = MainBloc._parse(content)
-        return mainBlock._parseOptions()
-    }
-
-    static parseParams(code:string, options:TOptions) {
-        code = code || ""
-        options = options || {}
-        if (typeof options === 'string') {
-            options = JSON.parse(options)
-        }
-        const main = MainBloc._parse(code)
-        for (let attempt = 1; attempt <= TRYNUMBER; attempt++) {
-            const result = main._getInit(options)
-            if (result !== null) {
-                return result
-            }
-        }
-        throw new Error(`Impossible d'initialiser les paramètres de l'exercice après ${TRYNUMBER} essais.`)
-    }
-
     static runCode(code:string, params:TParams, options:TOptions) {
         const main = MainBloc._parse(code)
         return main.run(params, options)
@@ -92,7 +64,7 @@ class MainBloc {
      * @param {string} content le contenu à analyser
      * @returns {object} l'objet représentant la structure de l'exercice
      */
-    private static _parse(content:string):MainBloc {
+    static _parse(content:string):MainBloc {
         const colors = new Colors() // instancie une palette pour les blocs qui en auraient besoin
         const lines = content.split('\n')
         const stack = new Stack()
@@ -155,7 +127,7 @@ class MainBloc {
                         throw new Error(`Erreur de syntaxe : fin de condition referme <${item.tag}>`)
                     }
                     item.close()
-                    stack[stack.length-1].push(item)
+                    stack.pushInLast(item)
                 } while (item.tag !== IfBloc.IF) // s'arrêtera forcément au pire sur le bloc MainBloc
                 continue
             }
@@ -205,83 +177,6 @@ class MainBloc {
     }
 
     /**
-     * Tentative d'initialisation des paramètres
-     * @param {TOptions} options 
-     * @returns {TParams|null} un objet de paramètres ou null si échec
-     */
-    private _getInit(options:TOptions):TParams|null {
-        const params = {}
-        let program = [...this._mainBloc.children].reverse()
-        while (program.length > 0) {
-            let item = program.pop()
-            if (item instanceof Halt) {
-                // arrêt de l'initialisation
-                return params
-            }
-            if (item instanceof TextNode) {
-                continue
-            }
-            if (FluxManager.isNeeded(item)) {
-                const result:TRunResult = item.run({ ...params, ...options })
-                if (result === "halt") {
-                    return null
-                }
-                continue
-            }
-            if ((item instanceof IfBloc) || (item instanceof Until)) {
-                const children = item.run({ ...params, ...options })
-                program.push(...children.reverse())
-                continue
-            }
-            // doit être une affectation
-            if (!(item instanceof Affectation)) {
-                throw new Error("L'initialisation ne doit contenir que des conditions et des affectations.")
-            }
-            item.doAffectation(params, options)
-        }
-        // Filtrage des noms en _nom
-        const keys = Object.keys(params).filter(key => !key.startsWith('_'))
-        const filtered = _.pick(params, keys)
-        return _.mapObject(filtered, (val,key) => this._stringifyValue(val))
-    }
-
-    private _stringifyValue(value) {
-        if (Array.isArray(value)) {
-            return value.map(v => this._stringifyValue(v))
-        }
-        if (typeof value === 'undefined' || value === null) {
-            return ''
-        }
-        if (typeof value.toStringSimplified === 'function') {
-            return value.toStringSimplified()
-        }
-        return String(value)
-    }
-
-    /**
-     * Produit l'objet décrivant les options possibles
-     */
-    private _parseOptions() {
-        const options = {}
-        const defaultsOptions = {}
-        for (const child of this._mainBloc.children) {
-            if (child instanceof TextNode){
-                continue
-            }
-            if (!(child instanceof Bloc) || child.tag !== 'option') {
-                throw new Error("Le contenu des options ne peut contenir que des blocs <option>.")
-            }
-            const [key, defaultValue,values] = child.parseOption()
-            if (key.startsWith('_')) {
-                throw new Error(`Le nom d'option ${key} est invalide (ne doit pas commencer par _).`)
-            }
-            options[key] = values
-            defaultsOptions[key] = defaultValue
-        }
-        return { options, defaultsOptions }
-    }
-
-    /**
      * Exécute le bloc principal et renvoie les contenus bruts
      * @param {TParams} params
      * @param {Array<Node>} options
@@ -298,6 +193,10 @@ class MainBloc {
         // Pas besoin de récupérer le résultat qui dans ce cas
         // est le bloc lui-même
         return this._mainBloc.children.reverse()
+    }
+
+    get children():Array<Node> {
+        return this._mainBloc.children
     }
 }
 

@@ -30,10 +30,10 @@ class MyMath {
     private _expression:string
 
     /** @type{nerdamer.Expression|null} */
-    private _nerdamer_processed:nerdamer.Expression|null = null
+    private _nerdamer_processed?:nerdamer.Expression
 
     /** @type{Base|null} */
-    private _mynumber:Base|null = null
+    private _mynumber?:Base
 
     /**
      * alias de toFloat
@@ -315,17 +315,17 @@ class MyMath {
     }
 
     private _getMyNumber(): Base {
-        if (this._mynumber != null) {
+        if (typeof this._mynumber === "undefined") {
             this._mynumber = Parser.build(this._expression)
         }
         return this._mynumber
     }
 
     private _getNerdamerProcessed() {
-        if (this._nerdamer_processed !== null) {
+        if (typeof this._nerdamer_processed !== "undefined") {
             return this._nerdamer_processed
         }
-        const normalized = this._mynumber !== null
+        const normalized = typeof this._mynumber !== "undefined"
             ? this._mynumber.toStringEn()
             : MyMath.normalization(this._expression)
         try {

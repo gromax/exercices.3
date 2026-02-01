@@ -10,6 +10,8 @@ import {
 import { Item as ExerciceTry } from '../trial.js'
 import MainBloc from '../tools/exocode/mainbloc';
 import renderTexInDomElement from '../../common/rendertex';
+import { parseParams } from "../tools/exocode/parseparams"
+import { parseOptions } from "../tools/exocode/parseoptions"
 
 const Controller = MnObject.extend ({
   channelName: "app",
@@ -19,7 +21,7 @@ const Controller = MnObject.extend ({
     try {
       const layoutView = new LayoutView();
       region.show(layoutView);
-      const {options, defaultsOptions} = MainBloc.parseOptions(sujet.get("options"));
+      const {options, defaultsOptions} = parseOptions(sujet.get("options"));
       const optionsView = new OptionsView({ options: options, selected: defaultsOptions });
       optionsView.on("change", (data) => {
         const trial = this.newTrial(sujet, data, null, null);
@@ -45,7 +47,7 @@ const Controller = MnObject.extend ({
     try {
       const layoutView = new LayoutView();
       region.show(layoutView);
-      const {options, defaultsOptions} = MainBloc.parseOptions(sujet.get("options"));
+      const {options, defaultsOptions} = parseOptions(sujet.get("options"));
       const optionsSelected = { ...defaultsOptions, ...exoDevoir.get("options") };
       const optionsView = new OptionsView({ options: options, selected: optionsSelected });
       optionsView.on("change", (data) => {
@@ -85,7 +87,7 @@ const Controller = MnObject.extend ({
       return;
     }
     try {
-      const {options, defaultsOptions} = MainBloc.parseOptions(sujet.get("options"));
+      const {options, defaultsOptions} = parseOptions(sujet.get("options"));
       const optionsSelected = { ...defaultsOptions, ...noteexo.get("options") };
       trial.set("options", optionsSelected);
       trial.set("idDevoir", note.get("idDevoir"));
@@ -119,7 +121,7 @@ const Controller = MnObject.extend ({
       return;
     }
     try {
-      const {options, defaultsOptions} = MainBloc.parseOptions(sujet.get("options"));
+      const {options, defaultsOptions} = parseOptions(sujet.get("options"));
       const optionsSelected = { ...defaultsOptions, ...noteexo.get("options") };
       if (trial) {
         trial.set("options", optionsSelected);
@@ -163,7 +165,7 @@ const Controller = MnObject.extend ({
     const logged = channel.request("logged:get");
     const idUser = logged.isEleve() ? logged.id : null;
     try {
-      const initParams = MainBloc.parseParams(sujet.get("init"), options);
+      const initParams = parseParams(sujet.get("init"), options)
       return new ExerciceTry({
         idExo: sujet.id,
         options: options,

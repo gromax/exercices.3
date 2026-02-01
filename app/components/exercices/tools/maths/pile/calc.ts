@@ -21,7 +21,7 @@ class Calc {
         'min': Calc.min,
         'simplify': Calc.simplify
     }
-    static readonly SHORTCUTS = {
+    static readonly SHORTCUTS:Record<string,string> = {
         'abs': 'Calc.abs',
         '*': 'Calc.mult',
         '+': 'Calc.add',

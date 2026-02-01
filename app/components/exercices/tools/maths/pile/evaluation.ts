@@ -6,7 +6,7 @@ import Str from './str'
 import Tkztab from './tkztab'
 import MyMath from '../mymath';
 import { getValue, substituteLabels, substituteParams } from '../misc/substitution';
-import { NestedArray, InputType, TParams } from '@types'
+import { NestedInput, InputType, TParams } from '@types'
 
 const MODULES = {
     'Alea': Alea,
@@ -31,7 +31,7 @@ function _tryAsPile(expression:string, params:TParams):null|InputType {
     return _executePile(pile);
 }
 
-function _executePile(pile:Array<string>):InputType {
+function _executePile(pile:Array<NestedInput>):InputType {
     const operandes = [];
     pile.reverse();
     if (pile.length === 0) return null;
@@ -42,7 +42,7 @@ function _executePile(pile:Array<string>):InputType {
             continue;
         }
         if (top in Calc.SHORTCUTS) {
-            top = Calc.SHORTCUTS[top];
+            top = Calc.SHORTCUTS[top]
         }
         if (!/^[A-Za-z_]+\.[A-Za-z_]\w*$/.test(top)) {
             operandes.push(top);
@@ -82,9 +82,9 @@ function _executePile(pile:Array<string>):InputType {
  * @returns 
  */
 function evaluate(
-    expression:NestedArray<InputType>,
+    expression:NestedInput,
     params:TParams
-):NestedArray<InputType> {
+):NestedInput {
     if (Array.isArray(expression)) {
         return expression.map(expr => evaluate(expr, params))
     }
