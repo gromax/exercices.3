@@ -4,9 +4,10 @@ import { Node, TRunResult } from './node'
 
 class TextNode extends Node {
     private _text:string
+    private _closed:boolean = false
 
     constructor(text:string) {
-        super('text')
+        super('textnode')
         this._text = text
     }
 
@@ -26,8 +27,23 @@ class TextNode extends Node {
         return this._text
     }
 
+    close():void {
+        this._closed = true
+    }
+
+    get closed():boolean {
+        return this._closed
+    }
+
     appendText(text:string) {
+        if (this._closed) {
+            throw new Error("On ne peut ajouter du texte à un noeud fermé.")
+        }
         this._text += '\n' + text
+    }
+
+    get empty():boolean {
+        return this._text === ""
     }
 }
 
