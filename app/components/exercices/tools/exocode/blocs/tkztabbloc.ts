@@ -31,7 +31,7 @@ class TkzTabBloc extends Bloc implements FormItemImplementation {
         if (this._params.xlist === undefined) {
             throw new Error("<tkztab/> Le paramètre 'xlist' est obligatoire.")
         }
-        if (this._tkzTab === null) {
+        if (typeof this._tkzTab === "undefined") {
             const config = this._getConfig()
             this._tkzTab = new TkzTab(this._xList, config)
             this._tkzTab.addLines(this._lines)
@@ -42,9 +42,10 @@ class TkzTabBloc extends Bloc implements FormItemImplementation {
     private _getConfig():Record<string,number|string> {
         const config:Record<string,number|string> = {
             color: this._color,
-            xtag: String(this._params.tag) || "$x$",
+            xtag: this._params.tag
+                ? String(this._params.tag)
+                : "$x$",
         }
-
         if (this.params.pixelsperline !== undefined) {
             config.pixelsYUnit = Number(this.params.pixelsperline)
         }

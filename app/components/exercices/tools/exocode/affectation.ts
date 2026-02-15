@@ -67,7 +67,6 @@ class Affectation extends Node {
             // initialisation comme tableau
             params[this._tag] = []
         }
-
         if (!this._isArrayAffectation && Array.isArray(params[this._tag])) {
             throw new Error(`Le paramètre ${this._tag} ne devrait pas être un tableau.`)
         }

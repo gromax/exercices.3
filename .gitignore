@@ -32,6 +32,7 @@ public/
 vendor/
 php/class/PHPMailer/
 debug/
+dist/
 
 # dev files
 curl.md
