@@ -513,6 +513,7 @@ Voici les formats reconnus :
   * infini : indique que l'on accepte un infin comme `'+inf'` ou `'-∞'`. Le signe est obligatoire même pour +
   * expand : indique que l'on attend une expression développée.
   * var:x : indique que l'expression peut dépendre de x. on pourrait écrire `var:xn` pour autoriser une expression dépendant de `x` et de `n`.
+  * equation:xy : indique que l'on attend une équation linéaire dépendant de x et y comme 3x+2y-5=0. Dans ce cas la solution ne devra être qu'une expression membre gauche = 0. Par ex si l'équation est possible `3x = 4` la solution aura la forme `3x-4`, sous entendu = 0.
 
 Il ne serait pas logique de proposer à la fois numeric et round mais on peut demander empty et numeric par exemple.
 
