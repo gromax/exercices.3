@@ -1,4 +1,4 @@
-import _, { all } from "underscore"
+import _ from "underscore"
 import { TParams } from "@types"
 
 type TRunResult = "halt" | "nothing" | Node | Array<Node>
