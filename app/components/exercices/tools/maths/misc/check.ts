@@ -46,6 +46,8 @@ function checkFormatWithVar(expr:string, acceptedV:string): string|boolean {
     }
 }
 
+
+/* Teste si l'expression est développée */
 function checkIfExpand(expr:string): string|boolean {
     try {
         const objMath = Parser.build(expr)
@@ -82,6 +84,35 @@ function checkInfiniteExpression(expr:string): boolean|string {
         : "Vous devez fournir une valeur infinie (ex: +inf, -∞)."
 }
 
+/* Renvoie true si l'expression est une équation contenant les variables indiquées
+* @param {string} expr 
+ * @param {string} acceptedV
+ * @returns {string|boolean}
+*/
+function checkIfEquation(expr:string, variables:string):boolean|string {
+    if (expr.trim() == "") {
+        return "L'expression est vide"
+    }
+    if (!expr.includes("=")) {
+        return "Une équation devrait contenir ="
+    }
+    let membres = expr.split("=")
+    if (membres.length != 2) {
+        return "Une équation ne devrait avoir qu'un ="
+    }
+    if (membres[0].trim() == "") {
+        return "Membre gauche vide"
+    }
+    if (membres[1].trim() == "") {
+        return "Membre droit vide"
+    }
+    let membreGaucheResult = checkFormatWithVar(membres[0], variables)
+    if (membreGaucheResult !== true) {
+        return membreGaucheResult
+    }
+    return checkFormatWithVar(membres[1], variables)
+}
+
 /**
  * test if expr matches the expected format
  * @param {string} expr 
@@ -109,6 +140,15 @@ function checkFormat(expr:string, format:string|Array<string> = 'none'): boolean
 
     if (format === "infini")  {
         return checkInfiniteExpression(expr)
+    }
+
+    if (format.startsWith("equation:")) {
+        let items = format.split(":")
+        if (items.length!=2) {
+            throw new Error(`le format ${format} n'est pas défini.`)
+        }
+        let variables = items[1]
+        return checkIfEquation(expr, variables)
     }
 
     if (format === 'numeric') {
@@ -151,7 +191,7 @@ function checkFormat(expr:string, format:string|Array<string> = 'none'): boolean
  * @param {string|Array} format 
  * @returns {string} le format choisi
  */
-function formatValue(value:any|Array<any>, format: string|Array<string> = "none"):string|Array<string> {
+function formatValue(value:any|Array<any>, format:string|Array<string> = "none"):string|Array<string> {
     // format peut être un tableau ou non
     // il faudrait voir les cas empty, infini qui sont à part et peuvent être en plus
     // puis les autres qui devraient être uniques
@@ -175,12 +215,13 @@ function formatValue(value:any|Array<any>, format: string|Array<string> = "none"
         // premier cas, format était un tableau. Il faut donc chercher le format non empty et non infini
         const formatChoisi = format.filter(f => f !== 'empty' && f !== 'infini')
         if (formatChoisi.length > 1) {
-            console.warn("Le format choisi contient des types inconmpatibles : " + formatChoisi.join(', ') + ".")
+            console.warn("Le format choisi contient des types incompatibles : " + formatChoisi.join(', ') + ".")
         }
         format = formatChoisi.length === 1 ? formatChoisi[0] : 'none'
     }
-    // il pourrait arriver que le format choisi soit "empty" ou "infini" et qu'il
-    // n'est pas convenu pour la valeur attendue. Ce cas revient à none
+    // il pourrait arriver que le format n'était pas un tableau
+    // et soit "empty" ou "infini" et qu'il
+    // n'ait pas convenu pour la valeur attendue. Ce cas revient à none
     if (format === 'empty' || format === 'infini') {
         format = 'none'
     }
@@ -193,12 +234,14 @@ function formatValue(value:any|Array<any>, format: string|Array<string> = "none"
         const n = Math.ceil(Math.log10(1 / err))
         return `${MyMath.toFormat(str_value, `${n+1}f`)} ± ${String(err).replace('.', ',')}`
     }
+    if (format.startsWith("equation:")) {
+        return "$" + str_value.split("=").map(MyMath.latex).join("=") + "$"
+    }
     if (!['none', 'numeric', 'expand'].includes(format)) {
         console.warn(`Format inconnu : ${format}`)
     }
     return `$${MyMath.latex(str_value)}$`
 }
-
 
 /**
  * vérifie la valeur donnée par l'utilisateur
@@ -252,6 +295,46 @@ function checkValue(userValue:string, expectedValue:InputType, format:string|Arr
             return Math.abs(userFloat - expectedFloat) <= tolerance
         }
     }
+
+    if (format.startsWith("equation:")) {
+        // On fait le parse des deux membres et on soustrait
+        let userMembres = userValue.split("=")
+        if (userMembres.length != 2) {
+            return false
+        }
+        let user = MyMath.make(`(${userMembres[0]})-(${userMembres[1]})`)
+        let good = MyMath.make(expectedValue)
+        const v = user.variables
+        v.sort()
+        const v2 = good.variables
+        v2.sort()
+        if (v.length !== v2.length) {
+            return false
+        }
+        for (let i=0;i<v.length;i++) {
+            if (v[i]!=v2[i]) {
+                return false
+            }
+        }
+        // les variables sont les mêmes
+        // si pas de variable, alors ok
+        if (v.length == 0) {
+            return true
+        }
+        // maintenant on va trouver le coefficient de la première variable.
+        let v0 = v[0]
+        let d1 = user.diff(v0)
+        let d2 = good.diff(v0)
+        // Pour que ce soit bon, d1 et d2 doivent être de simples scalaires
+        if ((d1.variables.length>0) || (d2.variables.length>0)) {
+            return false
+        }
+        // on a donc 2 constantes. On peut faire d2*user - d1*good
+        // et tester si ça fait 0
+        let red = MyMath.make(`(${d1})*(${good}) - (${d2})*(${user})`)
+        return red.compare(0, "==") as boolean
+    }
+
     if (format === "expand") {
         // comparaison d'expressions algébriques
         return MyMath.parseUser(userValue).compare(parsedExpected.expand(), "==") as boolean
