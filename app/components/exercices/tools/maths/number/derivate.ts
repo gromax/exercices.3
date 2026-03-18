@@ -12,24 +12,31 @@ import { simplify } from './simplify'
 /**
  * fonction de simplification
  * @param {Base} node 
+ * @param {string} varName
  * @returns {Base}
  */
-function derivate(node:Base):Base {
+function derivate(node:Base, varName:string):Base {
     if (node instanceof Scalar
         || (node instanceof Constant)
-        || (node instanceof Symbol)) {
+        ) {
         return Scalar.ZERO
     }
 
+    if (node instanceof Symbol) {
+        return String(node) == varName
+            ? Scalar.ONE
+            : Scalar.ZERO
+    }
+
     if (node instanceof AddMinus) {
-        return simplify(AddMinus.fromList(node.children.map(derivate), node.positive))
+        return simplify(AddMinus.fromList(node.children.map(function(item) { return derivate(item, varName) }), node.positive))
     }
 
     if (node instanceof Div) {
         const u = node.left
         const v = node.right
-        const uPrime = derivate(u)
-        const vPrime = derivate(v)
+        const uPrime = derivate(u, varName)
+        const vPrime = derivate(v, varName)
         const numerator = AddMinus.minus(
             Mult.mult(uPrime, v),
             Mult.mult(u, vPrime)
@@ -40,7 +47,7 @@ function derivate(node:Base):Base {
 
     if (node instanceof Mult) {
         const children = node.children
-        const childrenPrime = children.map(derivate)
+        const childrenPrime = children.map(function(item) { return derivate(item, varName) })
         const terms= []
         for (let i = 0; i < children.length; i++) {
             const termFactors = [...children]
@@ -52,7 +59,7 @@ function derivate(node:Base):Base {
 
     if (node instanceof Function) {
         const child = node.child
-        const childPrime = derivate(child)
+        const childPrime = derivate(child, varName)
         if (node.name === '(+)') {
             return childPrime
         }
@@ -96,8 +103,8 @@ function derivate(node:Base):Base {
     if (node instanceof Power) {
         const base = node.base
         const exponent = node.exposant
-        const basePrime = derivate(base)
-        const exponentPrime = derivate(exponent)
+        const basePrime = derivate(base, varName)
+        const exponentPrime = derivate(exponent, varName)
         const factor = AddMinus.add(
             Mult.mult(exponentPrime, new Function('ln', base)),
             Div.div(Mult.mult(exponent, basePrime), base)
