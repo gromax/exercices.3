@@ -15,7 +15,7 @@ import { Base } from './number/base'
 import { simplify, decimalize } from './number/simplify'
 import Decimal from 'decimal.js'
 import { TParams, InputType, NestedArray } from "@types"
-
+import { derivate } from './number/derivate'
 
 type AcceptedInput = InputType | Base
 interface MyMathOptions {
@@ -545,8 +545,17 @@ class MyMath {
         return new MyMath({ nerdamer: this._getNerdamerProcessed().sub(varName, valueStr) })
     }
 
-    diff():MyMath {
-        return new MyMath({ expression: `diff(${this._expression})` })
+    diff(varName:string=""):MyMath {
+        const b = this._getMyNumber()
+        if (varName == "") {
+            let v = this.variables
+            if (v.length == 0) {
+                return MyMath.make(0)
+            }
+            varName = v[0]
+        }
+        const db = derivate(b, varName)
+        return new MyMath({mynumber:db})
     }
 
     buildFunction():Function {
