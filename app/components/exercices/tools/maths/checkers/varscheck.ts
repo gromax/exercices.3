@@ -6,12 +6,16 @@ import MyMath from '@mathstools/mymath'
 class VarsCheck extends AbsChecker {
     protected _vars:string
 
-    constructor(format:string, expr:string) {
-        super(expr)
+    constructor(expr:string, format:string = "") {
+        super(format, expr)
         const parts = format.split(":")
         this._vars = parts.length>1
             ? parts[1].trim()
             : format.trim()
+    }
+
+    static testFormat(format: string): boolean {
+        return format.startsWith("var:")
     }
 
     protected _testFormat():boolean {
