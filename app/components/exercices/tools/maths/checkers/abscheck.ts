@@ -9,9 +9,13 @@ abstract class AbsChecker {
     protected _formatValid?:boolean
     protected _message:string
 
-    constructor(expr:string) {
+    constructor(expr:string, format:string = "") {
         this._expr = expr.trim()
         this._message = ""
+    }
+
+    static testFormat(format:string):boolean {
+        throw new Error("AbsChecker.testFormat ne devrait pas être appelé")
     }
 
     protected abstract _testFormat():boolean
