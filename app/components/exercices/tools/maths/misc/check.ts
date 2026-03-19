@@ -6,6 +6,9 @@ import Parser from '../parser/parser'
 import MyMath from '@mathstools/mymath'
 import { InputType } from '@types'
 
+import { InfiniteCheck } from '../checkers/infinitecheck'
+import { EmptyCheck } from '../checkers/emptycheck'
+
 function checkNumericExpression(expr:string): string|boolean {
     try {
         const objMath = Parser.build(expr)
@@ -60,30 +63,6 @@ function checkIfExpand(expr:string): string|boolean {
     }
 }
 
-/**
- * renvoie true ou un message d'erreur si l'expression donnée
- * n'est pas une expression vide
- * @param {string} expr 
- * @returns {boolean|string}
- */
-function checkEmptyExpression(expr:string): boolean|string {
-    return ['vide', '∅', 'empty'].includes(expr)
-        ? true
-        : "Vous devez répondre 'vide' ou '∅' pour indiquer l'ensemble vide."
-}
-
-/**
- * renvoie true ou un message d'erreur si l'expression donnée
- * n'est pas une expression infinie
- * @param {string} expr 
- * @returns {boolean|string}
- */
-function checkInfiniteExpression(expr:string): boolean|string {
-    return /^[-+]\s*(?:∞|inf|infini|infinity)$/.test(expr)
-        ? true
-        : "Vous devez fournir une valeur infinie (ex: +inf, -∞)."
-}
-
 /* Renvoie true si l'expression est une équation contenant les variables indiquées
 * @param {string} expr 
  * @param {string} acceptedV
@@ -135,11 +114,17 @@ function checkFormat(expr:string, format:string|Array<string> = 'none'): boolean
     }
 
     if (format === 'empty') {
-        return checkEmptyExpression(expr)
+        const emptyChecker = new EmptyCheck(expr)
+        return emptyChecker.formatIsValid
+            ? true
+            : emptyChecker.message
     }
 
     if (format === "infini")  {
-        return checkInfiniteExpression(expr)
+        const infiniteChecker = new InfiniteCheck(expr)
+        return infiniteChecker.formatIsValid
+            ? true
+            : infiniteChecker.message
     }
 
     if (format.startsWith("equation:")) {
@@ -201,13 +186,13 @@ function formatValue(value:any|Array<any>, format:string|Array<string> = "none")
     const str_value = String(value)
     if (
         (format === "infini") || (Array.isArray(format) && format.includes("infini"))
-        && checkInfiniteExpression(str_value) === true
+        && (new InfiniteCheck(str_value)).formatIsValid
        ) {
         return str_value[0] === '-' ? '$-\\infty$' : '$+\\infty$'
     }
     if (
         (format === "empty") || (Array.isArray(format) && format.includes("empty"))
-        && checkEmptyExpression(str_value) === true
+        && (new EmptyCheck(str_value)).formatIsValid
        ) {
         return '$\\emptyset$'
     }
@@ -235,7 +220,10 @@ function formatValue(value:any|Array<any>, format:string|Array<string> = "none")
         return `${MyMath.toFormat(str_value, `${n+1}f`)} ± ${String(err).replace('.', ',')}`
     }
     if (format.startsWith("equation:")) {
-        return "$" + str_value.split("=").map(MyMath.latex).join("=") + "$"
+        // ajout d'un = 0 par défaut
+        return str_value.includes("=")
+            ? "$" + str_value.split("=").map(MyMath.latex).join("=") + "$"
+            : "$" + MyMath.latex(str_value) + " = 0$"
     }
     if (!['none', 'numeric', 'expand'].includes(format)) {
         console.warn(`Format inconnu : ${format}`)
@@ -256,13 +244,12 @@ function checkValue(userValue:string, expectedValue:InputType, format:string|Arr
         return false
     }
     // je traite d'abord les cas particuliers
-    if (checkEmptyExpression(String(expectedValue)) === true) {
-        return checkEmptyExpression(userValue) === true
+    if (new EmptyCheck(String(expectedValue)).formatIsValid) {
+        return (new EmptyCheck(userValue)).formatIsValid
     }
     const parsedExpected = MyMath.make(expectedValue)
     if (parsedExpected.isInfinity()) {
-        return checkInfiniteExpression(userValue) === true
-            && parsedExpected.isMinusInfinity() === (userValue[0] === '-')
+        return (new InfiniteCheck(userValue)).valueIsGood(parsedExpected)
     }
 
     // je traite ensuite les cas où le format devrait être numérique
