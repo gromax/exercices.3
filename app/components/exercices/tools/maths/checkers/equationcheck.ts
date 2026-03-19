@@ -6,12 +6,19 @@ import MyMath from '@mathstools/mymath'
 class EquationCheck extends AbsChecker {
     protected _vars:string
 
-    constructor(format:string, expr:string) {
-        super(expr)
+    constructor(expr:string, format:string = "") {
+        super(expr, format)
         if (!format.startsWith("equation:")) {
             throw new Error(`Utilisation ${format} à la place de "equation:###"`)
         }
-        this._vars = format.split(":")[1]
+        const parts = format.split(":")
+        this._vars = parts.length>1
+            ? parts[1].trim()
+            : format.trim()
+    }
+
+    static testFormat(format: string): boolean {
+        return format.startsWith("equation:")
     }
 
     protected _testFormat():boolean {
