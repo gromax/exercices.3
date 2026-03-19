@@ -536,6 +536,10 @@ class MyMath {
         return this._getNerdamerProcessed().eq('-infinity')
     }
 
+    isExpanded():boolean {
+        return this._getMyNumber().isExpanded()
+    }
+
     expand():MyMath {
         return new MyMath({ nerdamer: this._getNerdamerProcessed().expand() })
     }
