@@ -4,6 +4,10 @@ import MyMath from '@mathstools/mymath'
 
 
 class InfiniteCheck extends AbsChecker {
+    static testFormat(format: string): boolean {
+        return format == "infini"
+    }
+
     protected _testFormat():boolean {
         let test = /^[-+]\s*(?:∞|inf|infini|infinity)$/.test(this._expr)
             ? true
