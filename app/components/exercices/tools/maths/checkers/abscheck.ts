@@ -10,7 +10,7 @@ abstract class AbsChecker {
     protected _message:string
 
     constructor(expr:string) {
-        this._expr = expr
+        this._expr = expr.trim()
         this._message = ""
     }
 
