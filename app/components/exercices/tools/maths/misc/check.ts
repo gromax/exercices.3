@@ -8,47 +8,21 @@ import { InputType } from '@types'
 
 import { InfiniteCheck } from '../checkers/infinitecheck'
 import { EmptyCheck } from '../checkers/emptycheck'
+import { EquationCheck } from '../checkers/equationcheck'
+import { NumericCheck } from '../checkers/numeric_check'
+import { VarsCheck } from '../checkers/varscheck'
+import { RoundCheck } from '../checkers/roundcheck'
+import { ErreurCheck } from '../checkers/erreurcheck'
 
-function checkNumericExpression(expr:string): string|boolean {
-    try {
-        const objMath = Parser.build(expr)
-        const variables = objMath.isFunctionOf(undefined) as Array<string>
-        if (variables.length > 0) {
-            return `Expression numérique attendue (pas de ${variables.join(', ')}).`
-        }
-        if (objMath.toString().includes('∞')) {
-            return "Expression numérique attendue (pas d'infini)."
-        }
-        // on souhaite également que l'expression soit développée
-        return objMath.isExpanded() ? true : "Vous devez simplifier."
-    } catch (e) {
-        // parsing error => pas numérique
-        return "Expression invalide."
-    }
-}
-
-/**
- * Test si l'expression n'a comme variable que celles présentes dans v
- * @param {string} expr 
- * @param {string} acceptedV
- * @returns {string|boolean}
- */
-function checkFormatWithVar(expr:string, acceptedV:string): string|boolean {
-    try {
-        const objMath = Parser.build(expr)
-        const variables = objMath.isFunctionOf(undefined) as Array<string>
-        for (const v of variables) {
-            if (!acceptedV.includes(v)) {
-                return `L'expression ne doit pas dépendre de la variable ${v}.`
-            }
-        }
-        return objMath.isExpanded() ? true : "Vous devez simplifier."
-    } catch (e) {
-        // parsing error => pas numérique
-        return "Expression invalide."
-    }
-}
-
+const CHECKERS = [
+    EmptyCheck,
+    InfiniteCheck,
+    EquationCheck,
+    NumericCheck,
+    VarsCheck,
+    RoundCheck,
+    ErreurCheck
+]
 
 /* Teste si l'expression est développée */
 function checkIfExpand(expr:string): string|boolean {
@@ -61,35 +35,6 @@ function checkIfExpand(expr:string): string|boolean {
         // parsing error => pas numérique
         return "Expression invalide."
     }
-}
-
-/* Renvoie true si l'expression est une équation contenant les variables indiquées
-* @param {string} expr 
- * @param {string} acceptedV
- * @returns {string|boolean}
-*/
-function checkIfEquation(expr:string, variables:string):boolean|string {
-    if (expr.trim() == "") {
-        return "L'expression est vide"
-    }
-    if (!expr.includes("=")) {
-        return "Une équation devrait contenir ="
-    }
-    let membres = expr.split("=")
-    if (membres.length != 2) {
-        return "Une équation ne devrait avoir qu'un ="
-    }
-    if (membres[0].trim() == "") {
-        return "Membre gauche vide"
-    }
-    if (membres[1].trim() == "") {
-        return "Membre droit vide"
-    }
-    let membreGaucheResult = checkFormatWithVar(membres[0], variables)
-    if (membreGaucheResult !== true) {
-        return membreGaucheResult
-    }
-    return checkFormatWithVar(membres[1], variables)
 }
 
 /**
@@ -113,43 +58,14 @@ function checkFormat(expr:string, format:string|Array<string> = 'none'): boolean
         return reponses.join(' OU ')
     }
 
-    if (format === 'empty') {
-        const emptyChecker = new EmptyCheck(expr)
-        return emptyChecker.formatIsValid
-            ? true
-            : emptyChecker.message
-    }
-
-    if (format === "infini")  {
-        const infiniteChecker = new InfiniteCheck(expr)
-        return infiniteChecker.formatIsValid
-            ? true
-            : infiniteChecker.message
-    }
-
-    if (format.startsWith("equation:")) {
-        let items = format.split(":")
-        if (items.length!=2) {
-            throw new Error(`le format ${format} n'est pas défini.`)
+    for (const C of CHECKERS) {
+        if (!C.testFormat(format)) {
+            continue
         }
-        let variables = items[1]
-        return checkIfEquation(expr, variables)
-    }
-
-    if (format === 'numeric') {
-        return checkNumericExpression(expr)
-    }
-    if (/^round:[0-9]+$/.test(format)) {
-        return /^[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][+-]?\d+)?(?:\s*%)?$/.test(expr) ? true : "Vous devez fournir un nombre éventuellement approximé."
-    }
-    if (/^erreur:(?:[0-9]+(?:\.[0-9]+)?)|(?:\.[0-9]+)$/.test(format)) {
-        return /^[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][+-]?\d+)?(?:\s*%)?$/.test(expr) ? true : "Vous devez fournir un nombre éventuellement approximé."
-    }
-
-    if (format.startsWith("var:")) {
-        const i = format.indexOf(':')
-        const v = format.substring(i+1)
-        return checkFormatWithVar(expr, v)
+        const checker = new C(expr, format)
+        return checker.formatIsValid
+            ? true
+            : checker.message
     }
 
     if (format === 'expand') {
@@ -186,13 +102,13 @@ function formatValue(value:any|Array<any>, format:string|Array<string> = "none")
     const str_value = String(value)
     if (
         (format === "infini") || (Array.isArray(format) && format.includes("infini"))
-        && (new InfiniteCheck(str_value)).formatIsValid
+        && (new InfiniteCheck("infini", str_value)).formatIsValid
        ) {
         return str_value[0] === '-' ? '$-\\infty$' : '$+\\infty$'
     }
     if (
         (format === "empty") || (Array.isArray(format) && format.includes("empty"))
-        && (new EmptyCheck(str_value)).formatIsValid
+        && (new EmptyCheck("empty", str_value)).formatIsValid
        ) {
         return '$\\emptyset$'
     }
@@ -245,7 +161,7 @@ function checkValue(userValue:string, expectedValue:InputType, format:string|Arr
     }
     // je traite d'abord les cas particuliers
     if (new EmptyCheck(String(expectedValue)).formatIsValid) {
-        return (new EmptyCheck(userValue)).formatIsValid
+        return (new EmptyCheck(userValue)).valueIsGood(expectedValue)
     }
     const parsedExpected = MyMath.make(expectedValue)
     if (parsedExpected.isInfinity()) {
@@ -261,65 +177,26 @@ function checkValue(userValue:string, expectedValue:InputType, format:string|Arr
         format = format.find(f => f !== 'empty' && f !== 'inf') || 'none'
     }
 
-    if (format === "numeric") {
+    if (NumericCheck.testFormat(format)) {
         // numérique mais exacte. Une comparaison directe suffit
         //return MyMath.parseUser(userValue).compare(expectedValue, "==")
-        return MyMath.parseUser(userValue).pseudoEquality(parsedExpected)
-    }
-    if (format.startsWith("round:") || format.startsWith("erreur:")) {
-        // Il faut une évaluation float des deux valeurs
-        const userFloat = MyMath.parseUser(userValue).toFloat()
-        const expectedFloat = parsedExpected.toFloat()
-        if (isNaN(userFloat) || isNaN(expectedFloat)) {
-            return false
-        }
-        const param = Number(format.split(':')[1])
-        if (format.startsWith("round:")) {
-            const factor = Math.pow(10, param)
-            return userFloat * factor === Math.round(expectedFloat * factor)
-        } else if (format.startsWith("erreur:")) {
-            const tolerance = param
-            return Math.abs(userFloat - expectedFloat) <= tolerance
-        }
+        const numericChecker = new NumericCheck(userValue)
+        return numericChecker.valueIsGood(expectedValue)
     }
 
-    if (format.startsWith("equation:")) {
-        // On fait le parse des deux membres et on soustrait
-        let userMembres = userValue.split("=")
-        if (userMembres.length != 2) {
-            return false
-        }
-        let user = MyMath.make(`(${userMembres[0]})-(${userMembres[1]})`)
-        let good = MyMath.make(expectedValue)
-        const v = user.variables
-        v.sort()
-        const v2 = good.variables
-        v2.sort()
-        if (v.length !== v2.length) {
-            return false
-        }
-        for (let i=0;i<v.length;i++) {
-            if (v[i]!=v2[i]) {
-                return false
-            }
-        }
-        // les variables sont les mêmes
-        // si pas de variable, alors ok
-        if (v.length == 0) {
-            return true
-        }
-        // maintenant on va trouver le coefficient de la première variable.
-        let v0 = v[0]
-        let d1 = user.diff(v0)
-        let d2 = good.diff(v0)
-        // Pour que ce soit bon, d1 et d2 doivent être de simples scalaires
-        if ((d1.variables.length>0) || (d2.variables.length>0)) {
-            return false
-        }
-        // on a donc 2 constantes. On peut faire d2*user - d1*good
-        // et tester si ça fait 0
-        let red = MyMath.make(`(${d1})*(${good}) - (${d2})*(${user})`)
-        return red.compare(0, "==") as boolean
+    if (ErreurCheck.testFormat(format)) {
+        const erreurChecker = new ErreurCheck(userValue, format)
+        return erreurChecker.valueIsGood(expectedValue)
+    }
+
+    if (RoundCheck.testFormat(format)) {
+        const roundChecker = new RoundCheck(userValue, format)
+        return roundChecker.valueIsGood(expectedValue)
+    }
+
+    if (EquationCheck.testFormat(format)) {
+        const equationChecker = new EquationCheck(userValue, format)
+        return equationChecker.valueIsGood(expectedValue)
     }
 
     if (format === "expand") {
