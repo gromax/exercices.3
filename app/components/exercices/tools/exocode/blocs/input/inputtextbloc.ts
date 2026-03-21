@@ -1,7 +1,8 @@
 import _ from "underscore"
 import InputBloc from "./inputbloc"
 import { InputView, InputResultView } from "../../views/inputview"
-import { checkFormat, checkValue, formatValue, InputType } from "@mathstools/misc/check"
+import { InputType } from '@types'
+import { checkFormat, checkValue, formatValue } from "@mathstools/misc/check"
 import { View } from "backbone.marionette"
 import { AnyView, NestedInput } from "@types"
 import TextBloc from "../textbloc"
