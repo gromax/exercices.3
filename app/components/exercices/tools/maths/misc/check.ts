@@ -2,7 +2,6 @@
  * Check if the userValue matches the expected format.
  */
 
-import Parser from '../parser/parser'
 import MyMath from '@mathstools/mymath'
 import { InputType } from '@types'
 
@@ -13,29 +12,29 @@ import { NumericCheck } from '../checkers/numeric_check'
 import { VarsCheck } from '../checkers/varscheck'
 import { RoundCheck } from '../checkers/roundcheck'
 import { ErreurCheck } from '../checkers/erreurcheck'
+import { ExpandCheck } from '../checkers/expandcheck'
+import { AbsChecker } from '../checkers/abscheck'
 
-const CHECKERS = [
+// infini et empty peuvent être mis avec
+// un des autres, mais cela n'aurait pas de sens que
+// de mettre par ex Equation avec Round
+const OPTIONAL_CHECKERS:Array<any> = [
+    EmptyCheck,
+    InfiniteCheck
+]
+
+const CHECKERS:Array<any> = [
     EmptyCheck,
     InfiniteCheck,
     EquationCheck,
     NumericCheck,
     VarsCheck,
     RoundCheck,
-    ErreurCheck
+    ErreurCheck,
+    ExpandCheck
 ]
 
-/* Teste si l'expression est développée */
-function checkIfExpand(expr:string): string|boolean {
-    try {
-        const objMath = Parser.build(expr)
-        return objMath.isExpanded()
-            ? true
-            : "Vous devez développer et simplifier."
-    } catch (e) {
-        // parsing error => pas numérique
-        return "Expression invalide."
-    }
-}
+const NON_OPTIONAL_CHECKERS:Array<any> = CHECKERS.filter(item => !OPTIONAL_CHECKERS.includes(item))
 
 /**
  * test if expr matches the expected format
@@ -50,41 +49,46 @@ function checkFormat(expr:string, format:string|Array<string> = 'none'): boolean
         return "Vous devez fournir une réponse."
     }
 
-    if (Array.isArray(format)) {
-        const reponses = format.map(f => checkFormat(expr, f))
-        if (reponses.includes(true)) {
-            return true
-        }
-        return reponses.join(' OU ')
+    const checkers = formatsToCheckers(expr, format, CHECKERS)
+    if (checkers.some(item => item.formatIsValid)) {
+        return true
+    }
+    if (checkers.length > 0) {
+        // il n'y a donc que des invalides
+        return checkers.map(item => item.message).join(' OU ')
     }
 
-    for (const C of CHECKERS) {
-        if (!C.testFormat(format)) {
-            continue
-        }
-        const checker = new C(expr, format)
-        return checker.formatIsValid
-            ? true
-            : checker.message
-    }
-
-    if (format === 'expand') {
-        return checkIfExpand(expr)
-    }
-
+    // aucun format
     if (format !== 'none') {
         // format inconnu
         console.warn(`Format inconnu : ${format}`)
     }
     // autres formats à ajouter ici
     // il faut vérifier que le parse passe bien
-    try {
-        Parser.build(expr)
-        return true
-    } catch (e) {
-        return `Expression invalide : ${e.message}`
+    const mm = MyMath.make(expr)
+    if (mm.invalid) {
+        return `Expression invalide`
     }
+    return true
 }
+
+function formatsToCheckers(value:string, formats:string|Array<string>, checkersList:Array<any>):Array<AbsChecker> {
+    if (typeof formats == "string") {
+        formats = [formats]
+    }
+    const checkers:Array<AbsChecker> = []
+    for (const f of formats) {
+        const C:any = checkersList.find(C => (C as any).testFormat(f))
+        if (typeof C == "undefined") {
+            // pas d'erreur. Il est normal que les formats non optionnels
+            // par exemple ne soient pas reconnus
+            continue
+        }
+        checkers.push(new C(value, f))
+    }
+    return checkers
+}
+
 
 /**
  * recherche, parmi les formats demandés, celui qui convient à la valeur attendue
@@ -112,39 +116,17 @@ function formatValue(value:any|Array<any>, format:string|Array<string> = "none")
        ) {
         return '$\\emptyset$'
     }
-    if (Array.isArray(format)) {
-        // premier cas, format était un tableau. Il faut donc chercher le format non empty et non infini
-        const formatChoisi = format.filter(f => f !== 'empty' && f !== 'infini')
-        if (formatChoisi.length > 1) {
-            console.warn("Le format choisi contient des types incompatibles : " + formatChoisi.join(', ') + ".")
-        }
-        format = formatChoisi.length === 1 ? formatChoisi[0] : 'none'
+    const checkers:Array<AbsChecker> = formatsToCheckers(str_value, format, NON_OPTIONAL_CHECKERS)
+    if (checkers.length > 1) {
+        const names = checkers.map(item => item.name)
+        throw new Error("Le format choisi contient des types incompatibles : " + names.join(', ') + ".")
     }
-    // il pourrait arriver que le format n'était pas un tableau
-    // et soit "empty" ou "infini" et qu'il
-    // n'ait pas convenu pour la valeur attendue. Ce cas revient à none
-    if (format === 'empty' || format === 'infini') {
-        format = 'none'
+    if (checkers.length == 0) {
+        // on considère que c'est <none>
+        return `$${MyMath.latex(str_value)}$`
     }
-    if (/^round:[0-9]+$/.test(format)) {
-        const n = Number(format.split(':')[1])
-        return MyMath.toFormat(str_value, `${n}f`)
-    }
-    if (/^erreur:(?:[0-9]+(?:\.[0-9]+)?)|(?:\.[0-9]+)$/.test(format)) {
-        const err = Number(format.split(':')[1])
-        const n = Math.ceil(Math.log10(1 / err))
-        return `${MyMath.toFormat(str_value, `${n+1}f`)} ± ${String(err).replace('.', ',')}`
-    }
-    if (format.startsWith("equation:")) {
-        // ajout d'un = 0 par défaut
-        return str_value.includes("=")
-            ? "$" + str_value.split("=").map(MyMath.latex).join("=") + "$"
-            : "$" + MyMath.latex(str_value) + " = 0$"
-    }
-    if (!['none', 'numeric', 'expand'].includes(format)) {
-        console.warn(`Format inconnu : ${format}`)
-    }
-    return `$${MyMath.latex(str_value)}$`
+    const checker = checkers.pop()
+    return checker.toFormat()
 }
 
 /**
@@ -167,49 +149,15 @@ function checkValue(userValue:string, expectedValue:InputType, format:string|Arr
     if (parsedExpected.isInfinity()) {
         return (new InfiniteCheck(userValue)).valueIsGood(parsedExpected)
     }
-
-    // je traite ensuite les cas où le format devrait être numérique
-    // format pourrait être un tableau
-    // cela a un sens de mélanger "numeric" et "empty" par exemple
-    // mais pas d'avoir "numeric" et "round:x" dans le même tableau
-    // donc je prends le premier format non "empty" ou "inf" dans le tableau
-    if (Array.isArray(format)) {
-        format = format.find(f => f !== 'empty' && f !== 'inf') || 'none'
+    const checkers = formatsToCheckers(userValue, format, NON_OPTIONAL_CHECKERS)
+    if (checkers.length ==0) {
+        console.warn(`Aucun format pour valider ${userValue}`)
     }
-
-    if (NumericCheck.testFormat(format)) {
-        // numérique mais exacte. Une comparaison directe suffit
-        //return MyMath.parseUser(userValue).compare(expectedValue, "==")
-        const numericChecker = new NumericCheck(userValue)
-        return numericChecker.valueIsGood(expectedValue)
-    }
-
-    if (ErreurCheck.testFormat(format)) {
-        const erreurChecker = new ErreurCheck(userValue, format)
-        return erreurChecker.valueIsGood(expectedValue)
-    }
-
-    if (RoundCheck.testFormat(format)) {
-        const roundChecker = new RoundCheck(userValue, format)
-        return roundChecker.valueIsGood(expectedValue)
-    }
-
-    if (EquationCheck.testFormat(format)) {
-        const equationChecker = new EquationCheck(userValue, format)
-        return equationChecker.valueIsGood(expectedValue)
-    }
-
-    if (format === "expand") {
-        // comparaison d'expressions algébriques
-        return MyMath.parseUser(userValue).compare(parsedExpected.expand(), "==") as boolean
-    }
-    // autres formats à ajouter ici
-    return MyMath.parseUser(userValue).expand().compare(parsedExpected.expand(), "==") as boolean
+    return checkers.some(c => c.valueIsGood(parsedExpected))
 }
 
 export {
     checkFormat,
     checkValue,
-    formatValue,
-    InputType
+    formatValue
 }
