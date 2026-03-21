@@ -5,9 +5,10 @@ import MyMath from '@mathstools/mymath'
 
 class VarsCheck extends AbsChecker {
     protected _vars:string
+    protected _parsed:MyMath
 
     constructor(expr:string, format:string = "") {
-        super(format, expr)
+        super(expr,format)
         const parts = format.split(":")
         this._vars = parts.length>1
             ? parts[1].trim()
@@ -18,8 +19,19 @@ class VarsCheck extends AbsChecker {
         return format.startsWith("var:")
     }
 
+    protected parsed():MyMath {
+        if (typeof this._parsed == "undefined") {
+            this._parsed = MyMath.parseUser(this._expr)
+        }
+        return this._parsed
+    }
+
     protected _testFormat():boolean {
-        const mm = MyMath.make(this._expr)
+        const mm = this.parsed()
+        if (mm.invalid) {
+            this._message = "Expression invalide"
+            return false
+        }
         const variables = mm.variables
         for (const v of variables) {
             if (!this._vars.includes(v)) {
@@ -40,6 +52,14 @@ class VarsCheck extends AbsChecker {
         }
         const parsedExpected = MyMath.make(expectedValue)
         return MyMath.parseUser(this._expr).expand().compare(parsedExpected.expand(), "==") as boolean
+    }
+
+    toFormat(): string {
+        return `$${this.parsed().latex()}$`
+    }
+
+    name(): string {
+        return `<var:${this._vars}>`
     }
 }
 
