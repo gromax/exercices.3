@@ -4,17 +4,20 @@ import MyMath from '@mathstools/mymath'
 
 
 class ErreurCheck extends AbsChecker {
-    protected _digits:number
+    protected _tolerance:number
 
     constructor(expr:string, format:string = "") {
-        super(format, expr)
+        super(expr, format)
         const parts = format.split(":")
-        const strDigits = parts.length>1
+        const strTolerance = parts.length>1
             ? parts[1].trim()
             : format.trim()
-        this._digits = Number(strDigits)
-        if (Number.isNaN(this._digits)) {
+        this._tolerance = Number(strTolerance)
+        if (Number.isNaN(this._tolerance)) {
             throw new Error(`${format} n'a pas la forme round:### attendue`)
+        }
+        if (this._tolerance == 0) {
+            throw new Error(`${format}, la tolérance ne devrait pas être 0`)
         }
     }
 
@@ -36,8 +39,16 @@ class ErreurCheck extends AbsChecker {
         if (isNaN(userFloat) || isNaN(expectedFloat)) {
             return false
         }
-        const tolerance = this._digits
-        return Math.abs(userFloat - expectedFloat) <= tolerance
+        return Math.abs(userFloat - expectedFloat) <= this._tolerance
+    }
+
+    toFormat():string {
+        const n = Math.ceil(Math.log10(1 / this._tolerance))
+        return `${MyMath.toFormat(this._expr, `${n+1}f`)} ± ${String(this._tolerance).replace('.', ',')}`
+    }
+
+    name():string {
+        return `<erreur:${this._tolerance}>`
     }
 }
 
