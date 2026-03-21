@@ -7,7 +7,7 @@ class RoundCheck extends AbsChecker {
     protected _digits:number
 
     constructor(expr:string, format:string = "") {
-        super(format, expr)
+        super(expr, format)
         const parts = format.split(":")
         const strDigits = parts.length>1
             ? parts[1].trim()
@@ -38,6 +38,14 @@ class RoundCheck extends AbsChecker {
         }
         const factor = Math.pow(10, this._digits)
         return userFloat * factor === Math.round(expectedFloat * factor)
+    }
+
+    toFormat():string {
+        return MyMath.toFormat(this._expr, `${this._digits}f`)
+    }
+
+    name():string {
+        return `<round:${this._digits}>`
     }
 }
 
