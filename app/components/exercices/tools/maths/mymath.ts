@@ -21,7 +21,8 @@ type AcceptedInput = InputType | Base
 interface MyMathOptions {
     expression?: string,
     nerdamer?: nerdamer.Expression,
-    mynumber?: Base
+    mynumber?: Base,
+    invalid?:boolean
 }
 
 
@@ -34,6 +35,9 @@ class MyMath {
 
     /** @type{Base|null} */
     private _mynumber?:Base
+
+    /** @type{boolean} */
+    private _invalid:boolean
 
     /**
      * alias de toFloat
@@ -134,7 +138,7 @@ class MyMath {
             return new MyMath({ mynumber: Parser.build(expression) });
         } catch (e) {
             console.warn("Erreur lors du parsing de l'expression utilisateur :", expression);
-            return new MyMath({ expression: "NaN" });
+            return new MyMath({ expression: "NaN", invalid:true });
         }
     }
 
@@ -287,6 +291,11 @@ class MyMath {
 
     // Méthodes d'instance
     private constructor(options: MyMathOptions = {}) {
+        if (typeof options.invalid !== 'undefined') {
+            this._invalid = (options.invalid === true)
+        } else {
+            this._invalid = false
+        }
         if (typeof options.expression !== 'undefined') {
             this._initFromExpression(options.expression.trim())
         } else if (typeof options.nerdamer !== 'undefined') {
@@ -316,7 +325,13 @@ class MyMath {
 
     private _getMyNumber(): Base {
         if (typeof this._mynumber === "undefined") {
-            this._mynumber = Parser.build(this._expression)
+            try {
+                this._mynumber = Parser.build(this._expression)
+            } catch(e) {
+                console.warn("Erreur lors du parsing de l'expression :", this._expression);
+                this._invalid = true
+                return Parser.build("NaN")
+            }
         }
         return this._mynumber
     }
@@ -332,6 +347,7 @@ class MyMath {
             this._nerdamer_processed = nerdamer(normalized).evaluate()
         } catch (e) {
             console.warn(`Erreur lors du traitement avec nerdamer de ${normalized}:`, e)
+            this._invalid = true
             this._nerdamer_processed = nerdamer("NaN")
         }
         return this._nerdamer_processed
@@ -568,6 +584,10 @@ class MyMath {
 
     simplify():MyMath {
         return MyMath.make(simplify(this._getMyNumber()))
+    }
+
+    get invalid():boolean {
+        return this._invalid
     }
 }
 
