@@ -27,7 +27,9 @@ abstract class AbsChecker {
         return this._formatValid
     }
 
+    abstract toFormat():string
     abstract valueIsGood(expected:InputType):boolean
+    abstract name():string
 
     get message():string {
         return this._message
