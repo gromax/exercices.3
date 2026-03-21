@@ -7,8 +7,12 @@ class EmptyCheck extends AbsChecker {
         return format == "empty"
     }
 
+    private _test(expr:string):boolean {
+        return ['vide', '∅', 'empty'].includes(expr)
+    }
+
     protected _testFormat():boolean {
-        const test = ['vide', '∅', 'empty'].includes(this._expr)
+        const test = this._test(this._expr)
         if (!test) {
             this._message = "Vous devez répondre 'vide' ou '∅' pour indiquer l'ensemble vide."
         }
@@ -16,7 +20,18 @@ class EmptyCheck extends AbsChecker {
     }
 
     valueIsGood(expectedValue:InputType): boolean {
-        return this.formatIsValid
+        return this._test(String(expectedValue)) && this.formatIsValid
+    }
+
+    toFormat():string {
+        if (!this.formatIsValid) {
+            throw new Error(`<empty> la chaine ${this._expr} ne respecte pas le format`)
+        }
+        return '$\\emptyset$'
+    }
+
+    name():string {
+        return "<empty>"
     }
 }
 
