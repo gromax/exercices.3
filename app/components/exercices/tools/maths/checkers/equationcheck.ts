@@ -43,12 +43,12 @@ class EquationCheck extends AbsChecker {
             this._message = "Membre droit vide"
             return false
         }
-        const checkLeft = new VarsCheck(this._vars, membres[0])
+        const checkLeft = new VarsCheck(membres[0], this._vars)
         if (!checkLeft.formatIsValid) {
             this._message = checkLeft.message
             return false
         }
-        const checkRight = new VarsCheck(this._vars, membres[1])
+        const checkRight = new VarsCheck(membres[1], this._vars)
         if (!checkRight.formatIsValid) {
             this._message = checkRight.message
             return false
@@ -100,6 +100,17 @@ class EquationCheck extends AbsChecker {
         // et tester si ça fait 0
         const reduct = MyMath.make(`(${d1})*(${good}) - (${d2})*(${user})`)
         return reduct.compare(0, "==") as boolean
+    }
+
+    toFormat():string {
+        // ajout d'un = 0 par défaut
+        return this._expr.includes("=")
+            ? "$" + this._expr.split("=").map(MyMath.latex).join("=") + "$"
+            : "$" + MyMath.latex(this._expr) + " = 0$"
+    }
+
+    name():string {
+        return `<equation:${this._vars}>`
     }
 }
 
