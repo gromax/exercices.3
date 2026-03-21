@@ -22,6 +22,19 @@ class InfiniteCheck extends AbsChecker {
         const parsedExpected = MyMath.make(expectedValue)
         return this.formatIsValid && parsedExpected.isMinusInfinity() === (this._expr[0] === '-')
     }
+
+    toFormat():string {
+        if (!this.formatIsValid) {
+            throw new Error(`Format <infini> invalide pour ${this._expr}`)
+        }
+        return this._expr[0] == "-"
+            ? '$-\\infty$'
+            : '$+\\infty$'
+    }
+
+    name():string {
+        return "<infini>"
+    }
 }
 
 export { InfiniteCheck }
