@@ -9,13 +9,11 @@ class InfiniteCheck extends AbsChecker {
     }
 
     protected _testFormat():boolean {
-        let test = /^[-+]\s*(?:∞|inf|infini|infinity)$/.test(this._expr)
-            ? true
-            : false
-        if (!test) {
-            this._message = "Vous devez fournir une valeur infinie (ex: +inf, -∞)."
+        if (/^[-+]\s*(?:∞|inf|infini|infinity)$/.test(this._expr)) {
+            return true
         }
-        return test
+        this._message = "Vous devez fournir une valeur infinie (ex: +inf, -∞)."
+        return false
     }
 
     valueIsGood(expectedValue:InputType): boolean {
