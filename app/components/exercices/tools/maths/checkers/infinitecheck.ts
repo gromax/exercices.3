@@ -33,6 +33,10 @@ class InfiniteCheck extends AbsChecker {
     name():string {
         return "<infini>"
     }
+
+    testExpectedFormat(expected: InputType): boolean {
+        return MyMath.make(expected).isInfinity()
+    }
 }
 
 export { InfiniteCheck }

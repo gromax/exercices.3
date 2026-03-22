@@ -47,6 +47,10 @@ class RoundCheck extends AbsChecker {
     name():string {
         return `<round:${this._digits}>`
     }
+
+    testExpectedFormat(expected: InputType): boolean {
+        return !isNaN(MyMath.make(expected).toFloat())
+    }
 }
 
 export { RoundCheck }

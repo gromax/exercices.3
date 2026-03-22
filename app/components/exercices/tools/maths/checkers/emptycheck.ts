@@ -33,6 +33,10 @@ class EmptyCheck extends AbsChecker {
     name():string {
         return "<empty>"
     }
+
+    testExpectedFormat(expected: InputType): boolean {
+        return this._test(String(expected))
+    }
 }
 
 export { EmptyCheck }

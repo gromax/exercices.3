@@ -50,6 +50,10 @@ class ErreurCheck extends AbsChecker {
     name():string {
         return `<erreur:${this._tolerance}>`
     }
+
+    testExpectedFormat(expected: InputType): boolean {
+        return !isNaN(MyMath.make(expected).toFloat())
+    }
 }
 
 export { ErreurCheck }

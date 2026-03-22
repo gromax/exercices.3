@@ -41,6 +41,10 @@ class ExpandCheck extends AbsChecker {
     name():string {
         return "<expand>"
     }
+
+    testExpectedFormat(expected: InputType): boolean {
+        return true
+    }
 }
 
 export { ExpandCheck }

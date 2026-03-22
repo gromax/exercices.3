@@ -55,6 +55,10 @@ class NumericCheck extends AbsChecker {
     name():string {
         return "<numeric>"
     }
+
+    testExpectedFormat(expected: InputType): boolean {
+        return true
+    }
 }
 
 export { NumericCheck }
