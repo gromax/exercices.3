@@ -142,13 +142,16 @@ function checkValue(userValue:string, expectedValue:InputType, format:string|Arr
         return false
     }
     // je traite d'abord les cas particuliers
-    if (new EmptyCheck(String(expectedValue)).formatIsValid) {
-        return (new EmptyCheck(userValue)).valueIsGood(expectedValue)
+    const optionalsCheckers = formatsToCheckers(userValue, format, OPTIONAL_CHECKERS)
+    for (const c of optionalsCheckers) {
+        if (c.testExpectedFormat(expectedValue)) {
+            // Alors userValue doit valider ce format
+            // inutile d'en tester d'autres
+            return c.valueIsGood(expectedValue)
+        }
     }
+
     const parsedExpected = MyMath.make(expectedValue)
-    if (parsedExpected.isInfinity()) {
-        return (new InfiniteCheck(userValue)).valueIsGood(parsedExpected)
-    }
     const checkers = formatsToCheckers(userValue, format, NON_OPTIONAL_CHECKERS)
     if (checkers.length ==0) {
         console.warn(`Aucun format pour valider ${userValue}`)
