@@ -384,7 +384,11 @@ class MyMath {
     }
 
     toStringSimplified():string {
-        return simplify(this._getMyNumber()).toString()
+        const mn = this._getMyNumber()
+        if (this.invalid) {
+            return this.toString()
+        }
+        return simplify(mn).toString()
     }
 
     latex():string {
@@ -400,7 +404,6 @@ class MyMath {
      * Renvoie la valeur au en texte au format spécifié
      * Le format peut être '$' pour LaTeX, 'f' pour décimal avec virgule,
      * ou 'Nf' pour décimal avec N chiffres après la virgule.
-     * @param {*} value chaîne ou objet
      * @param {string} format précise le format
      * @returns {string} la valeur formatée
      */
