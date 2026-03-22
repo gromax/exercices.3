@@ -63,6 +63,10 @@ class EquationCheck extends AbsChecker {
         // On fait le parse des deux membres et on soustrait
         const userMembres = this._expr.split("=")
         const user = MyMath.make(`(${userMembres[0]})-(${userMembres[1]})`)
+        if ((expectedValue instanceof MyMath) && expectedValue.expression.includes("=")) {
+            // C'était une mauvaise idée d'avoir parsé -> on reprend l'expression
+            expectedValue = expectedValue.expression
+        }
         if ((typeof expectedValue == "string") && expectedValue.includes("=")) {
             const expectedMembres = expectedValue.split("=")
             if (expectedMembres.length != 2) {
@@ -111,6 +115,13 @@ class EquationCheck extends AbsChecker {
 
     name():string {
         return `<equation:${this._vars}>`
+    }
+
+    testExpectedFormat(expected: InputType): boolean {
+        if (typeof expected == 'string' && expected.split('=').length>2) {
+            return false
+        }
+        return true
     }
 }
 
