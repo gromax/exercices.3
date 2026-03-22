@@ -26,18 +26,20 @@ class VarsCheck extends AbsChecker {
         return this._parsed
     }
 
+    protected _sub(contained:Array<string>, container:Array<string>|string): Array<string> {
+        return contained.filter(item => !container.includes(item))
+    }
+
     protected _testFormat():boolean {
         const mm = this.parsed()
         if (mm.invalid) {
             this._message = "Expression invalide"
             return false
         }
-        const variables = mm.variables
-        for (const v of variables) {
-            if (!this._vars.includes(v)) {
-                this._message = `L'expression ne doit pas dépendre de la variable ${v}.`
-                return false
-            }
+        const not_included = this._sub(mm.variables, this._vars)
+        if (not_included.length>0) {
+            this._message = `L'expression ne doit pas dépendre de ${not_included.join(' ,')}.`
+            return false
         }
         if (!mm.isExpanded()) {
             this._message = "Vous devez simplifier."
@@ -61,6 +63,14 @@ class VarsCheck extends AbsChecker {
     name(): string {
         return `<var:${this._vars}>`
     }
+
+    testExpectedFormat(expected: InputType): boolean {
+        const mm = MyMath.make(expected)
+        const notIncluded = this._sub(mm.variables, this._vars)
+        return ((notIncluded.length>0 || mm.invalid))
+    }
+
+
 }
 
 export { VarsCheck }
