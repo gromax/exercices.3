@@ -49,63 +49,63 @@ class MyMath {
     }
 
     static toInteger(value:AcceptedInput):number {
-        const f = MyMath.toFloat(value);
+        const f = MyMath.toFloat(value)
         if (isNaN(f)) {
-            throw new Error(`La valeur ${value} ne peut pas être convertie en entier.`);
+            throw new Error(`La valeur ${value} ne peut pas être convertie en entier.`)
         }
-        const n = Math.trunc(f);
+        const n = Math.trunc(f)
         if (f !== n) {
-            throw new Error(`La valeur ${value} ne peut pas être convertie en entier.`);
+            throw new Error(`La valeur ${value} ne peut pas être convertie en entier.`)
         }
-        return n;
+        return n
     }
 
     static reverseOperator(operator:string):string {
         switch (operator) {
             case '<':
-                return '>';
+                return '>'
             case '<=':
-                return '>=';
+                return '>='
             case '>':
-                return '<';
+                return '<'
             case '>=':
-                return '<=';
+                return '<='
             case '==':
-                return '==';
+                return '=='
             case '!=':
-                return '!=';
+                return '!='
             default:
-                throw new Error(`Opérateur inconnu : ${operator}`);
+                throw new Error(`Opérateur inconnu : ${operator}`)
         }
     }
 
     static parseFloat(value:AcceptedInput):number {
         if (typeof value === 'number') {
-            return value;
+            return value
         }
         if (value instanceof Base) {
-            return value.toDecimal(undefined).toNumber();
+            return value.toDecimal(undefined).toNumber()
         }
         if (value instanceof MyMath) {
-            return value.toFloat();
+            return value.toFloat()
         }
         if (typeof value !== 'string') {
-            throw new Error(`La valeur ${value} ne peut pas être convertie en nombre.`);
+            throw new Error(`La valeur ${value} ne peut pas être convertie en nombre.`)
         }
         value = value.trim()
         if (/^[+-]?\s?inf(?:inity|ty|ini)?$/.test(value)) {
-            return value.startsWith('-') ? -Infinity : Infinity;
+            return value.startsWith('-') ? -Infinity : Infinity
         }
-        return MyMath.toFloat(value);
+        return MyMath.toFloat(value)
     }
 
     static parseInt(value:AcceptedInput):number {
-        const f = MyMath.parseFloat(value);
-        const n = Math.trunc(f);
+        const f = MyMath.parseFloat(value)
+        const n = Math.trunc(f)
         if (f !== n) {
-            throw new Error(`La valeur ${value} ne peut pas être convertie en entier.`);
+            throw new Error(`La valeur ${value} ne peut pas être convertie en entier.`)
         }
-        return n;
+        return n
     }
 
     /**
@@ -128,17 +128,17 @@ class MyMath {
     }
 
     static latex(expression:AcceptedInput):string {
-        return MyMath.make(expression).latex();
+        return MyMath.make(expression).latex()
     }
     
     static parseUser(expression:string): MyMath {
         // user ne va pas forcément respecter les * ou ce genre de détails
         // je vais donc préprocesser
         try {
-            return new MyMath({ mynumber: Parser.build(expression) });
+            return new MyMath({ mynumber: Parser.build(expression) })
         } catch (e) {
-            console.warn("Erreur lors du parsing de l'expression utilisateur :", expression);
-            return new MyMath({ expression: "NaN", invalid:true });
+            console.warn("Erreur lors du parsing de l'expression utilisateur :", expression)
+            return new MyMath({ expression: "NaN", invalid:true })
         }
     }
 
@@ -151,7 +151,7 @@ class MyMath {
 
     static toFloat(expression:AcceptedInput):number {
         if (typeof expression === 'number') {
-            return expression;
+            return expression
         }
         return MyMath.make(expression).toFloat()
     }
@@ -160,36 +160,36 @@ class MyMath {
         if (typeof expression === 'string' && expression.startsWith('"') && expression.endsWith('"')) {
             // chaîne de caractères
             // renvoyée sans tenir compte du format
-            return expression.slice(1, -1);
+            return expression.slice(1, -1)
         }
         return MyMath.make(expression).toFormat(format)
     }
 
     static variables(expression:AcceptedInput): Array<string> {
-        return MyMath.make(expression).variables;
+        return MyMath.make(expression).variables
     }
 
     static buildFunction(expression:AcceptedInput): Function {
-        return MyMath.make(expression).buildFunction();
+        return MyMath.make(expression).buildFunction()
     }
 
     static solveInC(exprLeft:string, exprRight:string, varName:string):Array<string> {
         try {
-            const equation:string = `${exprLeft} = ${exprRight}`;
-            const normalized:string = MyMath.normalization(equation);
+            const equation:string = `${exprLeft} = ${exprRight}`
+            const normalized:string = MyMath.normalization(equation)
             // nerdamer ne semble pas déclarer correctement solveEquations en ts
-            const solutions = (nerdamer as any).solveEquations(normalized, varName);
-            return solutions.toString().split(',');
+            const solutions = (nerdamer as any).solveEquations(normalized, varName)
+            return solutions.toString().split(',')
         } catch (e) {
-            console.warn(`Erreur lors de la résolution de l'équation ${exprLeft} = ${exprRight} pour la variable ${varName} :`, e);
-            return [];
+            console.warn(`Erreur lors de la résolution de l'équation ${exprLeft} = ${exprRight} pour la variable ${varName} :`, e)
+            return []
         }
     }
 
     static solveInR(exprLeft:string, exprRight:string, varName:string):Array<string> {
-        const solutionsStr = MyMath.solveInC(exprLeft, exprRight, varName);
+        const solutionsStr = MyMath.solveInC(exprLeft, exprRight, varName)
         // je filtre les solutions complexes
-        return solutionsStr.filter(sol => !sol.includes('i'));
+        return solutionsStr.filter(sol => !sol.includes('i'))
     }
 
     /**
@@ -207,9 +207,9 @@ class MyMath {
         if (Array.isArray(leftExpr)) {
             if (Array.isArray(rightExpr)) {
                 if (leftExpr.length !== rightExpr.length) {
-                    throw new Error('Les deux tableaux doivent avoir la même longueur pour une comparaison élément par élément.');
+                    throw new Error('Les deux tableaux doivent avoir la même longueur pour une comparaison élément par élément.')
                 }
-                return leftExpr.map((le, i) => MyMath.compare(le, rightExpr[i], operator) as boolean);
+                return leftExpr.map((le, i) => MyMath.compare(le, rightExpr[i], operator) as boolean)
             } else {
                 return MyMath.make(rightExpr).compare(leftExpr, MyMath.reverseOperator(operator))
             }
@@ -226,28 +226,28 @@ class MyMath {
             .replace(/∞|inf(?!\w)|infini(?!\w)/g, 'infinity') // ∞ → infinity
             .replace(/\blog\(/g, 'log10(') // log( → log10(
             .replace(/\bln\(/g, 'log(')    // ln( → log(
-            .replace(/%/g, '/100');        // % → /100
+            .replace(/%/g, '/100')        // % → /100
     }
 
     static denormalization(expression:string):string {
         if (typeof expression !== 'string') {
-            throw new Error('L\'expression doit être une chaîne de caractères');
+            throw new Error('L\'expression doit être une chaîne de caractères')
         }
         return expression
             .replace(/infinity/gi, '∞')            // points décimaux → virgules
             .replace(/\./g, ',')            // points décimaux → virgules
             .replace(/\blog\(/g, 'ln(')     // log( → ln(
-            .replace(/\blog10\(/g, 'log('); // log10( → log(
+            .replace(/\blog10\(/g, 'log(') // log10( → log(
             
     }
 
     static latexDenormalization(expression:string):string {
         if (typeof expression !== 'string') {
-            throw new Error('L\'expression doit être une chaîne de caractères');
+            throw new Error('L\'expression doit être une chaîne de caractères')
         }
         expression = expression.replace('infinity', '\\infty')
         if (expression === '\\infty') {
-            return '+\\infty';
+            return '+\\infty'
         }
         return expression
             .replace(/\./g, ',')            // points décimaux → virgules
@@ -268,7 +268,7 @@ class MyMath {
                 return replacement.slice(1, -1)
             }
             return MyMath._substituteExpressionsHelper(replacement, format, 0)
-        });
+        })
     }
 
     private static _substituteExpressionsHelper(
@@ -311,7 +311,7 @@ class MyMath {
 
     private _initFromExpression(expression:string) {
         if (typeof expression !== 'string') {
-            throw new Error('L\'expression doit être une chaîne de caractères');
+            throw new Error('L\'expression doit être une chaîne de caractères')
         }
         if (expression.includes('diff(') || expression.includes('expand(')) {
             // cas particulier où on a une commande nerdamer
@@ -328,7 +328,7 @@ class MyMath {
             try {
                 this._mynumber = Parser.build(this._expression)
             } catch(e) {
-                console.warn("Erreur lors du parsing de l'expression :", this._expression);
+                console.warn("Erreur lors du parsing de l'expression :", this._expression)
                 this._invalid = true
                 return Parser.build("NaN")
             }
@@ -354,19 +354,19 @@ class MyMath {
     }
 
     get expression():string {
-        return this._expression;
+        return this._expression
     }
 
     get variables():Array<string> {
-        return this._getNerdamerProcessed().variables();
+        return this._getNerdamerProcessed().variables()
     }
 
     toFloat():number {
         try {
             return this._getMyNumber().toDecimal(undefined).toNumber()
         } catch (e) {
-            console.warn(`Erreur lors de la conversion de ${this._expression} en nombre décimal :`, e);
-            return NaN;
+            console.warn(`Erreur lors de la conversion de ${this._expression} en nombre décimal :`, e)
+            return NaN
         }
     }
 
@@ -375,7 +375,7 @@ class MyMath {
      * @returns {Decimal}
      */
     toDecimal():Decimal {
-        return this._getMyNumber().toDecimal(undefined);
+        return this._getMyNumber().toDecimal(undefined)
     }
 
     toString():string {
@@ -389,11 +389,11 @@ class MyMath {
 
     latex():string {
         if (this.isPlusInfinity()) {
-            return "+\\infty";
+            return "+\\infty"
         } else if (this.isMinusInfinity()) {
-            return "-\\infty";
+            return "-\\infty"
         }
-        return MyMath.latexDenormalization(this._getNerdamerProcessed().toTeX());
+        return MyMath.latexDenormalization(this._getNerdamerProcessed().toTeX())
     }
 
     /**
@@ -405,9 +405,9 @@ class MyMath {
      * @returns {string} la valeur formatée
      */
     toFormat(format:string):string {
-        format = (format || '').trim();
+        format = (format || '').trim()
         if (format === '$') {
-            return this.latex();
+            return this.latex()
         }
         if (format === 's$') {
             // format personnalisé pour contourner des soucis de nerdamer
@@ -418,18 +418,18 @@ class MyMath {
             return simplify(this._getMyNumber()).toString()
         }
         if (format === 'f') {
-            return this._toFormatDecimal(-1);
+            return this._toFormatDecimal(-1)
         }
         if (format === 'f$') {
-            return this._toTexDecimal(-1);
+            return this._toTexDecimal(-1)
         }
-        const m = format.match(/^([0-9]*)f(\$)?$/);
+        const m = format.match(/^([0-9]*)f(\$)?$/)
         if (m) {
-            const n = parseInt(m[1], 10);
+            const n = parseInt(m[1], 10)
             if (m[2]) {
-                return this._toTexDecimal(n);
+                return this._toTexDecimal(n)
             }
-            return this._toFormatDecimal(n);
+            return this._toFormatDecimal(n)
         }
         return MyMath.denormalization(this._getNerdamerProcessed().toString())
     }
@@ -473,7 +473,7 @@ class MyMath {
      * @returns {string}
      */
     private _toTexDecimal(n:number):string {
-        const expr = this._toFormatDecimal(n);
+        const expr = this._toFormatDecimal(n)
         // ensuite on veut générer du TeX
         // J'utilise mon parser
         return Parser.build(expr).toTex()
@@ -497,46 +497,46 @@ class MyMath {
         }
         const right = MyMath.make(rightExpr)
         if (this.isInfinity()) {
-            return this._compareInfinityCase(right, operator);
+            return this._compareInfinityCase(right, operator)
         } else if (right.isInfinity()) {
-            return right._compareInfinityCase(this, MyMath.reverseOperator(operator));
+            return right._compareInfinityCase(this, MyMath.reverseOperator(operator))
         }
         const p1 = this._getNerdamerProcessed()
         const p2 = right._getNerdamerProcessed()
         switch (operator) {
             case '==':
-                return p1.eq(p2);
+                return p1.eq(p2)
             case '!=':
-                return !p1.eq(p2);
+                return !p1.eq(p2)
             case '<':
-                return p1.lt(p2);
+                return p1.lt(p2)
             case '<=':
-                return p1.lte(p2);
+                return p1.lte(p2)
             case '>':
-                return p1.gt(p2);
+                return p1.gt(p2)
             case '>=':
-                return p1.gte(p2);
+                return p1.gte(p2)
             default:
-                throw new Error(`Opérateur de comparaison invalide : ${operator}`);
+                throw new Error(`Opérateur de comparaison invalide : ${operator}`)
         }
     }
 
     private _compareInfinityCase(othervalue:MyMath, operator:string):boolean {
         switch (operator) {
             case '==':
-                return this._getMyNumber().toString() === othervalue._getMyNumber().toString();
+                return this._getMyNumber().toString() === othervalue._getMyNumber().toString()
             case '!=':
-                return this._getMyNumber().toString() !== othervalue._getMyNumber().toString();
+                return this._getMyNumber().toString() !== othervalue._getMyNumber().toString()
             case '<':
-                return this.isMinusInfinity() && !othervalue.isMinusInfinity();
+                return this.isMinusInfinity() && !othervalue.isMinusInfinity()
             case '<=':
-                return this.isMinusInfinity();
+                return this.isMinusInfinity()
             case '>':
-                return this.isPlusInfinity() && !othervalue.isPlusInfinity();
+                return this.isPlusInfinity() && !othervalue.isPlusInfinity()
             case '>=':
-                return this.isPlusInfinity();
+                return this.isPlusInfinity()
             default:
-                throw new Error(`Opérateur de comparaison invalide : ${operator}`);
+                throw new Error(`Opérateur de comparaison invalide : ${operator}`)
         }
     }
 
@@ -561,7 +561,7 @@ class MyMath {
     }
 
     sub(varName:string, value:AcceptedInput):MyMath {
-        const valueStr = MyMath.normalization(MyMath.make(value).toString());
+        const valueStr = MyMath.normalization(MyMath.make(value).toString())
         return new MyMath({ nerdamer: this._getNerdamerProcessed().sub(varName, valueStr) })
     }
 
@@ -579,7 +579,7 @@ class MyMath {
     }
 
     buildFunction():Function {
-        return this._getNerdamerProcessed().buildFunction();
+        return this._getNerdamerProcessed().buildFunction()
     }
 
     simplify():MyMath {
@@ -591,4 +591,4 @@ class MyMath {
     }
 }
 
-export default MyMath;
+export default MyMath
