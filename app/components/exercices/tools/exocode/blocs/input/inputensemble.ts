@@ -1,6 +1,7 @@
 import { InputResultView } from "../../views/inputview"
 import InputTextBloc from "./inputtextbloc"
-import { checkFormat, checkValue, formatValue } from "@mathstools/misc/check"
+import { checkFormat,checkValue } from "@mathstools/checkers/check"
+import { formatValue } from "@components/exercices/tools/maths/misc/formatvalue"
 import MyMath from "@mathstools/mymath"
 import { AnyView } from "@types"
 
