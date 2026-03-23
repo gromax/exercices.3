@@ -23,6 +23,7 @@ const Item = MyModel.extend ({
   },
   
   parse(data) {
+    if (typeof data.id !== "undefined") data.id = Number(data.id);
     if (typeof data.ouverte === "string") {
       data.ouverte = Misc.parseBoolean(data.ouverte);
     }
