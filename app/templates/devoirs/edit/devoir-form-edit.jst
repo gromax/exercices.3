@@ -1,4 +1,4 @@
-<h1><%- title %></h1>
+<h2><%- title %></h2>
 <form class="row g-3 needs-validation" novalidate>
   <div class="col-md-12 mb-3">
     <label for="devoir-nom" class="form-label">Nom :</label>
@@ -14,7 +14,7 @@
     <label for="devoir-classe" class="form-label">Classe</label>
     <select class="form-select" name="idClasse" id="devoir-classe">
       <% classes.each(function(classe) {%>
-      <option value="<%- classe.get('id') %>" <% if (classe.get('id')===idClasse) {%>selected<% } %>><%- classe.get('nom') %></option>
+      <option value="<%- classe.get('id') %>"<% if (classe.get('id')===idClasse) { %> selected <% } %>><%- classe.get('nom') %></option>
       <% }); %>
     </select>
   </div>
