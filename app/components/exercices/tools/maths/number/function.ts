@@ -91,12 +91,27 @@ class Function extends Base {
         if (this._stringEN != null) {
             return this._stringEN
         }
-        if (typeof Function.EN_NAMES[this._name] === 'undefined') {
-            this._stringEN = this.toString()
+        if (typeof Function.EN_NAMES[this._name] !== 'undefined') {
+            const enName = Function.EN_NAMES[this._name]
+            this._stringEN = `${enName}(${this._child.toStringEn()})`
             return this._stringEN
         }
-        const enName = Function.EN_NAMES[this._name]
-        this._stringEN = `${enName}(${this._child.toStringEn()})`
+        if (this._name == '(+)') {
+            this._stringEN = this._child.toStringEn()
+            return this._stringEN
+        }
+        if (this._name == '(-)') {
+            const child = this._child.priority <= this.priority
+                ? `(${this._child.toStringEn()})`
+                : ` ${this._child.toStringEn()}`
+            this._stringEN = `-${child}`;
+            return this._stringEN;
+        }
+        if (this._name == 'inverse') {
+            this._stringEN = `1/(${this._child.toStringEn()})`
+            return this._stringEN
+        }
+        this._stringEN = `${this._name}(${this._child.toStringEn()})`
         return this._stringEN
     }
 
