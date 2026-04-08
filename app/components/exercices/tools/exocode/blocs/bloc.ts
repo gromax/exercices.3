@@ -18,7 +18,7 @@ class Bloc extends Node {
     protected _paramsString:string
     protected _params:TParams
     protected _defaultOption?:string
-    protected _options?:Record<string, string>
+    protected _options?:Array<[string, string]>
     protected _colors?:Colors
 
     constructor(tag:string, paramsString:string, closed:boolean) {
@@ -154,7 +154,16 @@ class Bloc extends Node {
             throw new Error("Un bloc <option> doit avoir une étiquette <option:étiquette>")
         }
         this.run({})
-        return [this._paramsString, this._defaultOption, this._options]
+        const options:Record<string, string> = {}
+        if (this._options) {
+            for (const [key, value] of this._options) {
+                if (options[key] !== undefined) {
+                    console.warn(`La clé ${key} est définie plusieurs fois dans les options d'un même bloc <option>`)
+                }
+                options[key] = value
+            }
+        }
+        return [this._paramsString, this._defaultOption, options]
     }
 
     setOption(key:string, value:string):void {
@@ -162,9 +171,9 @@ class Bloc extends Node {
             this._defaultOption = key
         }
         if (this._options === undefined) {
-            this._options = {}
+            this._options = []
         }
-        this._options[key] = value
+        this._options.push([key, value])
     }
 
     toString():string {
