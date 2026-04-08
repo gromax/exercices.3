@@ -5,7 +5,7 @@ import Colors from "../colors"
 class ChoiceManager {
     private _params:TParams
     private _colors:Colors
-    private _options?:Record<string, string>
+    private _options?:Array<[string, string]>
     private _isform:boolean
     private _collection:Collection<Model>
     private _notShuffledCollection:Collection<Model>
@@ -21,7 +21,7 @@ class ChoiceManager {
     constructor(
         params:TParams,
         colors:Colors,
-        options:Record<string, string>,
+        options:Array<[string, string]>,
         isform:boolean
     ) {
         this._params = params || {}
@@ -48,9 +48,9 @@ class ChoiceManager {
         this._collection = new Collection()
         const squareOnly = this.squaresOnly
         if (typeof this._options === 'undefined') {
-            this._options = {}
+            this._options = []
         }
-        for (const [key, value] of Object.entries(this._options)) {
+        for (const [key, value] of this._options) {
             const index = parseInt(key)
             const showIndex = this._isform ? 0 : index
             this._valuemax = Math.max(this._valuemax, index)
