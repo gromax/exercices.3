@@ -514,6 +514,7 @@ Voici les formats reconnus :
   * expand : indique que l'on attend une expression développée.
   * var:x : indique que l'expression peut dépendre de x. on pourrait écrire `var:xn` pour autoriser une expression dépendant de `x` et de `n`.
   * equation:xy : indique que l'on attend une équation linéaire dépendant de x et y comme 3x+2y-5=0. Dans ce cas la solution ne devra être qu'une expression membre gauche = 0. Par ex si l'équation est possible `3x = 4` la solution aura la forme `3x-4`, sous entendu = 0.
+  * vecteur:2:colinear:notnul  le 2 est la taille (il faut au moins 2), "colinear" et "notnul" sont optionnels. "colinear" indique que l'on accepte un vecteur colinéaire et "notnul" indique que l'on acceptera pas un vecteur nul.
 
 Il ne serait pas logique de proposer à la fois numeric et round mais on peut demander empty et numeric par exemple.
 
@@ -933,6 +934,7 @@ La fonction `Alea.lagrangePolynome` tire `n+1` points au hasard, à coordonnées
 
 #### Module table
 
+  * `Table.get` reçoit `tableau` et `indice`. Renvoie l'élément à l'indice donné.
   * `Table.indice` reçoit `val` et `tableau`. Renvoie l'indice de la première occurence de `val` dans `tableau`. `-1` si absent.
   * `Table.indices` reçoit `val` et `tableau`. Renvoie un tableau contenant tous les indices des occurences de `val` dans `tableau`
   * `Table.size` reçoit `tableau` et renvoie la taille du tableau.
@@ -980,6 +982,10 @@ La fonction `Alea.lagrangePolynome` tire `n+1` points au hasard, à coordonnées
   * `Dist.binList` reçoit `count`, `n` et `p` et renvoie un tableau de `count` simulations de $\mathcal{B}(n;p)$
   * `Dist.binCDF` reçoit `k`, `n` et `p` et renvoie la probabilité $p(X\leqslant k)$ avec $X$ suivant $\mathcal{B}(n;p)$
   * `Dist.binPDF` reçoit `k`, `n` et `p` et renvoie la probabilité $p(X = k)$ avec $X$ suivant $\mathcal{B}(n;p)$
+  * `Dist.normCDF` reçoit `x`, `mu` et `std` et renvoie la probabilité $p(X\leqslant x)$ avec $X$ suivant $\mathcal{N}\left(\mu\,;\sigma^2\right)$
+  * `Dist.normPDF` reçoit `x`, `mu` et `std` et renvoie la valeur de la fonction densité en $x$ pour la loi $\mathcal{N}\left(\mu\,;\sigma^2\right)$
+  * `Dist.normal` reçoit `mu` et `std` et renvoie  un tirage selon la loi $\mathcal{N}\left(\mu\,;\sigma^2\right)$
+  * `Dist.normList` reçoit `count`, `mu` et `std` et renvoie un tableau de `count` aléas selon la loi $\mathcal{N}\left(\mu\,;\sigma^2\right)$.
 
 #### Module Str
 
