@@ -42,6 +42,10 @@ abstract class AbsChecker {
         return this._format
     }
 
+    get expression():string {
+        return this._expr
+    }
+
 }
 
 export { AbsChecker }
