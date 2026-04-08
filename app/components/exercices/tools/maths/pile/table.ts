@@ -4,6 +4,7 @@ import { InputType } from "@types"
 class Table {
     static readonly NAME = 'Table';
     static readonly METHODS = {
+        'get': Table.get,
         'indice': Table.indice,
         'indices': Table.indices,
         'sortFreqs': Table.sortFreqs,
@@ -26,6 +27,17 @@ class Table {
         'ECC2': Table.ECC2,
         'filter': Table.filter,
         'sort': Table.sort,
+    }
+
+    static get(arr:Array<InputType>, index:InputType):InputType {
+        if (!Array.isArray(arr)) {
+            throw new Error(`Le premier argument de Table.get doit être un tableau.`);
+        }
+        const i = MyMath.toNumber(index)
+        if (!Number.isInteger(i) || i < 0 || i >= arr.length) {
+            throw new Error(`L'indice passé à Table.get doit être un entier compris entre 0 et ${arr.length - 1}.`)
+        }
+        return arr[i]
     }
 
     static numberArray(arr:Array<InputType>):Array<number> {
