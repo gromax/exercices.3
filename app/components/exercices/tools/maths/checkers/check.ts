@@ -13,6 +13,7 @@ import { VarsCheck } from './varscheck'
 import { RoundCheck } from './roundcheck'
 import { ErreurCheck } from './erreurcheck'
 import { ExpandCheck } from './expandcheck'
+import { VectorCheck } from './vectorcheck'
 import { AbsChecker } from './abscheck'
 
 // infini et empty peuvent être mis avec
@@ -31,7 +32,8 @@ const CHECKERS:Array<any> = [
     VarsCheck,
     RoundCheck,
     ErreurCheck,
-    ExpandCheck
+    ExpandCheck,
+    VectorCheck
 ]
 
 const NON_OPTIONAL_CHECKERS:Array<any> = CHECKERS.filter(item => !OPTIONAL_CHECKERS.includes(item))
