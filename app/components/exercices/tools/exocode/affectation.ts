@@ -67,9 +67,13 @@ class Affectation extends Node {
             // initialisation comme tableau
             params[this._tag] = []
         }
+
+        /* Ce test me parait maintenant inutile
+           on doit pouvoir écraser un tableau
         if (!this._isArrayAffectation && Array.isArray(params[this._tag])) {
             throw new Error(`Le paramètre ${this._tag} ne devrait pas être un tableau.`)
         }
+        */
 
         if (this._repeater === undefined) {
             const result = this._evaluate({ ...params, ...protectedParams })
