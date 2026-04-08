@@ -203,7 +203,7 @@ class InputEnsemble extends InputTextBloc {
         return '$'+results.map(item => {
             const lb = formatValue(item.lowerBound, this._format).slice(1,-1) // pour enlever les $
             const ub = formatValue(item.upperBound, this._format).slice(1,-1)
-            return `\\left${item.lowerBracket}${lb}\\,${ub}\\right${item.upperBracket}`
+            return `\\left${item.lowerBracket}${lb}\\,;${ub}\\right${item.upperBracket}`
         }).join(' \\cup ')+'$'
     }
 }
