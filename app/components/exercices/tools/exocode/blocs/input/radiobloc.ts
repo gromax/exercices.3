@@ -5,13 +5,13 @@ import { InputResultView } from "../../views/inputview"
 import { AnyView } from "@types"
 
 class RadioBloc extends InputBloc {
-    protected _options:Record<string, string>
+    protected _options:Array<[string, string]>
 
     static readonly LABEL = 'radio'
 
     constructor(label:string, paramsString:string) {
         super(label, paramsString)
-        this._options = {}
+        this._options = []
     }
 
     /**
@@ -31,7 +31,7 @@ class RadioBloc extends InputBloc {
     }
 
     protected _getView(answers:Record<string, string>):AnyView {
-        const items = _.shuffle(Object.entries(this._options || {}))
+        const items = _.shuffle(this._options || [])
         return new RadioView({
             name: this.header,
             items: items,
@@ -39,12 +39,17 @@ class RadioBloc extends InputBloc {
         })
     }
 
+    protected _getOption(key:string):string {
+        const option = this._options.find(([k, _]) => k === key)
+        return option ? option[1] : ''
+    }
+
     protected _calcResult(userData:Record<string, string>):[AnyView, number] {
         const name = this.header
         const userValue = userData[name] || ''
-        const userValueTag = this._options[userValue]
+        const userValueTag = this._getOption(userValue)
         const solution = this.params.solution
-        const solutionTag = this._options[solution]
+        const solutionTag = this._getOption(solution)
         const tag = this.params.tag
         const entete = tag?`${tag} : `:''
         if (!solution) {
