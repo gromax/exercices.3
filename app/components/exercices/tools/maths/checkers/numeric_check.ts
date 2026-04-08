@@ -10,7 +10,7 @@ class NumericCheck extends AbsChecker {
         return format == "numeric"
     }
 
-    protected parsedUser():MyMath {
+    parsedUser():MyMath {
         if (typeof this._parsedUser == "undefined") {
             this._parsedUser = MyMath.parseUser(this._expr)
         }
