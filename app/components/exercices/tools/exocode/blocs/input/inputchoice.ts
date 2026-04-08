@@ -9,7 +9,7 @@ class InputChoice extends InputBloc {
 
 
     nombrePts():number {
-        return Object.keys(this._options || {}).length
+        return (this._options || []).length
     }
 
     /**
@@ -62,7 +62,7 @@ class InputChoice extends InputBloc {
             ? Math.max(parseInt(pmax), manager.valuemax)
             : manager.valuemax
 
-        const n = this._options ? Object.keys(this._options).length : 0
+        const n = this._options ? this._options.length : 0
         const layout = new ChoiceFormLayout({
             name: this.header,
             value: '0'.repeat(n),
