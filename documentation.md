@@ -585,6 +585,21 @@ Par exempele
 </input>
 ```
 
+###### excluded
+
+On a le droit d'exclure une valeur. Par exemple si on avait une droite passant par un point A et que l'on voulait les coordonnées d'un point de cette droite, il serait naturel de refuser les coordonnées de A.
+
+```
+<excluded:3;4/>
+```
+
+On pourrait exclure plusieurs valeurs :
+
+```
+<excluded[]:3;4/>
+<excluded[]:2;6/>
+```
+
 #### Bloc Radio
 
 Utiliser pour une question à choix multiple. Une seule réponse possible.
