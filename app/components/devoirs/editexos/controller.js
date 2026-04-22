@@ -58,10 +58,10 @@ const Controller = MnObject.extend({
       });
     });
 
-    assosExosView.on("item:delete:success", (childView) => {
-      const model = childView.model;
+
+    assosExos.on("remove", (model) => {
       const numDeleted = model.get('num');
-      collection.each( (asso) => {
+      assosExos.each( (asso) => {
         if (asso.get('num') > numDeleted) {
           asso.set('num', asso.get('num') - 1);
         }

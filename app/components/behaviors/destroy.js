@@ -21,7 +21,8 @@ const DestroyWarn = Behavior.extend({
       const destroyRequest = model.destroy();
       radioApp.trigger("loading:up");
       $.when(destroyRequest).done( () => {
-        this.view.trigger("delete:success", modelId);
+        // utiliser triggerMethod pour que cela remonte à la collection parente, sinon ne le fait pas
+        this.view.triggerMethod("delete:success", modelId);
       }).fail( (response) => {
         alert("Erreur. Essayez à nouveau !");
       }).always( () => {
