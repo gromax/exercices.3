@@ -61,7 +61,7 @@ class VectorCheck extends AbsChecker {
         if (!this.formatIsValid) {
             return false
         }
-        const parts = this.calc_parts([])
+        
         if (expectedValue instanceof MyMath) {
             expectedValue = expectedValue.expression
         } else {
@@ -71,6 +71,7 @@ class VectorCheck extends AbsChecker {
         if (expected_parts.length != this._size) {
             throw new Error(`La solution ${expectedValue} n'a pas le bon nombre d'éléments`)
         }
+        const parts = this.calc_parts(this._expr.split(';'))
         // vérification du cas notnull
         if (this._notnul && parts.every(item => item.valueIsGood(0))) {
             return false
@@ -117,7 +118,7 @@ class VectorCheck extends AbsChecker {
     }
 
     name():string {
-        let base = `<equation:${this._size}`
+        let base = `<vecteur:${this._size}`
         if (this._colinear) {
             base += ":colinear"
         }
