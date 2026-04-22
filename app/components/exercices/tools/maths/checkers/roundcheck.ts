@@ -30,6 +30,18 @@ class RoundCheck extends AbsChecker {
         return test
     }
 
+    valueIsExcluded(excluded: InputType): boolean {
+        if (!this.formatIsValid) {
+            return false
+        }
+        const userFloat = MyMath.parseUser(this._expr).toFloat()
+        const excludedFloat = MyMath.make(excluded).toFloat()
+        if (isNaN(userFloat) || isNaN(excludedFloat)) {
+            return false
+        }
+        return Math.abs(userFloat - excludedFloat) == 0
+    }
+
     valueIsGood(expectedValue:InputType): boolean {
         const userFloat = MyMath.parseUser(this._expr).toFloat()
         const expectedFloat = MyMath.make(expectedValue).toFloat()

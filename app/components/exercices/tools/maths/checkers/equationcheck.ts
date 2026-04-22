@@ -56,6 +56,20 @@ class EquationCheck extends AbsChecker {
         return true
     }
 
+    valueIsExcluded(excluded: InputType): boolean {
+        if (!this.formatIsValid) {
+            return false
+        }
+        const userMembres = this._expr.split("=")
+        const exludedMembres = String(excluded).split("=")
+        if (userMembres.length != 2 || exludedMembres.length != 2) {
+            return false
+        }
+
+        return (MyMath.make(`(${userMembres[0]}) - (${exludedMembres[0]})`).compare(0, "==") as boolean)
+            && (MyMath.make(`(${userMembres[1]}) - (${exludedMembres[1]})`).compare(0, "==") as boolean)
+    }
+
     valueIsGood(expectedValue:InputType): boolean {
         if (!this.formatIsValid) {
             return false

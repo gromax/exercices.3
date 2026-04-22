@@ -29,6 +29,11 @@ class ExpandCheck extends AbsChecker {
         return true
     }
 
+    valueIsExcluded(excluded: InputType): boolean {
+        console.warn("ExpandCheck.valueIsExcluded n'est pas implémenté, il retourne toujours false")
+        return false
+    }
+
     valueIsGood(expectedValue:InputType): boolean {
         const parsedExpected = MyMath.make(expectedValue)
         return MyMath.parseUser(this._expr).compare(parsedExpected.expand(), "==") as boolean

@@ -34,6 +34,10 @@ abstract class AbsChecker {
     abstract name():string
     abstract testExpectedFormat(expected:InputType):boolean
 
+    valueIsExcluded(excluded: InputType): boolean {
+        return this.valueIsGood(excluded)
+    }
+
     get message():string {
         return this._message
     }

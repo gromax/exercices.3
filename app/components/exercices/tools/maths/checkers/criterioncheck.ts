@@ -73,6 +73,20 @@ class CriterionCheck extends AbsChecker {
         return true
     }
 
+    valueIsExcluded(excluded: InputType): boolean {
+        if (excluded instanceof MyMath) {
+            excluded = excluded.expression
+        } else {
+            excluded = String(excluded)
+        }
+        const excluded_parts = excluded.split(";")
+        if (excluded_parts.length != this._size) {
+            throw new Error(`La solution ${excluded} n'a pas le bon nombre d'éléments`)
+        }
+        const parts = this.calc_parts(this._expr.split(';'))
+        return parts.every((part, i) => part.valueIsGood(excluded_parts[i]))
+    }
+
     valueIsGood(expectedValue:InputType): boolean {
         if (!this.formatIsValid) {
             return false
