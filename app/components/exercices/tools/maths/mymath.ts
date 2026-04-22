@@ -568,6 +568,15 @@ class MyMath {
         return new MyMath({ nerdamer: this._getNerdamerProcessed().sub(varName, valueStr) })
     }
 
+    subs(vars:Record<string, AcceptedInput>):MyMath {
+        let n = this._getNerdamerProcessed()
+        for (const [varName, value] of Object.entries(vars)) {
+            const valueStr = MyMath.normalization(MyMath.make(value).toString())
+            n = n.sub(varName, valueStr)
+        }
+        return new MyMath({ nerdamer: n })
+    }
+
     diff(varName:string=""):MyMath {
         const b = this._getMyNumber()
         if (varName == "") {
