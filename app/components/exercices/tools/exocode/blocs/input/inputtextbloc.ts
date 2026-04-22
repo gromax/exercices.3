@@ -2,7 +2,7 @@ import _ from "underscore"
 import InputBloc from "./inputbloc"
 import { InputView, InputResultView } from "../../views/inputview"
 import { InputType } from '@types'
-import { checkFormat, checkValue } from "@mathstools/checkers/check"
+import { checkFormat, checkValue, checkExcluded } from "@mathstools/checkers/check"
 import { formatValue } from "@components/exercices/tools/maths/misc/formatvalue"
 import { View } from "backbone.marionette"
 import { AnyView, NestedInput } from "@types"
@@ -109,7 +109,18 @@ class InputTextBloc extends InputBloc {
         if (typeof userValue === 'undefined') {
             return this._name
         }
-        return checkFormat(userValue, this._format || 'none')
+        const formatisValid = checkFormat(userValue, this._format || 'none')
+        if ((typeof formatisValid === "string") || (formatisValid === false)) {
+            // message d'erreur ou false
+            return formatisValid
+        }
+        // Vérification que ce n'est pas une valeur exclue
+        if (typeof this.params.excluded !== "undefined") {
+            if (this._verifyExcluded(userValue)) {
+                return `Cette valeur n'est pas acceptée.`
+            }
+        }
+        return true
     }
 
     /**
@@ -175,6 +186,17 @@ class InputTextBloc extends InputBloc {
             return solution.some(sol => this._verify(userValue, sol))
         }
         return checkValue(userValue, solution, this._format || 'none')
+    }
+
+    protected _verifyExcluded(userValue:string):boolean {
+        if (typeof this.params.excluded === "undefined") {
+            return false
+        }
+        const excluded = this.params.excluded
+        if (Array.isArray(excluded)) {
+            return excluded.some(exc => checkExcluded(userValue, exc, this._format || 'none'))
+        }
+        return checkExcluded(userValue, excluded, this._format || 'none')
     }
 }
 
