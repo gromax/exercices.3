@@ -124,9 +124,41 @@ function checkValue(userValue:string, expectedValue:InputType, format:string|Arr
     return checkers.some(c => c.valueIsGood(parsedExpected))
 }
 
+/**
+ * vérifie la valeur donnée par l'utilisateur
+ * @param {string} userValue 
+ * @param {string|MyMath} expectedValue 
+ * @param {string|Array<string>} format 
+ * @returns {boolean} true si la valeur est correcte
+ */
+function checkExcluded(userValue:string, excluded:InputType, format:string|Array<string> = "none"):boolean {
+    const checkFormatResult = checkFormat(userValue, format)
+    if (checkFormatResult !== true) {
+        return false
+    }
+    // je traite d'abord les cas particuliers
+    const optionalsCheckers = formatsToCheckers(userValue, format, OPTIONAL_CHECKERS)
+    for (const c of optionalsCheckers) {
+        if (c.testExpectedFormat(excluded)) {
+            // Alors userValue doit valider ce format
+            // inutile d'en tester d'autres
+            return c.valueIsExcluded(excluded)
+        }
+    }
+
+    const parsedExcluded = MyMath.make(excluded)
+    const checkers = formatsToCheckers(userValue, format, NON_OPTIONAL_CHECKERS)
+    if (checkers.length ==0) {
+        console.warn(`Aucun format pour vérifier l'exclusion de ${userValue}`)
+    }
+    return checkers.some(c => c.valueIsExcluded(parsedExcluded))
+}
+
+
 export {
     checkFormat,
     checkValue,
+    checkExcluded,
     formatsToCheckers,
     OPTIONAL_CHECKERS,
     NON_OPTIONAL_CHECKERS,
