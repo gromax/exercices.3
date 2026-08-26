@@ -4,6 +4,6 @@
   define("BDD_PASSWORD", ""); // Mot de passe de la BDD
   define("BDD_HOST", "localhost"); // Hote de la BDD
   define("BDD_NAME", "exercices"); // Nom de la BDD
-  $dsn="mysql:dbname=".BDD_NAME.";host=".BDD_HOST;
+  $dsn="mysql:dbname=".BDD_NAME.";host=".BDD_HOST.";charset=utf8mb4";
   define("BDD_DSN", $dsn); // DSN de la BDD;
 ?>
