@@ -6,7 +6,10 @@ function renderTexInDomElement(domelement) {
       {left: "$", right: "$", display: false},
       {left: "$$", right: "$$", display: true}
     ],
-    throwOnError: false
+    throwOnError: false,
+    errorCallback: (error) => {
+      console.error('KaTeX error:', error);
+    }
   });
 }
 
