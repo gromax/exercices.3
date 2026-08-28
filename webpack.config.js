@@ -58,6 +58,14 @@ const webpackCommon = {
           'style-loader',
           'css-loader'
         ]
+      },
+      // Fichiers de polices et autres assets binaires
+      {
+        test: /\.(woff|woff2|ttf|otf|eot)$/,
+        type: 'asset/resource',
+        generator: {
+          filename: '[name][ext]'
+        }
       }
     ]
   },
