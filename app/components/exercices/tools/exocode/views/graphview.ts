@@ -1,6 +1,7 @@
 import { View } from 'backbone.marionette'
 import graph_tpl from '@templates/exercices/run/exercice-graph.jst'
 import * as JXG from "jsxgraph"
+import GraphItem from "../blocs/graphitems/item"
 
 type GraphOptions = {
     boundingbox:[number,number,number,number],
@@ -16,8 +17,7 @@ type GraphOptions = {
 
 const GraphView = View.extend({
     template: graph_tpl,
-    items:null, // tableau de fonction de création recevant graph comme paramètre
-                            // et les objets déjà créés
+    items:null, // tableau de items graphiques
     onRender() {
         const container = this.el.querySelector('.js-jsx')
         const xmin = this.getOption("xmin") || -5
@@ -51,14 +51,13 @@ const GraphView = View.extend({
             }
         }
         const graph = JXG.JSXGraph.initBoard(container, options)
-        const graphObjects = {}
-        for (const key in this.getOption("items") || {}) {
-            const item = this.getOption("items")[key]
-            if (typeof item !== 'function' || item.length !== 2) {
-                console.warn("GraphView: item non valide", item)
+        const graphObjects: Record<string, JXG.GeometryElement> = {}
+        for (const graphItem of this.getOption("items") || []) {
+            if (!(graphItem instanceof GraphItem)) {
+                console.warn("GraphView: item non valide", graphItem)
                 continue
             }
-            graphObjects[key] = item(graph, graphObjects)
+            graphObjects[graphItem.name] = graphItem.createItem(graph, graphObjects)
         }
         this.graphObjects = graphObjects
     },
