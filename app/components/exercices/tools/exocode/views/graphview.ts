@@ -2,6 +2,7 @@ import { View } from 'backbone.marionette'
 import graph_tpl from '@templates/exercices/run/exercice-graph.jst'
 import * as JXG from "jsxgraph"
 import GraphItem from "../blocs/graphitems/item"
+import GraphPoint from "../blocs/graphitems/point"
 
 type GraphOptions = {
     boundingbox:[number,number,number,number],
@@ -52,15 +53,50 @@ const GraphView = View.extend({
         }
         const graph = JXG.JSXGraph.initBoard(container, options)
         const graphObjects: Record<string, JXG.GeometryElement> = {}
-        for (const graphItem of this.getOption("items") || []) {
+        const items = this.getOption("items") || []
+        for (const graphItem of items) {
             if (!(graphItem instanceof GraphItem)) {
                 console.warn("GraphView: item non valide", graphItem)
                 continue
             }
-            graphObjects[graphItem.name] = graphItem.createItem(graph, graphObjects)
+            const createdItem = graphItem.createJXGItem(graph, graphObjects)
+            if (createdItem instanceof JXG.GeometryElement) {
+                graphObjects[graphItem.name] = createdItem
+            } else {
+                for (const [key, value] of Object.entries(createdItem)) {
+                    graphObjects[key] = value
+                }
+            }
         }
+        // On refait un passage pour les distincts
+        for (const graphItem of items) {
+            if (!(graphItem instanceof GraphPoint)) {
+                continue
+            }
+            graphItem.setDistinct(graphObjects)
+        }
+
+
         this.graphObjects = graphObjects
+        // ajout des inputs
+        const divComplement = this.el.querySelector('.js-complement')
+        for (const graphItem of items) {
+            if (!(graphItem instanceof GraphItem)) {
+                continue
+            }
+            const inputNodes = graphItem.inputNodesNeeded(this.graphObjects[graphItem.name])
+            for (const [inputName, value] of Object.entries(inputNodes)) {
+                const inputElement = document.createElement("input")
+                inputElement.type = "hidden"
+                inputElement.name = inputName
+                inputElement.value = value
+                divComplement?.appendChild(inputElement)
+            }
+        }
+
     },
+
+    
 
     children(name:string):any|undefined {
         if (!this.graphObjects) {

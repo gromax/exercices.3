@@ -7,19 +7,76 @@ abstract class GraphItem {
     protected item:Bloc
     protected _colors?:Colors
     protected _cadre:readonly [number, number, number, number]
-    constructor(item:Bloc, cadre:readonly [number, number, number, number], colors:Colors) {
+    protected _attrToInputs:Record<string, string>
+    protected _fixed:boolean = false
+    protected _assignedInputs: Record<string, number> = {}
+    protected _solMode:boolean = false // indique si on est en mode solution
+
+    static readonly KNOWNS_INPUTS_ATTRIBUTES:string[] = []
+
+    constructor(item:Bloc, cadre: [number, number, number, number], colors:Colors) {
         this.item = item
         this._colors = colors
         this._cadre = cadre
         this._assignColor('strokeColor')
         this._assignColor('color')
+        this._attrToInputs = this._getAttrToInputs()
+    }
+
+    getItemParam(paramName: string): string|undefined {
+        return this.item.params[paramName]
+    }
+
+    setSolMode():void {
+        this._solMode = true
+    }
+
+    assignInputValue(inputNameToAssign: string, value: string): void {
+        for(const [attr, inputName] of Object.entries(this._attrToInputs)) {
+            if(inputNameToAssign === inputName) {
+                const numberValue = parseFloat(value)
+                if (isNaN(numberValue)) {
+                    console.log(`Invalid number for input '${inputNameToAssign}': ${value}`)
+                }
+                this._assignedInputs[attr] = numberValue
+                return
+            }
+        }
+    }
+
+    assignInputsValues(inputs: Record<string, string>): void {
+        for (const attr in inputs) {
+            this.assignInputValue(attr, inputs[attr])
+        }
+    }
+
+    protected set_fixed() {
+        this._fixed = true
+    }
+
+    inputsNames():string[] {
+        return Object.values(this._attrToInputs)
+    }
+
+    isInput():boolean {
+        return Object.keys(this._attrToInputs).length > 0
     }
 
     get name():string {
         return this.item.header
     }
-    
-    abstract createItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement
+
+    get type():string {
+        return this._type
+    }
+
+    get knowns_inputs_attributes():string[] {
+        return (this.constructor as typeof GraphItem).KNOWNS_INPUTS_ATTRIBUTES
+    }
+
+    abstract _type:string // nom du type d'objet
+    abstract createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement|Record<string, JXG.GeometryElement>
+
 
     /**
      * assume que paramName est un paramètre de type couleur
@@ -64,6 +121,76 @@ abstract class GraphItem {
         }
         return 0
     }
+
+    /**
+     * Récupère la liste des entrées (inputs) de l'élément graphique.
+     * en lisant le param input qui doit être écrit sous la forme
+     * <hasinputs:x->xA;y->yA/>
+     * signifiant que l'attribut x est lié à l'input xA
+     * et l'attribut y est lié à l'input yA
+     * @returns {Record<string,string>} La liste des attributs liés aux inputs
+     */
+    protected _getAttrToInputs():Record<string, string> {
+        // Implémentation par défaut, à surcharger dans les sous-classes si nécessaire
+        if (typeof this.item.params["hasinputs"] === 'undefined') {
+            return {}
+        }
+        const inputsString:string = this.item.params["hasinputs"]
+        const inputsArray = inputsString.split(';')
+        const inputs:Record<string, string> = {}
+        for (const input of inputsArray) {
+            if (!input.includes('->')) {
+                throw new Error(`[${input} dans ${inputsString}] : L'attribut hasinputs devrait avoir la forme "attribut->nom".valid input format: ${input}`)
+            }
+            const [attr, inputName] = input.split('->')
+            if (!this.knowns_inputs_attributes.includes(attr)) {
+                throw new Error(`[${attr} dans ${inputsString}] : L'attribut n'est pas reconnu. Attributs connus: ${this.knowns_inputs_attributes.join(', ')}`)
+            }
+            if (inputs[attr]) {
+                throw new Error(`[${attr} dans ${inputsString}] : L'attribut est déjà lié à ${inputs[attr]}.`)
+            }
+            if (!inputName) {
+                throw new Error(`[${inputsString}] : Le nom de l'input est manquant.`)
+            }
+            inputs[attr] = inputName
+        }
+        return inputs
+    }
+
+    /**
+     * Récupère la valeur actuelle de l'élément graphique associé à attribut input
+     * fait le lien avec l'implémentation JXG Graph
+     * @param {JXG.GeometryElement} obj L'élément graphique dont on veut récupérer la valeur.
+     * @param {string} attr L'attribut dont on veut récupérer la valeur.
+     * @returns {any} La valeur actuelle de l'élément graphique.
+     */
+    public getValue(obj:JXG.GeometryElement, attr:string): any {
+        // Implémentation par défaut, à surcharger dans les sous-classes si nécessaire
+        throw new Error(`L'attribut ${attr} n'est pas reconnu pour un objet de type ${this.type}`)
+    }
+
+    /**
+     * Calcule le nombre de points obtenus pour cet élément graphique.
+     * @returns number
+     */
+    calcPoint(): number {
+        return 0
+    }
+
+    /**
+     * Récupère les attributs nécessaires à l'initialisation des inputs
+     * @param obj JXG.GeometryElement l'objet correspondant
+     * @returns Record<string,any>
+     */
+    inputNodesNeeded(obj:JXG.GeometryElement): Record<string,string> {
+        if (this._solMode) {
+            return {}
+        }
+        return Object.fromEntries(
+            Object.keys(this._attrToInputs).map(attr => [this._attrToInputs[attr], this.getValue(obj, attr)])
+        )
+    }
+
 }
 
 export default GraphItem

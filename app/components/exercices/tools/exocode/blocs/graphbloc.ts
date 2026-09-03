@@ -5,57 +5,151 @@ import { View } from "backbone.marionette"
 import GraphItem from "./graphitems/item"
 import GraphFunction from "./graphitems/function"
 import GraphPoint from "./graphitems/point"
+import FormItemImplementation from "../implementation/formitem"
 
 type AnyView = View<any>|Array<View<any>>
 
-class GraphBloc extends Bloc {
+class GraphBloc extends Bloc implements FormItemImplementation {
     static readonly LABELS = ['graph', 'graphe']
-    private xmin:number
-    private xmax:number
-    private ymin:number
-    private ymax:number
-    private cadre:[number, number, number, number]
-    private graphItems:Array<GraphItem>
+    private _cadre:[number, number, number, number]
+    private _graphItems:Array<GraphItem>
+    private _resultView?:AnyView
+    private _score?:number
 
-    protected _getView(answers:Record<string, string>):AnyView {
-        this.xmin = this.params.xmin !== undefined ? Number(this.params.xmin) : -5
-        this.xmax = this.params.xmax !== undefined ? Number(this.params.xmax) : 5
-        this.ymin = this.params.ymin !== undefined ? Number(this.params.ymin) : -5
-        this.ymax = this.params.ymax !== undefined ? Number(this.params.ymax) : 5
-        this.cadre = [this.xmin, this.xmax, this.ymin, this.ymax]
-        this.graphItems = []
+
+    protected _getItems():Array<GraphItem> {
+        if (this._graphItems !== undefined) {
+            return this._graphItems
+        }
+        this._graphItems = []
         for (const child of this._children) {
             if (!(child instanceof Bloc)) {
                 continue
             }
             const graphItem = this._childToGraphItem(child)
             if (graphItem !== null) {
-                this.graphItems.push(graphItem)
+                this._graphItems.push(graphItem)
             }
         }
+        return this._graphItems
+    }
+
+    protected _getCadre():[number, number, number, number] {
+        if (this._cadre === undefined) {
+            const xmin = this.params.xmin !== undefined ? Number(this.params.xmin) : -5
+            const xmax = this.params.xmax !== undefined ? Number(this.params.xmax) : 5
+            const ymin = this.params.ymin !== undefined ? Number(this.params.ymin) : -5
+            const ymax = this.params.ymax !== undefined ? Number(this.params.ymax) : 5
+            this._cadre = [xmin, xmax, ymin, ymax]
+        }
+        return this._cadre
+    }
+
+    protected _getView(answers:Record<string, string>):AnyView {
+        const cadre = this._getCadre()
         return new GraphView({
-            xmin: this.xmin,
-            xmax: this.xmax,
-            ymin: this.ymin,
-            ymax: this.ymax,
-            items: this.graphItems
+            xmin: cadre[0],
+            xmax: cadre[1],
+            ymin: cadre[2],
+            ymax: cadre[3],
+            items: this._getItems()
         })
     }
 
     private _childToGraphItem(item:Bloc):GraphItem|null {
         switch (item.tag) {
             case 'point':
-                return new GraphPoint(item, this.cadre, this._colors)
+                return new GraphPoint(item, this._getCadre(), this._colors)
             case 'function':
-                return new GraphFunction(item, this.cadre, this._colors)
+                return new GraphFunction(item, this._getCadre(), this._colors)
             default:
                 return null
         }
     }
 
+    /* Implémentation de FormItemImplementation */
+    readonly IMPLEMENTATION_FORMITEM = true
 
+    /**
+     * renvoie la vue résultat. La calcule au besoin
+     * @param {*} userData 
+     * @returns {View} la vue résultat
+     */
+    resultView(userData:Record<string, string>):AnyView {
+        if (typeof this._resultView === "undefined") {
+            const [view, score] = this._calcResult(userData)
+            this._resultView = view
+            this._score = score
+        }
+        return this._resultView
+    }
 
+    /**
+     * Renvoie le score final
+     * le calcule au besoin
+     * @param {Record<string,string>} userData 
+     * @returns {number} le score final
+     */
+    resultScore(userData:Record<string, string>):number {
+        const names: string[] = this._getItems().flatMap(item => item.inputsNames());
+        if (names.filter(name => typeof userData[name] === "undefined").length > 0) {
+            // un input demandé n'est pas dans userData
+            return 0
+        }
+        // toutes les données sont présentes
+        if (typeof this._score === "undefined") {
+            const [view, score] = this._calcResult(userData)
+            this._resultView = view
+            this._score = score
+        }
+        return this._score
+    }
 
+    /**
+     * Calcule le score et la vue
+     * @param {Record<string,string>} userData 
+     */
+    protected _calcResult(userData:Record<string,string>):[AnyView,number] {
+        // on va calculer le résultat
+        // on commence par assigner les data aux items
+        // et à les mettre en mode solution
+        for (const item of this._getItems()) {
+            item.assignInputsValues(userData)
+            item.setSolMode()
+        }
+        // chaque item va calculer s'il est correct
+
+        let count = 0
+        for (const item of this._getItems()) {
+            count += item.calcPoint()
+        }
+        const resultView = this._getView(userData)
+        return [resultView, count]
+    }
+
+    /**
+     * réalise la validation de la saisie
+     * renvoi true si ok, message d'erreur sinon
+     * si pas d'argument, renvoie le name à valider
+     * @param {string|undefined} userValue 
+     * @returns {boolean|Array<string>} true si ok, message d'erreur sinon
+     */
+    validation(userValue?:string|Array<string>):string|Array<string>|boolean|Record<string, string> {
+        if (typeof userValue === 'undefined') {
+            return this._getItems().flatMap(item => item.inputsNames()).filter(name => name !== '')
+        }
+        // autrement l'input est forcément valide
+        return true
+    }
+
+    /**
+     * renvoie le nombre de points total
+     * c'est le nombre d'item input
+     * @returns {number} le nombre de points total
+     */
+    nombrePts():number {
+        return this._getItems().filter(item => item.isInput()).length
+    }
 
     /*
     La suite me parait trop compliquée pour l'instant
