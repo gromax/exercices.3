@@ -853,7 +853,7 @@ Rien n'empêche d'avoir plusieurs lignes input dans un même tableau.
 
 #### Bloc Graph
 
-Permet de tracer un graphique avec **jsxGraph**.
+Permet de tracer un graphique avec **jsxGraph** et peut être ajouter comme input.
 
 ```
 <graph>
@@ -888,6 +888,17 @@ On dispose des paramètres :
   * color: on peut choisir une couleur standard comme blue, red... ou un indice ce qui choisira parmi les couleurs des blocs choice
   * size: pour la taille du point
   * fixed: par défaut le point est mobile. On peut le fixer avec `fixed:true`
+  * solution:true l'élément ne sera visible qu'au moment de la solution
+  * distinct:A,B;0.5 indique que l'élément doit-être distinct d'un autre avec la distance min
+
+Le point peut par ailleurs être un input. On ajoutera pour cela des attributs :
+  * hasinputs: il faut les écrire sous la forme x->xA;y->yA
+    point n'admet que les attributs x et y
+  * good: pour indiquer le critère d'acceptation
+    * pourra prendre la forme (2;4;0.1) par exemple pour un point avec une distance max de 0.1
+    * ou encore (2;4) la distance max étant fixée alors à 0.1 par défaut
+    * ou encore 3x+2y-5, qui est un critère devant valoir 0 avec une erreur de 0.1 par défaut
+    * ou encore 3x+2y-5;0.2 pour fixer l'erreur à 0.2
 
 ##### function
 
@@ -904,6 +915,7 @@ On dispose des paramètres :
   * color, idem que pour point
   * strokeWidth: épaisseur du trait
   * dash: pointillé. Par exemple `dash:2`
+  * solution: true, l'élément ne sera visible qu'au moment de la solution
 
 Voici deux exemples : Dans le premier on crée la courbe d'une fonction affine et un point mobile sur cette courbe.
 
