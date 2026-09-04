@@ -122,6 +122,23 @@ abstract class GraphItem {
         return 0
     }
 
+    protected _parseFloatCoords(coordString:string): [number, number] | null {
+        let trimmed = coordString.trim()
+        if (trimmed.startsWith('(') && trimmed.endsWith(')')) {
+            trimmed = trimmed.slice(1, -1)
+        }
+        const parts = trimmed.split(';')
+        if (parts.length !== 2) {
+            return null
+        }
+        const x = parseFloat(parts[0])
+        const y = parseFloat(parts[1])
+        if (isNaN(x) || isNaN(y)) {
+            return null
+        }
+        return [x, y]
+    }
+
     /**
      * Récupère la liste des entrées (inputs) de l'élément graphique.
      * en lisant le param input qui doit être écrit sous la forme
