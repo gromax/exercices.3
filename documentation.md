@@ -900,6 +900,20 @@ Le point peut par ailleurs être un input. On ajoutera pour cela des attributs :
     * ou encore 3x+2y-5, qui est un critère devant valoir 0 avec une erreur de 0.1 par défaut
     * ou encore 3x+2y-5;0.2 pour fixer l'erreur à 0.2
 
+##### axe des réels
+
+```
+<reels:name>
+<y:5>
+<titlesize:15>
+</reels>
+```
+
+  * y: décalage y
+  * titlesize: taille du titre ℝ (défaut 20)
+  * tikssize: taille des étiquettes (défaut à 12)
+  * color: couleur de l'axe
+
 ##### function
 
 ```
@@ -940,6 +954,50 @@ La fonction `Alea.lagrangePolynome` tire `n+1` points au hasard, à coordonnées
     <expression:@p/>
   </function>
 </graph>
+```
+
+##### droite
+
+```
+<droite:name>
+...
+</droite>
+```
+
+On dispose des paramètres :
+  * equation: l'expression de la droite sous le mode désiré :
+    * réduite en $y=2x+3$ ou $x = 5$
+    * cartésienne $2x+3y-11=0$
+    * toute autre forme $3x = 5y - 4$
+  * points: 2 points par lesquelles passe la droite
+    * on peut donner un identifiant de point déjà créé
+    * ou une paire de coordonnées comme (2.5;4)
+    * on peut faire un mélange (objet point et coordonnées)
+    * séparer les deux points par |
+  * color, idem que pour point
+  * strokeWidth: épaisseur du trait
+  * dash: pointillé. Par exemple `dash:2`
+  * solution: true, l'élément ne sera visible qu'au moment de la solution
+  * label: l'étiquette nommant la droite
+  * labelsize: taille de l'étiquette (défaut 14)
+
+Voici quelques exemples.
+
+```
+<droite:d>
+<equation:y=3x+12/>
+</droite>
+```
+
+```
+<point:A>
+  <x:2/>
+  <y:5/>
+</point>
+<droite:d>
+  <points:A|(0;1)/>
+  <color:red/>
+</droite>
 ```
 
 #### Bloc shuffle
