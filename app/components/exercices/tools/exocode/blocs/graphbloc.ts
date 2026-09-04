@@ -5,6 +5,8 @@ import { View } from "backbone.marionette"
 import GraphItem from "./graphitems/item"
 import GraphFunction from "./graphitems/function"
 import GraphPoint from "./graphitems/point"
+import GraphReels from "./graphitems/reels"
+import GraphDroite from "./graphitems/droite"
 import FormItemImplementation from "../implementation/formitem"
 
 type AnyView = View<any>|Array<View<any>>
@@ -62,6 +64,10 @@ class GraphBloc extends Bloc implements FormItemImplementation {
                 return new GraphPoint(item, this._getCadre(), this._colors)
             case 'function':
                 return new GraphFunction(item, this._getCadre(), this._colors)
+            case 'reels':
+                return new GraphReels(item, this._getCadre(), this._colors)
+            case 'droite':
+                return new GraphDroite(item, this._getCadre(), this._colors)
             default:
                 return null
         }
