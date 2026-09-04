@@ -42,8 +42,8 @@ class GraphPoint extends GraphItem {
             this._connect_inputs(point)
         }
 
-        const goodPoint = this._goodPoint()
-        if (this._isGood === false && goodPoint) {
+        const goodPointCoords = this._goodPointCoords()
+        if (this._isGood === false && goodPointCoords) {
             // on crée un 2e point pour représenter la position correcte
             const goodOptions = {
                 ...options,
@@ -54,15 +54,19 @@ class GraphPoint extends GraphItem {
                     strokeColor: 'green',
                 } 
             } as JXG.PointAttributes
+            const [typeElementG, attrG] = this._calcCible(goodPointCoords[0], goodPointCoords[1], this.item.params.on, graphObjects)
+            const goodPoint = typeElementG === "glider"
+                ? g.create("glider", attrG, goodOptions)
+                : g.create("point", attrG, goodOptions)
             return {
                 [this.name]: point,
-                [this.name + " ✓"]: g.create('point', [goodPoint[0], goodPoint[1]], goodOptions)
+                [this.name + " ✓"]: goodPoint
             }
         }
         return point
     }
 
-    private _calcCible(x:number|Function, y:number|Function, paramOn:string|undefined, graphObjects:Record<string, any>): [string,any[]] {
+    private _calcCible(x:number|Function, y:number|Function, paramOn:string|undefined, graphObjects:Record<string, any>): ['point'|'glider',any[]] {
         if (paramOn && !graphObjects[paramOn]) {
             throw new Error(`L'objet graphique '${paramOn}' n'existe pas.`)
         }
@@ -149,7 +153,7 @@ class GraphPoint extends GraphItem {
         throw new Error(`L'attribut ${attr} n'est pas reconnu pour un objet de type ${this.type}`)
     }
 
-    protected _goodPoint(): [number, number, number]|undefined {
+    protected _goodPointCoords(): [number, number, number]|undefined {
         const good = this.item.params["good"]
         if (typeof good == "undefined") {
             return undefined
@@ -179,10 +183,10 @@ class GraphPoint extends GraphItem {
             return
         }
 
-        const goodPoint = this._goodPoint()
-        if (goodPoint) {
+        const goodPointCoords = this._goodPointCoords()
+        if (goodPointCoords) {
             // On a une coordonnée
-            const [x, y, tolerance] = goodPoint
+            const [x, y, tolerance] = goodPointCoords
             if (isNaN(x) || isNaN(y) || isNaN(tolerance)) {
                 console.warn(`Le paramètre "good" de ${this.name} n'est pas correctement formaté: ${this.item.params["good"]}`)
                 this._isGood = true
