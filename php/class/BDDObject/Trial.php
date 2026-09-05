@@ -11,6 +11,10 @@ class Trial extends Item
 
   ##################################### METHODES STATIQUES #####################################
 
+  /**
+   * Définit les champs de la table des essais.
+   * @return array Tableau des champs et de leurs propriétés.
+   */
   protected static function champs()
   {
     return [
@@ -27,6 +31,10 @@ class Trial extends Item
     ] ;
   }
 
+  /**
+   * Définit les tables jointes pour les requêtes SQL impliquant les essais.
+   * @return array Tableau des tables jointes et des conditions de jointure.
+   */
   protected static function joinedTables()
   {
     return [
@@ -37,7 +45,13 @@ class Trial extends Item
     ];
   }
 
-  public static function insertAllowed($idExoDevoir, $idUser)
+  /**
+   * Vérifie si l'insertion d'un essai est autorisée pour un utilisateur donné et un exercice donné.
+   * @param int $idExoDevoir ID de l'exercice du devoir
+   * @param int $idUser ID de l'utilisateur
+   * @return bool true si l'insertion est autorisée, false sinon
+   */
+  public static function insertAllowed($idExoDevoir,$idUser)
   {
     // autorisé si :
     // user dans la classe du devoir
@@ -61,13 +75,18 @@ class Trial extends Item
       }
       return true;
     } catch(PDOException $e) {
-      EC::addError($e->getMessage(), "Trial/onUpdateSuccess");
+      EC::addBDDError($e->getMessage(), "Trial/insertAllowed");
       return false;
     }
   }
 
   ##################################### METHODES D'INSTANCE #####################################
 
+  /**
+   * Actions à effectuer après la mise à jour réussie d'un essai
+   * Met à jour la note maximale de l'utilisateur pour l'exercice correspondant.
+   * @return bool true si la mise à jour a réussi, false sinon
+   */
   protected function onUpdateSuccess()
   {
     // Actions à effectuer après une mise à jour réussie d'un essai
@@ -83,13 +102,19 @@ class Trial extends Item
       $stmt->bindValue(":idExoDevoir", $idExoDevoir, PDO::PARAM_INT);
       $stmt->bindValue(":idUser", $idUser, PDO::PARAM_INT);
       $stmt->execute();
+
       return true;
     } catch(PDOException $e) {
-      EC::addError($e->getMessage(), "Trial/onUpdateSuccess");
+      EC::addBDDError($e->getMessage(), "Trial/onUpdateSuccess");
       return false;
     }
   }
 
+  /**
+   * Actions à effectuer après l'insertion réussie d'un essai
+   * Met à jour la note maximale de l'utilisateur pour l'exercice correspondant.
+   * @return bool true si la mise à jour a réussi, false sinon
+   */
   protected function onInsertSuccess()
   {
     // Actions àeffectuer après l'insertion réussie d'un essai
@@ -110,11 +135,16 @@ class Trial extends Item
       $stmt->execute();
       return true;
     } catch(PDOException $e) {
-      EC::addError($e->getMessage(), "Trial/onInsertSuccess");
+      EC::addBDDError($e->getMessage(), "Trial/onInsertSuccess");
       return false;
     }
   }
-
+  
+  /**
+   * Actions à effectuer après la suppression réussie d'un essai
+   * Met à jour la note maximale de l'utilisateur pour l'exercice correspondant.
+   * @return bool true si la mise à jour a réussi, false sinon
+   */
   protected function onDeleteSuccess()
   {
     // Actions à effectuer après la suppression réussie d'un essai
@@ -138,7 +168,7 @@ class Trial extends Item
       $stmt->execute();
       return true;
     } catch(PDOException $e) {
-      EC::addError($e->getMessage(), "Trial/onDeleteSuccess");
+      EC::addBDDError($e->getMessage(), "Trial/onDeleteSuccess");
       return false;
     }
   }
