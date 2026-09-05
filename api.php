@@ -16,6 +16,7 @@ require_once "./php/classAutoLoad.php";
 require_once "./php/routes.php";
 
 $response = $router->load();
+
 EC::header(); // Doit être en premier !
 if ($response === false) {
     echo json_encode(array("ajaxMessages"=>EC::messages()));
@@ -23,17 +24,14 @@ if ($response === false) {
     if (isset($response["errors"]) && (count($response["errors"])==0)) {
         unset($response["errors"]);
     } else {
-        var_dump("ici");
         $messages = EC::messages();
         if (count($messages)>0) {
             $response["errors"] = $messages;
         }
     }
-    if (!isset($response['token'])) {
-        $token = SC::renewToken();
-        if ($token !== null) {
-            $response['token'] = $token;
-        }
+    $token = SC::renewToken();
+    if ($token !== null) {
+        header('Authorization: Bearer ' . $token);
     }
     echo json_encode($response);
 }
