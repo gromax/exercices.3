@@ -13,6 +13,8 @@ class Dist {
         'binList': Dist.binomialList,
         'binCDF': Dist.binomialCDF,
         'binPDF': Dist.binomialPDF,
+        'poissonCDF': Dist.poissonCDF,
+        'poissonPDF': Dist.poissonPDF,
         'normCDF': Dist.normalCDF,
         'normPDF': Dist.normalPDF,
         'normal': Dist.normal,
@@ -113,21 +115,21 @@ class Dist {
     /**
      * Calcule P(X <= k) pour X ~ B(n, p) via récurrence
      * Plus efficace car réutilise les calculs précédents
-     * @param {InputType} k - nombre de succès
+     * @param {InputType} x - nombre de succès
      * @param {InputType} n - nombre d'essais
      * @param {InputType} p - probabilité de succès
-     * @return {number} P(X <= k)
+     * @return {number} P(X <= x)
      */
-    static binomialCDF(k:InputType, n:InputType, p:InputType):number {
-        const _k = MyMath.toInteger(k)
+    static binomialCDF(x:InputType, n:InputType, p:InputType):number {
+        const _x = MyMath.toNumber(x)
         const _n = MyMath.toInteger(n)
         const _p = MyMath.toNumber(p)
         
-        if (isNaN(_k) || isNaN(_n) || isNaN(_p)) {
+        if (isNaN(_x) || isNaN(_n) || isNaN(_p)) {
             throw new Error('Paramètres invalides pour binomialCDF')
         }
-        if (_k < 0) return 0
-        if (_k >= _n) return 1
+        if (_x < 0) return 0
+        if (_x >= _n) return 1
         if (_p === 0) return 1
         if (_p === 1) return 0
         
@@ -138,7 +140,7 @@ class Dist {
         let cdf = 0 // idem
         // P(X = i+1) = P(X = i) * (n-i)/(i+1) * p/(1-p)
         const ratio = _p/(1 - _p)
-        for (let i = 0; i <= _k; i++) {
+        for (let i = 0; i <= _x; i++) {
             cdf += prob
             // si cdf trop grand, normaliser
             while (cdf > 10 && remainingPowers > 0) {
@@ -185,6 +187,63 @@ class Dist {
         logProb += _k * Math.log(_p) + (_n - _k) * Math.log(1 - _p)
         return Math.min(Math.exp(logProb),1)
     }
+
+    /**
+     * Calcule P(X <= x) pour X ~ P(lambda) via récurrence
+     * Plus efficace car réutilise les calculs précédents
+     * @param {InputType} x - nombre de succès
+     * @param {InputType} lambda - paramètre de Poisson
+     * @return {number} P(X <= x)
+     */
+    static poissonCDF(x:InputType, lambda:InputType):number {
+        const _x = MyMath.toNumber(x)
+        const _lambda = MyMath.toNumber(lambda)
+        
+        if (isNaN(_x)) {
+            throw new Error(`Paramètre x [${x}] invalide pour poissonCDF`)
+        }
+        if (isNaN(_lambda)) {
+            throw new Error(`Paramètre lambda [${lambda}] invalide pour poissonCDF`)
+        }
+        if (_x < 0) return 0
+        if (_lambda === 0) return 1
+        
+        // Calcul itératif avec récurrence
+        let prob = Math.exp(-_lambda) // P(X=0)
+        let cdf = 0
+        for (let i = 0; i <= _x; i++) {
+            cdf += prob
+            prob *= _lambda / (i + 1)
+        }
+        return Math.min(cdf, 1)
+    }
+
+    /**
+     * Calcule P(X = k) pour X ~ P(lambda) via récurrence
+     * Plus efficace car réutilise les calculs précédents
+     * @param {InputType} k - nombre de succès
+     * @param {InputType} lambda - paramètre de Poisson
+     * @return {number} P(X = k) pour X ~ P(lambda)
+     */
+    static poissonPDF(k:InputType, lambda:InputType):number {
+        const _k = MyMath.toInteger(k)
+        const _lambda = MyMath.toNumber(lambda)
+        if (isNaN(_k)) {
+            throw new Error(`Paramètre k [${k}] invalide pour PoissonPDF`)
+        }
+        if (isNaN(_lambda) || _lambda < 0) {
+            throw new Error(`Paramètre lambda [${lambda}] invalide pour PoissonPDF`)
+        }
+        if (_k < 0)  return 0;
+        // Calcul itératif avec récurrence
+        let logProb = -_lambda
+        const lLambda = Math.log(_lambda)
+        for (let i = 1; i <= _k; i++) {
+            logProb += lLambda - Math.log(i)
+        }
+        return Math.min(Math.exp(logProb),1)
+    }
+
 
     /**
      * Fonction d'erreur
