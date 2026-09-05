@@ -321,17 +321,8 @@ const Controller = MnObject.extend({
     // Donc soit l'objet n'existe pas, soit il faut le forcer
     const fetch = this.getCustomEntitiesForceReload([`notes:${idUser}_${idDevoir}`])
     // chargement
-    $.when(fetch).done( (data) => {
-      const noteUpdated = data[`notes:${idUser}_${idDevoir}`];
-      if (noteUpdated) {
-        // Utiliser set au lieu de add pour éviter les problèmes de type d'id
-        const existing = notes.get(noteUpdated.id);
-        if (existing) {
-          existing.set(noteUpdated.attributes);
-        } else {
-          notes.add(noteUpdated);
-        }
-      }
+    $.when(fetch).error( (response) => {
+      console.error("Error fetching custom entities:", response);
     });
   },
 
