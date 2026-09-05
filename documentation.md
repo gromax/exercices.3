@@ -869,6 +869,7 @@ Le bloc a lui-même quelques paramètres :
   * zoom: autorise ou non le zoom. Par défaut à false.
   * pan: autorise ou non le déplacement de la vue. Par défaut à false.
   * axis: affiche ou non les axes. Par défaut à true.
+  * grid: affiche ou non la grille. Par défaut à true.
 
 Ensuite, on peut ajouter des sous-blocs pour les différents objets.
 
@@ -928,7 +929,8 @@ On dispose des paramètres :
   * expression: l'expression de la fonction
   * xmin: par défaut le bord gauche de la fenêtre
   * xmax: par défaut le bord droit de la fenêtre
-  * color, idem que pour point
+  * color: couleur du trait
+  * strokeColor: même chose
   * strokeWidth: épaisseur du trait
   * dash: pointillé. Par exemple `dash:2`
   * solution: true, l'élément ne sera visible qu'au moment de la solution
