@@ -128,7 +128,7 @@ const Form = Behavior.extend({
         radioApp.trigger("loading:down");
       });
     } else {
-      console.log("Validation errors :", model.validationError);
+      console.error("Validation errors :", model.validationError);
       this.view.trigger("form:data:invalid",model.validationError);
     }
   }
