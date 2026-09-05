@@ -89,12 +89,32 @@ const Controller = MnObject.extend({
    * @returns {Promise} Promesse résolue avec les entités demandées
    */
   getCustomEntities(ask) {
-    const defer = $.Deferred();
     const alreadyKnown = Object.fromEntries(ask.map(
       (name) => [name, this.getEntityFromCache(name)]
     ));
+    return this._getCustomEntitiesHelper(ask, alreadyKnown);
+  },
+
+  /**
+   * Récupère des entités personnalisées en forçant le rechargemnt
+   * @param {Array} ask Liste des entités à récupérer de forme key ou [key,id]
+   * @returns {Promise} Promesse résolue avec les entités demandées
+   */
+  getCustomEntitiesForceReload(ask) {
+    return this._getCustomEntitiesHelper(ask, {});
+  },
+
+
+  /**
+   * Helper pour récupérer des entités personnalisées
+   * @param {Array} ask Liste des entités à récupérer de forme key ou [key,id]
+   * @param {Object} alreadyKnown Objet contenant les entités déjà connues
+   * @returns {Promise} Promesse résolue avec les entités demandées
+   */
+  _getCustomEntitiesHelper(ask, alreadyKnown) {
+    const defer = $.Deferred();
     const toFetch = ask.filter(
-      (name) => alreadyKnown[name] === false
+      (name) => !alreadyKnown[name]
     );
     if (toFetch.length === 0) {
       // Pas de fetch requis => on renvoie les résultats
@@ -127,6 +147,7 @@ const Controller = MnObject.extend({
     const promise = defer.promise();
     return promise;
   },
+
   
   /**
    * Récupère un item dans le cache ou via une requête si non présent
@@ -186,7 +207,7 @@ const Controller = MnObject.extend({
   addItemToCache(colName, itemData) {
     const col = this.getChachedCollection(colName);
     if (col) {
-      col.add(itemData, { parse:!(itemData instanceof MyModel) });
+      col.add(itemData, { parse:!(itemData instanceof MyModel), merge: true });
     } else {
       const ColConstructor = this.getCollectionConstructor(colName);
       if (ColConstructor) {
@@ -195,7 +216,7 @@ const Controller = MnObject.extend({
         const col = this.addEmptyCollectionToCache(colName);
         if (col) {
           col.setPartial(true);
-          col.add(itemData, { parse:!(itemData instanceof MyModel) });
+          col.add(itemData, { parse:!(itemData instanceof MyModel), merge: true });
         }
       }
     }
@@ -275,27 +296,41 @@ const Controller = MnObject.extend({
     const idExoDevoir = trial.get("idExoDevoir");
     const idDevoir = trial.get("idDevoir");
     const notesExos = this.getChachedCollection("notesexos");
+    let needReloadNote = false;
     if (notesExos) {
       const noteExo = notesExos.findWhere({ idUser, idExoDevoir });
       if (noteExo) {
+        let oldNote = noteExo.get("note"); 
         noteExo.set("note", Math.max(trial.get("score"), noteExo.get("note")));
-      }
-    }
+        let newNote = noteExo.get("note");
+        if (oldNote !== newNote) {
+          needReloadNote = true;
+        }
+      } else needReloadNote = true;
+    } else needReloadNote = true;
     // On met à jour la note globale si on a suffisamment d'infos
     const notes = this.getChachedCollection("notes");
     if (!notes) {
       return;
     }
-    const note = notes.get(`${idUser}_${idDevoir}`);
-    if (!note) {
-      // pas en cache pas de mise à jour possible
+    
+    // Vérifions déjà si cet objet note est présent
+    if (notes.get(`${idUser}_${idDevoir}`) && !needReloadNote) {
       return;
     }
-    fetch = this.getCustomEntities([`notes:${idUser}_${idDevoir}`]);
+    // Donc soit l'objet n'existe pas, soit il faut le forcer
+    const fetch = this.getCustomEntitiesForceReload([`notes:${idUser}_${idDevoir}`])
+    // chargement
     $.when(fetch).done( (data) => {
       const noteUpdated = data[`notes:${idUser}_${idDevoir}`];
       if (noteUpdated) {
-        notes.add(noteUpdated, { parse:true });
+        // Utiliser set au lieu de add pour éviter les problèmes de type d'id
+        const existing = notes.get(noteUpdated.id);
+        if (existing) {
+          existing.set(noteUpdated.attributes);
+        } else {
+          notes.add(noteUpdated);
+        }
       }
     });
   },
