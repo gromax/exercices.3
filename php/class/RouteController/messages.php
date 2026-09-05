@@ -11,17 +11,23 @@ class messages
 {
     /**
      * paramères de la requète
-     * @array
+     * @var array Les paramètres de la requête
      */
     private $params;
+
     /**
      * Constructeur
+     * @param array $params Les paramètres de la requête
      */
     public function __construct($params)
     {
         $this->params = $params;
     }
 
+    /**
+     * Supprime un message par son ID
+     * @return array|false Un message de succès ou false en cas d'erreur
+     */
     public function delete()
     {
         $uLog=Logged::getFromToken();
@@ -32,7 +38,7 @@ class messages
         }
         else
         {
-            $id = (integer) $this->params['id'];
+            $id = (int) $this->params['id'];
             $message=Message::getObject($id);
             if ($message === null)
             {
@@ -54,8 +60,15 @@ class messages
         return false;
     }
 
+    /**
+     * Insère un nouveau message
+     * @return array|false Les données du message inséré ou false en cas d'erreur
+     */
     public function insert()
     {
+        EC::addError("Tentative d'insertion d'un message. Non encore implémenté.");
+        return false;
+        // Le code ci-dessous n'est pas encore implémenté
         $uLog=Logged::getFromToken();
         if ($uLog->isOff())
         {
@@ -80,7 +93,7 @@ class messages
             $aUE = 0;
             $data["aUE"] = 0;
         } else {
-            $aUE = (integer) $data["aUE"];
+            $aUE = (int) $data["aUE"];
             if ($aUE !==0) {
                 // Il s'agit de savoir si l'insertion est authorisée
                 $oUE = Note::getObject($aUE);
@@ -124,6 +137,10 @@ class messages
         return false;
     }
 
+    /**
+     * Marque un message comme lu
+     * @return bool True si l'opération a réussi, false en cas d'erreur
+     */
     public function setLu()
     {
         $uLog=Logged::getFromToken();
@@ -132,7 +149,7 @@ class messages
             EC::set_error_code(401);
             return false;
         }
-        $id = (integer) $this->params['id'];
+        $id = (int) $this->params['id'];
         $message = Message::getObject($id);
         if ($message === null) {
             EC::set_error_code(404);
