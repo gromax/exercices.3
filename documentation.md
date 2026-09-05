@@ -872,6 +872,8 @@ Le bloc a lui-même quelques paramètres :
 
 Ensuite, on peut ajouter des sous-blocs pour les différents objets.
 
+**Attention !** Le nom donné à un objet dans sa déclaration, comme `<point:A>` ne préjuge pas de l'étiquette qui sera attribuée par l'outil graphe. Le graphe attribut les étiquettes dans l'ordre. Pour attribué une étiquette déterminée, utilisez l'attribut name : `<name:A/>`. Cela laisse la liberté d'utilser des caractères UTF8.
+
 ##### point
 
 ```
@@ -980,6 +982,7 @@ On dispose des paramètres :
   * solution: true, l'élément ne sera visible qu'au moment de la solution
   * label: l'étiquette nommant la droite
   * labelsize: taille de l'étiquette (défaut 14)
+  * invisible: true, pour rendre la droite invisible
 
 Voici quelques exemples.
 
@@ -998,6 +1001,40 @@ Voici quelques exemples.
   <points:A|(0;1)/>
   <color:red/>
 </droite>
+```
+
+##### intégrale
+
+```
+<integrale:name>
+...
+</integrale>
+```
+
+Trace l'aire sous une courbe et fait le calcul approximatif de l'aire. Place automatiquement deux curseurs pour modifier les bornes gauche et droite.
+
+On dispose des paramètres :
+  * abscisses: deux valeurs numériques séparées par |. En l'absence de ce paramètre, les bords du cadre seront choisis.
+  * fct: le nom de l'objet fonction qui doit avoir été défini avant.
+  * fixleft:true, permet de fixer la borne gauche
+  * fixright:true, permet de fixer la borne droite
+  * fixed:true, permet de fixer les deux bornes
+  * hidelabel:true, permet de masquer le texte de résultat de l'intégrale
+  * color: couleur, comme pour point. Par défaut, rouge.
+  * solution:true, indique que l'objet graphique n'apparaîtra qu'après validation du formulaire
+
+Voici un exemple :
+
+```
+<function:g>
+  <expression:exp(-x^2/2)/>
+</function>
+<integrale:i>
+  <abscisses:-1|1/>
+  <fct:g/>
+  <fixleft:true/>
+  <color:blue/>
+</integrale>
 ```
 
 #### Bloc shuffle
@@ -1066,8 +1103,10 @@ Voici quelques exemples.
 
   * `Dist.binomial` reçoit `n` et `p` et simule un aléa $\mathcal{B}(n;p)$
   * `Dist.binList` reçoit `count`, `n` et `p` et renvoie un tableau de `count` simulations de $\mathcal{B}(n;p)$
-  * `Dist.binCDF` reçoit `k`, `n` et `p` et renvoie la probabilité $p(X\leqslant k)$ avec $X$ suivant $\mathcal{B}(n;p)$
+  * `Dist.binCDF` reçoit `x`, `n` et `p` et renvoie la probabilité $p(X\leqslant x)$ avec $X$ suivant $\mathcal{B}(n;p)$
   * `Dist.binPDF` reçoit `k`, `n` et `p` et renvoie la probabilité $p(X = k)$ avec $X$ suivant $\mathcal{B}(n;p)$
+  * `Dist.poissonCDF` reçoit `x` et `lambda` et renvoie la probabilité $p(X\leqslant x)$ avec $X$ suivant $\mathcal{P}(\lambda)$
+  * `Dist.binPDF` reçoit `k`, `lambda` et renvoie la probabilité $p(X = k)$ avec $X$ suivant $\mathcal{P}(\lambda)$
   * `Dist.normCDF` reçoit `x`, `mu` et `std` et renvoie la probabilité $p(X\leqslant x)$ avec $X$ suivant $\mathcal{N}\left(\mu\,;\sigma^2\right)$
   * `Dist.normPDF` reçoit `x`, `mu` et `std` et renvoie la valeur de la fonction densité en $x$ pour la loi $\mathcal{N}\left(\mu\,;\sigma^2\right)$
   * `Dist.normal` reçoit `mu` et `std` et renvoie  un tirage selon la loi $\mathcal{N}\left(\mu\,;\sigma^2\right)$
