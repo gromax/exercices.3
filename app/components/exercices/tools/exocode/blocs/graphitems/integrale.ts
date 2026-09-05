@@ -37,7 +37,7 @@ class GraphIntegrale extends GraphItem {
         if (this.item.params.solution == "true" && !this._solMode) {
             options["visible"] = false
         }
-        const object = g.create('integral', [[abscisses[0], abscisses[1]], fctObject], options) as JXG.Line
+        const object = g.create('integral', [abscisses, fctObject], options) as JXG.Line
         return object
     }
 
