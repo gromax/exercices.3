@@ -36,7 +36,7 @@ abstract class GraphItem {
             if(inputNameToAssign === inputName) {
                 const numberValue = parseFloat(value)
                 if (isNaN(numberValue)) {
-                    console.log(`Invalid number for input '${inputNameToAssign}': ${value}`)
+                    console.warn(`Invalid number for input '${inputNameToAssign}': ${value}`)
                 }
                 this._assignedInputs[attr] = numberValue
                 return
