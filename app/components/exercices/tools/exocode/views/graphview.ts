@@ -1,5 +1,5 @@
 import { View } from 'backbone.marionette'
-import graph_tpl from '@templates/exercices/run/exercice-graph.jst'
+import graph_tpl from '@templates/exercices/bloc/graph.jst'
 import * as JXG from "jsxgraph"
 import GraphItem from "../blocs/graphitems/item"
 import GraphPoint from "../blocs/graphitems/point"
