@@ -18,6 +18,7 @@ class GraphReels extends GraphItem {
                 majorHeight: 10,
                 minorHeight: 5,
                 minorTicks: 4,
+                includeBoundaries: true,  // ← force l'affichage du 0
                 strokeColor: color,
                 label: {
                     position: "rt",
