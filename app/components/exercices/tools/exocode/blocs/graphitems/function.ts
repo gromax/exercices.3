@@ -9,7 +9,10 @@ class GraphFunction extends GraphItem {
         const expressionStr = this.item.params.expression || '0'
         const xmin = this.item.params.xmin !== undefined ? Number(this.item.params.xmin) : this._cadre[0]
         const xmax = this.item.params.xmax !== undefined ? Number(this.item.params.xmax) : this._cadre[1]
-        const options = _.pick(this.item.params, ['strokeColor', 'strokeWidth', 'dash', 'color'])
+        const options = _.pick(this.item.params, ['strokeColor', 'strokeWidth', 'dash'])
+        if (!this.item.params.strokeColor && this.item.params.color) {
+            options["strokeColor"] = this.item.params.color
+        }   
         if (this.item.params.solution == "true" && !this._solMode) {
             options["visible"] = false
         }
