@@ -19,9 +19,6 @@ This is a modern JS skeleton with MarionetteJS for [Webpack](https://webpack.git
 * J'ai réglé le problème des calculs à virgule avec nerdamer. Toutefois, si le concepteur de l'exo écrit par ex 0,5, nerdamer va peut être butter sur la virgule et il va mettre 1/2. Il faudrait donc trouver moyen de dire à nerdamer de ne pas faire cela, ou bien trouver un autre moteur de rendu tex. copilot m'a proposé une fonction pour conserver les décimaux.
 * pour un bloc de mises en correspondances d'items, les enfant pourraient être comme dans un bloc radio du genre 0=>a:b et ensuite ce n'est qu'un problème de rendu. 
 
-
-  * la note de ces mêmes exercices ne se met à jour dynamiquement (met c'est bon si F5)
-
 ## à faire
 
 * une fonction permettant l'évaluation d'une fonction
@@ -30,19 +27,11 @@ This is a modern JS skeleton with MarionetteJS for [Webpack](https://webpack.git
 * il semble que "publié" se coche plus ou moins tout seul (sans doute à la créa ?) même quand on touche un autre exo ! Le pb est que "0" est parsé true ! En effet Boolean("0") renvoie true.
 * prévoir une petite calculatrice
 
-* les cas de réponse attendue dans le cas input
-  * cas ensemble
-  * développé
 * cas d'interface
   * zonee d'édit intelligente
   * sauvegarde sur aperçu
 * chargement d'une classe à la algoPython ?
 * admin : interface de nettoyage
-* mélanger les couleurs
-
-
-
-
 
 ## Arborescence des pages
 
