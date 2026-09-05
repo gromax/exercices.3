@@ -7,6 +7,8 @@ import GraphFunction from "./graphitems/function"
 import GraphPoint from "./graphitems/point"
 import GraphReels from "./graphitems/reels"
 import GraphDroite from "./graphitems/droite"
+import GraphIntegrale from "./graphitems/integrale"
+
 import FormItemImplementation from "../implementation/formitem"
 
 type AnyView = View<any>|Array<View<any>>
@@ -68,6 +70,8 @@ class GraphBloc extends Bloc implements FormItemImplementation {
                 return new GraphReels(item, this._getCadre(), this._colors)
             case 'droite':
                 return new GraphDroite(item, this._getCadre(), this._colors)
+            case 'integrale':
+                return new GraphIntegrale(item, this._getCadre(), this._colors)
             default:
                 return null
         }
