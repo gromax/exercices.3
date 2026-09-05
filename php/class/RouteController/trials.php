@@ -12,16 +12,20 @@ class trials
      * paramères de la requète
      * @array
      */
-    private $params;
+    private array $params;
 
     /**
      * Constructeur
      */
-    public function __construct($params)
+    public function __construct(array $params)
     {
         $this->params = $params;
     }
 
+    /**
+     * Récupère la liste des essais pour un utilisateur et un exercice/devoir donné.
+     * @return array|false
+     */
     public function getList()
     {
         $uLog=Logged::getFromToken();
@@ -37,8 +41,8 @@ class trials
             EC::set_error_code(403);
             return false;
         }
-        $idUser = (integer) $this->params['idUser'];
-        $idExoDevoir = (integer) $this->params['idExoDevoir'];
+        $idUser = (int) $this->params['idUser'];
+        $idExoDevoir = (int) $this->params['idExoDevoir'];
         if ($uLog->isProf())
         {
             $filter = [
@@ -55,6 +59,10 @@ class trials
         return Trial::getList($filter);
     }
 
+    /**
+     * Supprime un essai donné.
+     * @return array|false
+     */
     public function delete()
     {
         $uLog=Logged::getFromToken();
@@ -72,7 +80,7 @@ class trials
             return false;
         }
 
-        $id = (integer) $this->params['id'];
+        $id = (int) $this->params['id'];
         $oTrial=Trial::getObject($id);
         if ($oTrial === null)
         {
@@ -89,6 +97,10 @@ class trials
         return false;
     }
 
+    /**
+     * Insère un nouvel essai pour un utilisateur et un exercice/devoir donné.
+     * @return array|false
+     */
     public function insert()
     {
         $uLog=Logged::getFromToken();
@@ -106,8 +118,8 @@ class trials
         }
 
         $data = json_decode(file_get_contents("php://input"),true);
-        $idExoDevoir = (integer) $data['idExoDevoir'];
-        $idUser = (integer) $data['idUser'];
+        $idExoDevoir = (int) $data['idExoDevoir'];
+        $idUser = (int) $data['idUser'];
         if (Trial::insertAllowed($idExoDevoir, $idUser) === false)
         {
             EC::addError("Insertion non autorisée pour cet essai.");
@@ -129,6 +141,10 @@ class trials
         return $oTrial->toArray();
     }
 
+    /**
+     * Met à jour un essai existant.
+     * @return array|false
+     */
     public function update()
     {
         $uLog=Logged::getFromToken();
@@ -138,7 +154,7 @@ class trials
             EC::set_error_code(401);
             return false;
         }
-        $id = (integer) $this->params['id'];
+        $id = (int) $this->params['id'];
         $oTrial = Trial::getObject($id);
         if ($oTrial === null)
         {
@@ -166,7 +182,12 @@ class trials
             EC::set_error_code(501);
             return false;
         }
-        return $oTrial->toArray();
+        // Tout s'est bien passé
+        $output = $oTrial->toArray();
+        // On va ajouter à l'output la note MAJ du devoir correspondant
+        // ce calcul semble ne plus être requis
+        // $output['noteDevoir'] = Note::getNote($oTrial->get("idExoDevoir"), $oTrial->get("idUser"));
+        return $output;
     }
 
 }
