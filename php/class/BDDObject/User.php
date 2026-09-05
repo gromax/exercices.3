@@ -50,6 +50,11 @@ class User extends Item
     ];
   }
 
+  /**
+   * Filtre les valeurs avant l'insertion dans la base de données
+   * @param array $values Valeurs à insérer
+   * @return array Valeurs filtrées
+   */
   protected static function filterInsert($values)
   {
     $toInsert = parent::filterInsert($values);
@@ -74,7 +79,11 @@ class User extends Item
     return $toUpdate;
   }
 
-
+  /**
+   * Vérifie la validité d'un mot de passe.
+   * @param string $pwd Mot de passe à vérifier
+   * @return true|array true si le mot de passe est valide, tableau d'erreurs sinon
+   */
   protected static function checkPwd($pwd)
   {
     if (strlen($pwd) < 6)
@@ -84,12 +93,22 @@ class User extends Item
     return true;
   }
 
+  /**
+   * Vérifie la validité d'une adresse e-mail.
+   * @param string $email Adresse e-mail à vérifier
+   * @return bool true si l'adresse e-mail est valide, false sinon
+   */
   protected static function checkEMail($email)
   {
     return strlen($email) > 5 && strlen($email) < 100;
     //return preg_match("#^[a-zA-Z0-9_-]+(.[a-zA-Z0-9_-]+)*@[a-zA-Z0-9._-]{2,}\.[a-z]{2,4}$#", $email);
   }
 
+  /**
+   * Vérifie si une adresse e-mail existe déjà dans la base de données.
+   * @param string $email Adresse e-mail à vérifier
+   * @return int|false ID de l'utilisateur si l'adresse e-mail existe, false sinon
+   */
   public static function emailExists($email)
   {
     require_once BDD_CONFIG;
@@ -108,6 +127,11 @@ class User extends Item
     return false;
   }
 
+  /**
+   * Valide les valeurs avant l'insertion dans la base de données
+   * @param array<string, mixed> $params Valeurs à insérer
+   * @return bool|array true si les valeurs sont valides, tableau d'erreurs sinon
+   */
   protected static function insertValidation($params)
   {
     $errors = [];
@@ -142,6 +166,10 @@ class User extends Item
     return true;
   }
 
+  /**
+   * Prépare les données de l'utilisateur pour la génération d'un token.
+   * @return array<string, mixed> Données de l'utilisateur
+   */
   public function dataForToken()
   {
     return array(
@@ -156,6 +184,10 @@ class User extends Item
 
   ##################################### METHODES #####################################
 
+  /**
+   * Constructeur de la classe User.
+   * @param array<string, mixed> $options Options d'initialisation de l'utilisateur
+   */
   public function __construct($options = array())
   {
     parent::__construct($options);
@@ -165,6 +197,11 @@ class User extends Item
     }
   }
 
+  /**
+   * Valide les valeurs avant la mise à jour dans la base de données.
+   * @param array<string, mixed> $params Valeurs à mettre à jour
+   * @return bool|array true si les valeurs sont valides, tableau d'erreurs sinon
+   */
   protected function updateValidation($params)
   {
     $errors = [];
@@ -199,37 +236,65 @@ class User extends Item
     return true;
   }
 
+  /**
+   * Vérifie si l'utilisateur a le rang root.
+   * @return bool true si l'utilisateur est root, false sinon
+   */
   public function isRoot ()
   {
     return ( $this->get('rank') == self::RANK_ROOT );
   }
 
+  /**
+   * Vérifie si l'utilisateur a le rang admin.
+   * @return bool true si l'utilisateur est admin, false sinon
+   */
   public function isAdmin ()
   {
     return (( $this->get('rank') == self::RANK_ROOT ) || ( $this->get('rank') == self::RANK_ADMIN ));
   }
 
+  /**
+   * Vérifie si l'utilisateur a le rang prof.
+   * @return bool true si l'utilisateur est prof, false sinon
+   */
   public function isProf ()
   {
     return ( $this->get('rank') == self::RANK_PROF );
   }
 
+  /**
+   * Vérifie si l'utilisateur a le rang élève.
+   * @return bool true si l'utilisateur est élève, false sinon
+   */
   public function isEleve ()
   {
     return ( $this->get('rank') == self::RANK_ELEVE );
   }
 
+  /**
+   * Vérifie si l'utilisateur est déconnecté.
+   * @return bool true si l'utilisateur est déconnecté, false sinon
+   */
   public function isOff()
   {
     return $this->get("rank") === self::RANK_DISCONNECTED;
   }
 
-
+  /**
+   * Vérifie si l'utilisateur a un rang supérieur à un autre utilisateur.
+   * @param User $user Utilisateur à comparer
+   * @return bool true si l'utilisateur a un rang supérieur, false sinon
+   */
   public function isStronger(User $user)
   {
     return $this->get("rank") > $user->get("rank");
   }
 
+  /**
+   * Vérifie si l'utilisateur peut être supprimé.
+   * @return bool true si l'utilisateur peut être supprimé, false sinon
+   */
   public function okToDelete()
   {
     if ($this->isRoot()) {
@@ -239,6 +304,10 @@ class User extends Item
     return parent::okToDelete();
   }
 
+  /**
+   * Met à jour la date de dernière modification de l'utilisateur.
+   * @return $this
+   */
   public function updateTime()
   {
     $this->set('date', date('Y-m-d H:i:s'));
@@ -257,6 +326,10 @@ class User extends Item
     return $this;
   }
 
+  /**
+   * Initialise une nouvelle clé d'initialisation pour l'utilisateur.
+   * @return string|null La nouvelle clé d'initialisation ou null en cas d'erreur
+   */
   public function initKey(): string|null
   {
     $key = md5(rand());
