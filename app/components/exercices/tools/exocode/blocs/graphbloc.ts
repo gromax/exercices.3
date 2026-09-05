@@ -44,14 +44,36 @@ class GraphBloc extends Bloc implements FormItemImplementation {
             const xmax = this.params.xmax !== undefined ? Number(this.params.xmax) : 5
             const ymin = this.params.ymin !== undefined ? Number(this.params.ymin) : -5
             const ymax = this.params.ymax !== undefined ? Number(this.params.ymax) : 5
-            this._cadre = [xmin, xmax, ymin, ymax]
+            this._cadre = [
+                Math.min(xmin, xmax), // rend robuste à une erreur d'ordre des bornes
+                Math.max(xmin,xmax),
+                Math.min(ymin, ymax),
+                Math.max(ymin, ymax)
+            ]
         }
         return this._cadre
     }
 
     protected _getView(answers:Record<string, string>):AnyView {
         const cadre = this._getCadre()
+        const options = {
+        }
+        options["axis"] = typeof this.params.axis == "undefined"
+            ? true // défaut
+            : this.params.axis === "true"
+        options["pan"] = typeof this.params.pan == "undefined"
+            ? false // défaut
+            : this.params.pan === "true"
+        options["zoom"] = typeof this.params.zoom == "undefined"
+            ? false // défaut
+            : this.params.zoom === "true"
+        options["grid"] = typeof this.params.grid == "undefined"
+            ? true // défaut
+            : this.params.grid === "true"
+
+
         return new GraphView({
+            ...options,
             xmin: cadre[0],
             xmax: cadre[1],
             ymin: cadre[2],
