@@ -21,10 +21,18 @@ const GraphView = View.extend({
     items:null, // tableau de items graphiques
     onRender() {
         const container = this.el.querySelector('.js-jsx')
-        const xmin = this.getOption("xmin") || -5
-        const xmax = this.getOption("xmax") || 5
-        const ymin = this.getOption("ymin") || -5
-        const ymax = this.getOption("ymax") || 5
+        const xmin = typeof this.getOption("xmin") !== "undefined"
+            ? Number(this.getOption("xmin"))
+            : -5
+        const xmax = typeof this.getOption("xmax") !== "undefined"
+            ? Number(this.getOption("xmax"))
+            : 5
+        const ymin = typeof this.getOption("ymin") !== "undefined"
+            ? Number(this.getOption("ymin"))
+            : -5
+        const ymax = typeof this.getOption("ymax") !== "undefined"
+            ? Number(this.getOption("ymax"))
+            : 5
         const axis = typeof this.getOption("axis") !== "undefined"
             ? Boolean(this.getOption("axis"))
             : true
