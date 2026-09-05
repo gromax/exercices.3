@@ -44,10 +44,11 @@ final class SessionController
     public static function renewToken()
     {
         $data = self::readToken();
-        if ($data !== null) {
+        if ($data === null) {
             return null;
         }
         return self::makeToken($data);
+        //return null;
     }
 }
 
