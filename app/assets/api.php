@@ -29,11 +29,9 @@ if ($response === false) {
             $response["errors"] = $messages;
         }
     }
-    if (!isset($response['token'])) {
-        $token = SC::renewToken();
-        if ($token !== null) {
-            $response['token'] = $token;
-        }
+    $token = SC::renewToken();
+    if ($token !== null) {
+        header('Authorization: Bearer ' . $token);
     }
     echo json_encode($response);
 }
