@@ -19,17 +19,23 @@ class data
 {
     /**
      * paramères de la requète
-     * @array
+     * @var array Les paramètres de la requête
      */
     private $params;
+
     /**
      * Constructeur
+     * @param array $params Les paramètres de la requête
      */
     public function __construct($params)
     {
         $this->params = $params;
     }
 
+    /**
+     * Récupère les informations de l'utilisateur connecté
+     * @return array|false Les informations de l'utilisateur ou false si non connecté
+     */
     public function fetchMe()
     {
         // Renvoie les données de l'utilisateur connecté
@@ -43,10 +49,13 @@ class data
         return $uLog->toArray();
     }
 
+    /**
+     * Récupère les données personnalisées en fonction des demandes spécifiques
+     * @return array|false Les données demandées ou false en cas d'erreur
+     */
     public function customFetch()
     {
         // Renvoie les données demandées
-
         $uLog =Logged::getFromToken();
         if ($uLog->isOff())
         {
@@ -57,8 +66,6 @@ class data
         $asks = explode("&",$this->params['asks']);
 
         // Les exercices sont publics et accessibles à tous les rangs
-
-
         if ($uLog->isEleve())
         {
             return $this->eleveCustomFetch($asks, $uLog);
@@ -77,6 +84,12 @@ class data
         return false;
     }
 
+    /**
+     * Aide pour le chargement des données personnalisées
+     * @param array $toLoad Les données à charger
+     * @param array $asks Les demandes spécifiques
+     * @return array|false Les données chargées ou false en cas d'erreur
+     */
     protected function customFetchHelper($toLoad, $asks)
     {
         $objects = [
@@ -136,10 +149,15 @@ class data
                 $output[$name] = $answer;
             }
         }
-
         return $output;
     }
 
+    /**
+     * Récupère les données personnalisées pour un élève
+     * @param array $asks Les demandes spécifiques
+     * @param Logged $uLog L'utilisateur connecté
+     * @return array|false Les données demandées ou false en cas d'erreur
+     */
     protected function eleveCustomFetch($asks, Logged $uLog)
     {
         $toLoad = [
@@ -200,15 +218,19 @@ class data
                     elseif ($item["destName"] == "Moi") { $item["ownerName"] = "Prof"; }
                     return $item;
                 };
-
                 $filteredAnswer = array_map($filtreNomProf, $answer);
                 $output["messages"] = $filteredAnswer;
             }
         }
-
         return $output;
     }
 
+    /**
+     * Récupère les données personnalisées pour un professeur
+     * @param array $asks Les demandes spécifiques
+     * @param Logged $uLog L'utilisateur connecté
+     * @return array|false Les données demandées ou false en cas d'erreur
+     */
     protected function profCustomFetch($asks, Logged $uLog)
     {
         $toLoad = [
@@ -254,11 +276,15 @@ class data
                 $output["messages"] = $answer;
             }
         }
-
-
         return $output;
     }
 
+    /**
+     * Récupère les données personnalisées pour un administrateur
+     * @param array $asks Les demandes spécifiques
+     * @param Logged $uLog L'utilisateur connecté
+     * @return array|false Les données demandées ou false en cas d'erreur
+     */
     protected function adminCustomFetch($asks, Logged $uLog)
     {
         // Renvoie les données demandées pour un admin
@@ -300,8 +326,6 @@ class data
             }
         }
         return $output;
-    }   
-
-
+    }
 }
 ?>

@@ -10,17 +10,23 @@ class devoirs
 {
     /**
      * paramères de la requète
-     * @array
+     * @var array
      */
     private $params;
+
     /**
      * Constructeur
+     * @param array $params Les paramètres de la requête.
      */
     public function __construct($params)
     {
         $this->params = $params;
     }
 
+    /**
+     * Récupère la liste des devoirs ou un devoir spécifique si l'ID est fourni.
+     * @return array|false
+     */
     public function fetch()
     {
       $uLog =Logged::getFromToken();
@@ -33,7 +39,7 @@ class devoirs
 
       if (isset($this->params['id']))
       {
-        $id = (integer) $this->params['id'];
+        $id = (int) $this->params['id'];
         return $this->fetchItem($id);
       }
 
@@ -49,6 +55,11 @@ class devoirs
       return false;
     }
 
+    /**
+     * Récupère un devoir spécifique par son ID.
+     * @param int $id
+     * @return array|false
+     */
     private function fetchItem($id) {
       $uLog =Logged::getFromToken();
       if ($uLog->isOff())
@@ -73,6 +84,10 @@ class devoirs
       return false;
     }
 
+    /**
+     * Supprime un devoir spécifique par son ID.
+     * @return array|false
+     */
     public function delete()
     {
         $uLog=Logged::getFromToken();
@@ -89,7 +104,7 @@ class devoirs
             return false;
         }
 
-        $id = (integer) $this->params['id'];
+        $id = (int) $this->params['id'];
         $devoir=Devoir::getObject($id);
         if ($devoir === null)
         {
@@ -111,6 +126,10 @@ class devoirs
         return false;
     }
 
+    /**
+     * Clone un devoir spécifique par son ID.
+     * @return array|false
+     */
     public function clone()
     {
         $uLog=Logged::getFromToken();
@@ -126,10 +145,11 @@ class devoirs
             EC::set_error_code(403);
             return false;
         }
-        $id = (integer) $this->params['id'];
+        $id = (int) $this->params['id'];
         $devoir=Devoir::getObject($id);
         if ($devoir === null)
         {
+            EC::addError("Devoir introuvable.");
             EC::set_error_code(404);
             return false;
         }
@@ -167,6 +187,10 @@ class devoirs
         return $newDevoir->toArray();
     }
 
+    /**
+     * Insère un nouveau devoir.
+     * @return array|false
+     */
     public function insert()
     {
         $uLog=Logged::getFromToken();
@@ -202,6 +226,10 @@ class devoirs
         return $devoir->toArray();
     }
 
+    /**
+     * Met à jour un devoir existant.
+     * @return array|false
+     */
     public function update()
     {
         $uLog=Logged::getFromToken();

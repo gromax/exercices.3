@@ -9,13 +9,14 @@ use BDDObject\Logged;
 class trials
 {
     /**
-     * paramères de la requète
-     * @array
+     * Paramètres de la requête
+     * @var array Les paramètres de la requête
      */
     private array $params;
 
     /**
      * Constructeur
+     * @param array $params Les paramètres de la requête
      */
     public function __construct(array $params)
     {
@@ -189,6 +190,5 @@ class trials
         // $output['noteDevoir'] = Note::getNote($oTrial->get("idExoDevoir"), $oTrial->get("idUser"));
         return $output;
     }
-
 }
 ?>

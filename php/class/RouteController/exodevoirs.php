@@ -13,72 +13,86 @@ class exodevoirs
 {
     /**
      * paramères de la requète
-     * @array
+     * @var array Les paramètres de la requête
      */
     private $params;
 
     /**
      * Constructeur
+     * @param array $params Les paramètres de la requête
      */
     public function __construct($params)
     {
         $this->params = $params;
     }
 
+    /**
+     * Récupère les associations d'exercices et de devoirs en fonction des droits de l'utilisateur
+     * @return array|false La liste des associations ou false en cas d'erreur
+     */
     public function fetch()
     {
-      $uLog =Logged::getFromToken();
-      if ($uLog->isOff())
-      {
-        EC::addError("Utilisateur non connecté.");
-        EC::set_error_code(401);
+        $uLog =Logged::getFromToken();
+        if ($uLog->isOff())
+        {
+            EC::addError("Utilisateur non connecté.");
+            EC::set_error_code(401);
+            return false;
+        }
+
+        if (isset($this->params['id']))
+        {
+            $id = (int) $this->params['id'];
+            return $this->fetchItem($id);
+        }
+
+        if ($uLog->isAdmin()) return ExoDevoir::getList();
+        if ($uLog->isProf()) return ExoDevoir::getList([
+            'wheres' => ['devoirs.idOwner'=> $uLog->getId()],
+            'hideCols' => ['idOwner', 'idClasse']
+        ]);
+        if ($uLog->isEleve()) return ExoDevoir::getList([
+            'wheres' => ['devoirs.idClasse' => $uLog->get("idClasse")],
+            'hideCols' => ['idOwner', 'idClasse']
+        ]);
+        EC::addError("Pas les droits pour accéder aux associations.");
+        EC::set_error_code(403);
         return false;
-      }
-
-      if (isset($this->params['id']))
-      {
-        $id = (integer) $this->params['id'];
-        return $this->fetchItem($id);
-      }
-
-      if ($uLog->isAdmin()) return ExoDevoir::getList();
-      if ($uLog->isProf()) return ExoDevoir::getList([
-        'wheres' => ['devoirs.idOwner'=> $uLog->getId()],
-        'hideCols' => ['idOwner', 'idClasse']
-      ]);
-      if ($uLog->isEleve()) return ExoDevoir::getList([
-        'wheres' => ['devoirs.idClasse' => $uLog->get("idClasse")],
-        'hideCols' => ['idOwner', 'idClasse']
-      ]);
-      EC::addError("Pas les droits pour accéder aux associations.");
-      EC::set_error_code(403);
-      return false;
     }
 
+    /**
+     * Récupère une association spécifique par son ID
+     * @param int $id L'ID de l'association
+     * @return array|false Les données de l'association ou false en cas d'erreur
+     */
     private function fetchItem($id) {
-      $uLog =Logged::getFromToken();
-      if ($uLog->isOff())
-      {
-        EC::addError("Utilisateur non connecté.");
-        EC::set_error_code(401);
+        $uLog =Logged::getFromToken();
+        if ($uLog->isOff())
+        {
+            EC::addError("Utilisateur non connecté.");
+            EC::set_error_code(401);
+            return false;
+        }
+        $oED = ExoDevoir::getObject($id);
+        if ($oED===null)
+        {
+            EC::addError("Association introuvable.");
+            EC::set_error_code(404);
+            return false;
+        }
+        if ( $uLog->isAdmin() || $oED->get("idOwner") === $uLog->getId() || $oED->get("idClasse") === $uLog->get("idClasse") )
+        {
+            return $oED->toArray();
+        }
+        EC::addError("Pas les droits pour accéder à cette association.");
+        EC::set_error_code(403);
         return false;
-      }
-      $oED = ExoDevoir::getObject($id);
-      if ($oED===null)
-      {
-        EC::addError("Association introuvable.");
-        EC::set_error_code(404);
-        return false;
-      }
-      if ( $uLog->isAdmin() || $oED->get("idOwner") === $uLog->getId() || $oED->get("idClasse") === $uLog->get("idClasse") )
-      {
-        return $oED->toArray();
-      }
-      EC::addError("Pas les droits pour accéder à cette association.");
-      EC::set_error_code(403);
-      return false;
     }
 
+    /**
+     * Supprime une association spécifique par son ID
+     * @return array|false Un message de succès ou false en cas d'erreur
+     */
     public function delete()
     {
         $uLog=Logged::getFromToken();
@@ -117,6 +131,10 @@ class exodevoirs
         return false;
     }
 
+    /**
+     * Insère une nouvelle association entre un exercice et un devoir
+     * @return array|false Les données de l'association insérée ou false en cas d'erreur
+     */
     public function insert()
     {
         $uLog=Logged::getFromToken();
@@ -171,6 +189,10 @@ class exodevoirs
         return ExoDevoir::getObject($oED->getId())->toArray();
     }
 
+    /**
+     * Récupère une association spécifique par son ID
+     * @return array|false Les données de l'association ou false en cas d'erreur
+     */
     public function update()
     {
         $uLog=Logged::getFromToken();
@@ -186,7 +208,7 @@ class exodevoirs
             EC::set_error_code(403);
             return false;
         }
-        $id = (integer) $this->params['id'];
+        $id = (int) $this->params['id'];
         $oED = ExoDevoir::getObject($id);
         if ($oED === null)
         {
@@ -203,7 +225,7 @@ class exodevoirs
         $data = json_decode(file_get_contents("php://input"),true);
         
         $currentNum = $oED->get("num");
-        $nextNum = isset($data['num']) ? (integer) $data['num'] : $currentNum;
+        $nextNum = isset($data['num']) ? (int) $data['num'] : $currentNum;
         
         $response = $oED->update($data);
         if (is_array($response))
@@ -225,6 +247,5 @@ class exodevoirs
         }
         return $oED->toArray();
     }
-
 }
 ?>

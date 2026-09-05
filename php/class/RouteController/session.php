@@ -11,18 +11,24 @@ use BDDObject\InitKey;
 class session
 {
     /**
-     * paramères de la requète
-     * @array
+     * paramètres de la requête
+     * @var array Les paramètres de la requête
      */
     private $params;
+
     /**
      * Constructeur
+     * @param array $params Les paramètres de la requête
      */
     public function __construct($params)
     {
         $this->params = $params;
     }
 
+    /**
+     * Récupère les informations de session de l'utilisateur connecté
+     * @return array Les données de session de l'utilisateur
+     */
     public function fetch()
     {
         $uLog = Logged::getFromToken();
@@ -40,6 +46,10 @@ class session
         return $data;
     }
 
+    /**
+     * Passe l'utilisateur connecté en mode administrateur
+     * @return array|false Les données de session mises à jour ou false en cas d'erreur
+     */
     public function promoteAdmin()
     {
         $uLog = Logged::getFromToken();
@@ -55,6 +65,10 @@ class session
         ];
     }
 
+    /**
+     * Passe l'utilisateur connecté en mode non administrateur
+     * @return array|false Les données de session mises à jour ou false en cas d'erreur
+     */
     public function demoteFromAdmin()
     {
         $uLog = Logged::getFromToken();
@@ -70,6 +84,10 @@ class session
         ];
     }
 
+    /**
+     * Tente de connecter un utilisateur avec un identifiant et un mot de passe
+     * @return array|false Les données de session de l'utilisateur connecté ou false en cas d'erreur
+     */
     public function insert()
     {
         $data = json_decode(file_get_contents("php://input"),true);
@@ -104,6 +122,10 @@ class session
         );
     }
 
+    /**
+     * Permet à un administrateur de se connecter en tant qu'un autre utilisateur
+     * @return array|false Les données de session de l'utilisateur connecté ou false en cas d'erreur
+     */
     public function sudo()
     {
         $uLog = Logged::getFromToken();
@@ -137,6 +159,11 @@ class session
         ];
     }
 
+    /**
+     * Récupère les données de session de l'utilisateur connecté
+     * @param Logged|null $log L'utilisateur connecté (optionnel)
+     * @return array Les données de session de l'utilisateur
+     */
     protected function getData($log = null)
     {
         $uLog = $log === null ? Logged::getFullData() : $log;
@@ -152,6 +179,10 @@ class session
         ];
     }
 
+    /**
+     * Connecte un utilisateur en utilisant une clé d'initialisation
+     * @return array|false Les données de session de l'utilisateur connecté ou false en cas d'erreur
+     */
     public function logOnKey()
     {
         $key = $this->params["key"];
