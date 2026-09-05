@@ -11,7 +11,7 @@ class GraphDroite extends GraphItem {
             : this._points_from_points(graphObjects)
         const options = _.pick(this.item.params, ['color', 'strokeWidth', 'dash'])
         const labelSize = this.item.params.labelsize || 14 // taille par défaut des labels
-        if (this.item.params.solution == "true" && !this._solMode) {
+        if (this.item.params.invisible == "true" || this.item.params.solution == "true" && !this._solMode) {
             options["visible"] = false
         }
         if (this.item.params.label) {
