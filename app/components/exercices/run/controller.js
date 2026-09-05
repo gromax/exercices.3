@@ -266,8 +266,13 @@ const Controller = MnObject.extend ({
           
           // 5. sauvegarder l'état du trial
           if (trial.needSave()) {
-            trial.save();
-            channel.trigger("data:update:notes", trial);
+            const saving = trial.save();
+            $.when(saving).done(() => {
+              channel.trigger("data:update:notes", trial);
+            }).fail((response) => {
+              console.error("Failed to save trial:", response);
+              channel.trigger("popup:error", "Erreur lors de la sauvegarde de l'essai.");
+            });
           }
         });
       }
@@ -286,8 +291,6 @@ const Controller = MnObject.extend ({
         restart: trial.needSave()
       });
       finishedView.on("restart", () => {
-        console.log("Restarting exercice...");
-        console.log(trial.get("idExoDevoir"), trial.get("idExo"), trial.get("idDevoir"), trial.get("idUser"));
         channel.trigger("exodevoir:run", trial.get("idExoDevoir"), trial.get("idExo"), trial.get("idDevoir"), trial.get("idUser"));
       });
       region.appendChild(finishedView.el);
