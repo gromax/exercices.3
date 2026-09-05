@@ -8,6 +8,10 @@ final class Exercice extends Item
 
     ##################################### METHODES STATIQUES #####################################
 
+    /**
+     * Retourne les champs de la table exercices
+     * @return array Tableau des champs avec leurs définitions et types
+     */
     protected static function champs()
     {
         return [
@@ -23,6 +27,10 @@ final class Exercice extends Item
         ];
     }
 
+    /**
+     * Retourne les tables jointes pour la table exercices
+     * @return array Tableau des tables jointes
+     */
     protected static function joinedTables()
     {
         return [

@@ -61,7 +61,11 @@ final class InitKey extends Item
         try {
             $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $stmt = $pdo->prepare("DELETE FROM ".PREFIX_BDD.static::$BDDName." WHERE idUser = :id");
+            $prefixTableName = PREFIX_BDD.static::$BDDName;
+            $stmt = $pdo->prepare(<<<SQL
+                DELETE FROM {$prefixTableName} WHERE idUser = :id
+            SQL
+            );
             $stmt->bindValue(':id', $idUser, PDO::PARAM_INT);
             $stmt->execute();
             EC::add("Keys supprimées avec succès.");
