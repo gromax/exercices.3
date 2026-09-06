@@ -26,6 +26,8 @@ class Calc {
         '*': 'Calc.mult',
         '+': 'Calc.add',
         '-': 'Calc.sub',
+        'mod': 'Calc.mod',
+        'div': 'Calc.intDivide',
         'sign': 'Calc.sign',
         '/': 'Calc.divide',
         'sub': 'Calc.substitute',
@@ -49,16 +51,60 @@ class Calc {
         return MyMath.make(`(${String(x)})*(${String(y)})`)
     }
 
-    static divide(x: InputType, y: InputType): string|MyMath {
+    /**
+     * Divise x par y.
+     * @param {InputType} x dividende
+     * @param {InputType} y diviseur
+     * @returns {InputType} quotient de x par y
+     */
+    static divide(x: InputType, y: InputType): InputType {
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `(${x})/(${y})`
         }
         return MyMath.make(`(${String(x)})/(${String(y)})`)
     }
 
+    /**
+     * Modulo de x par y.
+     * @param {InputType} x 
+     * @param {InputType} y 
+     * @returns {InputType} objet représentant x % y
+     */
+    static mod(x: InputType, y: InputType): InputType {
+        if ((typeof x === 'number') && (typeof y === 'number')) {
+            return x % y
+        }
+        if ((typeof x === 'string') && (typeof y === 'string')) {
+            return `mod(${x}, ${y})`
+        }
+        return MyMath.make(`mod(${String(x)}, ${String(y)})`)
+    }
+
+    /**
+     * Division entière de x par y.
+     * @param {InputType} x 
+     * @param {InputType} y 
+     * @returns {InputType} objet représentant x div y
+     */
+    static intDivide(x: InputType, y: InputType): InputType {
+        if ((typeof x === 'number') && (typeof y === 'number')) {
+            return (x-x%y)/y
+        }
+        if ((typeof x === 'string') && (typeof y === 'string')) {
+            return `(${x} - mod(${x},${y}))/(${y})`
+        }
+        return MyMath.make(`(${String(x)} - mod(${String(x)},${String(y)}))/(${String(y)})`)
+    }
+
+    /**
+     * Additionne x et y.
+     * @param {InputType} x 
+     * @param {InputType} y 
+     * @returns {InputType} objet représentant x + y
+     */
     static add(x: InputType, y: InputType): InputType {
         if ((typeof x === 'number') && (typeof y === 'number')) {
-            return x - y
+            return x + y
         }
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `(${x})+(${y})`
@@ -66,6 +112,12 @@ class Calc {
         return MyMath.make(`(${String(x)})+(${String(y)})`)
     }
 
+    /**
+     * Soustrait y de x.
+     * @param {InputType} x 
+     * @param {InputType} y 
+     * @returns {InputType} objet représentant x - y
+     */
     static sub(x: InputType, y: InputType): InputType {
         if ((typeof x === 'number') && (typeof y === 'number')) {
             return x - y
@@ -73,8 +125,14 @@ class Calc {
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `(${x})-(${y})`
         }
-        return MyMath.make(`(${String(x)})-(${String(y)})`)    }
+        return MyMath.make(`(${String(x)})-(${String(y)})`)
+    }
 
+    /**
+     * Valeur absolue de x.
+     * @param {InputType} x 
+     * @returns {InputType} objet représentant |x|
+     */
     static abs(x: InputType): InputType {
         if (typeof x === 'number') {
             return Math.abs(x)
@@ -85,6 +143,11 @@ class Calc {
         return MyMath.make(`abs(${String(x)})`)
     }
 
+    /**
+     * Signe de x.
+     * @param {InputType} x 
+     * @returns {number|string} 1 si x positif, -1 si x négatif, 0 si x nul, ou expression symbolique si x n'est pas un nombre
+     */
     static sign(x: InputType): number|string {
         const a = MyMath.toNumber(x);
         if (isNaN(a)) {
@@ -93,6 +156,11 @@ class Calc {
         return Math.sign(a);
     }
 
+    /**
+     * Exponentielle de x.
+     * @param {InputType} x 
+     * @returns {InputType} objet représentant e^x
+     */
     static exp(x: InputType): InputType {
         if (typeof x === 'number') {
             return Math.exp(x)
@@ -103,6 +171,12 @@ class Calc {
         return MyMath.make(`exp(${String(x)})`)
     }
 
+    /**
+     * Arrondit x à n chiffres après la virgule.
+     * @param {InputType} x 
+     * @param {InputType} n 
+     * @returns {string|number} valeur arrondie ou expression symbolique si x n'est pas un nombre
+     */
     static round(x: InputType, n: InputType):string|number {
         const a = MyMath.toNumber(x)
         const digits = MyMath.toInteger(n)
@@ -131,13 +205,17 @@ class Calc {
         return MyMath.make(expr).sub(name, value).toString();
     }
 
-    /** Développe l'expression */
+    /**
+     * Développe l'expression.
+     * @param {InputType} expr 
+     * @returns {string} expression développée
+     */
     static expand(expr:InputType):string {
         return MyMath.make(expr).expand().toString();
     }
 
     /**
-     * fait la résolution d'une équation
+     * Résout une équation de la forme exprLeft = exprRight pour la variable varName.
      * @param {string} exprLeft 
      * @param {string} exprRight 
      * @param {string} varName 
@@ -175,8 +253,9 @@ class Calc {
 
     /**
      * renvoie le max entre x et y
-     * @param {*} x 
-     * @param {*} y 
+     * @param {InputType} x 
+     * @param {InputType} y 
+     * @returns {InputType} le maximum entre x et y
      */
     static max(x:InputType, y:InputType):InputType {
         if (MyMath.make(x).toFloat() > MyMath.make(y).toFloat()) {
@@ -188,8 +267,9 @@ class Calc {
 
     /**
      * renvoie le min entre x et y
-     * @param {*} x 
-     * @param {*} y 
+     * @param {InputType} x 
+     * @param {InputType} y 
+     * @returns {InputType} le minimum entre x et y
      */
     static min(x:InputType, y:InputType):InputType {
         if (MyMath.make(x).toFloat() < MyMath.make(y).toFloat()) {
@@ -199,11 +279,16 @@ class Calc {
         }
     }
 
+    /**
+     * Simplifie l'expression.
+     * @param {InputType} x 
+     * @returns {number|MyMath} expression simplifiée
+     */
     static simplify(x:InputType):number|MyMath {
         if (typeof x === 'number') {
             return x
         }
-        const m = MyMath.make(x).simplify()
+        return MyMath.make(x).simplify()
     }
 
 }
