@@ -302,7 +302,6 @@ class Parser {
                 throw new Error(`Caractère non reconnu : '${notTokenizedChar}'.`)
             }
         }
-
         let tokensList: Array<Token> = []
         for (let strToken of matchList) {
             let token = this._createToken(strToken);
