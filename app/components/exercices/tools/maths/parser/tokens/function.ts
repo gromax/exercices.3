@@ -20,8 +20,8 @@ class TFunction extends Token {
         return this.name
     }
 
-    static readonly sREGEX = "sqrt|racine|cos|sin|ln|log|exp|frac|sign";
-    static readonly REGEX = new RegExp("sqrt|racine|cos|sin|ln|log|exp|frac|sign", 'i');
+    static readonly sREGEX = "sqrt|racine|cos|sin|ln|log|exp|frac|sign|mod|div";
+    static readonly REGEX = new RegExp("sqrt|racine|cos|sin|ln|log|exp|frac|sign|mod|div", 'i');
   
     /**
      * renvoie le niveau de priorité
