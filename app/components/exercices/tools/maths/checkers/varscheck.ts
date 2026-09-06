@@ -6,13 +6,21 @@ import MyMath from '@mathstools/mymath'
 class VarsCheck extends AbsChecker {
     protected _vars:string
     protected _parsed:MyMath
+    protected _expand: boolean
 
     constructor(expr:string, format:string = "") {
         super(expr,format)
         const parts = format.split(":")
-        this._vars = parts.length>1
-            ? parts[1].trim()
-            : format.trim()
+        if (parts[0] !== "var") {
+            throw new Error(`Format invalide: ${format}`)
+        }
+        if (parts.length < 2) {
+            throw new Error(`Format invalide: ${format}`)
+        }
+        this._vars = parts[1].trim()
+        this._expand = parts.length > 2
+            ? parts[2].trim() === "expand"
+            : false
     }
 
     static testFormat(format: string): boolean {
@@ -41,8 +49,8 @@ class VarsCheck extends AbsChecker {
             this._message = `L'expression ne doit pas dépendre de ${not_included.join(' ,')}.`
             return false
         }
-        if (!mm.isExpanded()) {
-            this._message = "Vous devez simplifier."
+        if (this._expand && !mm.isExpanded()) {
+            this._message = "Vous devez développer et/ou simplifier."
             return false
         }
         return true
