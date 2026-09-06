@@ -3,6 +3,7 @@ import { Base } from "./base"
 import { Scalar } from "./scalar"
 import { Signature } from "./signature"
 import Decimal from "decimal.js"
+import { NestedString } from '@types'
 
 class Power extends Base {
     /** @type {Base} */
@@ -31,6 +32,14 @@ class Power extends Base {
         }
         this._base = base;
         this._exposant = exposant;
+    }
+
+    /**
+     * renvoie la liste des variables dont dépend le noeud
+     * @returns {NestedString}
+     */
+    subVariables(): NestedString {
+        return [this._base.subVariables(), this._exposant.subVariables()]
     }
 
     private _toStringHelper(lang:string):string {
