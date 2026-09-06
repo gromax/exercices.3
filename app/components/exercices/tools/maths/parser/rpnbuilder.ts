@@ -7,6 +7,7 @@ import { Div } from '../number/div'
 import { Power } from '../number/power'
 import { Constant } from "../number/constant"
 import { Symbol } from "../number/symbol"
+import { Collection } from "../number/collection"
 
 
 function build(rpn:Array<string>):Base {
@@ -63,6 +64,16 @@ function build(rpn:Array<string>):Base {
             let exposant = stack.pop()
             let base = stack.pop()
             stack.push(new Power(base, exposant))
+            continue
+        }
+        if (item == ";") {
+            if (stack.length < 2) {
+                throw new Error(`La collection n'a pas assez d'opérandes à dépiler.`)
+            }
+            const right = stack.pop()
+            const left = stack.pop()
+            let children = [left, right]
+            stack.push(new Collection(children))
             continue
         }
         if (Constant.isConstant(item)) {
