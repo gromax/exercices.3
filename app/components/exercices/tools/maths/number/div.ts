@@ -4,7 +4,7 @@ import { Scalar } from "./scalar"
 import { Mult } from "./mult"
 import Decimal from "decimal.js"
 import { Signature } from "./signature"
-
+import { NestedString } from '@types'
 class Div extends Base {
     private _left:Base /** @type {Base} */
     private _right:Base /** @type {Base} */
@@ -58,6 +58,14 @@ class Div extends Base {
         }
         this._left = left
         this._right = right
+    }
+
+    /**
+     * renvoie la liste des variables dont dépend le noeud
+     * @returns {Array<string|NestedString>}
+     */
+    subVariables(): NestedString {
+        return [...this._left.subVariables(), ...this._right.subVariables()]
     }
 
     /**

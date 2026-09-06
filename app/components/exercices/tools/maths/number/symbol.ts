@@ -2,6 +2,7 @@ import { Base } from "./base"
 import { Scalar } from "./scalar"
 import { Signature } from "./signature"
 import Decimal from "decimal.js"
+import { NestedString } from '@types'
 
 const GREEK_TO_TEX = {
     'alpha': '\\alpha',
@@ -91,6 +92,14 @@ class Symbol extends Base {
     static isSymbol(chaine:string):boolean {
         return Symbol.REGEX.test(chaine)
     }    
+
+    /**
+     * renvoie la liste des variables dont dépend le noeud
+     * @returns {NestedString}
+     */
+    subVariables(): NestedString {
+        return [this._name]
+    }
 
     toString():string {
         return this._name

@@ -2,7 +2,7 @@ import { Base } from "./base"
 import { Scalar } from "./scalar"
 import { Signature } from "./signature"
 import Decimal from "decimal.js"
-
+import { NestedString } from '@types'
 class Constant extends Base {
     static readonly NAMES = ['e', 'pi', 'π', '∞', 'inf', 'infinity', 'infini'] // i
     static readonly TEX = {
@@ -87,6 +87,10 @@ class Constant extends Base {
 
     get scalarFactor():Scalar {
         return Scalar.ONE
+    }
+
+    subVariables(): NestedString {
+        return []
     }
 
     /**

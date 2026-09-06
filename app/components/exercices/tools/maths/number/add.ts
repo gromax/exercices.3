@@ -2,6 +2,7 @@ import _ from "underscore"
 import { Base } from "./base"
 import { Scalar } from "./scalar"
 import Decimal from "decimal.js"
+import { NestedString } from '@types'
 
 class AddMinus extends Base {
     private _children:Array<Base> /** @type {Base[]} */
@@ -165,6 +166,10 @@ class AddMinus extends Base {
 
     get scalarFactor():Scalar {
         return Scalar.ONE
+    }
+
+    subVariables(): NestedString {
+        return this._children.map( c => c.subVariables() )
     }
 
     /**

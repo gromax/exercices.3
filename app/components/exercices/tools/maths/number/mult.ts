@@ -3,7 +3,7 @@ import { Base } from "./base"
 import { Scalar } from "./scalar"
 import Decimal from "decimal.js"
 import { Signature } from "./signature"
-
+import { NestedString } from '@types'
 class Mult extends Base {
     private _children:Array<Base> /** @type {Base[]} */
     private _string:string|null = null /** @type {string|null} représentation texte */
@@ -95,6 +95,14 @@ class Mult extends Base {
     constructor(children: Array<Base>) {
         super()
         this._children = children
+    }
+
+    /**
+     * renvoie la liste des variables dont dépend le noeud
+     * @returns {NestedString}
+     */
+    subVariables(): NestedString {
+        return this._children.map( c => c.subVariables() )
     }
 
     /**

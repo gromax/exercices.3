@@ -1,6 +1,7 @@
 import { Base } from "./base"
 import { Signature } from "./signature"
 import Decimal from "decimal.js"
+import { NestedString } from '@types'
 
 /** Calcul du plus grand commun diviseur de deux entiers a et b
  * Valable même pour a et b décimaux
@@ -139,6 +140,14 @@ class Scalar extends Base {
 
     get startsWithMinus():boolean {
         return this._value.isNegative()
+    }
+
+    /**
+     * renvoie la liste des variables dont dépend le noeud
+     * @returns {NestedString}
+     */
+    subVariables(): NestedString {
+        return []
     }
 
     private _getDenominator() {
