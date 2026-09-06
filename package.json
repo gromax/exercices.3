@@ -2,7 +2,7 @@
   "name": "exercices",
   "description": "Exerciseur de mathématiques",
   "author": "Maxence Klein",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "repository": {
     "type": "git",
     "url": ""
