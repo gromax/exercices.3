@@ -138,6 +138,7 @@ class MyMath {
             return new MyMath({ mynumber: Parser.build(expression) })
         } catch (e) {
             console.warn("Erreur lors du parsing de l'expression utilisateur :", expression)
+            console.warn(e.message)
             return new MyMath({ expression: "NaN", invalid:true })
         }
     }
@@ -182,6 +183,7 @@ class MyMath {
             return solutions.toString().split(',')
         } catch (e) {
             console.warn(`Erreur lors de la résolution de l'équation ${exprLeft} = ${exprRight} pour la variable ${varName} :`, e)
+            console.warn(e.message)
             return []
         }
     }
@@ -223,6 +225,7 @@ class MyMath {
         }
         return expression
             .replace(/,/g, '.')            // virgules → points décimaux
+            .replace(/;/g, ',')            // points virgules → virgules
             .replace(/∞|inf(?!\w)|infini(?!\w)/g, 'infinity') // ∞ → infinity
             .replace(/\blog\(/g, 'log10(') // log( → log10(
             .replace(/\bln\(/g, 'log(')    // ln( → log(
@@ -235,6 +238,7 @@ class MyMath {
         }
         return expression
             .replace(/infinity/gi, '∞')            // points décimaux → virgules
+            .replace(/,/g, ';')            // virgules → points virgules
             .replace(/\./g, ',')            // points décimaux → virgules
             .replace(/\blog\(/g, 'ln(')     // log( → ln(
             .replace(/\blog10\(/g, 'log(') // log10( → log(
@@ -329,6 +333,7 @@ class MyMath {
                 this._mynumber = Parser.build(this._expression)
             } catch(e) {
                 console.warn("Erreur lors du parsing de l'expression :", this._expression)
+                console.warn(e.message)
                 this._invalid = true
                 return Parser.build("NaN")
             }
@@ -358,7 +363,8 @@ class MyMath {
     }
 
     get variables():Array<string> {
-        return this._getNerdamerProcessed().variables()
+        return this._getMyNumber().variables
+        //return this._getNerdamerProcessed().variables()
     }
 
     toFloat():number {
@@ -366,6 +372,7 @@ class MyMath {
             return this._getMyNumber().toDecimal(undefined).toNumber()
         } catch (e) {
             console.warn(`Erreur lors de la conversion de ${this._expression} en nombre décimal :`, e)
+            console.warn(e)
             return NaN
         }
     }
