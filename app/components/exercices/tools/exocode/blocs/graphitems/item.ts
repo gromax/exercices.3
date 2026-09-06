@@ -207,7 +207,6 @@ abstract class GraphItem {
             Object.keys(this._attrToInputs).map(attr => [this._attrToInputs[attr], this.getValue(obj, attr)])
         )
     }
-
 }
 
 export default GraphItem
