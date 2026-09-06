@@ -7,6 +7,7 @@ import { Constant, E } from './constant'
 import { Symbol } from './symbol'
 import { Base } from './base'
 import { Function } from './function'
+import { Collection } from './collection'
 
 /**
  * Renvoie l'opposé d'un noeud
@@ -47,9 +48,28 @@ function simplify(node:Base):Base {
     if (node instanceof AddMinus) {
         return addSimplify(node)
     }
-
+    if (node instanceof Collection) {
+        return collectionSimplify(node)
+    }
     return node
 }
+
+/** Simplification d'une collection */
+function collectionSimplify(node:Collection):Base {
+    const simplifiedChildren = node.children.map(child => simplify(child))
+    let hasModif = false
+    for (let i = 0; i < node.children.length; i++) {
+        if (simplifiedChildren[i] !== node.children[i]) {
+            hasModif = true
+            break
+        }
+    }
+    if (!hasModif) {
+        return node
+    }
+    return new Collection(simplifiedChildren)
+}
+
 
 /**
  * simplification d'une puissance

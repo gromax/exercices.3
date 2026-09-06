@@ -7,6 +7,7 @@ import { Constant, E } from './constant'
 import { Symbol } from './symbol'
 import { Base } from './base'
 import { Function } from './function'
+import { Collection } from './collection'
 import { simplify } from './simplify'
 
 /**
@@ -28,8 +29,26 @@ function derivate(node:Base, varName:string):Base {
             : Scalar.ZERO
     }
 
+
     if (node instanceof AddMinus) {
-        return simplify(AddMinus.fromList(node.children.map(function(item) { return derivate(item, varName) }), node.positive))
+        return simplify(
+            new Collection(
+                node.children.map(
+                    item => derivate(item, varName)
+                )
+            )
+        )
+    }
+
+    if (node instanceof AddMinus) {
+        return simplify(
+            AddMinus.fromList(
+                node.children.map(
+                    item => derivate(item, varName)
+                ),
+                node.positive
+            )
+        )
     }
 
     if (node instanceof Div) {
