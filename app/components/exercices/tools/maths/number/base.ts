@@ -2,7 +2,15 @@ import Decimal from 'decimal.js'
 import { Signature } from './signature'
 import { Scalar } from './scalar'
 Decimal.set({ precision: 50, rounding: Decimal.ROUND_HALF_UP });
+import { NestedString } from '@types'
 
+function flattenStrings(values: NestedString): string[] {
+    return values.flatMap(value =>
+        typeof value === "string"
+            ? value
+            : flattenStrings(value)
+    );
+}
 abstract class Base {
     /**
      * transtypage vers string
@@ -18,6 +26,12 @@ abstract class Base {
     toStringEn():string {
         return this.toString();
     }
+
+    get variables():Array<string> {
+        return [...new Set(flattenStrings(this.subVariables()))].sort()
+    }
+
+    abstract subVariables(): NestedString
 
     get isNumber():boolean {
         return false
