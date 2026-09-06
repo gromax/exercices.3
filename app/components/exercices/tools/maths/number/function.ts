@@ -1,26 +1,35 @@
 import { Base } from "./base"
 import { Scalar } from "./scalar"
+import { Collection } from "./collection"
 import Decimal from "decimal.js"
 import { Signature } from "./signature"
-
+import { NestedString } from '@types'
 class Function extends Base {
     /** @type {Base} */
     private _child:Base
+
     /** @type {string} */
     private _name:string
+
     /** @type {string|null} représentation texte */
     private _string: string | null = null
+
     /** @type {string|null} représentation texte */
     private _stringEN: string | null = null
 
-    static readonly NAMES = ['sqrt', '(-)', '(+)', 'cos', 'sin', 'ln', 'log', 'exp', 'inverse', 'sign']
+    static readonly NAMES = [
+        'sqrt', '(-)', '(+)', 'cos', 'sin', 'ln', 'log', 'exp', 'inverse', 'sign', 'mod', 'div'
+    ]
+
     static readonly EN_NAMES = {
         'ln': 'log',
         'log': 'log10',
     }
 
+    static readonly ARITY2 = ['mod', 'div']
+
     /**
-     * constructeur
+     * constructeur d'une fonction mathématique
      * @param {string} name 
      * @param {Base} child 
      */
@@ -30,7 +39,24 @@ class Function extends Base {
             throw new Error(`${name} n'est pas une fonction reconnue.`);
         }
         this._name = name
+        const childSize = child instanceof Collection ? child.children.length : 1
+        if (childSize != this.arity) {
+            throw new Error(`La fonction ${name} attend ${this.arity} argument(s), mais en a reçu ${childSize}.`);
+        }
+
+        if (child instanceof Collection && childSize == 1) {
+            child = child.children[0]
+        }
+        
         this._child = child
+    }
+
+    /**
+     * renvoie l'arité de la fonction
+     * @returns {number}
+     */
+    get arity():number {
+        return Function.ARITY2.indexOf(this._name) >= 0 ? 2 : 1
     }
 
     /**
@@ -65,6 +91,25 @@ class Function extends Base {
     }
 
     /**
+     * exécute une fonction numérique pour les opérateurs à deux arguments
+     * @param {string} name 
+     * @param {Decimal} value1
+     * @param {Decimal} value2
+     * @returns {Decimal}
+     */
+    static calc2(name:string, value1:Decimal, value2:Decimal):Decimal {
+        switch (name) {
+            case 'mod': return value1.modulo(value2)
+            case 'div': return value1.minus(value1.modulo(value2)).dividedBy(value2)
+            default: return new Decimal(NaN)
+        }
+    }
+
+    subVariables(): NestedString {
+        return this._child.subVariables()
+    }
+
+    /**
      * transtypage -> string
      * @returns {string}
      */
@@ -81,6 +126,8 @@ class Function extends Base {
             this._string = `-${child}`;
         } else if (this._name == 'inverse') {
             this._string = `1/(${String(this._child)})`
+        } else if (this._child instanceof Collection) {
+            this._string = `${this._name}(${String(this._child)})`
         } else {
             this._string = `${this._name}(${String(this._child)})`
         }
@@ -193,8 +240,16 @@ class Function extends Base {
      * @returns {Decimal}
      */
     toDecimal(values:Record<string, Decimal|string|number>|undefined):Decimal {
-        let child = this._child.toDecimal(values);
-        return Function.calc(this._name, child)
+        if (this.arity == 1) {
+            let child = this._child.toDecimal(values);
+            return Function.calc(this._name, child)
+        } else if (this.arity == 2) {
+            const [left,right] = (this._child as Collection).children
+            let leftDec = left.toDecimal(values);
+            let rightDec = right.toDecimal(values);
+            return Function.calc2(this._name, leftDec, rightDec)
+        }
+        throw new Error(`Unsupported arity: ${this.arity}`);
     }
 
     signature():Signature {
