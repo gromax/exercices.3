@@ -52,6 +52,9 @@ class VarsCheck extends AbsChecker {
         if (this._expand && !mm.isExpanded()) {
             this._message = "Vous devez développer et/ou simplifier."
             return false
+        } else if (!this._expand && !mm.isSimplified()) {
+            this._message = "Vous devez simplifier."
+            return false
         }
         return true
     }
