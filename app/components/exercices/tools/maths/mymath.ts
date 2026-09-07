@@ -566,6 +566,10 @@ class MyMath {
         return this._getMyNumber().isExpanded()
     }
 
+    isSimplified():boolean {
+        return this._getMyNumber().isSimplified()
+    }
+
     expand():MyMath {
         return new MyMath({ nerdamer: this._getNerdamerProcessed().expand() })
     }
