@@ -519,6 +519,7 @@ Voici les formats reconnus :
   * infini : indique que l'on accepte un infin comme `'+inf'` ou `'-∞'`. Le signe est obligatoire même pour +
   * expand : indique que l'on attend une expression développée.
   * var:x : indique que l'expression peut dépendre de x. on pourrait écrire `var:xn` pour autoriser une expression dépendant de `x` et de `n`.
+  Il faut fournir un résultat simplifié (par ex, les calculs de nombre comme 2+3 ou 2x+3x doivent être simplifiés)
   * var:x:expand, comme le précédent mais en indiquand que l'on veut forcer le développement
   * equation:xy : indique que l'on attend une équation linéaire dépendant de x et y comme 3x+2y-5=0. Dans ce cas la solution ne devra être qu'une expression membre gauche = 0. Par ex si l'équation est possible `3x = 4` la solution aura la forme `3x-4`, sous entendu = 0.
   * vecteur:2:colinear:notnul  le 2 est la taille (il faut au moins 2), "colinear" et "notnul" sont optionnels. "colinear" indique que l'on accepte un vecteur colinéaire et "notnul" indique que l'on acceptera pas un vecteur nul.
@@ -928,13 +929,22 @@ Le point peut par ailleurs être un input. On ajoutera pour cela des attributs :
   * minorticks: nombre de ticks subdivision entre deux entiers (défaut 4 pour 5 intervalles)
   * strokewidth: épaisseur du trait (défaut 1)
 
-##### function
+##### function ou fonction
 
 ```
 <function:name>
 ...
 </function>
 ```
+
+ou bien en français
+```
+<fonction:name>
+...
+</fonction>
+```
+
+
 
 On dispose des paramètres :
   * expression: l'expression de la fonction
@@ -1049,6 +1059,35 @@ Voici un exemple :
   <color:blue/>
 </integrale>
 ```
+
+##### Polygone
+
+```
+<polygon:name>
+...
+</polygon>
+```
+
+ou en français
+
+```
+<polygone:name>
+...
+</polygone>
+```
+
+On dispose des paramètres :
+  * points: liste de points séparés par |
+    chacun de ces points pourra être
+    * soit un nom de Point déjà défini
+    * soit une paire de coordonnées (x;y)
+  * fixed:true, permet de fixer les points donnés avec des coordonnées
+  * color, couleur de remplissage. Si pas défini, pas de remplissage
+  * opacite ou opacity: exprimé en %, opacité de l'intérieur
+  * strokeWidth: épaisseur du trait (défaut 1) Pour ne pas avoir de trait, mettre 0
+  * strokeColor: couleur du trait (par défaut, comme color sinon black)
+  * solution: true, l'élément ne sera visible qu'au moment de la solution
+
 
 #### Bloc shuffle
 
