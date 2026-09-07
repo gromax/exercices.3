@@ -8,6 +8,7 @@ import GraphPoint from "./graphitems/point"
 import GraphReels from "./graphitems/reels"
 import GraphDroite from "./graphitems/droite"
 import GraphIntegrale from "./graphitems/integrale"
+import GraphPolygon from "./graphitems/polygon"
 
 import FormItemImplementation from "../implementation/formitem"
 
@@ -88,12 +89,18 @@ class GraphBloc extends Bloc implements FormItemImplementation {
                 return new GraphPoint(item, this._getCadre(), this._colors)
             case 'function':
                 return new GraphFunction(item, this._getCadre(), this._colors)
+            case 'fonction':
+                return new GraphFunction(item, this._getCadre(), this._colors)
             case 'reels':
                 return new GraphReels(item, this._getCadre(), this._colors)
             case 'droite':
                 return new GraphDroite(item, this._getCadre(), this._colors)
             case 'integrale':
                 return new GraphIntegrale(item, this._getCadre(), this._colors)
+            case 'polygon':
+                return new GraphPolygon(item, this._getCadre(), this._colors)
+            case 'polygone':
+                return new GraphPolygon(item, this._getCadre(), this._colors)
             default:
                 return null
         }
