@@ -89,6 +89,14 @@ abstract class Base {
     }
 
     /**
+     * nombre + nombre ou nombre * nombre son développés
+     * @returns {boolean}
+     */
+    isSimplified():boolean {
+        return true;
+    }
+
+    /**
      * renvoie une représentation tex
      * @returns {string}
      */

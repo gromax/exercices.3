@@ -182,6 +182,27 @@ class AddMinus extends Base {
                 return false;
             }
         }
+        return this._isSimplified()
+    }
+
+    /**
+     * prédicat : le noeud est-il simplifié
+     * @returns {boolean}
+     */
+    isSimplified():boolean {
+        for (let item of this._children) {
+            if (!item.isSimplified()) {
+                return false
+            }
+        }
+        return this._isSimplified()
+    }
+
+    /**
+     * Fonction helper pour isExpanded et isSimplified
+     * @returns {boolean} true si aucune addition évidente n'est possible
+     */
+    protected _isSimplified():boolean {
         const scalars = this._children.filter( (item) => item instanceof Scalar )
         if (scalars.length > 1) {
             return false

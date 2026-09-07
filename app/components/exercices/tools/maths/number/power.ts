@@ -119,6 +119,9 @@ class Power extends Base {
         return Scalar.ONE
     }
 
+    /**
+     * @returns {boolean} revoie vrai si la puissance est développée
+     */
     isExpanded():boolean {
         if (!this._base.isExpanded() || !this._exposant.isExpanded()) {
             return false
@@ -132,6 +135,29 @@ class Power extends Base {
         }
         return true
     }
+
+    /**
+     * test si le noeud est simplifié
+     * @returns {boolean} revoie faux si la base ou l'exposant ne sont pas simplifiés
+     */
+    isSimplified():boolean {
+        if (!this._base.isSimplified() || !this._exposant.isSimplified()) {
+            return false
+        }
+        const d = this._exposant.toDecimal(undefined)
+        if (d.isNaN()) {
+            return true
+        }
+        if (d.isZero() || d.minus("1").isZero()) {
+            return false
+        }
+        if (d.isInteger() && (this._base instanceof Scalar)) {
+            return false
+        }
+        return true
+    }
+
+
 
 
     /**

@@ -200,10 +200,29 @@ class Mult extends Base {
         return this._stringTex
     }
 
+    /**
+     * test si le noeud est développé
+     * @returns {boolean} revoie vrai si aucun développement simple n'est possible
+     */
     isExpanded():boolean {
         return !_.some(this._children, child => !child.isExpanded())
             && !_.some(this._children, child => child.canBeDistributed)
             && this._children.filter( c => c instanceof Scalar).length <= 1
+    }
+
+    /**
+     * test si le noeud est simplifié
+     * @returns {boolean} revoie faux en présence de plusieurs scalaires dans le produit ou d'un 0
+     */
+    isSimplified():boolean {
+        const scalars = this._children.filter( (item) => item instanceof Scalar )
+        if (scalars.length > 1) {
+            return false
+        }
+        if (scalars.length == 1 && scalars[0].isZero()) {
+            return false
+        }
+        return !_.some(this._children, child => !child.isSimplified())
     }
 
     /**
