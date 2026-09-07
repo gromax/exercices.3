@@ -12,10 +12,18 @@ function getOption(
 
 function getNumberOption(
     options: Record<string, any>,
-    key: string,
+    key: string|Array<string>,
     defaultValue: number = 0
 ): number {
-    return options.hasOwnProperty(key) ? Number(options[key]) : defaultValue
+    if (!Array.isArray(key)) {
+        return options.hasOwnProperty(key) ? Number(options[key].replace(',', '.')) : defaultValue
+    }
+    for (const k of key) {
+        if (options.hasOwnProperty(k)) {
+            return Number(options[k].replace(',', '.'))
+        }
+    }
+    return defaultValue
 }
 
 export { getOption, getNumberOption }
