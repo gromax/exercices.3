@@ -43,6 +43,7 @@ const HeaderView = View.extend({
             isOff: logged.isOff(),
             nomComplet: logged.get("nomComplet"),
             unread: (logged.unread || 0),
+            version: APP_VERSION,
         };
     },
 });
