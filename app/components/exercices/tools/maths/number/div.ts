@@ -134,11 +134,41 @@ class Div extends Base {
         return this._stringEN
     }
 
+    /**
+     * test si le noeud est développé
+     * @returns {boolean} revoie faux si le numérateur ou le dénominateur ne sont pas développés
+     */
     isExpanded():boolean {
         if (!this._left.isExpanded() || !this._right.isExpanded()) {
             return false
         }
+        if (this.isInteger()) {
+            return false
+        }
         return true
+    }
+
+    /**
+     * test si le noeud est simplifié
+     * @returns {boolean} revoie faux si le numérateur ou le dénominateur ne sont pas simplifiés
+     */
+    isSimplified():boolean {
+        if (!this._left.isSimplified() || !this._right.isSimplified()) {
+            return false
+        }
+        if (this.isInteger()) {
+            return false
+        }
+        return true
+    }
+
+    isInteger():boolean {
+        const n = this._left.toDecimal(undefined)
+        const d = this._right.toDecimal(undefined)
+        if (n.isNaN() || d.isNaN()) {
+            return false
+        }
+        return n.isInteger() && d.isInteger() && n.modulo(d).isZero()
     }
 
     /**
