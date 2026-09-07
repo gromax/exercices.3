@@ -27,11 +27,10 @@ This is a modern JS skeleton with MarionetteJS for [Webpack](https://webpack.git
 * une fonction permettant l'évaluation d'une fonction
 * une fonction s'appuyant sur le solve de nerdamer, qui extrait le tableau et enlève les éventuels résultats complexes
 * ce serait bien de cibler l'erreur sur une ligne si possible
-* il semble que "publié" se coche plus ou moins tout seul (sans doute à la créa ?) même quand on touche un autre exo ! Le pb est que "0" est parsé true ! En effet Boolean("0") renvoie true.
 * prévoir une petite calculatrice
 
 * cas d'interface
-  * zonee d'édit intelligente
+  * zone d'édit intelligente
   * sauvegarde sur aperçu
 * chargement d'une classe à la algoPython ?
 * admin : interface de nettoyage
