@@ -4,7 +4,7 @@ import _ from "underscore"
 import MyMath from "../../../maths/mymath"
 
 class GraphDroite extends GraphItem {
-    _type = 'Function'
+    _type = 'Droite'
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const points = (typeof this.item.params.equation !== 'undefined')
             ? this._points_from_equation(this.item.params.equation)

@@ -3,7 +3,7 @@ import GraphItem from "./item"
 import _ from "underscore"
 
 class GraphIntegrale extends GraphItem {
-    _type = 'Function'
+    _type = 'Integrale'
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const abscisses = this._getAbscisses()
         if (typeof this.item.params.fct === 'undefined') {

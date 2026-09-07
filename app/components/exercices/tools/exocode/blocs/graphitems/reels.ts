@@ -4,7 +4,7 @@ import _ from "underscore"
 import { getNumberOption, getOption } from "../../misc"
 
 class GraphReels extends GraphItem {
-    _type = 'Function'
+    _type = 'Réels'
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const y = getNumberOption(this.item.params, 'y', 0)
         const color = getOption(this.item.params, 'color', 'black')
