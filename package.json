@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "webpack-dev-server",
-    "prebuild": "rimraf ./public/",
+    "prebuild": "npm version patch --no-git-tag-version && rimraf ./public/",
     "build": "webpack --mode production",
     "lint": "eslint app",
     "test": "echo test"
