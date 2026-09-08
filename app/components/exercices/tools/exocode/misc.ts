@@ -4,10 +4,19 @@
 
 function getOption(
     options: Record<string, any>,
-    key: string,
+    key: string|Array<string>,
     defaultValue: any = null
 ): any {
-    return options.hasOwnProperty(key) ? options[key] : defaultValue
+    if (Array.isArray(key)) {
+        for (const k of key) {
+            if (options.hasOwnProperty(k)) {
+                return options[k]
+            }
+        }
+        return defaultValue
+    } else {
+        return options.hasOwnProperty(key) ? options[key] : defaultValue
+    }
 }
 
 function getNumberOption(
