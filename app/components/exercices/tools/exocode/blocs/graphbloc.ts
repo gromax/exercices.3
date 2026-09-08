@@ -10,6 +10,7 @@ import GraphDroite from "./graphitems/droite"
 import GraphIntegrale from "./graphitems/integrale"
 import GraphPolygon from "./graphitems/polygon"
 import GraphAngle from "./graphitems/angle"
+import GraphSegment from "./graphitems/segment"
 
 import FormItemImplementation from "../implementation/formitem"
 
@@ -104,6 +105,8 @@ class GraphBloc extends Bloc implements FormItemImplementation {
                 return new GraphPolygon(item, this._getCadre(), this._colors)
             case 'angle':
                 return new GraphAngle(item, this._getCadre(), this._colors)
+            case 'segment':
+                return new GraphSegment(item, this._getCadre(), this._colors)
             default:
                 return null
         }

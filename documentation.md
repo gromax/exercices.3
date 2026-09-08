@@ -1105,6 +1105,24 @@ On dispose des paramètres :
   * showvalue:true, indique ou pas la valeur de l'angle
   * solution: true, l'élément ne sera visible qu'au moment de la solution
 
+##### segment
+
+```
+<segment:name>
+...
+</segment>
+```
+
+On dispose des paramètres :
+  * points: liste de points séparés par |, il en faut 3
+    chacun de ces points pourra être
+    * soit un nom de Point déjà défini
+    * soit une paire de coordonnées (x;y)
+  * fixed:true, permet de fixer les points donnés avec des coordonnées
+  * strokecolor ou color, couleur du trait (défaut black)
+  * strokewidth: épaisseur du trait (défaut 1)
+  * solution: true, l'élément ne sera visible qu'au moment de la solution
+
 
 #### Bloc shuffle
 
