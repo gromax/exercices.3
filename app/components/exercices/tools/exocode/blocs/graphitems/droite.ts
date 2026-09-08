@@ -93,25 +93,8 @@ class GraphDroite extends GraphItem {
         if (points.length !== 2) {
             throw new Error(`Droite ${this.item.header}, attribut points [${stringPoints}]: la droite doit être définie par deux points séparés par '|'`)
         }
-        const A = points[0].trim()
-        const B = points[1].trim()
-        const ptA = (graphObjects[A] instanceof JXG.Point)
-            ? graphObjects[A] as JXG.Point
-            : this._getXY(A)
-        const ptB = (graphObjects[B] instanceof JXG.Point)
-            ? graphObjects[B] as JXG.Point
-            : this._getXY(B)
-        return [ptA, ptB]
+        return points.map((p: string) => this._getPoint(graphObjects, p.trim()))
     }
-
-    protected _getXY(coordString: string): [number, number] {
-        const result = this._parseFloatCoords(coordString)
-        if (result === null) {
-            throw new Error(`Droite ${this.item.header}: Coordonnées invalides: ${coordString}`)
-        }
-        return result
-    }
-
 }
 
 export default GraphDroite

@@ -56,28 +56,6 @@ class GraphPolygon extends GraphItem {
         }
         return points.map((p: string) => this._getPoint(graphObjects, p.trim()))
     }
-
-    /**
-     * helper pour acquérir un point à partir des objets graphiques ou d'une chaîne de coordonnées
-     * @param {Record<string, JXG.GeometryElement>} graphObjects - les objets graphiques existants pour référence
-     * @param {string} pointName - le nom du point à acquérir
-     * @returns {[number, number]|JXG.Point} le point correspondant aux coordonnées ou à l'objet JXG.Point
-     */
-    protected _getPoint(graphObjects:Record<string, JXG.GeometryElement>, pointName: string): [number, number]|JXG.Point {
-        const pt = (graphObjects[pointName] instanceof JXG.Point)
-            ? graphObjects[pointName] as JXG.Point
-            : this._getXY(pointName)
-        return pt
-    }
-
-    protected _getXY(coordString: string): [number, number] {
-        const result = this._parseFloatCoords(coordString)
-        if (result === null) {
-            throw new Error(`Polygon ${this.item.header}: Coordonnées invalides: ${coordString}`)
-        }
-        return result
-    }
-
 }
 
 export default GraphPolygon
