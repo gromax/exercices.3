@@ -1088,6 +1088,23 @@ On dispose des paramètres :
   * strokeColor: couleur du trait (par défaut, comme color sinon black)
   * solution: true, l'élément ne sera visible qu'au moment de la solution
 
+##### Angle
+
+```
+<angle:name>
+...
+</angle>
+```
+On dispose des paramètres :
+  * points: liste de points séparés par |, il en faut 3
+    chacun de ces points pourra être
+    * soit un nom de Point déjà défini
+    * soit une paire de coordonnées (x;y)
+  * fixed:true, permet de fixer les points donnés avec des coordonnées
+  * color, couleur de remplissage. Si pas défini, pas de remplissage
+  * showvalue:true, indique ou pas la valeur de l'angle
+  * solution: true, l'élément ne sera visible qu'au moment de la solution
+
 
 #### Bloc shuffle
 
