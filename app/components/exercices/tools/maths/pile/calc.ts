@@ -17,6 +17,7 @@ class Calc {
         'expand': Calc.expand,
         'exp':Calc.exp,
         'diff': Calc.diff,
+        'derivate': Calc.derivate,
         'max': Calc.max,
         'min': Calc.min,
         'simplify': Calc.simplify
@@ -37,6 +38,8 @@ class Calc {
         'expand': 'Calc.expand',
         'exp': 'Calc.exp',
         'diff': 'Calc.diff',
+        'derivate': 'Calc.derivate',
+        'deriver': 'Calc.derivate',
         'max': 'Calc.max',
         'min': 'Calc.min',
         'simplify': 'Calc.simplify'
@@ -243,11 +246,22 @@ class Calc {
     }
 
     /**
-     * dérive l'expression
+     * dérive l'expression selon la variable spécifiée
      * @param {string|MyMath} expression 
      * @returns 
      */
-    static diff(expression:InputType):string {
+    static diff(expression:InputType, variable:InputType):string {
+        const varName = variable.toString();
+        return MyMath.make(expression).diff(varName).toString();
+    }
+
+
+    /**
+     * dérive l'expression selon sa variable (devrait être unique)
+     * @param {string|MyMath} expression 
+     * @returns 
+     */
+    static derivate(expression:InputType):string {
         return MyMath.make(expression).diff().toString();
     }
 
