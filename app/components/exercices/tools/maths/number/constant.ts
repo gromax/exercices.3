@@ -130,6 +130,17 @@ class Constant extends Base {
     signature():Signature {
         return new Signature({[this._name]:1})
     }
+
+    /**
+     * renvoie la dérivée
+     * @param {string} varName 
+     * @returns {Base}
+     */
+    derivate(varName:string):Base {
+        // implémentation spécifique pour Constant
+        return Scalar.ZERO
+    }
+
 }
 
 const E = Constant.fromString('e');
