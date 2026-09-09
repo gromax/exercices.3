@@ -4,7 +4,7 @@ import { Function } from "../number/function"
 import { AddMinus } from "../number/add"
 import { Mult } from '../number/mult'
 import { Div } from '../number/div'
-import { Power } from '../number/power'
+import { Exponential } from '../number/exponential'
 import { Constant } from "../number/constant"
 import { Symbol } from "../number/symbol"
 import { Collection } from "../number/collection"
@@ -63,7 +63,7 @@ function build(rpn:Array<string>):Base {
             }
             let exposant = stack.pop()
             let base = stack.pop()
-            stack.push(new Power(base, exposant))
+            stack.push(Exponential.make(base, exposant))
             continue
         }
         if (item == ";") {
