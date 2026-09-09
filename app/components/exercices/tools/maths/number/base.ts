@@ -1,3 +1,30 @@
+/* 
+ * Classe de base pour tous les types de nombres et expressions mathématiques.
+ * 
+ * dépendance des objets enfants
+ *   Exponential dépend de Scalar, Mult, Div, Function, AddMinus, Power
+ *   Function dépend de Scalar, Symbol, Collection, Mult, Div, Power
+ *   Div dépend de Scalar, Mult, Power, AddMinus
+ *   Power dépend de Scalar, Mult
+ *   Mult dépend de Scalar, AddMinus
+ *   AddMinus dépend de Scalar
+ *   Collection dépend de Scalar
+ *   Constant dépend de Scalar
+ *   Symbol dépend de Scalar
+ *   Scalar dépend de rien
+
+ *   Exponential
+ *    +--- Function
+ *    +-----+---Div
+ *    +-----+----+---Power
+ *    +-----+----+----+---Mult
+ *    +-----+----+---------+---AddMinus
+ *    |     +---------------------Collection, Symbol
+ *    |     |    |    |    |    |   |   Constant
+ *    +-----+----+----+----+----+---+----+---Scalar
+ */
+
+
 import Decimal from 'decimal.js'
 import { Signature } from './signature'
 import { Scalar } from './scalar'
@@ -74,9 +101,9 @@ abstract class Base {
      */
     isFunctionOf(name:string|undefined):boolean|Array<string> {
         if (typeof name == 'undefined') {
-            return []
+            return this.variables
         }
-        return false
+        return this.variables.includes(name)
     }
 
     /**
@@ -196,6 +223,13 @@ abstract class Base {
     toDict():object {
         return { type: "Base" }
     }
+
+    /**
+     * renvoie la dérivée
+     * @param {string} varName 
+     * @returns {Base}
+     */
+    abstract derivate(varName:string):Base
 }
 
 export { Base }
