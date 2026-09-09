@@ -1,6 +1,7 @@
 import _ from "underscore"
 import { Base } from "./base"
 import { Scalar } from "./scalar"
+import { AddMinus } from "./add"
 import Decimal from "decimal.js"
 import { Signature } from "./signature"
 import { NestedString } from '@types'
@@ -103,19 +104,6 @@ class Mult extends Base {
      */
     subVariables(): NestedString {
         return this._children.map( c => c.subVariables() )
-    }
-
-    /**
-     * si un nom est précisé, renvoie true si le nœud dépend de la variable,
-     * sinon renvoie la liste des variables dont dépend le noeud
-     * @param {string|undefined} name 
-     * @returns {boolean|Array}
-     */
-    isFunctionOf(name:string|undefined):boolean|Array<string> {
-        if (typeof name === 'undefined') {
-            return _.uniq(_.flatten(this._children.map(child => child.isFunctionOf(undefined) as Array<string>))).sort()
-        }
-        return _.some(this._children, child => child.isFunctionOf(name) as boolean)
     }
 
     substituteVariable(varName:string, value:Base|string|Decimal|number):Base {
@@ -273,6 +261,34 @@ class Mult extends Base {
             type: "Mult",
             children: this._children.map( child => child.toDict() )
         }
+    }
+
+    /**
+     * renvoie la dérivée
+     * @param {string} varName 
+     * @returns {Base}
+     */
+    derivate(varName:string):Base {
+        // implémentation spécifique pour Mult
+        if (!this.variables.includes(varName)) {
+            return Scalar.ZERO
+        }
+        const children = this._children
+        const terms = children.map( (child, index) => {
+            const der = child.derivate(varName)
+            if (der instanceof Scalar && der.isZero()) {
+                return null
+            }
+            const otherChildren = children.filter( (_, i) => i !== index )
+            return new Mult([der, ...otherChildren])
+        }).filter( t => t !== null )
+        if (terms.length === 0) {
+            return Scalar.ZERO
+        }
+        if (terms.length === 1) {
+            return terms[0]!
+        }
+        return AddMinus.addFromList(terms)
     }
 }
 

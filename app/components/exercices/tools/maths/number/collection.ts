@@ -93,24 +93,6 @@ class Collection extends Base {
     }
 
     /**
-     * si un nom est précisé, renvoie true si le nœud dépend de la variable,
-     * sinon renvoie la liste des variables dont dépend le noeud
-     * @param {string|undefined} name 
-     * @returns {boolean|Array}
-     */
-    isFunctionOf(name:string|undefined): boolean|Array<string> {
-        if (typeof name == 'undefined') {
-            return _.uniq(_.flatten(this._children.map( c => c.isFunctionOf(undefined) as Array<string> ))).sort()
-        }
-        for (let item of this._children) {
-            if (item.isFunctionOf(name)) {
-                return true
-            }
-        }
-        return false
-    }
-
-    /**
      * Produit une copie de l'objet en substituant la variable spécifiée
      * @param {string} varName le nom de la variable à substituer
      * @param {Base|string|Decimal|number} value la valeur à substituer à la variable
@@ -215,6 +197,18 @@ class Collection extends Base {
         } else {
             return subStrings.join(' ; ')
         }
+    }
+
+    /**
+     * renvoie la dérivée
+     * @param {string} varName 
+     * @returns {Base}
+     */
+    derivate(varName:string):Base {
+        // implémentation spécifique pour Collection
+        return new Collection(
+            this._children.map( c => c.derivate(varName) )
+        )
     }
 }
 

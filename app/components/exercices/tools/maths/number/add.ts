@@ -218,24 +218,6 @@ class AddMinus extends Base {
         return true;
     }
 
-    /**
-     * si un nom est précisé, renvoie true si le nœud dépend de la variable,
-     * sinon renvoie la liste des variables dont dépend le noeud
-     * @param {string|undefined} name 
-     * @returns {boolean|Array}
-     */
-    isFunctionOf(name:string|undefined): boolean|Array<string> {
-        if (typeof name == 'undefined') {
-            return _.uniq(_.flatten(this._children.map( c => c.isFunctionOf(undefined) as Array<string> ))).sort()
-        }
-        for (let item of this._children) {
-            if (item.isFunctionOf(name)) {
-                return true
-            }
-        }
-        return false
-    }
-
     substituteVariable(varName:string, value:Base|string|Decimal|number):Base {
         const children = this._children.map( c => c.substituteVariable(varName, value) )
         if (children.every( (c, i) => c === this._children[i] )) {
@@ -348,6 +330,19 @@ class AddMinus extends Base {
             }
         }
         return result
+    }
+
+    /**
+     * renvoie la dérivée
+     * @param {string} varName 
+     * @returns {Base}
+     */
+    derivate(varName:string):Base {
+        // implémentation spécifique pour AddMinus
+        return new AddMinus(
+            this._children.map( c => c.derivate(varName) ),
+            this._positive.slice()
+        )
     }
 }
 

@@ -114,19 +114,6 @@ class Symbol extends Base {
     }
 
     /**
-     * si un nom est précisé, renvoie true si le nœud dépend de la variable,
-     * sinon renvoie la liste des variables dont dépend le noeud
-     * @param {string|undefined} name 
-     * @returns {boolean|Array}
-     */
-    isFunctionOf(name:string|undefined):boolean|Array<string> {
-        if (typeof name === 'undefined') {
-            return [this._name];
-        }
-        return this._name === name;
-    }
-
-    /**
      * renvoie une représentation tex
      * @returns {string}
      */
@@ -175,6 +162,15 @@ class Symbol extends Base {
             type: "Symbol",
             name: this._name
         }
+    }
+
+    /**
+     * renvoie la dérivée du symbole par rapport à une variable donnée
+     * @param {string} varName
+     * @returns {Base}
+     */
+    derivate(varName:string):Base {
+        return this._name === varName ? Scalar.ONE : Scalar.ZERO
     }
 }
 

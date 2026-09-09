@@ -2,6 +2,8 @@ import _ from "underscore"
 import { Base } from "./base"
 import { Scalar } from "./scalar"
 import { Mult } from "./mult"
+import { Power } from "./power"
+import { AddMinus } from "./add"
 import Decimal from "decimal.js"
 import { Signature } from "./signature"
 import { NestedString } from '@types'
@@ -66,21 +68,6 @@ class Div extends Base {
      */
     subVariables(): NestedString {
         return [...this._left.subVariables(), ...this._right.subVariables()]
-    }
-
-    /**
-     * si un nom est précisé, renvoie true si le nœud dépend de la variable,
-     * sinon renvoie la liste des variables dont dépend le noeud
-     * @param {string|undefined} name 
-     * @returns {boolean|Array}
-     */
-    isFunctionOf(name:string|undefined):boolean|Array<string> {
-        if (typeof name === 'undefined') {
-            const leftVars = this._left.isFunctionOf(undefined) as Array<string>
-            const rightVars = this._right.isFunctionOf(undefined) as Array<string>
-            return _.uniq(leftVars.concat(rightVars)).sort()
-        }
-        return this._left.isFunctionOf(name) as boolean || this._right.isFunctionOf(name) as boolean
     }
 
     substituteVariable(varName:string, value:Base|string|Decimal|number):Base {
@@ -212,6 +199,29 @@ class Div extends Base {
             left: this._left.toDict(),
             right: this._right.toDict()
         }
+    }
+
+    /**
+     * renvoie la dérivée
+     * @param {string} varName 
+     * @returns {Base}
+     */
+    derivate(varName:string):Base {
+        // implémentation spécifique pour Div
+        if (!this.variables.includes(varName)) {
+            return Scalar.ZERO
+        }
+        const up = this._left.derivate(varName)
+        const vp = this._right.derivate(varName)
+        const up_v = Mult.mult(up, this._right)
+        const vp_u = Mult.mult(vp, this._left)
+        const numerator = AddMinus.minus(up_v, vp_u)
+        const denominator = new Power(this._right, Scalar.TWO)
+
+        return new Div(
+            numerator,
+            denominator
+        )
     }
 }
 
