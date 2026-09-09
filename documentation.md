@@ -80,8 +80,9 @@ Exemple :
 On pourra ainsi utiliser
   * les symboles habituels `+`, `-`, `*`, `/`,
   * puissance avec `^` ou `**`, le symbol `²` est reconnu
-  * `cos`, `sin`, `exp`, `log`, `ln`, `tan`, `sqrt`
+  * `cos`, `sin`, `tan`, `atan`, `exp`, `log`, `ln`, `tan`, `sqrt`
   * `mod(x;y)` pour modulo et `div(x;y)` pour la division entière *Attention à bien uttiliser ;*
+  * `diff(expression;x)` permet de calculer une dérivée *; aussi !*
 
 #### Évaluation d'une pile
 
@@ -1182,8 +1183,9 @@ On dispose des paramètres :
   * `solve` reçoit `left`, `right` (deux membres de l'équation) et `name` nom de la variable. Renvoie les solutions
   * `sub` reçoit `expression`, `name` et `value` et renvoie l'expression où on substitué `name` pour `value`. Permet en particulier de calculer $f(x)$.
   * `round` reçoit une valeur `x` et un `entier`. Arrondi à n digits.
-  * `expand` développe l'expression
-  * `diff` dérive l'expression
+  * `expand` développe l'expression. *Attention: pour l'instant, expand utilise forcément nerdamer ce qui crée pour certains calculs des affichages peu sympathiques, donc faire attention si vous voulez afficher le résultat d'un expand*
+  * `derivate` ou `deriver` dérive l'expression selon sa variable qui devrait être unique
+  * `diff` dérive l'expression selon la variable fournie en second argument
   * `max` reçoit `x` et `y` et renvoie le plus grand des deux
   * `min` reçoit `x` et `y` et renvoie le plus petit des deux
   * `simplify` reçoit `x` et en renvoie une version simplifiée
