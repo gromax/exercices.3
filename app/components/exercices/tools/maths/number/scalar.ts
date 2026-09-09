@@ -28,15 +28,24 @@ function gcd(a:Decimal, b:Decimal):Decimal {
 }
 
 class Scalar extends Base {
+
     static REGEX = new RegExp('\\d+[.,]?\\d*(E-?\\d+)?%?', 'i')
+
     /** @type {Scalar} */
     static ONE: Scalar
+
     /** @type {Scalar} */
     static ZERO: Scalar
+
     /** @type {Scalar} */
     static MINUS_ONE: Scalar
+    
     /** @type {Scalar} */
     static NAN: Scalar
+
+    /** @type {Scalar} */
+    static TWO: Scalar
+
 
     /** @type{string} */
     private _chaine = ""
@@ -409,6 +418,20 @@ class Scalar extends Base {
     isPositive() {
         return this._value.isPositive()
     }
+
+    isNegative() {
+        return this._value.isNegative()
+    }
+
+    /**
+     * renvoie la dérivée
+     * @param {string} varName 
+     * @returns {Base}
+     */
+    derivate(varName:string):Base {
+        return Scalar.ZERO
+    }
+
 }
 
 /** @type {Scalar} */
@@ -422,5 +445,9 @@ Scalar.MINUS_ONE = Scalar.ONE.opposite()
 
 /** @type {Scalar} */
 Scalar.NAN = new Scalar(NaN)
+
+/** @type {Scalar} */
+Scalar.TWO = new Scalar(2)
+
 
 export { Scalar }
