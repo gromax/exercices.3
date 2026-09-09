@@ -317,7 +317,9 @@ class MyMath {
         if (typeof expression !== 'string') {
             throw new Error('L\'expression doit être une chaîne de caractères')
         }
-        if (expression.includes('diff(') || expression.includes('expand(')) {
+        //if (expression.includes('diff(') || expression.includes('expand(')) {
+        // myMath prend maintenant en charge diff
+        if (expression.includes('expand(')) {
             // cas particulier où on a une commande nerdamer
             this._expression = expression
             const n = this._getNerdamerProcessed()
@@ -404,7 +406,9 @@ class MyMath {
         } else if (this.isMinusInfinity()) {
             return "-\\infty"
         }
-        return MyMath.latexDenormalization(this._getNerdamerProcessed().toTeX())
+        // je vais préférer ma version de latex
+        return simplify(this._getMyNumber()).toTex()
+        //return MyMath.latexDenormalization(this._getNerdamerProcessed().toTeX())
     }
 
     /**
@@ -575,8 +579,11 @@ class MyMath {
     }
 
     sub(varName:string, value:AcceptedInput):MyMath {
-        const valueStr = MyMath.normalization(MyMath.make(value).toString())
-        return new MyMath({ nerdamer: this._getNerdamerProcessed().sub(varName, valueStr) })
+        const base_value = value instanceof MyMath ? value._getMyNumber() : value
+        const newMyNumber = this._getMyNumber().substituteVariable(varName, base_value)
+        return new MyMath({ mynumber: newMyNumber })
+        // const valueStr = MyMath.normalization(MyMath.make(value).toString())
+        // return new MyMath({ nerdamer: this._getNerdamerProcessed().sub(varName, valueStr) })
     }
 
     subs(vars:Record<string, AcceptedInput>):MyMath {
@@ -597,7 +604,8 @@ class MyMath {
             }
             varName = v[0]
         }
-        const db = derivate(b, varName)
+        //const db = derivate(b, varName)
+        const db = simplify(b.derivate(varName))
         return new MyMath({mynumber:db})
     }
 
