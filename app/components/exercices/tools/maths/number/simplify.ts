@@ -2,6 +2,7 @@ import { AddMinus } from './add'
 import { Mult } from './mult'
 import { Div } from './div'
 import { Power } from './power'
+import { Exponential } from './exponential'
 import { Scalar } from './scalar'
 import { Constant, E } from './constant'
 import { Symbol } from './symbol'
@@ -35,6 +36,9 @@ function simplify(node:Base):Base {
 
     if (node instanceof Power) {
         return powerSimplify(node)
+    }
+    if (node instanceof Exponential) {
+        return exponentialSimplify(node)
     }
     if (node instanceof Function) {
         return functionSimplify(node)
@@ -72,29 +76,18 @@ function collectionSimplify(node:Collection):Base {
 
 
 /**
- * simplification d'une puissance
- * @param {Power} node
+ * simplification d'une exponentielle
+ * @param {Exponential} node
  * @returns {Base}
  */
-function powerSimplify(node:Power):Base {
+function exponentialSimplify(node:Exponential):Base {
     const base = node.base
     const exposant = node.exposant
     const sbase = simplify(base)
     const sexposant = simplify(exposant)
     // cas des exposants nuls
-    if (sexposant instanceof Scalar) {
-        if (sexposant.isZero()) {
-            if (sbase.isZero()) {
-                return Scalar.NAN
-            }
-            return Scalar.ONE
-        }
-        if (sexposant.isOne()) {
-            return sbase
-        }
-        if ((sbase instanceof Scalar) && sexposant.isInteger()) {
-            return sbase.pow(sexposant)
-        }
+    if ((sexposant instanceof Scalar) && sexposant.isInteger()) {
+        return powerSimplify(new Power(sbase, sexposant))
     }
     if (sbase instanceof Scalar) {
         if (sbase.isZero()) {
@@ -110,7 +103,39 @@ function powerSimplify(node:Power):Base {
     if (sbase === base && sexposant === exposant) {
         return node
     }
-    return new Power(sbase, sexposant)
+    return new Exponential(sbase, sexposant)
+}
+
+
+/**
+ * simplification d'une puissance
+ * @param {Power} node
+ * @returns {Base}
+ */
+function powerSimplify(node:Power):Base {
+    const base = node.base
+    const exposant = node.exposant
+    const sbase = simplify(base)
+    // cas des exposants nuls
+    if (exposant.isZero()) {
+        if (sbase.isZero()) {
+            return Scalar.NAN
+        }
+        return Scalar.ONE
+    }
+    if (exposant.isOne()) {
+        return sbase
+    }
+    if (sbase instanceof Scalar) {
+        return sbase.pow(exposant)
+    }
+    if (sbase === E ) {
+        return simplify(new Function('exp', exposant))
+    }
+    if (sbase === base) {
+        return node
+    }
+    return new Power(sbase, exposant)
 }
 
 function functionSimplify(node:Function):Base {
@@ -125,6 +150,22 @@ function functionSimplify(node:Function):Base {
             return (childSim as any).opposite();
         }
     }
+
+    if (funcName === 'diff') {
+        const [expression, variable] = (childSim as Collection).children
+        return simplify(expression.derivate(variable.toString()))
+    }
+
+    if (node.arity === 2) {
+        const [left, right] = (childSim as Collection).children
+        const sLeft = simplify(left)
+        const sRight = simplify(right)
+        if (sLeft === left && sRight === right) {
+            return node
+        }
+        return new Function(funcName, new Collection([sLeft, sRight]))
+    }
+
     if (childSim instanceof Function && childSim.name == 'exp' && funcName == 'ln') {
         return childSim.child
     }
@@ -282,6 +323,12 @@ function _regroupeSameSignatur(items:Array<Base>, positive:Array<boolean>):[Base
     return [simplify(Mult.mult(scalar, w)), true]
 }
 
+/**
+ * Transforme les nœuds numériques en décimaus
+ * mais conserve les symboles
+ * @param {Base} node Le nœud à convertir en décimal si possible.
+ * @returns {Base} Le nœud converti en décimal si possible, sinon le nœud original.
+ */
 function decimalize(node:Base):Base {
     const d = node.toDecimal(undefined)
     if (!d.isNaN()) {
@@ -307,10 +354,15 @@ function decimalize(node:Base):Base {
         return simplify(new Div(newLeft, newRight))
     }
 
-    if (node instanceof Power) {
+    if (node instanceof Exponential) {
         const newBase = decimalize(node.base)
         const newExposant = decimalize(node.exposant)
-        return simplify(new Power(newBase, newExposant))
+        return simplify(Exponential.make(newBase, newExposant))
+    }
+
+    if (node instanceof Power) {
+        const newBase = decimalize(node.base)
+        return simplify(new Power(newBase, node.exposant))
     }
 
     return node
