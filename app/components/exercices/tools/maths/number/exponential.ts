@@ -1,0 +1,264 @@
+import _ from "underscore"
+import { Base } from "./base"
+import { Scalar } from "./scalar"
+import { Signature } from "./signature"
+import { Mult } from "./mult"
+import { Div } from "./div"
+import { Function } from "./function"
+import Decimal from "decimal.js"
+import { AddMinus } from "./add"
+import { NestedString } from '@types'
+import { Power } from "./power"
+
+class Exponential extends Base {
+    /** @type {Base} */
+    private _base:Base
+
+    /** @type {Base} */
+    private _exposant:Base
+
+    /** @type {string|null} */
+    private _string:string|null = null
+
+    /** @type {string|null} */
+    private _stringEN:string|null = null
+
+    /** @type {string|null} */
+    private _stringTex:string|null = null
+
+    static make(base:Base, exposant:Base):Base {
+        if ((exposant instanceof Scalar) && exposant.isInteger()) {
+            return Power.make(base, exposant)
+        }
+        return new Exponential(base, exposant)
+    }
+
+    /**
+     * constructeur
+     * @param {Base} base 
+     * @param {Base} exposant 
+     */
+    constructor(base:Base, exposant:Base) {
+        super()
+        if (!(base instanceof Base)) {
+            throw new Error("base invalide");
+        }
+        if (!(exposant instanceof Base)) {
+            throw new Error("exposant invalide");
+        }
+        this._base = base;
+        this._exposant = exposant;
+    }
+
+    /**
+     * renvoie la liste des variables dont dépend le noeud
+     * @returns {NestedString}
+     */
+    subVariables(): NestedString {
+        return [this._base.subVariables(), this._exposant.subVariables()]
+    }
+
+    private _toStringHelper(lang:string):string {
+        let baseStr = lang === 'en'
+            ? this._base.toStringEn()
+            : lang == 'tex'
+                ? this._base.toTex()
+                : String(this._base)
+        let exposantStr = lang === 'en'
+            ? this._exposant.toStringEn()
+            : lang == 'tex'
+                ? this._exposant.toTex()
+                : String(this._exposant)
+        if (this._base.priority <= this.priority) {
+            if (lang === 'tex') {
+                baseStr = `\\left(${baseStr}\\right)`
+            } else {
+                baseStr = `(${baseStr})`
+            }
+        }
+        if ((this._exposant.priority <= this.priority) || (this._exposant.startsWithMinus)) {
+            if (lang === 'tex') {
+                exposantStr = `\\left(${exposantStr}\\right)`
+            } else {
+                exposantStr = `(${exposantStr})`
+            }
+        }
+        if (lang === 'tex') {
+            return `${baseStr}^{${exposantStr}}`
+        } else {
+            return `${baseStr}^${exposantStr}`
+        }
+    }
+
+    /**
+     * transtypage -> string
+     * @returns {string}
+     */
+    toString():string {
+        if (this._string === null) {
+            this._string = this._toStringHelper('fr')
+        }
+        return this._string
+    }
+
+    toStringEn():string {
+        if (this._stringEN === null) {
+            this._stringEN = this._toStringHelper('en')
+        }
+        return this._stringEN
+    }
+
+    /**
+     * renvoie une représentation tex
+     * @returns {string}
+     */
+    toTex():string {
+        if (this._stringTex === null) {
+            this._stringTex = this._toStringHelper('tex')
+        }
+        return this._stringTex
+    }
+
+    get priority():number {
+        return 3;
+    }
+
+    get base():Base {
+        return this._base;
+    }
+
+    get exposant():Base {
+        return this._exposant;
+    }
+
+    get scalarFactor():Scalar {
+        return Scalar.ONE
+    }
+
+    /**
+     * @returns {boolean} revoie vrai si la puissance est développée
+     */
+    isExpanded():boolean {
+        if (!this._base.isExpanded() || !this._exposant.isExpanded()) {
+            return false
+        }
+        const d = this._exposant.toDecimal(undefined)
+        if (d.isNaN()) {
+            return true
+        }
+        if (d.isInteger() && d.gte(0) && this._base.canBeDistributed) {
+            return false
+        }
+        return true
+    }
+
+    /**
+     * test si le noeud est simplifié
+     * @returns {boolean} revoie faux si la base ou l'exposant ne sont pas simplifiés
+     */
+    isSimplified():boolean {
+        if (!this._base.isSimplified() || !this._exposant.isSimplified()) {
+            return false
+        }
+        const d = this._exposant.toDecimal(undefined)
+        if (d.isNaN()) {
+            return true
+        }
+        if (d.isZero() || d.minus("1").isZero()) {
+            return false
+        }
+        if (d.isInteger() && (this._base instanceof Scalar)) {
+            return false
+        }
+        return true
+    }
+
+    /**
+     * evaluation numérique en decimal
+     * @param {object|undefined} values
+     * @returns {Decimal}
+     */
+    toDecimal(values:Record<string, Decimal|string|number>):Decimal {
+        let base = this._base.toDecimal(values);
+        let exposant = this._exposant.toDecimal(values);
+        return base.pow(exposant);
+    }
+
+    signature():Signature {
+        const expoValue = this._exposant.toDecimal(undefined)
+        if (expoValue.isInteger()) {
+            return this._base.signature().power(expoValue.toNumber())
+        }
+        return super.signature()
+    }
+
+    substituteVariable(varName:string, value:Base|string|Decimal|number):Base {
+        const newBase = this._base.substituteVariable(varName, value)
+        const newExposant = this._exposant.substituteVariable(varName, value)
+        if (newBase === this._base && newExposant === this._exposant) {
+            // pas de changement
+            return this
+        }
+        return new Exponential(newBase, newExposant)
+    }
+
+    substituteVariables(values:Record<string, Base|string|Decimal|number>):Base {
+        const newBase = this._base.substituteVariables(values)
+        const newExposant = this._exposant.substituteVariables(values)
+        if (newBase === this._base && newExposant === this._exposant) {
+            // pas de changement
+            return this
+        }
+        return new Exponential(newBase, newExposant)
+    }
+
+    toFixed(n:number):Base {
+        const newBase = this._base.toFixed(n)
+        const newExposant = this._exposant.toFixed(n)
+        return new Exponential(newBase, newExposant)
+    }
+
+    toDict():object {
+        return {
+            type: "Exponential",
+            base: this._base.toDict(),
+            exposant: this._exposant.toDict()
+        }
+    }
+
+    /**
+     * renvoie la dérivée
+     * @param {string} varName 
+     * @returns {Base}
+     */
+    derivate(varName:string):Base {
+        if (!this.variables.includes(varName)) {
+            return Scalar.ZERO
+        }
+        // implémentation spécifique pour Exponential
+        const baseDer = this._base.derivate(varName)
+        const exposantDer = this._exposant.derivate(varName)
+        if (exposantDer instanceof Scalar && exposantDer.isZero()) {
+            // cas où l'exposant est constant
+            return Mult.mult(
+                this._exposant,
+                Exponential.make(
+                    this._base,
+                    AddMinus.minus(this._exposant, Scalar.ONE)
+                )
+            )
+        }
+        // cas général (utilisation de la règle de la dérivée d'une puissance)
+        const lnBase = new Function("ln", this._base)
+        const baseder_base = Div.div(baseDer, this._base)
+        return Mult.mult(
+            this,
+            AddMinus.add(
+                Mult.mult(exposantDer, lnBase),
+                Mult.mult(this._exposant, baseder_base)
+            )
+        )
+    }
+}
+
+export { Exponential }
