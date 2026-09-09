@@ -1,9 +1,10 @@
 import { AddMinus } from './add'
 import { Mult } from './mult'
 import { Div } from './div'
+import { Exponential } from './exponential'
 import { Power } from './power'
 import { Scalar } from './scalar'
-import { Constant, E } from './constant'
+import { Constant } from './constant'
 import { Symbol } from './symbol'
 import { Base } from './base'
 import { Function } from './function'
@@ -115,11 +116,32 @@ function derivate(node:Base, varName:string):Base {
             const minusSin = new Function('(-)', new Function('sin', child))
             return simplify(Mult.mult(childPrime, minusSin))
         }
+        if (node.name === 'tan') {
+            const cos2 = Power.make(new Function('cos', child), Scalar.TWO)
+            return simplify(Div.div(childPrime, cos2))
+        }
+        if (node.name === 'atan') {
+            const numerator = childPrime
+            const denominator = AddMinus.add(Scalar.ONE, Power.make(child, Scalar.TWO))
+            return simplify(Div.div(numerator, denominator))
+        }
         
         throw new Error(`Dérivée non implémentée pour la fonction ${node.name}`)
     }
 
     if (node instanceof Power) {
+        const base = node.base
+        const exponent = node.exposant
+        const basePrime = derivate(base, varName)
+        const newExponent = new Scalar(exponent.floatValue-1)
+        return Mult.fromList([
+            exponent,
+            basePrime,
+            Power.make(base, newExponent)
+        ])
+    }
+
+    if (node instanceof Exponential) {
         const base = node.base
         const exponent = node.exposant
         const basePrime = derivate(base, varName)
