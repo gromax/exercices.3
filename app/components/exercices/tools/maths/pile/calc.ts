@@ -1,5 +1,6 @@
-import MyMath from '../mymath';
-import { NestedArray, InputType } from '@types';
+import MyMath from '../mymath'
+import { Decimal } from 'decimal.js'
+import { NestedArray, InputType } from '@types'
 
 class Calc {
     static readonly NAME = 'Calc'
@@ -8,7 +9,10 @@ class Calc {
         'divide': Calc.divide,
         'add': Calc.add,
         'sub': Calc.sub,
+        'mod': Calc.mod,
+        'div': Calc.intDivide,
         'abs': Calc.abs,
+        'factorial': Calc.factorial,
         'sign': Calc.sign,
         'substitute': Calc.substitute,
         'solve': Calc.solve,
@@ -29,6 +33,7 @@ class Calc {
         '-': 'Calc.sub',
         'mod': 'Calc.mod',
         'div': 'Calc.intDivide',
+        'factorial': 'Calc.factorial',
         'sign': 'Calc.sign',
         '/': 'Calc.divide',
         'sub': 'Calc.substitute',
@@ -78,9 +83,9 @@ class Calc {
             return x % y
         }
         if ((typeof x === 'string') && (typeof y === 'string')) {
-            return `mod(${x}, ${y})`
+            return `mod(${x}; ${y})`
         }
-        return MyMath.make(`mod(${String(x)}, ${String(y)})`)
+        return MyMath.make(`mod(${String(x)}; ${String(y)})`)
     }
 
     /**
@@ -94,9 +99,9 @@ class Calc {
             return (x-x%y)/y
         }
         if ((typeof x === 'string') && (typeof y === 'string')) {
-            return `(${x} - mod(${x},${y}))/(${y})`
+            return `(${x} - mod(${x};${y}))/(${y})`
         }
-        return MyMath.make(`(${String(x)} - mod(${String(x)},${String(y)}))/(${String(y)})`)
+        return MyMath.make(`(${String(x)} - mod(${String(x)};${String(y)}))/(${String(y)})`)
     }
 
     /**
@@ -157,6 +162,26 @@ class Calc {
             return `sign(${String(x)})`;
         }
         return Math.sign(a);
+    }
+
+    /**
+     * Factorielle de n
+     * @param {InputType} n
+     * @returns {InputType} objet représentant n!
+     */
+    static factorial(n: InputType): string {
+        const _n = MyMath.toInteger(n)
+        if (isNaN(_n)) {
+            throw new Error(`[${String(n)}] Paramètre invalide pour Calc.factorial. Entier requis.`)
+        }
+        if (_n < 0) {
+            throw new Error(`[${String(n)}] Paramètre invalide pour Calc.factorial. Entier positif requis.`)
+        }
+        let result = Decimal('1')
+        for (let i = 2; i <= _n; i++) {
+            result = result.mul(i)
+        }
+        return result.toString()
     }
 
     /**
