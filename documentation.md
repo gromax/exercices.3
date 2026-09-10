@@ -952,8 +952,8 @@ On dispose des paramètres :
   * xmin: par défaut le bord gauche de la fenêtre
   * xmax: par défaut le bord droit de la fenêtre
   * color: couleur du trait
-  * strokeColor: même chose
-  * strokeWidth: épaisseur du trait
+  * strokecolor: même chose
+  * strokewidth: épaisseur du trait
   * dash: pointillé. Par exemple `dash:2`
   * solution: true, l'élément ne sera visible qu'au moment de la solution
 
@@ -1001,7 +1001,7 @@ On dispose des paramètres :
     * on peut faire un mélange (objet point et coordonnées)
     * séparer les deux points par |
   * color, idem que pour point
-  * strokeWidth: épaisseur du trait
+  * strokewidth: épaisseur du trait
   * dash: pointillé. Par exemple `dash:2`
   * solution: true, l'élément ne sera visible qu'au moment de la solution
   * label: l'étiquette nommant la droite
@@ -1085,9 +1085,10 @@ On dispose des paramètres :
   * fixed:true, permet de fixer les points donnés avec des coordonnées
   * color, couleur de remplissage. Si pas défini, pas de remplissage
   * opacite ou opacity: exprimé en %, opacité de l'intérieur
-  * strokeWidth: épaisseur du trait (défaut 1) Pour ne pas avoir de trait, mettre 0
-  * strokeColor: couleur du trait (par défaut, comme color sinon black)
+  * strokewidth: épaisseur du trait (défaut 1) Pour ne pas avoir de trait, mettre 0
+  * strokecolor: couleur du trait (par défaut, comme color sinon black)
   * solution: true, l'élément ne sera visible qu'au moment de la solution
+  * dash: pointillé
 
 ##### Angle
 
@@ -1123,6 +1124,7 @@ On dispose des paramètres :
   * strokecolor ou color, couleur du trait (défaut black)
   * strokewidth: épaisseur du trait (défaut 1)
   * solution: true, l'élément ne sera visible qu'au moment de la solution
+  * dash: pointillé
 
 
 #### Bloc shuffle
