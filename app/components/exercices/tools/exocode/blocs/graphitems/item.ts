@@ -11,16 +11,24 @@ abstract class GraphItem {
     protected _fixed:boolean = false
     protected _assignedInputs: Record<string, number> = {}
     protected _solMode:boolean = false // indique si on est en mode solution
-
+    
+    static readonly AUTHORIZED_PARAMS:Array<string> = []
+    static readonly TYPE: string = 'GraphItem'
     static readonly KNOWNS_INPUTS_ATTRIBUTES:string[] = []
 
     constructor(item:Bloc, cadre: [number, number, number, number], colors:Colors) {
         this.item = item
         this._colors = colors
         this._cadre = cadre
-        this._assignColor('strokeColor')
+        this._assignColor('strokecolor')
         this._assignColor('color')
         this._attrToInputs = this._getAttrToInputs()
+        const unauthorizedParams = Object.keys(this.item.params).filter(
+            key => !(this.constructor as typeof GraphItem).AUTHORIZED_PARAMS.includes(key)
+        )
+        if (unauthorizedParams.length > 0) {
+            throw new Error(`Paramètres non autorisés pour ${this.type}:${this.item.header}: ${unauthorizedParams.join(', ')}`)
+        }
     }
 
     getItemParam(paramName: string): string|undefined {
@@ -67,14 +75,13 @@ abstract class GraphItem {
     }
 
     get type():string {
-        return this._type
+        return (this.constructor as typeof GraphItem).TYPE
     }
 
     get knowns_inputs_attributes():string[] {
         return (this.constructor as typeof GraphItem).KNOWNS_INPUTS_ATTRIBUTES
     }
 
-    abstract _type:string // nom du type d'objet
     abstract createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement|Record<string, JXG.GeometryElement>
 
 
