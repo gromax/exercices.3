@@ -258,6 +258,14 @@ class Function extends Base {
             const [expression, variable] = (this._child as Collection).children
             return `\\frac{d}{d${variable.toTex()}}\\left(${expression.toTex()}\\right)`
         }
+        if (this._name == 'div') {
+            const [left, right] = (this._child as Collection).children
+            return `\\text{div}\\left(${left.toTex()}\\,; ${right.toTex()}\\right)`
+        }
+        if (this._name == 'mod') {
+            const [left, right] = (this._child as Collection).children
+            return `\\text{mod}\\left(${left.toTex()}\\,; ${right.toTex()}\\right)`
+        }
         if (this._name == 'atan') {
             return `\\arctan\\left(${this._child.toTex()}\\right)`
         }
