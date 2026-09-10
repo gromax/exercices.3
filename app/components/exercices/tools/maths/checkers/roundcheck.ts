@@ -8,6 +8,10 @@ class RoundCheck extends AbsChecker {
 
     constructor(expr:string, format:string = "") {
         super(expr, format)
+        if (format == "integer" || format == "entier") {
+            this._digits = 0
+            return
+        }
         const parts = format.split(":")
         const strDigits = parts.length>1
             ? parts[1].trim()
@@ -19,7 +23,7 @@ class RoundCheck extends AbsChecker {
     }
 
     static testFormat(format: string): boolean {
-        return /^round:[0-9]+$/.test(format)
+        return (format == "integer") || (format == "entier") || /^round:[0-9]+$/.test(format)
     }
 
     protected _testFormat():boolean {
