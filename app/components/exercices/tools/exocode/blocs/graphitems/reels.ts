@@ -4,7 +4,13 @@ import _ from "underscore"
 import { getNumberOption, getOption } from "../../misc"
 
 class GraphReels extends GraphItem {
-    _type = 'Réels'
+    static readonly TYPE = 'Réels'
+
+    static readonly AUTHORIZED_PARAMS: string[] = [
+        'y', 'color', 'titlesize', 'ticksize', 'majorheight',
+        'minorheight', 'minorticks', 'strokewidth', 'header'
+    ]
+
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const y = getNumberOption(this.item.params, 'y', 0)
         const color = getOption(this.item.params, 'color', 'black')
