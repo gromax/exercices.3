@@ -1098,6 +1098,7 @@ On dispose des paramètres :
 </angle>
 ```
 On dispose des paramètres :
+  * name: pour le label. On peut utiliser, pour les lettres grecques, des code html comme `&alpha;` ou `&Alpha;` pour les majuscules.
   * points: liste de points séparés par |, il en faut 3
     chacun de ces points pourra être
     * soit un nom de Point déjà défini
@@ -1106,6 +1107,7 @@ On dispose des paramètres :
   * color, couleur de remplissage. Si pas défini, pas de remplissage
   * showvalue:true, indique ou pas la valeur de l'angle
   * solution: true, l'élément ne sera visible qu'au moment de la solution
+  * ortho:true, pour marquer l'angle droit le cas échéant
 
 ##### segment
 
