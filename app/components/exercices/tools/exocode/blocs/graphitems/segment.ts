@@ -4,11 +4,17 @@ import _ from "underscore"
 import { getNumberOption, getOption, getBooleanOption } from "../../misc"
 
 class GraphSegment extends GraphItem {
-    _type = 'Segment'
+    static readonly TYPE = 'Segment'
+
+    static AUTHORIZED_PARAMS: string[] = [
+        "points", "strokewidth", "strokecolor", "color", "fixed", "solution", "name", "dash"
+    ]
+
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const points = this._getPoints(graphObjects)
         const strokeColor = getOption(this.item.params, ['strokecolor', 'color'], 'black')
         const strokeWidth = getNumberOption(this.item.params, 'strokewidth', 1)
+        const dash = getOption(this.item.params, 'dash', '')
 
         const fixed = getBooleanOption(this.item.params, 'fixed', false)
         const options = {
@@ -17,12 +23,15 @@ class GraphSegment extends GraphItem {
             strokeColor: strokeColor,
             fixed: fixed,
         }
+        if (dash) {
+            options['dash'] = dash
+        }
         if (this.item.params.name) {
             options['name'] = this.item.params.name
             options['withLabel'] = true
         }
 
-        if (this.item.params.solution == "true" && !this._solMode) {
+        if (getBooleanOption(this.item.params, 'solution', false) && !this._solMode) {
             options["visible"] = false
         }
         const segment = g.create('segment', points, options) as JXG.Line

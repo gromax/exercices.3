@@ -1,15 +1,20 @@
 import JXG from 'jsxgraph'
 import GraphItem from "./item"
 import _ from "underscore"
+import { getOption, getBooleanOption } from '../../misc'
 
 class GraphIntegrale extends GraphItem {
-    _type = 'Integrale'
+    static readonly TYPE = 'Integrale'
+    static AUTHORIZED_PARAMS = [
+        'color', 'hidelabel', 'fixleft', 'fixright', 'fixed',
+        'solution', 'abscisses', 'fct', 'header'
+    ]
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const abscisses = this._getAbscisses()
-        if (typeof this.item.params.fct === 'undefined') {
+        const fctName = getOption(this.item.params, 'fct', '')
+        if (!fctName) {
             throw new Error(`Intégrale ${this.item.header}: la fonction doit être définie dans un objet intégrale (paramètres fct)`)
         }
-        const fctName = this.item.params.fct
         if (typeof graphObjects[fctName] === 'undefined') {
             throw new Error(`Intégrale ${this.item.header}: la fonction ${fctName} n'existe pas dans les objets graphiques`)
         }
@@ -17,24 +22,25 @@ class GraphIntegrale extends GraphItem {
             throw new Error(`Intégrale ${this.item.header}: l'objet ${fctName} n'est pas une fonction graphique`)
         }
         const fctObject = graphObjects[fctName] as JXG.Curve
-        const options = _.pick(this.item.params, ['color'])
+        const options = {
+            "color": getOption(this.item.params, 'color', 'red')
+        }
         // label donnant la valeur de l'intégrale : masqué sauf si label="true"
-        if (this.item.params.hidelabel == "true") {
+        if (getBooleanOption(this.item.params, 'hidelabel', false)) {
             options["withLabel"] = false
         }
         // points de construction de l'intégrale : on les masque et on les fixe
         const hiddenPoint = { visible: false, fixed: true, name: '' }
         options["baseLeft"] = hiddenPoint
         options["baseRight"] = hiddenPoint
-        if (this.item.params.fixleft == "true" || this.item.params.fixed == "true") {
+        const fixed = getBooleanOption(this.item.params, 'fixed', false)
+        if (getBooleanOption(this.item.params, 'fixleft', false) || fixed) {
             options["curveLeft"] = hiddenPoint
         }
-        if (this.item.params.fixright == "true" || this.item.params.fixed == "true") {
+        if (getBooleanOption(this.item.params, 'fixright', false) || fixed) {
             options["curveRight"] = hiddenPoint
         }
-
-        
-        if (this.item.params.solution == "true" && !this._solMode) {
+        if (getBooleanOption(this.item.params, 'solution', false) && !this._solMode) {
             options["visible"] = false
         }
         const object = g.create('integral', [abscisses, fctObject], options) as JXG.Line

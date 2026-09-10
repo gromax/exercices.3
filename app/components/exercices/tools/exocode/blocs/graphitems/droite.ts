@@ -2,14 +2,25 @@ import JXG from 'jsxgraph'
 import GraphItem from "./item"
 import _ from "underscore"
 import MyMath from "../../../maths/mymath"
-
+import { getBooleanOption, getNumberOption, getOption } from "../../misc"
 class GraphDroite extends GraphItem {
-    _type = 'Droite'
+    static readonly TYPE = 'Droite'
+    static readonly AUTHORIZED_PARAMS = [
+        'color', 'strokewidth', 'dash', 'invisible', 'solution',
+        'label', 'labelsize', 'equation', 'points', 'fixed', 'header'
+    ]
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const points = (typeof this.item.params.equation !== 'undefined')
             ? this._points_from_equation(this.item.params.equation)
             : this._points_from_points(graphObjects)
-        const options = _.pick(this.item.params, ['color', 'strokeWidth', 'dash'])
+        const dash = getOption(this.item.params, 'dash', '')
+        const options = {}
+        if (dash) {
+            options['dash'] = dash
+        }
+        options['strokeColor'] = getOption(this.item.params, ['color', 'strokecolor'], 'black')
+        options['strokeWidth'] = getNumberOption(this.item.params, 'strokewidth', 1)
+
         const labelSize = this.item.params.labelsize || 14 // taille par défaut des labels
         if (this.item.params.invisible == "true" || this.item.params.solution == "true" && !this._solMode) {
             options["visible"] = false
@@ -22,7 +33,10 @@ class GraphDroite extends GraphItem {
                 fontSize: labelSize
             }
         }
-        if (typeof this.item.params.equation !== 'undefined') {
+        const fixed = typeof this.item.params.fixed !== 'undefined'
+            ? getBooleanOption(this.item.params, 'fixed', false)
+            : null
+        if (fixed || typeof this.item.params.equation !== 'undefined') {
             options["fixed"] = true // autrement JXG permet le déplacement
         }
         const line = g.create('line', points, options) as JXG.Line

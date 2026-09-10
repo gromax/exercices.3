@@ -1,10 +1,16 @@
 import JXG from 'jsxgraph'
 import GraphItem from "./item"
 import _ from "underscore"
-import { getNumberOption } from "../../misc"
+import { getBooleanOption, getNumberOption, getOption } from "../../misc"
 
 class GraphPolygon extends GraphItem {
-    _type = 'Polygon'
+    static readonly TYPE = 'Polygon'
+    static readonly AUTHORIZED_PARAMS: string[] = [
+        'points', 'strokewidth', 'strokecolor', 'color',
+        'opacite', 'opacity', 'fixed', 'solution', 'dash',
+        'header'
+    ]
+
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const points = this._getPoints(graphObjects)
         const strokeWidth:number = getNumberOption(this.item.params, 'strokewidth', 1)
@@ -16,24 +22,29 @@ class GraphPolygon extends GraphItem {
                 fixed:this.item.params.fixed === "true"
             }
         }
+        const dash = getOption(this.item.params, 'dash', '')
         if (strokeWidth !== 0) {
             options['borders'] = {
                 strokeColor: strokeColor,
                 strokeWidth: strokeWidth
+            }
+            if (dash) {
+                options['borders']['dash'] = dash
             }
             options['withLines'] = true
         } else {
             options['withLines'] = false
         }
 
-        if (typeof this.item.params.color == 'undefined') {
+        const color = getOption(this.item.params, 'color', '')
+        if (!color) {
             options['fillColor'] = 'none'
             options['fillOpacity'] = 0
         } else {
-            options['fillColor'] = this.item.params.color
+            options['fillColor'] = color
             options['fillOpacity'] = fillOpacity
         }
-        if (this.item.params.solution == "true" && !this._solMode) {
+        if (getBooleanOption(this.item.params, 'solution', false) && !this._solMode) {
             options["visible"] = false
         }
         const polygon = g.create('polygon', points, options) as JXG.Polygon
