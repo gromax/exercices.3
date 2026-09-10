@@ -3,21 +3,42 @@ import JXG from 'jsxgraph'
 import _ from "underscore"
 import MyMath from "../../../maths/mymath"
 
+import { getNumberOption, getOption, getBooleanOption } from "../../misc"
 class GraphPoint extends GraphItem {
-    _type = 'Point'
+    static readonly TYPE = 'Point'
     _fixed = false
     _isGood?: boolean
+    
+    static GOOD_COLOR = 'green'
+    static GOOD_SYMBOL = '✓'
+    static BAD_COLOR = 'red'
+    static BAD_SYMBOL = '✗'
+    static AUTHORIZED_PARAMS: string[] = [
+        'x', 'y', 'name', 'size', 'color', 'fixed', 'solution', 'on',
+        'header', 'distinct', 'hasinputs', 'good'
+    ]
+
     protected _isGoodassignedInputs: Record<string, number> = {}
     static readonly KNOWNS_INPUTS_ATTRIBUTES = ["x", "y"]
+    
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, any>):JXG.GeometryElement|Record<string, JXG.GeometryElement> {
-        const x = this._assignedInputs["x"] || this._parseCoord(this.item.params.x || '0')
-        const y = this._assignedInputs["y"] || this._parseCoord(this.item.params.y || '0')
-        const options = _.pick(this.item.params, ['name', 'size', 'color', 'fixed'])
-        if (this._fixed || this.isInput() && this._solMode) {
-            // ce paramètre est prioritaire sur celui passé dans les options
-            options.fixed = true
+        const x = this._assignedInputs["x"] || getNumberOption(this.item.params, 'x', 0)
+        const y = this._assignedInputs["y"] || getNumberOption(this.item.params, 'y', 0)
+        const fixed = getBooleanOption(this.item.params, 'fixed', false)
+        const assignedName = getOption(this.item.params, 'name', '')
+        const options = {
+            size: getNumberOption(this.item.params, 'size', 2),
+            color: getOption(this.item.params, 'color', 'red')
         }
-        if (this.item.params.solution == "true" && !this._solMode && !this.isInput()) {
+        if (assignedName) {
+            options['name'] = assignedName
+        }
+
+        if (fixed || this.isInput() && this._solMode) {
+            // ce paramètre est prioritaire sur celui passé dans les options
+            options['fixed'] = true
+        }
+        if (getBooleanOption(this.item.params, 'solution', false) && !this._solMode && !this.isInput()) {
             options["visible"] = false
         }
         const [typeElement, attr] = this._calcCible(x, y, this.item.params.on, graphObjects)
@@ -26,17 +47,17 @@ class GraphPoint extends GraphItem {
         if (this._isGood === true) {
             point.setAttribute({
                 label: {
-                    strokeColor: 'green',
+                    strokeColor: GraphPoint.GOOD_COLOR,
                 }
             } as JXG.PointAttributes)
-            point.label.setText(`${name} ✓`)
+            point.label.setText(`${name} ${GraphPoint.GOOD_SYMBOL}`)
         } else if (this._isGood === false) {
             point.setAttribute({
                 label: {
-                    strokeColor: 'red',
+                    strokeColor: GraphPoint.BAD_COLOR,
                 }
             } as JXG.PointAttributes)
-            point.label.setText(`${name} ✗`)
+            point.label.setText(`${name} ${GraphPoint.BAD_SYMBOL}`)
         }
         if (!this._fixed && !this._solMode && this.isInput()) {
             this._connect_inputs(point)
@@ -47,11 +68,11 @@ class GraphPoint extends GraphItem {
             // on crée un 2e point pour représenter la position correcte
             const goodOptions = {
                 ...options,
-                color:"green",
+                color: GraphPoint.GOOD_COLOR,
                 "fixed":true,
-                "name": `${name} ✓`,
+                "name": `${name} ${GraphPoint.GOOD_SYMBOL}`,
                 "label": {
-                    strokeColor: 'green',
+                    strokeColor: GraphPoint.GOOD_COLOR,
                 } 
             } as JXG.PointAttributes
             const [typeElementG, attrG] = this._calcCible(goodPointCoords[0], goodPointCoords[1], this.item.params.on, graphObjects)
@@ -60,7 +81,7 @@ class GraphPoint extends GraphItem {
                 : g.create("point", attrG, goodOptions)
             return {
                 [this.name]: point,
-                [this.name + " ✓"]: goodPoint
+                [`${this.name} ${GraphPoint.GOOD_SYMBOL}`]: goodPoint
             }
         }
         return point
@@ -99,7 +120,7 @@ class GraphPoint extends GraphItem {
      * empêche un l'élément de se confondre avec un autre
      */
     setDistinct(JXG_Objects: Record<string, JXG.GeometryElement>): void {
-        if (!this.item.params.distinct) {
+        if (!getBooleanOption(this.item.params, 'distinct', false)) {
             return
         }
         if (!JXG_Objects[this.name]) {
