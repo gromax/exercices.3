@@ -515,6 +515,7 @@ Voici les formats reconnus :
 
   * numeric : on veut une expression dans laquelle il n'y a aucune variable et cette expression doit être développée un minimum. On n'acceptera pas `(1+2)/3`.
   * round:2 : on veut un nombre arrondi, dans cet exemple à deux chiffres après la virgule.
+  * entier ou integer, équivalent à round:0
   * erreur:0.2 : demande un nombre. Sa valeur ne doit pas excéder une erreur de 0.2 dans l'exemple.
   * empty : indique que l'on accepte l'ensemble vide. On peut alors répondre par `'vide'` ou `'∅'`
   * infini : indique que l'on accepte un infin comme `'+inf'` ou `'-∞'`. Le signe est obligatoire même pour +
