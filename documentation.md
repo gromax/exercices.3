@@ -221,6 +221,7 @@ Comme les mêmes besoins reviennent constamment, il existe divers formats de nom
   * `@__a.f10`, alea flottant de 0 à 10 exclu
   * `@__a.s10`, alea entier de -10 à 10 exclus (de -9 à 9)
   * `@__a.S10`, alea entier de -10 à 10, inclus et sans le 0.
+  * `@__a.P10`, renvoie un premier aléatoire jusqu'à 10 compris. La borne peut aller de 2 à 1000 compris.
   * `@__a.vxyz`, le `v` signale qu'une lettre sera choisi aléatoirement parmi `xyz`. Liste des variable au choix, par ex `@__a.vtAMnK`... Permet de varier les énoncés et de ne pas toujours utiliser `x` comme variable.
 
 #### Infini
@@ -1145,8 +1146,11 @@ On dispose des paramètres :
 #### Module Alea
 
   * `Alea.entier` reçoit `xmin` et `xmax` et renvoie un entier aléatoire entre `xmin` et `xmax` compris.
+  * `Alea.decimal` reçoit `xmin` et `xmax` et renvoie un décimal (float) aléatoire entre `xmin` (compris) et `xmax` (exclu).
   * `Alea.signe` renvoie `-1` ou `1` aléatoirement
   * `Alea.lagrangePolynom` reçoit `xmin`, `ymin`, `xmax`, `ymax` et `n`. Renvoie un polynome de degré `n` interpolant `n+1` points de coordonnées entières pris dans le cadre.
+  * `Alea.choice`, reçoit un tableau et renvoie un des items du tableau au hasard
+
 
 #### Module table
 
@@ -1183,7 +1187,8 @@ On dispose des paramètres :
   * `mod` pour le modulo
   * `float` pour obtenir un float
   * `abs` pour valeur absolue
-  * `exp` calcul l'exponentielle
+  * `exp` calcule l'exponentielle
+  * `factorial` calcule la factorielle
   * `sign` renvoie `-1` pour un négatif et `+1` pour un positif
   * `solve` reçoit `left`, `right` (deux membres de l'équation) et `name` nom de la variable. Renvoie les solutions
   * `sub` reçoit `expression`, `name` et `value` et renvoie l'expression où on substitué `name` pour `value`. Permet en particulier de calculer $f(x)$.
@@ -1198,6 +1203,7 @@ On dispose des paramètres :
 
 #### Module Dist
 
+  * `Dist.bincoef` reçoit les entiers `n` et `k` et renvoie $\begin{pmatrix}n\\ k\end{pmatrix}$.
   * `Dist.binomial` reçoit `n` et `p` et simule un aléa $\mathcal{B}(n;p)$
   * `Dist.binList` reçoit `count`, `n` et `p` et renvoie un tableau de `count` simulations de $\mathcal{B}(n;p)$
   * `Dist.binCDF` reçoit `x`, `n` et `p` et renvoie la probabilité $p(X\leqslant x)$ avec $X$ suivant $\mathcal{B}(n;p)$
