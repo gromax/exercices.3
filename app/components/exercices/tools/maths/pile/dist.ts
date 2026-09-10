@@ -5,10 +5,12 @@
 
 import { InputType } from "@types"
 import MyMath from '../mymath'
+import { Decimal } from 'decimal.js';
 
 class Dist {
     static readonly NAME = 'Dist'
     static readonly METHODS = {
+        'bincoef': Dist.binomialCoefficient,
         'binomial': Dist.binomial,
         'binList': Dist.binomialList,
         'binCDF': Dist.binomialCDF,
@@ -20,6 +22,34 @@ class Dist {
         'normal': Dist.normal,
         'normList': Dist.normalList
     };
+
+    /**
+     * renvoie le coefficient binomial C(n,k)
+     * @param {InputType} n 
+     * @param {InputType} k
+     * @returns {MyMath} le coefficient binomial C(n,k)
+     */
+    static binomialCoefficient(n:InputType, k:InputType):MyMath {
+        const _n = MyMath.toInteger(n)
+        const _k = MyMath.toInteger(k)
+        if (isNaN(_n) || isNaN(_k) || _n < 0) {
+            throw new Error('Paramètres invalides pour le coefficient binomial')
+        }
+        if (_k > _n || _k < 0) {
+            return MyMath.make(0)
+        }
+        const k1 = Math.min(_k, _n - _k)
+        const k2 = Math.max(_k, _n - _k)
+        let result = new Decimal('1');
+        for (let i = k2+1; i <= _n; i++) {
+            result = result.mul(i)
+        }
+        for (let i = 1; i <= k1; i++) {
+            result = result.div(i)
+        }
+        return MyMath.make(result.toString())
+    }
+
 
     /**
      * simule une répétition de n épreuves de Bernoulli de paramètre p
