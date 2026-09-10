@@ -1,6 +1,7 @@
 import { Model, Collection } from 'backbone'
 import { TParams } from "@types"
 import Colors from "../colors"
+import { getBooleanOption } from "../misc"
 
 class ChoiceManager {
     private _params:TParams
@@ -41,7 +42,7 @@ class ChoiceManager {
     }
 
     get squaresOnly():boolean {
-        return (typeof this._params.onlysquares == 'undefined') || Boolean(this._params.onlysquares)
+        return getBooleanOption(this._params, 'onlysquares', true)
     }
 
     private _makeCollection():void {
@@ -66,7 +67,7 @@ class ChoiceManager {
             this._collection.add(m)
         }
         this._notShuffledCollection = this._collection
-        if ((typeof this._params.shuffle === 'undefined') || Boolean(this._params.shuffle)) {
+        if (getBooleanOption(this._params, 'shuffle', false)) {
             this._shuffle()
         }
     }
