@@ -15,7 +15,6 @@ import { Base } from './number/base'
 import { simplify, decimalize } from './number/simplify'
 import Decimal from 'decimal.js'
 import { TParams, InputType, NestedArray } from "@types"
-import { derivate } from './number/derivate'
 
 type AcceptedInput = InputType | Base
 interface MyMathOptions {
