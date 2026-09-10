@@ -4,15 +4,23 @@ import _ from "underscore"
 import { getNumberOption, getOption, getBooleanOption } from "../../misc"
 
 class GraphAngle extends GraphItem {
-    _type = 'Angle'
+    static readonly TYPE = 'Angle'
+    static readonly AUTHORIZED_PARAMS: string[] = [
+        'color', 'radius', 'showvalue', 'fixed', 'name',
+        'solution', 'points', 'header', 'ortho' 
+    ]
+
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const points = this._getPoints(graphObjects)
         const color = getOption(this.item.params, 'color', 'red')
         const radius = getNumberOption(this.item.params, 'radius', 1)
         const showValue = getBooleanOption(this.item.params, 'showvalue', false)
         const fixed = getBooleanOption(this.item.params, 'fixed', false)
+        const ortho = getBooleanOption(this.item.params, 'ortho', false)
+            ? 'square'
+            : 'sector'
         const options = {
-            orthoSensivity:true,
+            orthoType: ortho,
             radius: radius,
             color: color,
             showValue: showValue,
@@ -27,6 +35,7 @@ class GraphAngle extends GraphItem {
             options["visible"] = false
         }
         const angle = g.create('angle', points, options) as JXG.Angle
+        console.log(angle.getName())
         return angle
     }
 
