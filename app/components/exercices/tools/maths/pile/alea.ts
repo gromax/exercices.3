@@ -6,6 +6,7 @@ class Alea {
     static readonly NAME = 'Alea'
     static readonly METHODS = {
         'entier': Alea.entier,
+        'decimal': Alea.decimal,
         'signe': Alea.signe,
         'lagrangePolynome': Alea.lagrangePolynome,
         'choice': Alea.choice
@@ -17,6 +18,14 @@ class Alea {
         const _min = Math.min(a, b);
         const _max = Math.max(a, b);
         return Math.floor(Math.random() * (_max - _min + 1)) + _min;
+    }
+
+    static decimal(min:InputType, max:InputType):number {
+        const a = MyMath.toNumber(min);
+        const b = MyMath.toNumber(max);
+        const _min = Math.min(a, b);
+        const _max = Math.max(a, b);
+        return Math.random() * (_max - _min) + _min;
     }
 
     static signe():number {
