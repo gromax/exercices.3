@@ -21,10 +21,19 @@ class ErreurCheck extends AbsChecker {
         }
     }
 
+    /**
+     * teste le paramètre format fournit dans le input pour savoir si ce checker est celui demandé
+     * @param format le format à tester
+     * @returns true si le format est valide, false sinon
+     */
     static testFormat(format: string): boolean {
-        return /^erreur:[0-9]+$/.test(format)
+        return /^erreur:(0|([0-9]*([.,][0-9]+)?))$/.test(format)
     }
 
+    /**
+     * teste si l'expression fournie par l'utilisateur est un nombre valide
+     * @returns true si l'expression est un nombre valide, false sinon
+     */
     protected _testFormat():boolean {
         const test = /^[+-]?(?:\d+(?:[.,]\d*)?|[.,]\d+)(?:[eE][+-]?\d+)?(?:\s*%)?$/.test(this._expr)
         if (!test) {
