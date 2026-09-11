@@ -1120,7 +1120,7 @@ On dispose des paramètres :
 ```
 
 On dispose des paramètres :
-  * points: liste de points séparés par |, il en faut 3
+  * points: liste de points séparés par |, il en faut 2
     chacun de ces points pourra être
     * soit un nom de Point déjà défini
     * soit une paire de coordonnées (x;y)
@@ -1129,6 +1129,34 @@ On dispose des paramètres :
   * strokewidth: épaisseur du trait (défaut 1)
   * solution: true, l'élément ne sera visible qu'au moment de la solution
   * dash: pointillé
+
+##### vecteur
+
+```
+<vector:name>
+...
+</vector>
+```
+
+Le mot clé `vecteur` est accepté également.
+
+On dispose des paramètres :
+  * points: liste de points séparés par |, il en faut 2 ou 1.
+    chacun de ces points pourra être
+    * soit un nom de Point déjà défini
+    * soit une paire de coordonnées (x;y)
+    Dans le cas où il y a deux points, représentent les extrémités.
+    Dans le cas où il n'y a qu'un point, `points` fonctionne comme `coords`
+  * coords: une paire de coordonnées qui représentes les coordonnées du vecteur.
+  * start: coordonnées ou point représentant l'origine. par défaut (0;0)
+  * fixed:true, permet de fixer le vecteur
+  * strokecolor ou color, couleur du trait (défaut black)
+  * strokewidth: épaisseur du trait (défaut 1)
+  * solution: true, l'élément ne sera visible qu'au moment de la solution
+  * dash: pointillé
+  * showsend:true, montre un point pour l'extrémité, ce qui permet de modifier les coordonnées du vecteur.
+
+Le vecteur est conçu pour ne pas être lié à des points. Donc, si on crée par exemple un vecteur $\overrightarrow{AB}$ basé sur des points $A$ et $B$ déjà créés, le vecteur ne sera pas lié à eux.
 
 
 #### Bloc shuffle
