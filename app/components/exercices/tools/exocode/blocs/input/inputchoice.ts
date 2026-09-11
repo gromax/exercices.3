@@ -73,7 +73,7 @@ class InputChoice extends InputBloc {
             button: true,
         })
 
-        view.on('item:click', (childView) => {
+        view.on('item:click', (childView: typeof ChoiceView) => {
             childView.itemClick(
                 vmax,
                 this._colors,
