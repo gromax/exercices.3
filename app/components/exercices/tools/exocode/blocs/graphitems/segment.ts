@@ -6,8 +6,10 @@ import { getNumberOption, getOption, getBooleanOption } from "../../misc"
 class GraphSegment extends GraphItem {
     static readonly TYPE = 'Segment'
 
-    static AUTHORIZED_PARAMS: string[] = [
-        "points", "strokewidth", "strokecolor", "color", "fixed", "solution", "name", "dash"
+    static readonly KEYWORDS: string[] = ['segment']
+    static readonly AUTHORIZED_PARAMS: string[] = [
+        "header", "points", "strokewidth", "strokecolor",
+        "color", "fixed", "solution", "name", "dash"
     ]
 
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
@@ -18,7 +20,6 @@ class GraphSegment extends GraphItem {
 
         const fixed = getBooleanOption(this.item.params, 'fixed', false)
         const options = {
-            orthoSensivity:true,
             strokeWidth: strokeWidth,
             strokeColor: strokeColor,
             fixed: fixed,
