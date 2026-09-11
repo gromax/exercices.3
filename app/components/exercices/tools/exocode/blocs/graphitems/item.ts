@@ -12,6 +12,7 @@ abstract class GraphItem {
     protected _assignedInputs: Record<string, number> = {}
     protected _solMode:boolean = false // indique si on est en mode solution
     
+    static readonly KEYWORDS: string[] = []
     static readonly AUTHORIZED_PARAMS:Array<string> = []
     static readonly TYPE: string = 'GraphItem'
     static readonly KNOWNS_INPUTS_ATTRIBUTES:string[] = []
