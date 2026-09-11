@@ -5,6 +5,7 @@ import MyMath from "../../../maths/mymath"
 import { getBooleanOption, getNumberOption, getOption } from "../../misc"
 class GraphDroite extends GraphItem {
     static readonly TYPE = 'Droite'
+    static readonly KEYWORDS: string[] = ['droite', 'line']
     static readonly AUTHORIZED_PARAMS = [
         'color', 'strokewidth', 'dash', 'invisible', 'solution',
         'label', 'labelsize', 'equation', 'points', 'fixed', 'header'

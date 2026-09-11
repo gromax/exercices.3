@@ -6,6 +6,7 @@ import { getNumberOption, getOption } from "../../misc"
 class GraphReels extends GraphItem {
     static readonly TYPE = 'Réels'
 
+    static readonly KEYWORDS: string[] = ['réels', 'reels', 'reals']
     static readonly AUTHORIZED_PARAMS: string[] = [
         'y', 'color', 'titlesize', 'ticksize', 'majorheight',
         'minorheight', 'minorticks', 'strokewidth', 'header'

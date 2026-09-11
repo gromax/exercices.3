@@ -5,6 +5,7 @@ import { getNumberOption, getOption, getBooleanOption } from "../../misc"
 
 class GraphAngle extends GraphItem {
     static readonly TYPE = 'Angle'
+    static readonly KEYWORDS: string[] = ['angle']
     static readonly AUTHORIZED_PARAMS: string[] = [
         'color', 'radius', 'showvalue', 'fixed', 'name',
         'solution', 'points', 'header', 'ortho' 

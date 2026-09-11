@@ -5,6 +5,7 @@ import MyMath from "../../../maths/mymath"
 
 import { getNumberOption, getOption, getBooleanOption } from "../../misc"
 class GraphPoint extends GraphItem {
+    static readonly KEYWORDS: string[] = ['point']
     static readonly TYPE = 'Point'
     _fixed = false
     _isGood?: boolean
@@ -13,7 +14,7 @@ class GraphPoint extends GraphItem {
     static GOOD_SYMBOL = '✓'
     static BAD_COLOR = 'red'
     static BAD_SYMBOL = '✗'
-    static AUTHORIZED_PARAMS: string[] = [
+    static readonly AUTHORIZED_PARAMS: string[] = [
         'x', 'y', 'name', 'size', 'color', 'fixed', 'solution', 'on',
         'header', 'distinct', 'hasinputs', 'good'
     ]

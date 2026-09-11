@@ -5,7 +5,8 @@ import { getOption, getBooleanOption } from '../../misc'
 
 class GraphIntegrale extends GraphItem {
     static readonly TYPE = 'Integrale'
-    static AUTHORIZED_PARAMS = [
+    static readonly KEYWORDS: string[] = ['integrale', 'integral']
+    static readonly AUTHORIZED_PARAMS = [
         'color', 'hidelabel', 'fixleft', 'fixright', 'fixed',
         'solution', 'abscisses', 'fct', 'header'
     ]

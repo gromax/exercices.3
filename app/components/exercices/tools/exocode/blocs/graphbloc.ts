@@ -11,6 +11,19 @@ import GraphIntegrale from "./graphitems/integrale"
 import GraphPolygon from "./graphitems/polygon"
 import GraphAngle from "./graphitems/angle"
 import GraphSegment from "./graphitems/segment"
+import GraphVector from "./graphitems/vector"
+
+const GRAPHS_CLASS = [
+    GraphPoint,
+    GraphFunction,
+    GraphReels,
+    GraphDroite,
+    GraphIntegrale,
+    GraphPolygon,
+    GraphAngle,
+    GraphSegment,
+    GraphVector
+]
 
 import FormItemImplementation from "../implementation/formitem"
 
@@ -86,30 +99,12 @@ class GraphBloc extends Bloc implements FormItemImplementation {
     }
 
     private _childToGraphItem(item:Bloc):GraphItem|null {
-        switch (item.tag) {
-            case 'point':
-                return new GraphPoint(item, this._getCadre(), this._colors)
-            case 'function':
-                return new GraphFunction(item, this._getCadre(), this._colors)
-            case 'fonction':
-                return new GraphFunction(item, this._getCadre(), this._colors)
-            case 'reels':
-                return new GraphReels(item, this._getCadre(), this._colors)
-            case 'droite':
-                return new GraphDroite(item, this._getCadre(), this._colors)
-            case 'integrale':
-                return new GraphIntegrale(item, this._getCadre(), this._colors)
-            case 'polygon':
-                return new GraphPolygon(item, this._getCadre(), this._colors)
-            case 'polygone':
-                return new GraphPolygon(item, this._getCadre(), this._colors)
-            case 'angle':
-                return new GraphAngle(item, this._getCadre(), this._colors)
-            case 'segment':
-                return new GraphSegment(item, this._getCadre(), this._colors)
-            default:
-                return null
+        for (const classe of GRAPHS_CLASS) {
+            if (classe.KEYWORDS.includes(item.tag)) {
+                return new classe(item, this._getCadre(), this._colors)
+            }
         }
+        return null
     }
 
     /* Implémentation de FormItemImplementation */

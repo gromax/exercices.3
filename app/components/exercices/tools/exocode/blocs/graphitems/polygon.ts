@@ -5,6 +5,7 @@ import { getBooleanOption, getNumberOption, getOption } from "../../misc"
 
 class GraphPolygon extends GraphItem {
     static readonly TYPE = 'Polygon'
+    static readonly KEYWORDS: string[] = ['polygon', 'polygone']
     static readonly AUTHORIZED_PARAMS: string[] = [
         'points', 'strokewidth', 'strokecolor', 'color',
         'opacite', 'opacity', 'fixed', 'solution', 'dash',

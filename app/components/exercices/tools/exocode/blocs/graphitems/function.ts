@@ -7,6 +7,7 @@ import { getNumberOption, getOption, getBooleanOption } from "../../misc"
 
 class GraphFunction extends GraphItem {
     static readonly TYPE = 'Function'
+    static readonly KEYWORDS: string[] = ['function', 'fonction']
     static readonly AUTHORIZED_PARAMS = [
         'strokecolor', 'strokewidth', 'dash', 'expression',
         'xmin', 'xmax', 'solution', 'header', 'color'
