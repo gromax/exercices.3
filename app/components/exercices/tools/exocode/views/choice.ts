@@ -1,5 +1,6 @@
 import { View, CollectionView } from 'backbone.marionette'
 import { Model, Collection } from 'backbone'
+import type ChoiceManager from '../blocs/choicemanager'
 import choice_tpl from '@templates/exercices/bloc/choice-item.jst'
 import form_choice_layout_tpl from '@templates/exercices/bloc/form-choice-layout.jst'
 import renderTexInDomElement from '../../../../common/rendertex'
@@ -18,36 +19,34 @@ const ChoiceView = View.extend({
 
     /**
      * Répond à un clic sur un item de la liste de choix
-     * @param {number} vmax valeur max pour le choix
-     * @param {Colors} colorSet jeu de couleurs
-     * @param {boolean} squareOnly indique si on utilise des pictogrammes ou non
+     * @param {ChoiceManager} manager instance du gestionnaire de choix
      * @param {HTMLElement} inputNode nœud input associé
-     * @param {Collection} notshuffledCollection 
      */
     itemClick(
-        vmax:number,
-        colorSet:Colors,
-        squareOnly:boolean,
+        manager:ChoiceManager,
         inputNode:JQuery<HTMLElement>,
         notshuffledCollection:Collection
     ):void {
         const model = this.model
         let idx = model.get('index')
         idx += 1
-        if (idx > vmax) {
+        if (idx > manager.valuemax) {
             idx = 1
         }
         model.set({
             index: idx,
-            color: colorSet.getColor(idx),
+            color: manager.colors.getColor(idx),
         });
-        if (!squareOnly) {
+        if (!manager.squaresOnly) {
             model.set({
-                picto: colorSet.getPicto(idx),
+                picto: manager.colors.getPicto(idx),
             })
         }
+        model.set({
+            tag: manager.tags[idx] || ''
+        })
         inputNode.val(
-            notshuffledCollection.map(m => m.get('index')).join('')
+            manager.notShuffledCollection.map(m => m.get('index')).join('')
         );
         this.render();
         renderTexInDomElement(this.el)
