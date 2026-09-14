@@ -9,7 +9,9 @@ class InputChoice extends InputBloc {
 
 
     nombrePts():number {
-        return (this._options || []).length
+        // les options avec le label 'tag' ne sont pas des questions
+        // mais servent à indiquer l'étiquette correspondant à chaque id de réponse
+        return (this._options || []).filter(option => option.label != 'tag').length
     }
 
     /**
@@ -41,26 +43,8 @@ class InputChoice extends InputBloc {
         return this._manager
     }
 
-    private _getParamsMax():string|undefined {
-        const pmax = this._params.max
-        if (typeof pmax === "undefined") {
-            return undefined
-        }
-        if (Array.isArray(pmax)) {
-            throw new Error("Le paramètre max de inputchoice ne devrait pas être un tableau")
-        }
-        if (typeof pmax != "string" && typeof pmax !== "number") {
-            throw new Error("Le paramètre max de inputchoice devrait être un simple nombre")
-        }
-        return String(pmax)
-    }
-
     protected _getView(answers:Record<string, string>):AnyView {
         const manager = this._getManager()
-        const pmax = this._getParamsMax()
-        const vmax = typeof pmax !== 'undefined'
-            ? Math.max(parseInt(pmax), manager.valuemax)
-            : manager.valuemax
 
         const n = this._options ? this._options.length : 0
         const layout = new ChoiceFormLayout({
@@ -75,11 +59,8 @@ class InputChoice extends InputBloc {
 
         view.on('item:click', (childView: typeof ChoiceView) => {
             childView.itemClick(
-                vmax,
-                this._colors,
-                manager.squaresOnly,
+                manager,
                 layout.$el.find(`input[name="${this.header}"]`),
-                manager.notShuffledCollection
             )
         })
         layout.on('render', function() {
