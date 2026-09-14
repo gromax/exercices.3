@@ -45,6 +45,9 @@ class GraphIntegrale extends GraphItem {
             options["visible"] = false
         }
         const object = g.create('integral', [abscisses, fctObject], options) as JXG.Line
+        if (this._choiceTag) {
+            this._attachUniversalPopup(g, object, this._choiceTag)
+        }
         return object
     }
 

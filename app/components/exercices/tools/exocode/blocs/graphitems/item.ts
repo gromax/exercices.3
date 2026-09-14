@@ -11,7 +11,8 @@ abstract class GraphItem {
     protected _fixed:boolean = false
     protected _assignedInputs: Record<string, number> = {}
     protected _solMode:boolean = false // indique si on est en mode solution
-    
+    protected _choiceTag:string // sert pour les daltoniens si un indice de couleur est utilisé
+
     static readonly KEYWORDS: string[] = []
     static readonly AUTHORIZED_PARAMS:Array<string> = []
     static readonly TYPE: string = 'GraphItem'
@@ -21,6 +22,7 @@ abstract class GraphItem {
         this.item = item
         this._colors = colors
         this._cadre = cadre
+        this._choiceTag = ''
         this._assignColor('strokecolor')
         this._assignColor('color')
         this._attrToInputs = this._getAttrToInputs()
@@ -100,6 +102,8 @@ abstract class GraphItem {
                     throw new Error(`Colors object is not defined.`)
                 }
                 this.item.params[paramName] = this._colors.getColor(i)
+                const picto = this._colors.getPicto(i)
+                this._choiceTag = `<i class="fa-solid fa-${picto}"></i>`
             }
         }
     }
@@ -240,6 +244,43 @@ abstract class GraphItem {
             throw new Error(`Objet ${this.type} ${this.item.header}: Coordonnées invalides: ${coordString}`)
         }
         return result
+    }
+
+    /**
+     * attache un popup universel à un élément graphique JXG.GeometryElement.
+     * @param element L'élément graphique JXG.GeometryElement auquel attacher le popup.
+     * @param text Le texte à afficher dans le popup.
+     */
+    protected _attachUniversalPopup(board:JXG.Board, element:JXG.GeometryElement, text:string) {
+        const tooltip = board.create('text', [0, 0, ''], {
+            name: element.getName() + '_tooltip',
+            visible: false,
+            display: 'html',
+            fixed: true,
+            highlight: false
+        })
+        tooltip.setText(text)
+
+        function showTooltip(evt:any) {
+            // Implémentation de l'affichage du tooltip
+            const coords = board.getUsrCoordsOfMouse(evt)
+            tooltip.setPosition(JXG.COORDS_BY_USER, [coords[0], coords[1]])
+            tooltip.setAttribute({ visible: true })
+        }
+        function hideTooltip() {
+            // Implémentation de la fermeture du tooltip
+            tooltip.setAttribute({ visible: false })
+            element.off('mousemove', showTooltip)
+        }
+        
+        // 2. Gestion du clic / appui tactile (Mobile & PC)
+        element.on('down', evt => {
+            element.on('mousemove', showTooltip)
+            showTooltip(evt)
+        });
+        element.on('mousedrag', showTooltip)
+        element.on('up', hideTooltip)
+
     }
 
 }

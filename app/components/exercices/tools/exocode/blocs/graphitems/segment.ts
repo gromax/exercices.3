@@ -36,6 +36,9 @@ class GraphSegment extends GraphItem {
             options["visible"] = false
         }
         const segment = g.create('segment', points, options) as JXG.Line
+        if (this._choiceTag) {
+            this._attachUniversalPopup(g, segment, this._choiceTag)
+        }
         return segment
     }
 

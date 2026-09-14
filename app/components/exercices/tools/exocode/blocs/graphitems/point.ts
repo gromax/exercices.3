@@ -64,6 +64,10 @@ class GraphPoint extends GraphItem {
             this._connect_inputs(point)
         }
 
+        if (this._choiceTag) {
+            this._attachUniversalPopup(g, point, this._choiceTag)
+        }
+
         const goodPointCoords = this._goodPointCoords()
         if (this._isGood === false && goodPointCoords) {
             // on crée un 2e point pour représenter la position correcte
@@ -85,6 +89,7 @@ class GraphPoint extends GraphItem {
                 [`${this.name} ${GraphPoint.GOOD_SYMBOL}`]: goodPoint
             }
         }
+
         return point
     }
 

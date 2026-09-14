@@ -44,6 +44,9 @@ class GraphDroite extends GraphItem {
         if (this.item.params.label) {
             line.label.setText(this.item.params.label)
         }
+        if (this._choiceTag) {
+            this._attachUniversalPopup(g, line, this._choiceTag)
+        }
         return line
     }
     /**

@@ -53,6 +53,9 @@ class GraphVector extends GraphItem {
             options["visible"] = false
         }
         const vector = g.create('segment', [_vStart, _vEnd], options) as JXG.Line
+        if (this._choiceTag) {
+            this._attachUniversalPopup(g, vector, this._choiceTag)
+        }
         return vector
     }
 

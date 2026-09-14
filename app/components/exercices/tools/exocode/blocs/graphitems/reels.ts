@@ -51,6 +51,9 @@ class GraphReels extends GraphItem {
 
         const axe = g.create('axis', [[0, y], [1, y]], options) as JXG.Axis
         axe.label.setText("ℝ")
+        if (this._choiceTag) {
+            this._attachUniversalPopup(g, axe, this._choiceTag)
+        }
         return axe
     }
 }

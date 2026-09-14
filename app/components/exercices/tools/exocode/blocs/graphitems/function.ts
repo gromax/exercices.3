@@ -28,7 +28,11 @@ class GraphFunction extends GraphItem {
             options["visible"] = false
         }
         const func = MyMath.buildFunction(expressionStr)
-        return g.create('functiongraph', [func, xmin, xmax], options)
+        const f = g.create('functiongraph', [func, xmin, xmax], options)
+        if (this._choiceTag) {
+            this._attachUniversalPopup(g, f as JXG.GeometryElement, this._choiceTag)
+        }
+        return f as JXG.GeometryElement
     }
 }
 

@@ -36,7 +36,9 @@ class GraphAngle extends GraphItem {
             options["visible"] = false
         }
         const angle = g.create('angle', points, options) as JXG.Angle
-        console.log(angle.getName())
+        if (this._choiceTag) {
+            this._attachUniversalPopup(g, angle, this._choiceTag)
+        }
         return angle
     }
 
