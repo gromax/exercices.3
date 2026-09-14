@@ -28,14 +28,15 @@ Dans le cadre des options, on ne déclarera que des blocs `<option>`
 
 ```
 <option:nom>
-key1 => label1
-key2 => label2
+key1 => value1
+key2 => value2
+key3 => value3
 </option>
 ```
 
   * `nom` est le nom de l'option et sera accessible ensuite avec `@nom`
   * `key1` est une clé et doit être numérique. C'est elle qui sera stockée en BDD quand  l'utilisateur voudra indiquer l'option choisie.
-  * `label1` est l'étiquette correspondante. Elle sera affichée dans le menu de chois des options.
+  * `value1` est la valeur correspondante. Elle sera affichée dans le menu de chois des options.
 
 *Remarque : On refuse les noms d'options commençant par `_`.*
 
@@ -670,11 +671,13 @@ Les pictogrammes peuvent servir pour les daltoniens. On peut donc choisir de ne 
 
 ```
 <inputchoix:name>
-1 => valeur 1
+1 [label] => valeur 1
 2 => valeur 2
 1 => valeur 3
 </inputchoix>
 ```
+
+`label` est optionnel.
 
 Il s'agit d'un input. `name` est l'identifiant de la réponse. Il faut le placer dans un bloc <form>
 
@@ -725,6 +728,29 @@ Supposons que l'exercice calcule une variable `@g` qui vaut `1` ou `2` selon le 
 </input>
 </form>
 ```
+
+On pourrait aussi procédéer ainsi
+
+```
+<form>
+<inputchoix:a>
+1 [tag] => $\mathbb{N}$
+2 [tag] => $\mathbb{Z}$
+3 [tag] => $\mathbb{D}$
+2 => -5
+1 => 8
+1 => 0
+3 => 5,4
+2 => -1
+</inputchoix>
+</form>
+```
+
+Les trois lignes `[tag]` permettent de préciser l'étiquette correspondant à 1, 2 et 3.
+
+Ainsi, on aura directement des étiquettes au lien des carrés de couleurs ou des pictogrammes pour les choix et il n'est pas nécessaire de faire précéder d'un bloc choix.
+
+Cela peut être plus lisible selon les cas et permet d'éviter l'usage de couleurs qui pourraient handicaper des élèves qui ne distinguent pas les couleurs.
 
 #### Bloc Table
 
