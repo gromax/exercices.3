@@ -18,7 +18,7 @@ class Bloc extends Node {
     protected _paramsString:string
     protected _params:TParams
     protected _defaultOption?:string
-    protected _options?:Array<[string, string]>
+    protected _options?:Array<Option>
     protected _colors?:Colors
 
     constructor(tag:string, paramsString:string, closed:boolean) {
@@ -118,8 +118,7 @@ class Bloc extends Node {
                 continue
             }
             if (item instanceof Option) {
-                const [key, value] = item.getValue(params)
-                this.setOption(key, value)
+                this.setOption(item.getValue(params))
             }
             const runned:TRunResult = item.run(params)
             if (runned === "halt") {
@@ -156,24 +155,24 @@ class Bloc extends Node {
         this.run({})
         const options:Record<string, string> = {}
         if (this._options) {
-            for (const [key, value] of this._options) {
-                if (options[key] !== undefined) {
-                    console.warn(`La clé ${key} est définie plusieurs fois dans les options d'un même bloc <option>`)
+            for (const option of this._options) {
+                if (options[option.key] !== undefined) {
+                    console.warn(`La clé ${option.key} est définie plusieurs fois dans les options d'un même bloc <option>`)
                 }
-                options[key] = value
+                options[option.key] = option.value
             }
         }
         return [this._paramsString, this._defaultOption, options]
     }
 
-    setOption(key:string, value:string):void {
+    setOption(option:Option):void {
         if (this._defaultOption === undefined) {
-            this._defaultOption = key
+            this._defaultOption = option.key
         }
         if (this._options === undefined) {
             this._options = []
         }
-        this._options.push([key, value])
+        this._options.push(option)
     }
 
     toString():string {
