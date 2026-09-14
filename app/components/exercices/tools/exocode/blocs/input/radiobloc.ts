@@ -3,9 +3,10 @@ import InputBloc from "./inputbloc"
 import RadioView from "../../views/radioview"
 import { InputResultView } from "../../views/inputview"
 import { AnyView } from "@types"
+import Option from "../../option"
 
 class RadioBloc extends InputBloc {
-    protected _options:Array<[string, string]>
+    protected _options:Array<Option>
 
     static readonly LABEL = 'radio'
 
@@ -40,8 +41,8 @@ class RadioBloc extends InputBloc {
     }
 
     protected _getOption(key:string):string {
-        const option = this._options.find(([k, _]) => k === key)
-        return option ? option[1] : ''
+        const option = this._options.find((option) => option.key === key)
+        return option ? option.value : ''
     }
 
     protected _calcResult(userData:Record<string, string>):[AnyView, number] {
