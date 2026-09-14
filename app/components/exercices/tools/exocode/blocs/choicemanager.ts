@@ -1,12 +1,15 @@
+import _ from 'underscore'
 import { Model, Collection } from 'backbone'
 import { TParams } from "@types"
 import Colors from "../colors"
+import Option from "../option"
 import { getBooleanOption } from "../misc"
 
 class ChoiceManager {
     private _params:TParams
     private _colors:Colors
-    private _options?:Array<[string, string]>
+    private _options?:Array<Option>
+    private _tags: Record<number, string>
     private _isform:boolean
     private _collection:Collection<Model>
     private _notShuffledCollection:Collection<Model>
@@ -16,19 +19,34 @@ class ChoiceManager {
      * constructeur
      * @param {TParams} params paramètres du bloc parent
      * @param {Colors} colors couleurs à utiliser
-     * @param {object} options options de choix
+     * @param {Array<Option>} options options de choix
      * @param {boolean} isform indique si c'est un formulaire
      */
     constructor(
         params:TParams,
         colors:Colors,
-        options:Array<[string, string]>,
+        options:Array<Option>,
         isform:boolean
     ) {
         this._params = params || {}
         this._colors = colors
-        this._valuemax = 0
-        this._options = options
+        const strParamMax = String(this._params["max"]) || "0"
+        this._valuemax = parseInt(strParamMax) ||  0
+        if (isNaN(this._valuemax)) {
+            this._valuemax = 0
+        }
+        const optionKeyMax = _.max(options.map(option => parseInt(option.key))) || 0
+        this._valuemax = Math.max(this._valuemax, optionKeyMax)
+        this._options = options.filter(option => option.label != 'tag')
+        this._tags = options
+            .filter(option => option.label == 'tag')
+            .reduce(
+                (acc, option) => {
+                    acc[parseInt(option.key)] = option.value
+                    return acc
+                },
+                {} as Record<number, string>
+            )
         this._isform = isform || false
         this._makeCollection()
     }
@@ -45,24 +63,43 @@ class ChoiceManager {
         return getBooleanOption(this._params, 'onlysquares', true)
     }
 
+    get tags(): Record<number, string> {
+        return {...this._tags}
+    }
+
+    get colors():Colors {
+        return this._colors
+    }
+
     private _makeCollection():void {
         this._collection = new Collection()
         const squareOnly = this.squaresOnly
         if (typeof this._options === 'undefined') {
             this._options = []
         }
-        for (const [key, value] of this._options) {
-            const index = parseInt(key)
+
+        const useTags = (Object.keys(this._tags).length > 0)
+        for (const option of this._options) {
+            const index = parseInt(option.key)
             const showIndex = this._isform ? 0 : index
-            this._valuemax = Math.max(this._valuemax, index)
+            const picto = this._isform && useTags
+                ? 'question'
+                : squareOnly ? 'square' : this._colors.getPicto(showIndex)
+            const goodpicto = this._isform && useTags && this._tags[index]
+                ? this._tags[index]
+                : squareOnly ? 'square' : this._colors.getPicto(index)
+
             const m = new Model({
-                caption: value,
+                caption: option.value,
                 index: showIndex,
                 goodIndex:index,
                 color: this._colors.getColor(showIndex),
-                picto: squareOnly ? 'square' : this._colors.getPicto(showIndex),
+                picto: picto,
                 goodcolor: this._colors.getColor(index),
-                goodpicto: squareOnly ? 'square' : this._colors.getPicto(index),
+                goodpicto: goodpicto,
+                tag: this._tags[showIndex] || '',
+                goodTag: this._tags[index] || '',
+                useTags: useTags,
             });
             this._collection.add(m)
         }
