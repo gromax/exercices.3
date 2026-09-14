@@ -1117,6 +1117,7 @@ On dispose des paramètres :
   * strokecolor: couleur du trait (par défaut, comme color sinon black)
   * solution: true, l'élément ne sera visible qu'au moment de la solution
   * dash: pointillé
+  * open:true ou ouvert:true, pour une ligne polygonale ouverte
 
 ##### Angle
 

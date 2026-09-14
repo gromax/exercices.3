@@ -9,10 +9,11 @@ class GraphPolygon extends GraphItem {
     static readonly AUTHORIZED_PARAMS: string[] = [
         'points', 'strokewidth', 'strokecolor', 'color',
         'opacite', 'opacity', 'fixed', 'solution', 'dash',
-        'header'
+        'header', 'open'
     ]
 
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
+        const open = getBooleanOption(this.item.params, ['open', 'ouvert'], false)
         const points = this._getPoints(graphObjects)
         const strokeWidth:number = getNumberOption(this.item.params, 'strokewidth', 1)
         const strokeColor = this.item.params.strokecolor || this.item.params.color||'black'
@@ -42,13 +43,19 @@ class GraphPolygon extends GraphItem {
             options['fillColor'] = 'none'
             options['fillOpacity'] = 0
         } else {
+            options['hasInnerPoints'] = true
             options['fillColor'] = color
             options['fillOpacity'] = fillOpacity
         }
         if (getBooleanOption(this.item.params, 'solution', false) && !this._solMode) {
             options["visible"] = false
         }
-        const polygon = g.create('polygon', points, options) as JXG.Polygon
+        const polygon = open
+            ? g.create('polygonalchain', points, options) as JXG.PolygonalChain
+            : g.create('polygon', points, options) as JXG.Polygon
+        if (this._choiceTag) {
+            this._attachUniversalPopup(g, polygon, this._choiceTag)
+        }
         return polygon
     }
 
