@@ -6,40 +6,55 @@ import { TParams } from "@types"
 class Option extends Node{
     private _key:string
     private _value:string
+    private _label:string
 
-    static readonly REGEX = /^(@?[\w]+)\s*=>(.*)/;
+    static readonly REGEX = /^(?<key>@?[\w]+)\s*(?<label>\[\w+\])?\s*=>(?<value>.*)/
     static parse(line:string):Option|null {
-        const m = line.match(Option.REGEX);
-        if (m) {
-            return new Option(m[1], m[2]);
+        const m = line.match(Option.REGEX)
+        if (m?.groups) {
+            const key = m.groups.key
+            const value = m.groups.value
+            const label = m.groups.label
+                ? m.groups.label.slice(1, -1)
+                : ''
+            return new Option(key, label, value)
         } else {
-            return null;
+            return null
         }
     }
 
-    private constructor(key:string, value:string) {
+    private constructor(key:string, label:string,value:string) {
         super("option")
-        this._key = key;
-        this._value = value.trim();
+        this._key = key.trim()
+        this._label = label.trim()
+        this._value = value.trim()
     }
 
     get key():string {
-        return this._key;
+        return this._key
     }
     
     get value():string {
-        return this._value;
+        return this._value
     }
 
-    getValue(params:TParams):[string,string] {
+    get label():string {
+        return this._label
+    }
+
+    getValue(params:TParams):Option {
         const key = this._key.startsWith('@')
             ? getValue(this._key, params)
             : this._key
         if (Array.isArray(key)) {
             throw new Error(`${this.toString()} : Une clé d'option ne peut être un tableau`)
         }
-        const value = MyMath.substituteExpressions(this._value, params);
-        return [String(key), value]
+        const value = MyMath.substituteExpressions(this._value, params)
+        const stringKey = String(key)
+        if (isNaN(parseInt(stringKey))) {
+            throw new Error(`${this.toString()} : Une clé d'option doit être un nombre entier après substitution`)
+        }
+        return new Option(String(key), this._label, value)
     }
 
     run(params:TParams):TRunResult {
@@ -47,8 +62,11 @@ class Option extends Node{
     }
 
     toString():string {
-        return `${this._key} => ${this._value}`;
+        if (this._label) {
+            return `${this._key} [${this._label}] => ${this._value}`
+        }
+        return `${this._key} => ${this._value}`
     }
 }
 
-export default Option;
+export default Option
