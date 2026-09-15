@@ -51,7 +51,7 @@ try
     $pdo->prepare("CREATE TABLE IF NOT EXISTS `".PREFIX_BDD."devoirs` (
   `id` int NOT NULL AUTO_INCREMENT,
   `idOwner` int NOT NULL COMMENT 'id du propriétaire',
-  `idClasse` int NOT NULL COMMENT 'id de la classe',
+  `idClasse` int DEFAULT NULL COMMENT 'id de la classe',
   `nom` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'nom de la fiche',
   `description` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT 'description de la fiche',
   `dateDebut` date NOT NULL COMMENT 'date de début',
