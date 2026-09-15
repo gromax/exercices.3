@@ -127,10 +127,19 @@ class devoirs
     }
 
     /**
+     * Crée une copie du devoir en archive (sans classe).
+     * @return array|false
+     */
+    public function archive()
+    {
+        return $this->clone(true);
+    }
+
+    /**
      * Clone un devoir spécifique par son ID.
      * @return array|false
      */
-    public function clone()
+    public function clone($archive = false)
     {
         $uLog=Logged::getFromToken();
         if ($uLog->isOff())
@@ -160,7 +169,7 @@ class devoirs
             EC::set_error_code(403);
             return false;
         }
-        $newDevoir = $devoir->clone();
+        $newDevoir = $devoir->clone($archive);
         $responseDevoir = $newDevoir->insert();
         if ($responseDevoir ===null)
         {
@@ -245,7 +254,7 @@ class devoirs
             EC::set_error_code(403);
             return false;
         }
-        $id = (integer) $this->params['id'];
+        $id = (int) $this->params['id'];
         $devoir=Devoir::getObject($id);
         if ($devoir === null)
         {
