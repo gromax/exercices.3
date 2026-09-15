@@ -44,6 +44,32 @@ abstract class Item
     ##################################### METHODES STATIQUES #####################################
 
     /**
+     * retourne le type pour l'insertion de $value en base de données
+     * @param string $type Type de la colonne (integer, string, boolean, datetime, date)
+     * @param mixed $value Valeur à insérer
+     * @return int Constante PDO correspondant au type
+     */
+    protected static function getType($type, $value)
+    {
+        switch ($type) {
+            case "integer_or_null":
+                return $value !== null ? PDO::PARAM_INT : PDO::PARAM_NULL;
+            case "integer":
+                return PDO::PARAM_INT;
+            case "string":
+                return PDO::PARAM_STR;
+            case "boolean":
+                return PDO::PARAM_BOOL;
+            case "datetime":
+                return PDO::PARAM_STR;
+            case "date":
+                return PDO::PARAM_STR;
+            default:
+                return PDO::PARAM_STR; // valeur par défaut si type inconnu
+        }
+    }
+
+    /**
      * Retourne l'attribut identifiant de l'objet.
      * @return array<string>
      */
@@ -492,6 +518,9 @@ abstract class Item
             $type = static::champs()[$key]['type'] ?? "";
             switch ($type)
             {
+            case "integer_or_null":
+                $values[$key] = $value !== null ? (int) $value : null;
+                break;
             case "integer":
                 $values[$key] = (int) $value;
                 break;
@@ -666,12 +695,16 @@ abstract class Item
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $champs = implode(", ", array_map(function($k){ return "`$k`"; }, array_keys($toInsert)));
             $tokens_values = implode(", ", array_map(function($k){ return ":$k"; }, array_keys($toInsert)));
-            $stmt = $pdo->prepare("INSERT INTO ".PREFIX_BDD.static::$BDDName." ( $champs ) VALUES ( $tokens_values )");
+            $dbName = PREFIX_BDD.static::$BDDName;
+            $stmt = $pdo->prepare(<<<SQL
+                INSERT INTO {$dbName} ( {$champs} ) VALUES ( {$tokens_values} )
+            SQL
+            );
             foreach ($toInsert as $k => $v) {
                 $champs = static::champs();
                 if (isset($champs[$k]) && isset($champs[$k]['type']))
                 {
-                    $type = static::$TYPES[$champs[$k]['type']] ?? PDO::PARAM_STR;
+                    $type = static::getType($champs[$k]['type'], $v);
                 } else {
                     $type = PDO::PARAM_STR;
                 }
@@ -738,9 +771,13 @@ abstract class Item
             $pdo=new PDO(BDD_DSN,BDD_USER,BDD_PASSWORD);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $modifications = implode(", ", array_map(function($k){ return "`$k`=:$k"; }, array_keys($params)));
-            $stmt = $pdo->prepare("UPDATE ".PREFIX_BDD.static::$BDDName." SET $modifications WHERE id = :id");
+            $dbName = PREFIX_BDD.static::$BDDName;
+            $stmt = $pdo->prepare(<<<SQL
+                UPDATE {$dbName}  SET {$modifications} WHERE id = :id
+                SQL
+            );
             foreach ($params as $k => $v) {
-                $stmt->bindValue(":$k", $v, static::$TYPES[static::champs()[$k]['type']] ?? PDO::PARAM_STR);
+                $stmt->bindValue(":$k", $v, static::getType(static::champs()[$k]['type'], $v));
             }
             $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
             $stmt->execute();
