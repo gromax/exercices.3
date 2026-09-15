@@ -84,6 +84,7 @@ On pourra ainsi utiliser
   * `cos`, `sin`, `tan`, `atan`, `exp`, `log`, `ln`, `tan`, `sqrt`
   * `mod(x;y)` pour modulo et `div(x;y)` pour la division entière *Attention à bien uttiliser ;*
   * `diff(expression;x)` permet de calculer une dérivée *; aussi !*
+  * `pgcd(x;y)` et `ppcm(x;y)`
 
 #### Évaluation d'une pile
 
@@ -1240,6 +1241,8 @@ Le vecteur est conçu pour ne pas être lié à des points. Donc, si on crée pa
   * `-`, `+`, `/` : idem
   * `div` pour la division entière
   * `mod` pour le modulo
+  * `pgcd` pour le PGCD
+  * `ppcm` pour le PPCM
   * `float` pour obtenir un float
   * `abs` pour valeur absolue
   * `exp` calcule l'exponentielle
