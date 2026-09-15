@@ -16,7 +16,7 @@ final class Devoir extends Item
         return [
             'nom' => ['def' => "", 'type'=> 'string'],                 // nom du devoir
             'idOwner' => ['def' => 0, 'type'=> 'integer'],                 // id du propriétaire du devoir
-            'idClasse' => ['def' => 0, 'type'=> 'integer'],                // id de la classe associée
+            'idClasse' => ['def' => null, 'type'=> 'integer_or_null'],                // id de la classe associée
             'nomClasse' => ['def' => "", 'type'=> 'string', 'foreign'=>'classes.nom'], // nom de la classe associée
             'nomOwner' => ['def' => "", 'type'=> 'string', 'foreign'=>'users.nom'], // nom du propriétaire du devoir
             'description' => ['def' => "", 'type'=> 'string'], // descriptif du devoir
@@ -34,6 +34,8 @@ final class Devoir extends Item
         return [
             'inner' => [
                 'users' => 'devoirs.idOwner = users.id',
+            ],
+            'left' => [
                 'classes' => 'devoirs.idClasse = classes.id'
             ]
         ];
@@ -43,20 +45,23 @@ final class Devoir extends Item
     
     /**
      * Clone le devoir actuel
+     * @param bool $archive Indique si le devoir cloné doit être archivé (sans classe)
      * @return Devoir Nouveau devoir cloné
      */
-    public function clone()
+    public function clone($archive = false)
     {
         $newDevoir = new Devoir([
             "nom" => $this->get("nom"),
             "idOwner" => $this->get("idOwner"),
-            "idClasse" => $this->get("idClasse"),
+            "idClasse" => $archive ? null : $this->get("idClasse"),
             "description" => $this->get("description"),
             "dateDebut" => $this->get("dateDebut"),
             "dateFin" => $this->get("dateFin")
         ]);
         return $newDevoir;
     }
+
+
 }
 
 ?>
