@@ -9,6 +9,32 @@ import { Power } from "./power"
 import Decimal from "decimal.js"
 import { Signature } from "./signature"
 import { NestedString } from '@types'
+
+function PGCD(a: Decimal, b: Decimal): Decimal {
+    if (!a.isInteger() || !b.isInteger()) {
+        return new Decimal('NaN') // Entiers requis pour le PGCD.
+    }
+    if (a.isZero() && b.isZero()) {
+        return new Decimal('NaN') // PGCD(0,0) n'est pas défini.
+    }
+    a = a.abs()
+    b = b.abs()
+    while (!b.isZero()) {
+        const r = a.modulo(b)
+        a = b
+        b = r
+    }
+    return a
+}
+
+function PPCM(a: Decimal, b: Decimal): Decimal {
+    if (a.isZero() || b.isZero()) return new Decimal(0)
+    a = a.abs()
+    b = b.abs()
+    return a.times(b).dividedBy(PGCD(a, b))
+}
+
+
 class Function extends Base {
     /** @type {Base} */
     private _child:Base
@@ -26,15 +52,17 @@ class Function extends Base {
     private _derForDiff: Base | null = null
 
     static readonly NAMES = [
-        'sqrt', '(-)', '(+)', 'cos', 'sin', 'tan', 'atan', 'ln', 'log', 'exp', 'inverse', 'sign', 'mod', 'div', 'diff'
+        'sqrt', '(-)', '(+)', 'cos', 'sin', 'tan', 'atan', 'ln', 'log', 'exp', 'inverse', 'sign', 'mod', 'div', 'diff', 'pgcd', 'ppcm'
     ]
 
     static readonly EN_NAMES = {
         'ln': 'log',
         'log': 'log10',
+        'pgcd': 'gcd',
+        'ppcm': 'lcm',
     }
 
-    static readonly ARITY2 = ['mod', 'div', 'diff']
+    static readonly ARITY2 = ['mod', 'div', 'diff', 'pgcd', 'ppcm']
 
     /**
      * constructeur d'une fonction mathématique
@@ -119,6 +147,8 @@ class Function extends Base {
         switch (name) {
             case 'mod': return value1.modulo(value2)
             case 'div': return value1.minus(value1.modulo(value2)).dividedBy(value2)
+            case 'pgcd': return PGCD(value1, value2)
+            case 'ppcm': return PPCM(value1, value2)
             default: return new Decimal(NaN)
         }
     }
@@ -265,6 +295,14 @@ class Function extends Base {
         if (this._name == 'mod') {
             const [left, right] = (this._child as Collection).children
             return `\\text{mod}\\left(${left.toTex()}\\,; ${right.toTex()}\\right)`
+        }
+        if (this._name == 'pgcd') {
+            const [left, right] = (this._child as Collection).children
+            return `\\text{pgcd}\\left(${left.toTex()}\\,; ${right.toTex()}\\right)`
+        }
+        if (this._name == 'ppcm') {
+            const [left, right] = (this._child as Collection).children
+            return `\\text{ppcm}\\left(${left.toTex()}\\,; ${right.toTex()}\\right)`
         }
         if (this._name == 'atan') {
             return `\\arctan\\left(${this._child.toTex()}\\right)`

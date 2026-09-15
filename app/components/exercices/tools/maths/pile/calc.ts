@@ -11,6 +11,8 @@ class Calc {
         'sub': Calc.sub,
         'mod': Calc.mod,
         'div': Calc.intDivide,
+        'pgcd': Calc.pgcd,
+        'ppcm': Calc.ppcm,
         'abs': Calc.abs,
         'factorial': Calc.factorial,
         'sign': Calc.sign,
@@ -33,6 +35,8 @@ class Calc {
         '-': 'Calc.sub',
         'mod': 'Calc.mod',
         'div': 'Calc.intDivide',
+        'pgcd': 'Calc.pgcd',
+        'ppcm': 'Calc.ppcm',
         'factorial': 'Calc.factorial',
         'sign': 'Calc.sign',
         '/': 'Calc.divide',
@@ -102,6 +106,54 @@ class Calc {
             return `(${x} - mod(${x};${y}))/(${y})`
         }
         return MyMath.make(`(${String(x)} - mod(${String(x)};${String(y)}))/(${String(y)})`)
+    }
+
+    /**
+     * Plus grand commun diviseur (PGCD) de x et y.
+     * @param {InputType} x 
+     * @param {InputType} y 
+     * @returns {InputType} objet représentant pgcd(x, y)
+     */
+    static pgcd(x: InputType, y: InputType): InputType {
+        if ((typeof x === 'number') && (typeof y === 'number')) {
+            let a = Math.abs(x)
+            let b = Math.abs(y)
+            if (!Number.isInteger(a) || !Number.isInteger(b)) {
+                throw new Error(`[${String(a)} , ${String(b)}] Entiers requis pour le PGCD.`)
+            }
+            if (a==0 && b==0) {
+                throw new Error(`PGCD(0;0) n'est pas défini.`)
+            }
+            while (b !== 0) {
+                const r = a % b
+                a = b
+                b = r
+            }
+            return a
+        }
+        if ((typeof x === 'string') && (typeof y === 'string')) {
+            return `pgcd(${x}; ${y})`
+        }
+        return MyMath.make(`pgcd(${String(x)}; ${String(y)})`)
+    }
+
+    /**
+     * Plus petit commun multiple (PPCM) de x et y.
+     * @param {InputType} x 
+     * @param {InputType} y 
+     * @returns {InputType} objet représentant ppcm(x, y)
+     */
+    static ppcm(x: InputType, y: InputType): InputType {
+        if ((typeof x === 'number') && (typeof y === 'number')) {
+            const a = Math.abs(x)
+            const b = Math.abs(y)
+            if (a === 0 || b === 0) return 0
+            return (a * b) / (Calc.pgcd(a, b) as number)
+        }
+        if ((typeof x === 'string') && (typeof y === 'string')) {
+            return `ppcm(${x}; ${y})`
+        }
+        return MyMath.make(`ppcm(${String(x)}; ${String(y)})`)
     }
 
     /**
