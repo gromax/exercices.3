@@ -1,4 +1,5 @@
 import _ from "underscore"
+import { inputTypeToString } from "../../misc"
 import InputBloc from "./inputbloc"
 import RadioView from "../../views/radioview"
 import { InputResultView } from "../../views/inputview"
@@ -49,7 +50,7 @@ class RadioBloc extends InputBloc {
         const name = this.header
         const userValue = userData[name] || ''
         const userValueTag = this._getOption(userValue)
-        const solution = this.params.solution
+        const solution = inputTypeToString(this.params.solution)
         const solutionTag = this._getOption(solution)
         const tag = this.params.tag
         const entete = tag?`${tag} : `:''
