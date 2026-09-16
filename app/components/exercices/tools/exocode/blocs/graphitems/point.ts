@@ -16,7 +16,7 @@ class GraphPoint extends GraphItem {
     static BAD_SYMBOL = '✗'
     static readonly AUTHORIZED_PARAMS: string[] = [
         'x', 'y', 'name', 'size', 'color', 'fixed', 'solution', 'on',
-        'header', 'distinct', 'hasinputs', 'good'
+        'header', 'distinct', 'hasinputs', 'good', 'labelsize', 'forme'
     ]
 
     protected _isGoodassignedInputs: Record<string, number> = {}
@@ -25,11 +25,18 @@ class GraphPoint extends GraphItem {
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, any>):JXG.GeometryElement|Record<string, JXG.GeometryElement> {
         const x = this._assignedInputs["x"] || getNumberOption(this.item.params, 'x', 0)
         const y = this._assignedInputs["y"] || getNumberOption(this.item.params, 'y', 0)
+        const labelSize = getNumberOption(this.item.params, 'labelsize', 14)
         const fixed = getBooleanOption(this.item.params, 'fixed', false)
         const assignedName = getOption(this.item.params, 'name', '')
+        const forme = getOption(this.item.params, 'forme', 'circle')
         const options = {
             size: getNumberOption(this.item.params, 'size', 2),
-            color: getOption(this.item.params, 'color', 'red')
+            label: {
+                autoPosition: true,
+                fontSize: labelSize
+            },
+            color: getOption(this.item.params, 'color', 'red'),
+            face: forme
         }
         if (assignedName) {
             options['name'] = assignedName
@@ -49,14 +56,16 @@ class GraphPoint extends GraphItem {
             point.setAttribute({
                 label: {
                     strokeColor: GraphPoint.GOOD_COLOR,
-                }
+                },
+                color: GraphPoint.GOOD_COLOR
             } as JXG.PointAttributes)
             point.label.setText(`${name} ${GraphPoint.GOOD_SYMBOL}`)
         } else if (this._isGood === false) {
             point.setAttribute({
                 label: {
                     strokeColor: GraphPoint.BAD_COLOR,
-                }
+                },
+                color: GraphPoint.BAD_COLOR
             } as JXG.PointAttributes)
             point.label.setText(`${name} ${GraphPoint.BAD_SYMBOL}`)
         }
@@ -76,10 +85,8 @@ class GraphPoint extends GraphItem {
                 color: GraphPoint.GOOD_COLOR,
                 "fixed":true,
                 "name": `${name} ${GraphPoint.GOOD_SYMBOL}`,
-                "label": {
-                    strokeColor: GraphPoint.GOOD_COLOR,
-                } 
             } as JXG.PointAttributes
+            goodOptions.label.strokeColor = GraphPoint.GOOD_COLOR
             const [typeElementG, attrG] = this._calcCible(goodPointCoords[0], goodPointCoords[1], this.item.params.on, graphObjects)
             const goodPoint = typeElementG === "glider"
                 ? g.create("glider", attrG, goodOptions)
