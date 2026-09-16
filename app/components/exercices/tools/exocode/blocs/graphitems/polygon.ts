@@ -1,7 +1,7 @@
 import JXG from 'jsxgraph'
 import GraphItem from "./item"
 import _ from "underscore"
-import { getBooleanOption, getNumberOption, getOption } from "../../misc"
+import { getOption, getBooleanOption, inputTypeToString, getNumberOption } from '../../misc'
 
 class GraphPolygon extends GraphItem {
     static readonly TYPE = 'Polygon'
@@ -65,10 +65,11 @@ class GraphPolygon extends GraphItem {
      * @returns {[[number,number]|JXG.Point, [number,number]|JXG.Point]} coordonnées de deux points de la droite
      */
     protected _getPoints(graphObjects:Record<string, JXG.GeometryElement>): Array<[number,number]|JXG.Point> {
-        const stringPoints = this.item.params.points
-        if (typeof stringPoints === 'undefined') {
+        const stringPointsParam = this.item.params.points
+        if (typeof stringPointsParam === 'undefined') {
             throw new Error(`Polygon ${this.item.header}: la polyligne doit être définie par une équation ou deux points`)
         }
+        const stringPoints = inputTypeToString(stringPointsParam)
         const points = stringPoints.split('|')
         if (points.length < 2) {
             throw new Error(`Polygon ${this.item.header}, attribut points [${stringPoints}]: la polyligne doit avoir au moins deux points séparés par '|'`)

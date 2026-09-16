@@ -1,7 +1,7 @@
 import JXG from 'jsxgraph'
 import GraphItem from "./item"
 import _ from "underscore"
-import { getNumberOption, getOption, getBooleanOption } from "../../misc"
+import { getNumberOption, getOption, getBooleanOption, inputTypeToString } from "../../misc"
 
 class GraphVector extends GraphItem {
     static readonly TYPE = 'Vector'
@@ -65,13 +65,14 @@ class GraphVector extends GraphItem {
      * @returns {[[number,number]|JXG.Point, [number,number]|JXG.Point]} coordonnées de deux points du vecteur
      */
     protected _getPoints(graphObjects:Record<string, JXG.GeometryElement>): [[number,number], [number,number]] {
-        const stringParam = this.item.params.points || this.item.params.coords
-        if (typeof stringParam === 'undefined') {
+        const pointsParam = this.item.params.points || this.item.params.coords
+        if (typeof pointsParam === 'undefined') {
             throw new Error(`Vector ${this.item.header}: le vecteur doit être défini par deux points`)
         }
-        const points = stringParam.split('|')
+        const stringPoints = inputTypeToString(pointsParam)
+        const points = stringPoints.split('|')
         if ((points.length ==0) || (points.length > 2)) {
-            throw new Error(`Vector ${this.item.header}, attribut points ou coords [${stringParam}]: le vecteur doit être défini par 1 paire de coordonnées ou 2 points séparés par '|'`)
+            throw new Error(`Vector ${this.item.header}, attribut points ou coords [${stringPoints}]: le vecteur doit être défini par 1 paire de coordonnées ou 2 points séparés par '|'`)
         }
         const points2 = points
             .map((p: string) => this._getPoint(graphObjects, p.trim()))
@@ -93,7 +94,7 @@ class GraphVector extends GraphItem {
             const [x0,y0] = startCoords
             return [startCoords, [x0+dx, y0+dy]]
         }
-        return points2
+        return points2 as [[number,number], [number,number]]
     }
 }
 

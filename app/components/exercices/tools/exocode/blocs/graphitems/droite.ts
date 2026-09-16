@@ -1,5 +1,6 @@
 import JXG from 'jsxgraph'
 import GraphItem from "./item"
+import { inputTypeToString } from "../../misc"
 import _ from "underscore"
 import MyMath from "../../../maths/mymath"
 import { getBooleanOption, getNumberOption, getOption } from "../../misc"
@@ -12,7 +13,7 @@ class GraphDroite extends GraphItem {
     ]
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const points = (typeof this.item.params.equation !== 'undefined')
-            ? this._points_from_equation(this.item.params.equation)
+            ? this._points_from_equation(inputTypeToString(this.item.params.equation))
             : this._points_from_points(graphObjects)
         const dash = getOption(this.item.params, 'dash', '')
         const options = {}
@@ -42,7 +43,7 @@ class GraphDroite extends GraphItem {
         }
         const line = g.create('line', points, options) as JXG.Line
         if (this.item.params.label) {
-            line.label.setText(this.item.params.label)
+            line.label.setText(inputTypeToString(this.item.params.label))
         }
         if (this._choiceTag) {
             this._attachUniversalPopup(g, line, this._choiceTag)
@@ -103,15 +104,16 @@ class GraphDroite extends GraphItem {
      * @returns {[[number,number]|JXG.Point, [number,number]|JXG.Point]} coordonnées de deux points de la droite
      */
     protected _points_from_points(graphObjects:Record<string, JXG.GeometryElement>): [[number,number]|JXG.Point, [number,number]|JXG.Point] {
-        const stringPoints = this.item.params.points
-        if (typeof stringPoints === 'undefined') {
+        const stringPointsParam = this.item.params.points
+        if (typeof stringPointsParam === 'undefined') {
             throw new Error(`Droite ${this.item.header}: la droite doit être définie par une équation ou deux points`)
         }
+        const stringPoints = inputTypeToString(stringPointsParam)
         const points = stringPoints.split('|')
         if (points.length !== 2) {
             throw new Error(`Droite ${this.item.header}, attribut points [${stringPoints}]: la droite doit être définie par deux points séparés par '|'`)
         }
-        return points.map((p: string) => this._getPoint(graphObjects, p.trim()))
+        return points.map((p: string) => this._getPoint(graphObjects, p.trim())) as [[number,number]|JXG.Point, [number,number]|JXG.Point]
     }
 }
 

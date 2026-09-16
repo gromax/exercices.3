@@ -2,6 +2,7 @@ import JXG from 'jsxgraph'
 import Bloc from "../bloc"
 import Colors from '../../colors'
 import MyMath from "@components/exercices/tools/maths/mymath"
+import { inputTypeToString } from '@components/exercices/tools/exocode/misc'
 
 abstract class GraphItem {
     protected item:Bloc
@@ -35,7 +36,8 @@ abstract class GraphItem {
     }
 
     getItemParam(paramName: string): string|undefined {
-        return this.item.params[paramName]
+        const paramValue = this.item.params[paramName]
+        return inputTypeToString(paramValue)
     }
 
     setSolMode():void {
@@ -95,7 +97,7 @@ abstract class GraphItem {
      */
     protected _assignColor(paramName:string):void {
         if (typeof this.item.params[paramName] !== 'undefined') {
-            const color = this.item.params[paramName]
+            const color = inputTypeToString(this.item.params[paramName])
             const i = parseInt(color)
             if (!isNaN(i)) {
                 if (!this._colors) {
@@ -164,7 +166,7 @@ abstract class GraphItem {
         if (typeof this.item.params["hasinputs"] === 'undefined') {
             return {}
         }
-        const inputsString:string = this.item.params["hasinputs"]
+        const inputsString:string = inputTypeToString(this.item.params["hasinputs"])
         const inputsArray = inputsString.split(';')
         const inputs:Record<string, string> = {}
         for (const input of inputsArray) {

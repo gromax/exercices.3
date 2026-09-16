@@ -1,7 +1,7 @@
 import JXG from 'jsxgraph'
 import GraphItem from "./item"
 import _ from "underscore"
-import { getOption, getBooleanOption } from '../../misc'
+import { getOption, getBooleanOption, inputTypeToString } from '../../misc'
 
 class GraphIntegrale extends GraphItem {
     static readonly TYPE = 'Integrale'
@@ -59,8 +59,9 @@ class GraphIntegrale extends GraphItem {
         if (typeof this.item.params.abscisses === 'undefined') {
             return [this._cadre[0], this._cadre[1]]
         }
-        const param = this.item.params.abscisses
-        const stringItems = param.split('|')
+        const abscissesParam = this.item.params.abscisses
+        const abscisseStr = inputTypeToString(abscissesParam)
+        const stringItems = abscisseStr.split('|')
         if (stringItems.length !== 2) {
             throw new Error(`Intégrale ${this.item.header}, les abscisses doivent être séparées par '|'`)
         }

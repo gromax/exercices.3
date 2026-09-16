@@ -3,7 +3,8 @@ import JXG from 'jsxgraph'
 import _ from "underscore"
 import MyMath from "../../../maths/mymath"
 
-import { getNumberOption, getOption, getBooleanOption } from "../../misc"
+import { getNumberOption, getOption, getBooleanOption, inputTypeToString } from "../../misc"
+import { NestedInput } from "@components/types/InputType"
 class GraphPoint extends GraphItem {
     static readonly KEYWORDS: string[] = ['point']
     static readonly TYPE = 'Point'
@@ -100,15 +101,17 @@ class GraphPoint extends GraphItem {
         return point
     }
 
-    private _calcCible(x:number|Function, y:number|Function, paramOn:string|undefined, graphObjects:Record<string, any>): ['point'|'glider',any[]] {
-        if (paramOn && !graphObjects[paramOn]) {
-            throw new Error(`L'objet graphique '${paramOn}' n'existe pas.`)
-        }
-        if (paramOn) {
-            return ["glider", [x, y, graphObjects[paramOn]]] 
-        } else {
+    private _calcCible(x:number|Function, y:number|Function, paramOn:NestedInput|undefined, graphObjects:Record<string, any>): ['point'|'glider',any[]] {
+        if (!paramOn) {
             return ["point", [x,y]]
         }
+        if (typeof paramOn != "string") {
+            throw new Error(`le paramètre on [${paramOn}] n'a pas le type attendu.`)
+        }
+        if (!graphObjects[paramOn]) {
+            throw new Error(`L'objet graphique '${paramOn}' n'existe pas.`)
+        }
+        return ["glider", [x, y, graphObjects[paramOn]]]
     }
 
     /**
@@ -143,7 +146,7 @@ class GraphPoint extends GraphItem {
         if (!(obj instanceof JXG.Point)) {
             return
         }
-        const distinct = this.item.params.distinct
+        const distinct = inputTypeToString(this.item.params.distinct)
         const tolerance = distinct.includes(";") ? parseFloat(distinct.split(";")[1]) : 1
         const namesString:string = distinct.includes(";") ? distinct.split(";")[0] : distinct
         const names:Array<string> = namesString.split(",").map((name: string) => name.trim())
@@ -188,10 +191,11 @@ class GraphPoint extends GraphItem {
     }
 
     protected _goodPointCoords(): [number, number, number]|undefined {
-        const good = this.item.params["good"]
-        if (typeof good == "undefined") {
+        const goodParam = this.item.params["good"]
+        if (typeof goodParam === "undefined") {
             return undefined
         }
+        const good = inputTypeToString(goodParam)
         const regex =  /^\(\s*(-?\d+(?:[.,]\d+)?)\s*;\s*(-?\d+(?:[.,]\d+)?)(?:\s*;\s*(-?\d+(?:[.,]\d+)?))?\s*\)$/
         const match = good.match(regex)
         if (match) {
@@ -210,12 +214,13 @@ class GraphPoint extends GraphItem {
             // déjà fait
             return
         }
-        const good = this.item.params["good"]
-        if (typeof good == "undefined") {
+        const goodParam = this.item.params["good"]
+        if (typeof goodParam === "undefined") {
             console.warn(`Le paramètre "good" de ${this.name} n'est pas défini`)
             this._isGood = true
             return
         }
+        const good = inputTypeToString(goodParam)
 
         const goodPointCoords = this._goodPointCoords()
         if (goodPointCoords) {
