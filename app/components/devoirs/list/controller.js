@@ -27,6 +27,10 @@ const Controller = MnObject.extend({
             archives: archives,
         })
 
+        panel.on("items:filter", (filterCriterion) => {
+            devoirsListView.trigger("set:filter:criterion", filterCriterion, { preventRender: false })
+        })
+
         listItemsLayout.on("render", () => {
             listItemsLayout.getRegion('panelRegion').show(panel)
             listItemsLayout.getRegion('contentRegion').show(devoirsListView)
