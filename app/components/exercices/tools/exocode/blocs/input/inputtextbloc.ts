@@ -1,7 +1,6 @@
 import _ from "underscore"
 import InputBloc from "./inputbloc"
 import { InputView, InputResultView } from "../../views/inputview"
-import { InputType } from '@types'
 import { checkFormat, checkValue, checkExcluded } from "@mathstools/checkers/check"
 import { formatValue } from "@components/exercices/tools/maths/misc/formatvalue"
 import { View } from "backbone.marionette"
@@ -181,7 +180,7 @@ class InputTextBloc extends InputBloc {
         }
     }
 
-    protected _verify(userValue:string, solution:InputType|Array<InputType>):boolean {
+    protected _verify(userValue:string, solution:NestedInput):boolean {
         if (Array.isArray(solution)) {
             return solution.some(sol => this._verify(userValue, sol))
         }
@@ -193,9 +192,6 @@ class InputTextBloc extends InputBloc {
             return false
         }
         const excluded = this.params.excluded
-        if (Array.isArray(excluded)) {
-            return excluded.some(exc => checkExcluded(userValue, exc, this._format || 'none'))
-        }
         return checkExcluded(userValue, excluded, this._format || 'none')
     }
 }
