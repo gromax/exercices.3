@@ -69,7 +69,7 @@ class Bloc extends Node {
         return this._paramsString || ''
     }
 
-    get params():Record<string, any> {
+    get params():TParams {
         return this._params
     }
 
