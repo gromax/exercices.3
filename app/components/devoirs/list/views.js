@@ -1,23 +1,22 @@
 import { View, CollectionView } from 'backbone.marionette'
 import DestroyWarn from '../../behaviors/destroy.js'
-import { FlashItem, FilterList, SortList } from '../../behaviors.js'
+import { FlashItem, FilterList, SortList, FilterPanel } from '../../behaviors.js'
 
 import panel_tpl from '@templates/devoirs/list/devoirs-list-panel.jst'
 import no_devoir_tpl from '@templates/devoirs/list/devoir-list-none.jst'
 import devoir_item_tpl from '@templates/devoirs/list/devoir-list-item.jst'
 import devoirs_list_tpl from '@templates/devoirs/list/devoir-list.jst'
 
-
-
-
 const DevoirsPanel = View.extend({
     adminMode: false,
     showInactifs: true,
     template: panel_tpl,
-    templateContext() {
+    behaviors: [FilterPanel],
+        templateContext() {
         return {
             showAddButton: this.getOption("showAddButton"),
             archives: this.getOption("archives"),
+            filterCriterion: this.getOption("filterCriterion") || "",
         };
     },
     triggers: {
@@ -71,7 +70,7 @@ const DevoirsCollectionView = CollectionView.extend({
     behaviors: [FilterList, SortList],
     childViewEventPrefix: "item",
     childViewContainer: "tbody",
-    filterKeys: ["nom", "nomProf"],
+    filterKeys: ["nom", "nomProf","nomClasse"],
     baseFilter(childModel) {
         const archives = this.getOption("archives") || false
         return (childModel.get("idClasse") === null) == archives
