@@ -98,13 +98,17 @@ function evaluate(
             const vals = expression.slice(1, -1).split(',').map(v => v.trim())
             return evaluate(vals, params)
         }
-        expression = substituteParams(expression, params)
+
         if (typeof expression === 'string'
             && expression.startsWith('"')
             && expression.endsWith('"')) {
             // chaîne de caractères
-            return expression
+            const formatedExpr = MyMath.substituteExpressions(expression, params)
+            // je souhaite supprimer d'éventuelles variables brutes restantes
+            return substituteParams(formatedExpr, params)
         }
+        expression = substituteParams(expression, params)
+
     }
     return MyMath.make(expression as InputType)
 }
