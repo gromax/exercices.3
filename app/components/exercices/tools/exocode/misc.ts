@@ -2,6 +2,9 @@
  * Fichier contenant des fonctions utilitaires diverses pour l'application.
  */
 
+import type { NestedInput } from '@types'
+import MyMath from "@components/exercices/tools/maths/mymath"
+
 function getOption(
     options: Record<string, any>,
     key: string|Array<string>,
@@ -63,4 +66,21 @@ function getBooleanOption(
     return defaultValue
 }
 
-export { getOption, getNumberOption, getBooleanOption }
+function inputTypeToString(value: NestedInput): string {
+    if (Array.isArray(value)) {
+        throw new Error(`${value} est un tableau. Interdit ici.`)
+    }
+    if (typeof value === 'string') {
+        return value
+    }
+    if (typeof value === 'number') {
+        return value.toString()
+    }
+    if (value instanceof MyMath) {
+        return value.toFloat().toString()
+    }
+    return String(value)
+    }
+
+
+export { getOption, getNumberOption, getBooleanOption, inputTypeToString }
