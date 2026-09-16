@@ -287,7 +287,11 @@ class MyMath {
             return res
         }
         if (format === 'b') {
-            return String(replacement)
+            const brutReplacement = String(replacement)
+            if (brutReplacement.startsWith('"') && brutReplacement.endsWith('"')) {
+                return brutReplacement.slice(1, -1)
+            }
+            return brutReplacement
         }
         return MyMath.make(replacement).toFormat(format)
     }
