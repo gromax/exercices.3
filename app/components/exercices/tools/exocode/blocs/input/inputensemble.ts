@@ -3,7 +3,7 @@ import InputTextBloc from "./inputtextbloc"
 import { checkFormat,checkValue } from "@mathstools/checkers/check"
 import { formatValue } from "@components/exercices/tools/maths/misc/formatvalue"
 import MyMath from "@mathstools/mymath"
-import { AnyView } from "@types"
+import { AnyView, NestedInput } from "@types"
 
 
 class InputEnsemble extends InputTextBloc {
@@ -154,7 +154,7 @@ class InputEnsemble extends InputTextBloc {
         }
     }
 
-    protected _verify(userValue:string, solution:string|Array<string>):boolean {
+    protected _verify(userValue:string, solution:NestedInput):boolean {
         if (Array.isArray(solution)) {
             return solution.some(sol => this._verify(userValue, sol))
         }
@@ -162,7 +162,7 @@ class InputEnsemble extends InputTextBloc {
             return false
         }
         const results = this._cutInterval(userValue)
-        const sols = this._cutInterval(solution)
+        const sols = this._cutInterval(String(solution))
         if (results === null || sols === null) {
             return false
         }
@@ -189,13 +189,13 @@ class InputEnsemble extends InputTextBloc {
         return true
     }
 
-    private _formatSolution(solution:string|Array<string>):string {
+    private _formatSolution(solution:NestedInput):string {
         if (Array.isArray(solution)) {
             return solution.map(sol => this._formatSolution(sol)).join(' ou ')
         }
-        const results = this._cutInterval(solution)
+        const results = this._cutInterval(String(solution))
         if (results === null) {
-            return solution
+            return String(solution)
         }
         if (results.length === 0) {
             return '$\\emptyset$'
