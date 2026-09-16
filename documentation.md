@@ -516,19 +516,19 @@ Le paramètre format permet d'indiquer le format attendu.
 
 Voici les formats reconnus :
 
-  * numeric : on veut une expression dans laquelle il n'y a aucune variable et cette expression doit être développée un minimum. On n'acceptera pas `(1+2)/3`.
-  * round:2 : on veut un nombre arrondi, dans cet exemple à deux chiffres après la virgule.
-  * entier ou integer, équivalent à round:0
-  * erreur:0.2 : demande un nombre. Sa valeur ne doit pas excéder une erreur de 0.2 dans l'exemple.
-  * empty : indique que l'on accepte l'ensemble vide. On peut alors répondre par `'vide'` ou `'∅'`
+  * `numeric` : on veut une expression dans laquelle il n'y a aucune variable et cette expression doit être développée un minimum. On n'acceptera pas `(1+2)/3`.
+  * `round:2` : on veut un nombre arrondi, dans cet exemple à deux chiffres après la virgule.
+  * `entier` ou integer, équivalent à `round:0`
+  * `erreur:0.2` : demande un nombre. Sa valeur ne doit pas excéder une erreur de 0.2 dans l'exemple.
+  * `empty` : indique que l'on accepte l'ensemble vide. On peut alors répondre par `'vide'` ou `'∅'`
   * infini : indique que l'on accepte un infin comme `'+inf'` ou `'-∞'`. Le signe est obligatoire même pour +
-  * expand : indique que l'on attend une expression développée.
-  * var:x : indique que l'expression peut dépendre de x. on pourrait écrire `var:xn` pour autoriser une expression dépendant de `x` et de `n`.
+  * `expand` : indique que l'on attend une expression développée.
+  * `var:x` : indique que l'expression peut dépendre de x. on pourrait écrire `var:xn` pour autoriser une expression dépendant de `x` et de `n`.
   Il faut fournir un résultat simplifié (par ex, les calculs de nombre comme 2+3 ou 2x+3x doivent être simplifiés)
-  * var:x:expand, comme le précédent mais en indiquand que l'on veut forcer le développement
-  * equation:xy : indique que l'on attend une équation linéaire dépendant de x et y comme 3x+2y-5=0. Dans ce cas la solution ne devra être qu'une expression membre gauche = 0. Par ex si l'équation est possible `3x = 4` la solution aura la forme `3x-4`, sous entendu = 0.
-  * vecteur:2:colinear:notnul  le 2 est la taille (il faut au moins 2), "colinear" et "notnul" sont optionnels. "colinear" indique que l'on accepte un vecteur colinéaire et "notnul" indique que l'on acceptera pas un vecteur nul.
-  * criterion:vars:expression : il s'agit d'un critère général. Par exemple `criterion:xy:x+y==0` acceptera une paire `x;y` dont la somme est 0, comme `2;-2`. Dans l'expression, on pourra ajouter `x0`, `y0` pour prendre les valeurs de la solution proposée.
+  * `var:x:expand`, comme le précédent mais en indiquand que l'on veut forcer le développement
+  * `equation:xy` : indique que l'on attend une équation linéaire dépendant de $x$ et $y$ comme $3x+2y-5=0$. Dans ce cas la solution ne devra être qu'une expression membre gauche = 0. Par ex si l'équation est possible `3x = 4` la solution aura la forme `3x-4`, sous entendu = 0.
+  * `vecteur:2:colinear:notnul`  le 2 est la taille (il faut au moins 2), "colinear" et "notnul" sont optionnels. "colinear" indique que l'on accepte un vecteur colinéaire et "notnul" indique que l'on acceptera pas un vecteur nul.
+  * `criterion:vars:expression` : il s'agit d'un critère général. Par exemple `criterion:xy:x+y==0` acceptera une paire `x;y` dont la somme est 0, comme `2;-2`. Dans l'expression, on pourra ajouter `x0`, `y0` pour prendre les valeurs de la solution proposée.
 
 Il ne serait pas logique de proposer à la fois numeric et round mais on peut demander empty et numeric par exemple.
 
