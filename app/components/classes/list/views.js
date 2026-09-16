@@ -1,81 +1,82 @@
 import { View, CollectionView } from 'backbone.marionette'
-import { FlashItem, FilterList } from '../../behaviors.js';
-import DestroyWarn from '../../behaviors/destroy.js';
+import FlashItem from '../../behaviors/flashitem.js'
+import FilterList from '../../behaviors/filterlist.js'
+import DestroyWarn from '../../behaviors/destroy.js'
 import no_item_tpl from '@templates/classes/list/classe-list-none.jst'
 import item_view_tpl from '@templates/classes/list/classe-list-item.jst'
 import classes_view_tpl from '@templates/classes/list/classe-list.jst'
 import panel_tpl from '@templates/classes/list/classe-list-panel.jst'
 
 const NoItemView = View.extend({
-  template: no_item_tpl,
-  tagName: "tr",
-  className: "alert"
-});
+    template: no_item_tpl,
+    tagName: "tr",
+    className: "alert"
+})
 
 const ItemView = View.extend({
-  tagName: "tr",
-  className() {
-    return this.model.get('dead') ? "table-danger" : "";
-  },
-  template: item_view_tpl,
-  behaviors: [
-    DestroyWarn,
-    {
-      behaviorClass: FlashItem,
-      preCss: "table-"
-    }
-  ],
-  
-  triggers: {
-    "click td a.js-edit": "edit",
-    "click td a.js-classe-prof": "classes:prof",
-    "click button.js-users": "users",
-    "click a.js-users": "users",
-    "click": "show"
-  },
+    tagName: "tr",
+    className() {
+        return this.model.get('dead') ? "table-danger" : ""
+    },
+    template: item_view_tpl,
+    behaviors: [
+        DestroyWarn,
+        {
+            behaviorClass: FlashItem,
+            preCss: "table-"
+        }
+    ],
+    
+    triggers: {
+        "click td a.js-edit": "edit",
+        "click td a.js-classe-prof": "classes:prof",
+        "click button.js-users": "users",
+        "click a.js-users": "users",
+        "click": "show"
+    },
 
-  templateContext() {
-    const showProfName = this.getOption("showProfName");
-    return {
-      showProfName: showProfName,
-      linkProf: showProfName,
-      showFillClassButton: this.getOption("showFillClassButton")
-    };
-  }
-});
+    templateContext() {
+        const showProfName = this.getOption("showProfName")
+        return {
+            showProfName: showProfName,
+            linkProf: showProfName,
+            showFillClassButton: this.getOption("showFillClassButton")
+        }
+    }
+})
 
 const ClassesCollectionView = CollectionView.extend({
-  tagName: 'table',
-  className: "table table-hover",
-  template: classes_view_tpl,
-  behaviors: [FilterList],
-  childView: ItemView,
-  emptyView: NoItemView,
-  childViewEventPrefix: "item",
-  childViewContainer: "tbody",
-  templateContext() {
-    return {
-      showProfName: this.getOption("showProfName")
-    };
-  },
-  childViewOptions(model) {
-    return {
-      showFillClassButton: this.getOption("showFillClassButton"),
-      showProfName: this.getOption("showProfName")
-    };
-  }
-});
+    tagName: 'table',
+    className: "table table-hover",
+    template: classes_view_tpl,
+    behaviors: [FilterList],
+    childView: ItemView,
+    emptyView: NoItemView,
+    childViewEventPrefix: "item",
+    childViewContainer: "tbody",
+    templateContext() {
+        return {
+            showProfName: this.getOption("showProfName")
+        }
+    },
+    childViewOptions(model) {
+        return {
+            showFillClassButton: this.getOption("showFillClassButton"),
+            showProfName: this.getOption("showProfName")
+        }
+    }
+})
 
 const ClassesPanel = View.extend({
-  template: panel_tpl,
-  showAddButton: false,
-  addToProf: false,
-  templateContext() {
-    return {
-      showAddButton: this.getOption("showAddButton"),
-      addToProf: this.getOption("addToProf")
-    };
-  }
-});
+    template: panel_tpl,
+    showAddButton: false,
+    addToProf: false,
+    templateContext() {
+        return {
+            showAddButton: this.getOption("showAddButton"),
+            addToProf: this.getOption("addToProf")
+        }
+    }
+})
 
 export { ClassesCollectionView, ClassesPanel }

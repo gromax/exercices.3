@@ -1,7 +1,9 @@
 import { View, CollectionView } from 'backbone.marionette'
 import DestroyWarn from '../../behaviors/destroy.js'
-import { FlashItem, FilterList, SortList, FilterPanel } from '../../behaviors.js'
-
+import FilterPanel from '../../behaviors/filterpanel.js'
+import FlashItem from '../../behaviors/flashitem.js'
+import SortList from '../../behaviors/sortlist.js'
+import FilterList from '../../behaviors/filterlist.js'
 import panel_tpl from '@templates/devoirs/list/devoirs-list-panel.jst'
 import no_devoir_tpl from '@templates/devoirs/list/devoir-list-none.jst'
 import devoir_item_tpl from '@templates/devoirs/list/devoir-list-item.jst'
