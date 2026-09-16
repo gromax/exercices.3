@@ -929,6 +929,8 @@ On dispose des paramètres :
   * color: on peut choisir une couleur standard comme blue, red... ou un indice ce qui choisira parmi les couleurs des blocs choice
   * size: pour la taille du point
   * fixed: par défaut le point est mobile. On peut le fixer avec `fixed:true`
+  * labelsize: taille de l'étiquette, par défaut 14
+  * forme: forme du point (parmi cross, circle, square, plus, divide, diamond, triangleup, triangledown, triangleleft, triangleright), par défaut circle
   * solution:true l'élément ne sera visible qu'au moment de la solution
   * distinct:A,B;0.5 indique que l'élément doit-être distinct d'un autre avec la distance min
 
@@ -945,8 +947,8 @@ Le point peut par ailleurs être un input. On ajoutera pour cela des attributs :
 
 ```
 <reels:name>
-<y:5>
-<titlesize:15>
+<y:5/>
+<titlesize:15/>
 </reels>
 ```
 
