@@ -1,7 +1,9 @@
 <form id="filter-form" class="form-search form-inline" style="margin-bottom: 10px;">
-    <div class="btn-group">
+    <div class="input-group">
         <% if (showAddButton && !archives) { %><a class="btn btn-outline-primary" href="#devoirs/nouveau" role="button">Nouveau devoir <i class="fa-solid fa-pen-to-square"></i></a><% } %>
         <% if (archives) { %><a class="btn btn-outline-primary" href="#devoirs" role="button">Devoirs non archivés</a><% } %>
         <% if (!archives) { %><a class="btn btn-outline-primary" href="#devoirs/archives" role="button">Devoirs archivés</a><% } %>
+        <input type="text" class="form-control search-query js-filter-criterion" placeholder="Filtrer..." value="<%- filterCriterion %>">
+        <button class="btn btn-outline-primary" type="submit"><i class="fa fa-search"></i></button>
     </div>
 </form>
