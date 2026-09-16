@@ -1,5 +1,5 @@
-import { MyModel, MyCollection } from '../common/entity.js';
-import Misc from '../common/misc.js';
+import { MyModel, MyCollection } from '../common/entity.js'
+import Misc from '../common/misc.js'
 
 const Item = MyModel.extend ({
     urlRoot: "api/devoirs",
@@ -18,77 +18,78 @@ const Item = MyModel.extend ({
     },
 
     toString() {
-        const id = this.get('id') ? `#${this.get('id')} :` : "";
-        return `${id} ${this.get("nom")} ${this.get("description")}`;
+        const id = this.get('id') ? `#${this.get('id')} :` : ""
+        return `${id} ${this.get("nom")} ${this.get("description")}`
     },
 
     toJSON() {
-        return _.pick(this.attributes, 'id', 'idOwner', 'idClasse', 'nom', 'description', 'dateDebut', 'dateFin');
+        return _.pick(this.attributes, 'id', 'idOwner', 'idClasse', 'nom', 'description', 'dateDebut', 'dateFin')
     },
 
     parse(data) {
-        if (data.id) data.id = Number(data.id);
-        const timeToEnd = Misc.computeTimeFromNowToDate(data.dateFin, true);
-        const timeToBegin = Misc.computeTimeFromNowToDate(data.dateDebut, false);
-        data.notStarted = (timeToBegin > 0);
-        data.notEnded = (timeToEnd > 0);
-        data.timeleft = Misc.computeTimeLeft(data.dateDebut, data.dateFin);
-        data.actif = (data.timeleft !== null);
-        data.idOwner = Number(data.idOwner);
-        data.idClasse = (data.idClasse !== null) ? Number(data.idClasse) : null;
-        data.dateDebutFr = Misc.formatDateFrench(data.dateDebut);
-        data.dateFinFr = Misc.formatDateFrench(data.dateFin);
-        return data;
+        if (data.id) data.id = Number(data.id)
+        const timeToEnd = Misc.computeTimeFromNowToDate(data.dateFin, true)
+        const timeToBegin = Misc.computeTimeFromNowToDate(data.dateDebut, false)
+        data.notStarted = (timeToBegin > 0)
+        data.notEnded = (timeToEnd > 0)
+        data.timeleft = Misc.computeTimeLeft(data.dateDebut, data.dateFin)
+        data.actif = (data.timeleft !== null)
+        data.idOwner = Number(data.idOwner)
+        data.idClasse = (data.idClasse !== null) ? Number(data.idClasse) : null
+        data.nomClasse = data.nomClasse || ""
+        data.dateDebutFr = Misc.formatDateFrench(data.dateDebut)
+        data.dateFinFr = Misc.formatDateFrench(data.dateFin)
+        return data
     },
 
     clone() {
-        const token = localStorage.getItem('jwt');
+        const token = localStorage.getItem('jwt')
         return $.ajax(`api/devoirs/clone/${this.get("id")}`, {
             method:'POST',
             dataType:'json',
             headers: token ? { Authorization: 'Bearer ' + token } : {}
-        });
+        })
     },
 
     archive() {
-        const token = localStorage.getItem('jwt');
+        const token = localStorage.getItem('jwt')
         return $.ajax(`api/devoirs/archive/${this.get("id")}`, {
             method:'POST',
             dataType:'json',
             headers: token ? { Authorization: 'Bearer ' + token } : {}
-        });
+        })
     },
 
     validate(attrs, options) {
-        const errors = {};
+        const errors = {}
         if (!attrs.nom) {
-            errors.nom = "Ne doit pas être vide";
+            errors.nom = "Ne doit pas être vide"
         } else {
             if (attrs.nom.length < 2) {
-                errors.nom = "Trop court";
+                errors.nom = "Trop court"
             }
         }
         if (!attrs.dateDebut) {
-            errors.dateDebut = "Ne doit pas être vide";
+            errors.dateDebut = "Ne doit pas être vide"
         }
         if (!attrs.dateFin) {
-            errors.dateFin = "Ne doit pas être vide";
+            errors.dateFin = "Ne doit pas être vide"
         }
         if (attrs.dateDebut && attrs.dateFin && attrs.dateDebut > attrs.dateFin) {
-            errors.dateFin = "La date de fin doit être postérieure à la date de début";
+            errors.dateFin = "La date de fin doit être postérieure à la date de début"
         }
 
         if (!_.isEmpty(errors)) {
-            return errors;
+            return errors
         }
     },
 
-});
+})
 
 const Collection = MyCollection.extend({
     url: "api/devoirs",
     model: Item,
     comparator: "nom",
-});
+})
 
-export { Item, Collection };
+export { Item, Collection }
