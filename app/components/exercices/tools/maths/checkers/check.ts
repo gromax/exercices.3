@@ -3,7 +3,7 @@
  */
 
 import MyMath from '@mathstools/mymath'
-import { InputType } from '@types'
+import { InputType, NestedInput } from '@types'
 
 import { InfiniteCheck } from './infinitecheck'
 import { EmptyCheck } from './emptycheck'
@@ -127,11 +127,14 @@ function checkValue(userValue:string, expectedValue:InputType, format:string|Arr
 /**
  * vérifie la valeur donnée par l'utilisateur
  * @param {string} userValue 
- * @param {string|MyMath} expectedValue 
+ * @param {NestedInput} excluded
  * @param {string|Array<string>} format 
  * @returns {boolean} true si la valeur est correcte
  */
-function checkExcluded(userValue:string, excluded:InputType, format:string|Array<string> = "none"):boolean {
+function checkExcluded(userValue:string, excluded:NestedInput, format:string|Array<string> = "none"):boolean {
+    if (Array.isArray(excluded)) {
+        return excluded.some(exc => checkExcluded(userValue, exc, format))
+    }
     const checkFormatResult = checkFormat(userValue, format)
     if (checkFormatResult !== true) {
         return false
