@@ -156,6 +156,10 @@ class MyMath {
         return MyMath.make(expression).toFloat()
     }
 
+    static toDecimal(expression:AcceptedInput):Decimal {
+        return MyMath.make(expression).toDecimal()
+    }
+
     static toFormat(expression:AcceptedInput, format:string):string {
         if (typeof expression === 'string' && expression.startsWith('"') && expression.endsWith('"')) {
             // chaîne de caractères
@@ -380,6 +384,14 @@ class MyMath {
             console.warn(e)
             return NaN
         }
+    }
+
+    /**
+     * Vérifie si l'expression est un texte (entouré de guillemets).
+     * @returns {boolean} true si l'expression est un texte, false sinon.
+     */
+    isText():boolean {
+        return this._expression.startsWith('"') && this._expression.endsWith('"')
     }
 
     /**
