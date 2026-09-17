@@ -19,7 +19,7 @@ const MODULES = {
 
 function _tryAsPile(expression:string, params:TParams):null|InputType {
     let expr = expression.trim();
-    if (! /^<P:.*>$/.test(expr)) {
+    if (! /^<(P|p):.*>$/.test(expr)) {
         return null;
     }
     let pile = expr.slice(3, -1).trim().split(/\s+/).map(
