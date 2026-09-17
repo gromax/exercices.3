@@ -908,6 +908,7 @@ Le bloc a lui-même quelques paramètres :
   * pan: autorise ou non le déplacement de la vue. Par défaut à false.
   * axis: affiche ou non les axes. Par défaut à true.
   * grid: affiche ou non la grille. Par défaut à true.
+  * aspectratio: proportions du graphes. Par défaut 1/1, donc un carré. 2/1 par ex donnera un rectangle horizontal 2x plus large que haut.
 
 Ensuite, on peut ajouter des sous-blocs pour les différents objets.
 
@@ -1252,7 +1253,9 @@ Le vecteur est conçu pour ne pas être lié à des points. Donc, si on crée pa
   * `sign` renvoie `-1` pour un négatif et `+1` pour un positif
   * `solve` reçoit `left`, `right` (deux membres de l'équation) et `name` nom de la variable. Renvoie les solutions
   * `sub` reçoit `expression`, `name` et `value` et renvoie l'expression où on substitué `name` pour `value`. Permet en particulier de calculer $f(x)$.
-  * `round` reçoit une valeur `x` et un `entier`. Arrondi à n digits.
+  * `round` reçoit une valeur `x` et un `entier`. Arrondi à n digits après la virgule (n peut être <0)
+  * `floor` comme `round` mais à l'inférieur
+  * `ceil` comme `round` mais au supérieur
   * `expand` développe l'expression. *Attention: pour l'instant, expand utilise forcément nerdamer ce qui crée pour certains calculs des affichages peu sympathiques, donc faire attention si vous voulez afficher le résultat d'un expand*
   * `derivate` ou `deriver` dérive l'expression selon sa variable qui devrait être unique
   * `diff` dérive l'expression selon la variable fournie en second argument
