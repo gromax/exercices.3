@@ -1,7 +1,7 @@
 import JXG from 'jsxgraph'
 import GraphItem from "./item"
 import _ from "underscore"
-import { getOption, getBooleanOption, inputTypeToString } from '../../misc'
+import { getStringOption, getBooleanOption, inputTypeToString } from '../../misc'
 
 class GraphIntegrale extends GraphItem {
     static readonly TYPE = 'Integrale'
@@ -12,7 +12,7 @@ class GraphIntegrale extends GraphItem {
     ]
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const abscisses = this._getAbscisses()
-        const fctName = getOption(this.item.params, 'fct', '')
+        const fctName = getStringOption(this.item.params, 'fct', '')
         if (!fctName) {
             throw new Error(`Intégrale ${this.item.header}: la fonction doit être définie dans un objet intégrale (paramètres fct)`)
         }
@@ -24,7 +24,7 @@ class GraphIntegrale extends GraphItem {
         }
         const fctObject = graphObjects[fctName] as JXG.Curve
         const options = {
-            "color": getOption(this.item.params, 'color', 'red')
+            "color": getStringOption(this.item.params, 'color', 'red')
         }
         // label donnant la valeur de l'intégrale : masqué sauf si label="true"
         if (getBooleanOption(this.item.params, 'hidelabel', false)) {

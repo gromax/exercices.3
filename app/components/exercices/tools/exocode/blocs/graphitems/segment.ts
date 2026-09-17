@@ -1,7 +1,7 @@
 import JXG from 'jsxgraph'
 import GraphItem from "./item"
 import _ from "underscore"
-import { getNumberOption, getOption, getBooleanOption, inputTypeToString } from "../../misc"
+import { getNumberOption, getStringOption, getBooleanOption, inputTypeToString } from "../../misc"
 
 class GraphSegment extends GraphItem {
     static readonly TYPE = 'Segment'
@@ -14,9 +14,9 @@ class GraphSegment extends GraphItem {
 
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const points = this._getPoints(graphObjects)
-        const strokeColor = getOption(this.item.params, ['strokecolor', 'color'], 'black')
+        const strokeColor = getStringOption(this.item.params, ['strokecolor', 'color'], 'black')
         const strokeWidth = getNumberOption(this.item.params, 'strokewidth', 1)
-        const dash = getOption(this.item.params, 'dash', '')
+        const dash = getStringOption(this.item.params, 'dash', '')
 
         const fixed = getBooleanOption(this.item.params, 'fixed', false)
         const options = {

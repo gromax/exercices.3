@@ -3,7 +3,7 @@ import GraphItem from "./item"
 import MyMath from "../../../maths/mymath"
 import _ from "underscore"
 
-import { getNumberOption, getOption, getBooleanOption } from "../../misc"
+import { getNumberOption, getStringOption, getBooleanOption } from "../../misc"
 
 class GraphFunction extends GraphItem {
     static readonly TYPE = 'Function'
@@ -13,13 +13,13 @@ class GraphFunction extends GraphItem {
         'xmin', 'xmax', 'solution', 'header', 'color'
     ]
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
-        const expressionStr = getOption(this.item.params, 'expression', '0')
+        const expressionStr = getStringOption(this.item.params, 'expression', '0')
         const xmin = getNumberOption(this.item.params, 'xmin', this._cadre[0])
         const xmax = getNumberOption(this.item.params, 'xmax', this._cadre[1])
-        const dash = getOption(this.item.params, 'dash', '')
+        const dash = getStringOption(this.item.params, 'dash', '')
         const options = {
             'strokeWidth': getNumberOption(this.item.params, 'strokewidth', 1),
-            'strokeColor': getOption(this.item.params, ['strokecolor', 'color'], 'black')
+            'strokeColor': getStringOption(this.item.params, ['strokecolor', 'color'], 'black')
         }
         if (dash) {
             options['dash'] = dash

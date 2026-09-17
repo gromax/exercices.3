@@ -3,11 +3,11 @@ import GraphItem from "./item"
 import { inputTypeToString } from "../../misc"
 import _ from "underscore"
 import MyMath from "../../../maths/mymath"
-import { getBooleanOption, getNumberOption, getOption } from "../../misc"
+import { getBooleanOption, getNumberOption, getStringOption } from "../../misc"
 class GraphDroite extends GraphItem {
     static readonly TYPE = 'Droite'
     static readonly KEYWORDS: string[] = ['droite', 'line']
-    static readonly AUTHORIZED_PARAMS = [
+    static readonly AUTHORIZED_PARAMS: string[] = [
         'color', 'strokewidth', 'dash', 'invisible', 'solution',
         'label', 'labelsize', 'equation', 'points', 'fixed', 'header'
     ]
@@ -15,12 +15,12 @@ class GraphDroite extends GraphItem {
         const points = (typeof this.item.params.equation !== 'undefined')
             ? this._points_from_equation(inputTypeToString(this.item.params.equation))
             : this._points_from_points(graphObjects)
-        const dash = getOption(this.item.params, 'dash', '')
+        const dash = getStringOption(this.item.params, 'dash', '')
         const options = {}
         if (dash) {
             options['dash'] = dash
         }
-        options['strokeColor'] = getOption(this.item.params, ['color', 'strokecolor'], 'black')
+        options['strokeColor'] = getStringOption(this.item.params, ['color', 'strokecolor'], 'black')
         options['strokeWidth'] = getNumberOption(this.item.params, 'strokewidth', 1)
 
         const labelSize = this.item.params.labelsize || 14 // taille par défaut des labels

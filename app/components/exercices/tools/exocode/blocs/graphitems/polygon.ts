@@ -1,7 +1,7 @@
 import JXG from 'jsxgraph'
 import GraphItem from "./item"
 import _ from "underscore"
-import { getOption, getBooleanOption, inputTypeToString, getNumberOption } from '../../misc'
+import { getStringOption, getBooleanOption, inputTypeToString, getNumberOption } from '../../misc'
 
 class GraphPolygon extends GraphItem {
     static readonly TYPE = 'Polygon'
@@ -24,7 +24,7 @@ class GraphPolygon extends GraphItem {
                 fixed:this.item.params.fixed === "true"
             }
         }
-        const dash = getOption(this.item.params, 'dash', '')
+        const dash = getStringOption(this.item.params, 'dash', '')
         if (strokeWidth !== 0) {
             options['borders'] = {
                 strokeColor: strokeColor,
@@ -38,7 +38,7 @@ class GraphPolygon extends GraphItem {
             options['withLines'] = false
         }
 
-        const color = getOption(this.item.params, 'color', '')
+        const color = getStringOption(this.item.params, 'color', '')
         if (!color) {
             options['fillColor'] = 'none'
             options['fillOpacity'] = 0

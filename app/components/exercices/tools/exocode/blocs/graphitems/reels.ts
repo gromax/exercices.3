@@ -1,7 +1,7 @@
 import JXG from 'jsxgraph'
 import GraphItem from "./item"
 import _ from "underscore"
-import { getNumberOption, getOption } from "../../misc"
+import { getNumberOption, getStringOption } from "../../misc"
 
 class GraphReels extends GraphItem {
     static readonly TYPE = 'Réels'
@@ -14,7 +14,7 @@ class GraphReels extends GraphItem {
 
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const y = getNumberOption(this.item.params, 'y', 0)
-        const color = getOption(this.item.params, 'color', 'black')
+        const color = getStringOption(this.item.params, 'color', 'black')
         const titleSize = getNumberOption(this.item.params, 'titlesize', 20)
         const tickSize = getNumberOption(this.item.params, 'ticksize', 12)
         const majorHeight = getNumberOption(this.item.params, 'majorheight', 10)

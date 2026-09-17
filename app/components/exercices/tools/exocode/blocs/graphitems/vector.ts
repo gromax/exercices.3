@@ -1,7 +1,7 @@
 import JXG from 'jsxgraph'
 import GraphItem from "./item"
 import _ from "underscore"
-import { getNumberOption, getOption, getBooleanOption, inputTypeToString } from "../../misc"
+import { getNumberOption, getStringOption, getBooleanOption, inputTypeToString } from "../../misc"
 
 class GraphVector extends GraphItem {
     static readonly TYPE = 'Vector'
@@ -13,9 +13,9 @@ class GraphVector extends GraphItem {
 
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const points = this._getPoints(graphObjects)
-        const strokeColor = getOption(this.item.params, ['strokecolor', 'color'], 'black')
+        const strokeColor = getStringOption(this.item.params, ['strokecolor', 'color'], 'black')
         const strokeWidth = getNumberOption(this.item.params, 'strokewidth', 1)
-        const dash = getOption(this.item.params, 'dash', '')
+        const dash = getStringOption(this.item.params, 'dash', '')
 
         const fixed = getBooleanOption(this.item.params, 'fixed', false)
         const showsEnd = getBooleanOption(this.item.params, 'showsend', false)
@@ -85,7 +85,7 @@ class GraphVector extends GraphItem {
         if (points2.length == 1) {
             const startPoint = this._getPoint(
                 graphObjects,
-                getOption(this.item.params, 'start', "(0;0)")
+                getStringOption(this.item.params, 'start', "(0;0)")
             )
             const startCoords:[number,number] = startPoint instanceof JXG.Point
                 ? [startPoint.X(), startPoint.Y()]

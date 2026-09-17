@@ -1,7 +1,7 @@
 import JXG from 'jsxgraph'
 import GraphItem from "./item"
 import _ from "underscore"
-import { getNumberOption, getOption, getBooleanOption, inputTypeToString } from "../../misc"
+import { getNumberOption, getStringOption, getBooleanOption, inputTypeToString } from "../../misc"
 
 class GraphAngle extends GraphItem {
     static readonly TYPE = 'Angle'
@@ -13,7 +13,7 @@ class GraphAngle extends GraphItem {
 
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const points = this._getPoints(graphObjects)
-        const color = getOption(this.item.params, 'color', 'red')
+        const color = getStringOption(this.item.params, 'color', 'red')
         const radius = getNumberOption(this.item.params, 'radius', 1)
         const showValue = getBooleanOption(this.item.params, 'showvalue', false)
         const fixed = getBooleanOption(this.item.params, 'fixed', false)
