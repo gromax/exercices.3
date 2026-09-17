@@ -20,13 +20,15 @@ class Calc {
         'solve': Calc.solve,
         'float': Calc.float,
         'round': Calc.round,
+        'ceil': Calc.ceil,
+        'floor': Calc.floor,
         'expand': Calc.expand,
         'exp':Calc.exp,
         'diff': Calc.diff,
         'derivate': Calc.derivate,
         'max': Calc.max,
         'min': Calc.min,
-        'simplify': Calc.simplify
+        'simplify': Calc.simplify,
     }
     static readonly SHORTCUTS:Record<string,string> = {
         'abs': 'Calc.abs',
@@ -44,6 +46,8 @@ class Calc {
         'solve': 'Calc.solve',
         'float': 'Calc.float',
         'round': 'Calc.round',
+        'ceil': 'Calc.ceil',
+        'floor': 'Calc.floor',
         'expand': 'Calc.expand',
         'exp': 'Calc.exp',
         'diff': 'Calc.diff',
@@ -255,21 +259,54 @@ class Calc {
      * Arrondit x à n chiffres après la virgule.
      * @param {InputType} x 
      * @param {InputType} n 
-     * @returns {string|number} valeur arrondie ou expression symbolique si x n'est pas un nombre
+     * @returns {string} valeur arrondie ou expression symbolique si x n'est pas un nombre
      */
-    static round(x: InputType, n: InputType):string|number {
-        const a = MyMath.toNumber(x)
+    static round(x: InputType, n: InputType):string {
+        const a = MyMath.toDecimal(x)
         const digits = MyMath.toInteger(n)
-        if (isNaN(a)) {
-            return `round(${String(x)}, ${String(n)})`;
+        if (a.isNaN()) {
+            return 'NaN';
         }
-        if (digits < 0) {
-            console.warn(`Paramètre invalide pour Calc.round : ${String(n)}`);
-            return Math.round(a);
+        const multiplier = "1" + "0".repeat(Math.abs(digits))
+        return digits > 0
+            ? a.mul(multiplier).round().div(multiplier).toString()
+            : a.div(multiplier).round().mul(multiplier).toString()
+    }
+
+    /**
+     * prend la partie entière de x à n chiffres après la virgule.
+     * @param {InputType} x 
+     * @param {InputType} n 
+     * @returns {string} valeur arrondie ou expression symbolique si x n'est pas un nombre
+     */
+    static floor(x: InputType, n: InputType):string {
+        const a = MyMath.toDecimal(x)
+        const digits = MyMath.toInteger(n)
+        if (a.isNaN()) {
+            return "NaN"
         }
-        // Éviter les problèmes de précision floating point
-        const multiplier = Math.pow(10, digits);
-        return Math.round((a + Number.EPSILON) * multiplier) / multiplier;
+        const multiplier = "1" + "0".repeat(Math.abs(digits))
+        return digits > 0
+            ? a.mul(multiplier).floor().div(multiplier).toString()
+            : a.div(multiplier).floor().mul(multiplier).toString()
+    }
+
+    /**
+     * prend la partie entière + 1 de x à n chiffres après la virgule.
+     * @param {InputType} x 
+     * @param {InputType} n 
+     * @returns {string} valeur arrondie ou expression symbolique si x n'est pas un nombre
+     */
+    static ceil(x: InputType, n: InputType):string {
+        const a = MyMath.toDecimal(x)
+        const digits = MyMath.toInteger(n)
+        if (a.isNaN()) {
+            return "NaN"
+        }
+        const multiplier = "1" + "0".repeat(Math.abs(digits))
+        return digits > 0
+            ? a.mul(multiplier).ceil().div(multiplier).toString()
+            : a.div(multiplier).ceil().mul(multiplier).toString()
     }
 
     /**
