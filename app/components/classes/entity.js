@@ -1,72 +1,72 @@
-import { MyModel, MyCollection } from "../common/entity";
-import Misc from "../common/misc.js";
+import { MyModel, MyCollection } from "../common/entity"
+import Misc from "../common/misc.js"
 
-const d = new Date();
-const today = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const d = new Date()
+const today = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
 
 const Item = MyModel.extend ({
-  urlRoot: "api/classes",
-  defaults: {
-    nomOwner: "",
-    idOwner:"",
-    nom: "",
-    description: "",
-    ouverte: false,
-    pwd:"",
-    expiration: today,
-    date: today
-  },
+    urlRoot: "api/classes",
+    defaults: {
+        nomOwner: "",
+        idOwner:"",
+        nom: "",
+        description: "",
+        ouverte: false,
+        pwd:"",
+        expiration: today,
+        date: today
+    },
 
-  toString() {
-    const id = this.get('id') ? `#${this.get('id')} :` : "";
-    return `${id} ${this.get("nom")}`;
-  },
-  
-  parse(data) {
-    if (typeof data.id !== "undefined") data.id = Number(data.id);
-    if (typeof data.ouverte === "string") {
-      data.ouverte = Misc.parseBoolean(data.ouverte);
-    }
-    data.idOwner = Number(data.idOwner);
-    data.dateFr = Misc.formatDateFrench(data.date);
-    data.expirationFr = Misc.formatDateFrench(data.expiration);
-    data.dead = (Misc.computeTimeFromNowToDate(data.expiration, true) <= 0);
-    return data;
-  },
+    toString() {
+        const id = this.get('id') ? `#${this.get('id')} :` : ""
+        return `${id} ${this.get("nom")}`
+    },
+    
+    parse(data) {
+        if (typeof data.id !== "undefined") data.id = Number(data.id)
+        if (typeof data.ouverte === "string") {
+            data.ouverte = Misc.parseBoolean(data.ouverte)
+        }
+        data.idOwner = Number(data.idOwner)
+        data.dateFr = Misc.formatDateFrench(data.date)
+        data.expirationFr = Misc.formatDateFrench(data.expiration)
+        data.dead = (Misc.computeTimeFromNowToDate(data.expiration, true) <= 0)
+        return data
+    },
 
-  validate(attrs, options) {
-    const errors = {};
-    if (!attrs.nom) {
-      errors.nom = "Ne doit pas être vide";
-    } else {
-      /*if (attrs.nom.length < 3) {
-        errors.nom = "Trop court";
-      }*/
-    }
-    if (!attrs.expiration) {
-      errors.expiration = "Ne doit pas être vide";
-    }
-    if (!_.isEmpty(errors)) {
-      return errors;
-    }
-  },
+    validate(attrs, options) {
+        const errors = {}
+        if (!attrs.nom) {
+            errors.nom = "Ne doit pas être vide"
+        } else {
+            /*if (attrs.nom.length < 3) {
+                errors.nom = "Trop court"
+            }*/
+        }
+        if (!attrs.expiration) {
+            errors.expiration = "Ne doit pas être vide"
+        }
+        if (!_.isEmpty(errors)) {
+            return errors
+        }
+    },
 
-  testClasseMdp(mdp) {
-    const promise = $.ajax(`api/classes/${this.get('idClasse')}/test`, {
-      data: {
-        pwd: mdp
-      },
-      dataType: "json",
-      method: "GET"
-    });
-    return promise;
-  },
-});
+    testClasseMdp(mdp) {
+        const promise = $.ajax(`api/classes/${this.get('idClasse')}/test`, {
+            data: {
+                pwd: mdp
+            },
+            dataType: "json",
+            method: "GET"
+        })
+        return promise
+    },
+})
 
 const Collection = MyCollection.extend({
-  url: "api/classes",
-  model: Item,
-  comparator: "nom",
-});
+    url: "api/classes",
+    model: Item,
+    comparator: "nom",
+})
 
 export { Collection, Item }
