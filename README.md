@@ -25,6 +25,7 @@ This is a modern JS skeleton with MarionetteJS for [Webpack](https://webpack.git
 
 * possibilité de parser un intervalle. On pourrait pour cela prévoir la prise en compte de caractère `]` `[` qui devraient vérifier les règles de parenthésage et rassemblés, il formeraient un token fonction avec 4 types selon la position : open-open, open-close...
 * si les intervalles existent, on peut faire de intersection et union.
+* le tri dans la liste élèves ne se fait pas bien. Il y a le nomUser qui est indiqué comme data-sort dans le template. Mais cela ne semble pas faire ce qui est prévu. Peut-être faudrait-il aussi forcer la capitalization des noms et prénoms. Cela pourrait se faire dans PHP.
 
 * une fonction permettant l'évaluation d'une fonction
 * une fonction s'appuyant sur le solve de nerdamer, qui extrait le tableau et enlève les éventuels résultats complexes
