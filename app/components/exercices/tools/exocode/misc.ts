@@ -2,65 +2,64 @@
  * Fichier contenant des fonctions utilitaires diverses pour l'application.
  */
 
-import type { NestedInput } from '@types'
+import type { NestedInput, TParams } from '@types'
 import MyMath from "@components/exercices/tools/maths/mymath"
 
-function getOption(
-    options: Record<string, any>,
+function getStringOption(
+    options: TParams,
     key: string|Array<string>,
-    defaultValue: any = null
+    defaultValue: string
 ): any {
     if (Array.isArray(key)) {
         for (const k of key) {
             if (options.hasOwnProperty(k)) {
-                return options[k]
+                return inputTypeToString(options[k])
             }
         }
         return defaultValue
     } else {
-        return options.hasOwnProperty(key) ? options[key] : defaultValue
+        return options.hasOwnProperty(key)
+            ? inputTypeToString(options[key])
+            : defaultValue
     }
 }
 
 function getNumberOption(
-    options: Record<string, any>,
+    options: TParams,
     key: string|Array<string>,
     defaultValue: number
 ): number {
     if (!Array.isArray(key)) {
-        return options.hasOwnProperty(key) ? Number(options[key].replace(',', '.')) : defaultValue
+        return options.hasOwnProperty(key)
+            ? Number(inputTypeToString(options[key]).replace(',', '.'))
+            : defaultValue
     }
     for (const k of key) {
         if (options.hasOwnProperty(k)) {
-            return Number(options[k].replace(',', '.'))
+            return Number(inputTypeToString(options[k]).replace(',', '.'))
         }
     }
     return defaultValue
 }
 
-function _itemToBoolean(value: any): boolean {
-    if (typeof value === 'string') {
-        const val = value.toLocaleLowerCase()
-        return val === 'true' || val === '1'
-    } else if (typeof value === 'number') {
-        return value !== 0
-    } else if (typeof value === 'boolean') {
-        return value
-    }
-    return Boolean(value)
+function _itemToBoolean(value: string): boolean {
+    const val = value.toLocaleLowerCase()
+    return val === 'true' || val === '1'
 }
 
 function getBooleanOption(
-    options: Record<string, any>,
+    options: TParams,
     key: string|Array<string>,
     defaultValue: boolean
 ): boolean {
     if (!Array.isArray(key)) {
-        return options.hasOwnProperty(key) ? _itemToBoolean(options[key]) : defaultValue
+        return options.hasOwnProperty(key)
+            ? _itemToBoolean(inputTypeToString(options[key]))
+            : defaultValue
     }
     for (const k of key) {
         if (options.hasOwnProperty(k)) {
-            return _itemToBoolean(options[k])
+            return _itemToBoolean(inputTypeToString(options[k]))
         }
     }
     return defaultValue
@@ -77,10 +76,14 @@ function inputTypeToString(value: NestedInput): string {
         return value.toString()
     }
     if (value instanceof MyMath) {
+        if (value.isText()) {
+            // Si c'est un texte, on enlève les guillemets
+            return value.toString().slice(1, -1)
+        }
         return value.toFloat().toString()
     }
     return String(value)
-    }
+}
 
 
-export { getOption, getNumberOption, getBooleanOption, inputTypeToString }
+export { getStringOption, getNumberOption, getBooleanOption, inputTypeToString }
