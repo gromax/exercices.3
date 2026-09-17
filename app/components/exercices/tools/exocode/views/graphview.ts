@@ -104,7 +104,11 @@ const GraphView = View.extend({
 
     },
 
-    
+    templateContext() {
+        return {
+            aspectRatio: this.getOption("aspectRatio") || '1/1',
+        }
+    },
 
     children(name:string):any|undefined {
         if (!this.graphObjects) {
