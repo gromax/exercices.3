@@ -3,7 +3,7 @@ import JXG from 'jsxgraph'
 import _ from "underscore"
 import MyMath from "../../../maths/mymath"
 
-import { getNumberOption, getOption, getBooleanOption, inputTypeToString } from "../../misc"
+import { getNumberOption, getStringOption, getBooleanOption, inputTypeToString } from "../../misc"
 import { NestedInput } from "@components/types/InputType"
 class GraphPoint extends GraphItem {
     static readonly KEYWORDS: string[] = ['point']
@@ -17,7 +17,7 @@ class GraphPoint extends GraphItem {
     static BAD_SYMBOL = '✗'
     static readonly AUTHORIZED_PARAMS: string[] = [
         'x', 'y', 'name', 'size', 'color', 'fixed', 'solution', 'on',
-        'header', 'distinct', 'hasinputs', 'good', 'labelsize', 'forme'
+        'header', 'distinct', 'hasinputs', 'good', 'labelsize', 'forme', 'face'
     ]
 
     protected _isGoodassignedInputs: Record<string, number> = {}
@@ -28,15 +28,15 @@ class GraphPoint extends GraphItem {
         const y = this._assignedInputs["y"] || getNumberOption(this.item.params, 'y', 0)
         const labelSize = getNumberOption(this.item.params, 'labelsize', 14)
         const fixed = getBooleanOption(this.item.params, 'fixed', false)
-        const assignedName = getOption(this.item.params, 'name', '')
-        const forme = getOption(this.item.params, 'forme', 'circle')
+        const assignedName = getStringOption(this.item.params, 'name', '')
+        const forme = getStringOption(this.item.params, ['forme', 'face'], 'circle')
         const options = {
             size: getNumberOption(this.item.params, 'size', 2),
             label: {
                 autoPosition: true,
                 fontSize: labelSize
             },
-            color: getOption(this.item.params, 'color', 'red'),
+            color: getStringOption(this.item.params, 'color', 'red'),
             face: forme
         }
         if (assignedName) {
