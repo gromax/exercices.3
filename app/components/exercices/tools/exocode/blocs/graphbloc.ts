@@ -12,6 +12,7 @@ import GraphPolygon from "./graphitems/polygon"
 import GraphAngle from "./graphitems/angle"
 import GraphSegment from "./graphitems/segment"
 import GraphVector from "./graphitems/vector"
+import { getNumberOption, getBooleanOption, getStringOption } from "../misc"
 
 const GRAPHS_CLASS = [
     GraphPoint,
@@ -56,10 +57,10 @@ class GraphBloc extends Bloc implements FormItemImplementation {
 
     protected _getCadre():[number, number, number, number] {
         if (this._cadre === undefined) {
-            const xmin = this.params.xmin !== undefined ? Number(this.params.xmin) : -5
-            const xmax = this.params.xmax !== undefined ? Number(this.params.xmax) : 5
-            const ymin = this.params.ymin !== undefined ? Number(this.params.ymin) : -5
-            const ymax = this.params.ymax !== undefined ? Number(this.params.ymax) : 5
+            const xmin = getNumberOption(this.params, "xmin", -5)
+            const xmax = getNumberOption(this.params, "xmax", 5)
+            const ymin = getNumberOption(this.params, "ymin", -5)
+            const ymax = getNumberOption(this.params, "ymax", 5)
             this._cadre = [
                 Math.min(xmin, xmax), // rend robuste à une erreur d'ordre des bornes
                 Math.max(xmin,xmax),
@@ -74,19 +75,12 @@ class GraphBloc extends Bloc implements FormItemImplementation {
         const cadre = this._getCadre()
         const options = {
         }
-        options["axis"] = typeof this.params.axis == "undefined"
-            ? true // défaut
-            : this.params.axis === "true"
-        options["pan"] = typeof this.params.pan == "undefined"
-            ? false // défaut
-            : this.params.pan === "true"
-        options["zoom"] = typeof this.params.zoom == "undefined"
-            ? false // défaut
-            : this.params.zoom === "true"
-        options["grid"] = typeof this.params.grid == "undefined"
-            ? true // défaut
-            : this.params.grid === "true"
+        options["axis"] = getBooleanOption(this.params, "axis", true)
+        options["pan"] = getBooleanOption(this.params, "pan", false)
+        options["zoom"] = getBooleanOption(this.params, "zoom", false)
+        options["grid"] = getBooleanOption(this.params, "grid", true)
 
+        const aspectRatio = getStringOption(this.params,"aspectratio", '1/1')
 
         return new GraphView({
             ...options,
@@ -94,7 +88,8 @@ class GraphBloc extends Bloc implements FormItemImplementation {
             xmax: cadre[1],
             ymin: cadre[2],
             ymax: cadre[3],
-            items: this._getItems()
+            items: this._getItems(),
+            aspectRatio: aspectRatio,
         })
     }
 
