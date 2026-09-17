@@ -23,6 +23,9 @@ This is a modern JS skeleton with MarionetteJS for [Webpack](https://webpack.git
 
 ## à faire
 
+* possibilité de parser un intervalle. On pourrait pour cela prévoir la prise en compte de caractère `]` `[` qui devraient vérifier les règles de parenthésage et rassemblés, il formeraient un token fonction avec 4 types selon la position : open-open, open-close...
+* si les intervalles existent, on peut faire de intersection et union.
+
 * une fonction permettant l'évaluation d'une fonction
 * une fonction s'appuyant sur le solve de nerdamer, qui extrait le tableau et enlève les éventuels résultats complexes
 * ce serait bien de cibler l'erreur sur une ligne si possible
