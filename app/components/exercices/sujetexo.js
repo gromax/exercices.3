@@ -40,7 +40,7 @@ const Item = MyModel.extend({
 const Collection = MyCollection.extend({
   url: "api/exercices",
   model: Item,
-  comparator: "title"
+  comparator: "id"
 });
 
 export { Item, Collection }
