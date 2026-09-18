@@ -7,6 +7,7 @@ import TextNode from '../textnode'
 class TextBloc extends Bloc {
     static readonly LABELS = ['text', 'texte', 'warning', 'aide', 'info', 'help']
     protected _text:Array<string> = []
+    private _textnodes: TextNode[] = []
 
     constructor(tag:string, paramsString:string) {
         super(tag, paramsString, false)
@@ -24,6 +25,9 @@ class TextBloc extends Bloc {
         ).map(
             child => child.text
         )
+        this._textnodes = this._children.filter(
+            (child) => child instanceof TextNode
+        )
         return this
     }
 
@@ -36,18 +40,17 @@ class TextBloc extends Bloc {
     }
 
     protected _getView(answers:Record<string, string>):AnyView {
-        const content = this._children
         if (this.isHelp) {
             return new HelpView({
                 subtitle: this._params["header"] || this._params["subtitle"] || false,
-                paragraphs: content,
+                paragraphs: this._textnodes,
             })
         }
         
         return new TextView({
             header: this._params["header"] || false,
             subtitle: this._params["subtitle"] || false,
-            paragraphs: content,
+            paragraphs: this._textnodes,
             footer: this._params["footer"] || false,
             info: this.tag === "info",
             warning: this.tag === 'warning',
