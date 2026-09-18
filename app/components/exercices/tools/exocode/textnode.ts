@@ -5,6 +5,7 @@ import { Node, TRunResult } from './node'
 
 class TextNode extends Node {
     private _text:string
+    private _style:string = ""
     private _closed:boolean = false
 
     constructor(text:string) {
@@ -27,6 +28,10 @@ class TextNode extends Node {
 
     get text():string {
         return this._text
+    }
+
+    get style():string {
+        return this._style
     }
 
     close():void {
@@ -57,6 +62,11 @@ class TextNode extends Node {
             /::([a-z]+)::/g,
             (_match, tag) => this._pictos(tag)
         )
+        const typeMatch = this._text.match(/^\(!(\w+?)!\)/)
+        if (typeMatch) {
+            this._setStyle(typeMatch[1])
+            this._text = this._text.slice(typeMatch[0].length).trimStart()
+        }
     }
 
     /**
@@ -78,8 +88,33 @@ class TextNode extends Node {
                 return '<i class="fa-solid fa-sticky-note"></i>'
             case 'calc':
                 return '<i class="fa-solid fa-calculator"></i>'
+            case 'brain':
+                return '<i class="fa-solid fa-brain"></i>'
+            case 'star':
+                return '<i class="fa-solid fa-star"></i>'
+            case 'idea':
+                return '<i class="fa-solid fa-lightbulb"></i>'
+            case 'bolt':
+                return '<i class="fa-solid fa-bolt"></i>'
             default:
                 return `${tag}??`
+        }
+    }
+
+    private _setStyle(style:string):void {
+        switch (style) {
+            case 'warning':
+                this._style = 'alert alert-warning'
+                break
+            case 'info':
+                this._style = 'alert alert-info'
+                break
+            case 'danger':
+                this._style = 'alert alert-danger'
+                break
+            case 'success':
+                this._style = 'alert alert-success'
+                break
         }
     }
 }
