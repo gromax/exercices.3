@@ -464,6 +464,13 @@ Au lieu de `texte` on dispose de quelques variantes :
   * `info` pour un formatage d'info
   * `help` ou `aide` pour un bloc d'aide qui se replie. Il faut appuyer le bouton pour afficher l'aide.
 
+On peut ajouter des éléments de formatage dans le texte :
+
+  * `un exemple de **texte** avec du gras`, ici `texte` sera en gras,
+  * `un exemple de __texte__ avec de l'italique`, ici `texte` sera en italique,
+  * `un pictogramme ::warning:: ici` et on aura un symbole warning. On a pour l'instant warning, info, exclamation, star, heart, bolt, brain, calc, note, idea
+  * `(!warning!) au début de la ligne`, le code en début de ligne demande un formatage type warning du paragraphe. On a également info, danger, success.
+
 #### Bloc formulaire
 
 ```
