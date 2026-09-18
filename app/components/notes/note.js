@@ -31,7 +31,7 @@ const Item = MyModel.extend ({
         data.idOwner = Number(data.idOwner);
         data.idDevoir = Number(data.idDevoir);
         data.idUser = Number(data.idUser);
-        data.isClasse = Number(data.isClasse);
+        data.idClasse = Number(data.idClasse);
         data.note = Number(data.note);
         data.actif = Misc.parseBoolean(data.actif);
         data.exoCount = Number(data.exoCount);
@@ -43,6 +43,7 @@ const Item = MyModel.extend ({
         data.actif = (data.timeLeft !== null);
         data.dateDebutFr = Misc.formatDateFrench(data.dateDebut);
         data.dateFinFr = Misc.formatDateFrench(data.dateFin);
+        data.nomPrenomUser = `${data.nomUser} ${data.prenomUser}`;
         return data;
     },
 });
