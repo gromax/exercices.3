@@ -1,5 +1,14 @@
-<td><span class="badge rounded-pill bg-primary"><%- idUser %></span>&emsp;<%- prenomUser %> <%- nomUser %></td>
-<td>
+<td class="text-nowrap text-center">
+    <span class="badge rounded-pill bg-primary"><%- idUser %></span>
+</td>
+<td class="text-nowrap">
+    <%- nomUser %>
+</td>
+<td class="text-nowrap">
+    <%- prenomUser %>
+</td>
+<td class="w-100"><!-- remplissage --></td>
+<td class="text-nowrap text-center">
     <%if (note === 0) { %>
         <strong><span class="text-danger"><%- note %></span></strong>
     <% } else { %>
