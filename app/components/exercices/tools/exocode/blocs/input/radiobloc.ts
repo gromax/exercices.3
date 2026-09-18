@@ -33,7 +33,7 @@ class RadioBloc extends InputBloc {
     }
 
     protected _getView(answers:Record<string, string>):AnyView {
-        const items = _.shuffle(this._options || [])
+        const items = _.shuffle(this._options || []).map((option) => [option.key, option.value])
         return new RadioView({
             name: this.header,
             items: items,
