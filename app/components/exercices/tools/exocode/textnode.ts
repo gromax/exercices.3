@@ -1,3 +1,4 @@
+import _ from "underscore"
 import MyMath from '@mathstools/mymath'
 import { TParams } from '@types'
 import { Node, TRunResult } from './node'
@@ -18,6 +19,7 @@ class TextNode extends Node {
     run(params:TParams):TextNode {
         if (!this._runned) {
             this._text = MyMath.substituteExpressions(this._text, params)
+            this._reformat()
             this._runned = true
         }
         return this
@@ -44,6 +46,41 @@ class TextNode extends Node {
 
     get empty():boolean {
         return this._text === ""
+    }
+
+    private _reformat():void {
+        this._text = _.escape(this._text)
+        // on va reconnaître des schémas à mettre en forme
+        this._text = this._text.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+        this._text = this._text.replace(/__(.+?)__/g, '<i>$1</i>')
+        this._text = this._text.replace(
+            /::([a-z]+)::/g,
+            (_match, tag) => this._pictos(tag)
+        )
+    }
+
+    /**
+     * un tag type 'warning' ou 'info' pour ajouter des pictogrammes correspondants.
+     * @param tag l'étiquete
+     * @returns le code HTML du pictogramme correspondant au tag.
+     */
+    private _pictos(tag:string):string {
+        switch (tag) {
+            case 'warning':
+                return '<i class="fa-solid fa-triangle-exclamation"></i>'
+            case 'info':
+                return '<i class="fa-solid fa-circle-info"></i>'
+            case 'heart':
+                return '<i class="fa-solid fa-heart"></i>'
+            case 'exclamation':
+                return '<i class="fa-solid fa-circle-exclamation"></i>'
+            case 'note':
+                return '<i class="fa-solid fa-sticky-note"></i>'
+            case 'calc':
+                return '<i class="fa-solid fa-calculator"></i>'
+            default:
+                return `${tag}??`
+        }
     }
 }
 
