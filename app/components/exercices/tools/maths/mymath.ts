@@ -59,6 +59,19 @@ class MyMath {
         return n
     }
 
+    /**
+     * Essaie de convertir la valeur en entier.
+     * @param value valeur à convertir en entier
+     * @returns {false|number} l'entier correspondant ou false si la conversion échoue
+     */
+    static tryInteger(value:AcceptedInput):false|number {
+        try {
+            return MyMath.toInteger(value)
+        } catch (e) {
+            return false
+        }
+    }
+
     static reverseOperator(operator:string):string {
         switch (operator) {
             case '<':
