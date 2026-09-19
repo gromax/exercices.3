@@ -11,7 +11,8 @@ const Controller = MnObject.extend ({
         const usersListLayout = new LayoutView( { panelRight: true } )
         const usersListPanel = new UsersPanel({
             filterCriterion: "",
-            showAddButton: logged.isAdmin()
+            showAddButton: logged.isAdmin(),
+            effectif: users.length
         })
         const usersListView = new UsersCollectionView({
             collection: users,
