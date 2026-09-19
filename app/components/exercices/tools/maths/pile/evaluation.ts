@@ -88,29 +88,32 @@ function evaluate(
     if (Array.isArray(expression)) {
         return expression.map(expr => evaluate(expr, params))
     }
-    if (typeof expression === 'string') {
-        const pileResult = _tryAsPile(expression, params)
-        if (pileResult !== null) {
-            return pileResult
-        }
-        if (expression.startsWith('[') && expression.endsWith(']')) {
-            // liste
-            const vals = expression.slice(1, -1).split(',').map(v => v.trim())
-            return evaluate(vals, params)
-        }
-
-        if (typeof expression === 'string'
-            && expression.startsWith('"')
-            && expression.endsWith('"')) {
-            // chaîne de caractères
-            const formatedExpr = MyMath.substituteExpressions(expression, params)
-            // je souhaite supprimer d'éventuelles variables brutes restantes
-            return substituteParams(formatedExpr, params)
-        }
-        expression = substituteParams(expression, params)
-
+    if (typeof expression !== 'string') {
+        return MyMath.make(expression as InputType)
     }
-    return MyMath.make(expression as InputType)
+    
+    const pileResult = _tryAsPile(expression, params)
+    if (pileResult !== null) {
+        return pileResult
+    }
+
+    if (expression.startsWith('[') && expression.endsWith(']')) {
+        // liste
+        const vals = expression.slice(1, -1).split(',').map(v => v.trim())
+        return evaluate(vals, params)
+    }
+
+    // expression est alors forcément string
+    const formatedExpr = MyMath.substituteExpressions(expression, params)
+    const substitutedExpr = substituteParams(formatedExpr, params)
+
+    // dans le cas d'une expression entre guillemets, on renvoie la chaîne
+    if (expression.startsWith('"') && expression.endsWith('"')) {
+        return substitutedExpr
+    }
+
+    // sinon on parse
+    return MyMath.make(substitutedExpr as InputType)
 }
 
 export default evaluate
