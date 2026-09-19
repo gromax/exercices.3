@@ -4,12 +4,13 @@ import { Signature } from "./signature"
 import Decimal from "decimal.js"
 import { NestedString } from '@types'
 class Constant extends Base {
-    static readonly NAMES = ['e', 'pi', 'π', '∞', 'inf', 'infinity', 'infini'] // i
+    static readonly NAMES = ['e', 'pi', 'π', '∞', '-inf', '-∞', 'infinity', 'infini'] // i
     static readonly TEX = {
         'e': 'e',
         'π': '\\pi',
         //'i': 'i',
-        '∞': '\\infty'
+        '∞': '\\infty',
+        '-∞': '-\\infty',
     }
     
     private static _list:Record<string, Constant> = {}
@@ -69,9 +70,8 @@ class Constant extends Base {
 
     toStringEn():string {
         switch(this._name) {
-            case 'infini': return 'infinity'
-            case 'inf': return 'infinity'
             case '∞': return 'infinity'
+            case '-∞': return '-infinity'
             case 'π': return 'pi'
             default: return this._name
         }
@@ -112,6 +112,7 @@ class Constant extends Base {
             case 'π': return Decimal.acos(-1)
             //case 'i': return Decimal.I
             case '∞': return new Decimal(Infinity)
+            case '-∞': return new Decimal(-Infinity)
             default: return new Decimal(NaN)
         }
     }
@@ -147,5 +148,6 @@ const E = Constant.fromString('e');
 const PI = Constant.fromString('pi');
 //const I = Constant.fromString('i');
 const INFINI = Constant.fromString('infini');
+const MINUS_INFINI = Constant.fromString('-∞'); 
 
-export { Constant, E, PI, INFINI } // I
+export { Constant, E, PI, INFINI, MINUS_INFINI } // I
