@@ -15,6 +15,12 @@ const PREMIERS = [
  * @returns {number} un nombre premier aléatoire <= n
  */
 function aleaPrime(n:number): number {
+    if (n < 2) {
+        throw new Error(`Aucun nombre premier inférieur ou égal à ${n}.`)
+    }
+    if (n >= 1009) {
+        throw new Error(`La liste prédéfinie ne prévoit que les premiers <= 997. ${n} est donc trop grand.`)
+    }
     const primes = PREMIERS.filter(p => p <= n)
     const i = Math.floor(Math.random() * primes.length)
     return primes[i]
