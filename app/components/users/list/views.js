@@ -21,7 +21,8 @@ const UsersPanel = View.extend ({
     templateContext() {
         return {
             filterCriterion: this.getOption("filterCriterion") || "",
-            showAddButton: this.getOption("showAddButton")
+            showAddButton: this.getOption("showAddButton"),
+            effectif: this.getOption("effectif") || 0
         }
     }
 })
