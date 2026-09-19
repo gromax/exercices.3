@@ -5,3 +5,7 @@
         <button class="btn btn-outline-primary" type="submit"><i class="fa fa-search"></i></button>
     </div>
 </form>
+<% if (typeof effectif !== 'undefined') { %>
+    <div class="text-end"><%- effectif %> élèves dans la classe</div>
+<% } %>
+
