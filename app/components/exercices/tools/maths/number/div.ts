@@ -7,6 +7,7 @@ import { AddMinus } from "./add"
 import Decimal from "decimal.js"
 import { Signature } from "./signature"
 import { NestedString } from '@types'
+import { gcd } from "../misc/functions"
 class Div extends Base {
     private _left:Base /** @type {Base} */
     private _right:Base /** @type {Base} */
@@ -129,7 +130,7 @@ class Div extends Base {
         if (!this._left.isExpanded() || !this._right.isExpanded()) {
             return false
         }
-        if (this.isInteger()) {
+        if (this.canBeReduced()) {
             return false
         }
         return true
@@ -143,7 +144,7 @@ class Div extends Base {
         if (!this._left.isSimplified() || !this._right.isSimplified()) {
             return false
         }
-        if (this.isInteger()) {
+        if (this.canBeReduced()) {
             return false
         }
         return true
@@ -156,6 +157,16 @@ class Div extends Base {
             return false
         }
         return n.isInteger() && d.isInteger() && n.modulo(d).isZero()
+    }
+
+    canBeReduced():boolean {
+        const n = this._left.toDecimal(undefined)
+        const d = this._right.toDecimal(undefined)
+        if (n.isNaN() || d.isNaN()) {
+            return false
+        }
+        const gcdValue = gcd(n.toNumber(), d.toNumber())
+        return gcdValue !== 1
     }
 
     /**
