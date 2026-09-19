@@ -4,7 +4,7 @@ import { Div } from './div'
 import { Power } from './power'
 import { Exponential } from './exponential'
 import { Scalar } from './scalar'
-import { Constant, E } from './constant'
+import { Constant, E, INFINI, MINUS_INFINI } from './constant'
 import { Symbol } from './symbol'
 import { Base } from './base'
 import { Function } from './function'
@@ -149,6 +149,11 @@ function functionSimplify(node:Function):Base {
         if (typeof (childSim as any).opposite === 'function') {
             return (childSim as any).opposite();
         }
+        /*if (childSim === INFINI) {
+            return MINUS_INFINI
+        } else if (childSim === MINUS_INFINI) {
+            return INFINI
+        }*/
     }
 
     if (funcName === 'diff') {
