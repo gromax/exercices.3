@@ -422,7 +422,7 @@ class MyMath {
             return "-\\infty"
         }
         // je vais préférer ma version de latex
-        return simplify(this._getMyNumber()).toTex()
+        return this._getMyNumber().toTex()
         //return MyMath.latexDenormalization(this._getNerdamerProcessed().toTeX())
     }
 
@@ -460,7 +460,7 @@ class MyMath {
             }
             return this._toFormatDecimal(n)
         }
-        return MyMath.denormalization(this._getNerdamerProcessed().toString())
+        return this.toString()
     }
 
     /**
