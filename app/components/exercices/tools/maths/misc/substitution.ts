@@ -1,6 +1,6 @@
 import { TParams, InputType, NestedArray, NestedInput } from "@types"
 import MyMath from "../mymath";
-import { aleaPrime } from "./function";
+import { aleaPrime } from "./functions";
 
 
 
