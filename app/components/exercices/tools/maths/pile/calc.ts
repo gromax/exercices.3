@@ -1,6 +1,7 @@
 import MyMath from '../mymath'
 import { Decimal } from 'decimal.js'
 import { NestedArray, InputType } from '@types'
+import { gcd } from '../misc/function'
 
 class Calc {
     static readonly NAME = 'Calc'
@@ -11,6 +12,7 @@ class Calc {
         'sub': Calc.sub,
         'mod': Calc.mod,
         'div': Calc.intDivide,
+        'intDivide': Calc.intDivide,
         'pgcd': Calc.pgcd,
         'ppcm': Calc.ppcm,
         'abs': Calc.abs,
@@ -87,8 +89,10 @@ class Calc {
      * @returns {InputType} objet représentant x % y
      */
     static mod(x: InputType, y: InputType): InputType {
-        if ((typeof x === 'number') && (typeof y === 'number')) {
-            return x % y
+        const ix = MyMath.tryInteger(x)
+        const iy = MyMath.tryInteger(y)
+        if ((ix !== false) && (iy !== false)) {
+            return ix % iy
         }
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `mod(${x}; ${y})`
@@ -103,8 +107,10 @@ class Calc {
      * @returns {InputType} objet représentant x div y
      */
     static intDivide(x: InputType, y: InputType): InputType {
-        if ((typeof x === 'number') && (typeof y === 'number')) {
-            return (x-x%y)/y
+        const ix = MyMath.tryInteger(x)
+        const iy = MyMath.tryInteger(y)
+        if ((ix !== false) && (iy !== false)) {
+            return (ix - ix%iy)/iy
         }
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `(${x} - mod(${x};${y}))/(${y})`
@@ -119,21 +125,10 @@ class Calc {
      * @returns {InputType} objet représentant pgcd(x, y)
      */
     static pgcd(x: InputType, y: InputType): InputType {
-        if ((typeof x === 'number') && (typeof y === 'number')) {
-            let a = Math.abs(x)
-            let b = Math.abs(y)
-            if (!Number.isInteger(a) || !Number.isInteger(b)) {
-                throw new Error(`[${String(a)} , ${String(b)}] Entiers requis pour le PGCD.`)
-            }
-            if (a==0 && b==0) {
-                throw new Error(`PGCD(0;0) n'est pas défini.`)
-            }
-            while (b !== 0) {
-                const r = a % b
-                a = b
-                b = r
-            }
-            return a
+        const ix = MyMath.tryInteger(x)
+        const iy = MyMath.tryInteger(y)
+        if ((ix !== false) && (iy !== false)) {
+            return gcd(ix, iy)
         }
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `pgcd(${x}; ${y})`
@@ -148,9 +143,11 @@ class Calc {
      * @returns {InputType} objet représentant ppcm(x, y)
      */
     static ppcm(x: InputType, y: InputType): InputType {
-        if ((typeof x === 'number') && (typeof y === 'number')) {
-            const a = Math.abs(x)
-            const b = Math.abs(y)
+        const ix = MyMath.tryInteger(x)
+        const iy = MyMath.tryInteger(y)
+        if ((ix !== false) && (iy !== false)) {
+            const a = Math.abs(ix)
+            const b = Math.abs(iy)
             if (a === 0 || b === 0) return 0
             return (a * b) / (Calc.pgcd(a, b) as number)
         }
