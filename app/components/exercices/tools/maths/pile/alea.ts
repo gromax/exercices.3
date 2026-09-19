@@ -1,6 +1,7 @@
 import _ from 'underscore'
 import MyMath from '../mymath'
 import { InputType } from "@types"
+import { aleaPrime } from '../misc/functions';
 
 class Alea {
     static readonly NAME = 'Alea'
@@ -9,7 +10,9 @@ class Alea {
         'decimal': Alea.decimal,
         'signe': Alea.signe,
         'lagrangePolynome': Alea.lagrangePolynome,
-        'choice': Alea.choice
+        'choice': Alea.choice,
+        'prime': Alea.prime,
+        'premier': Alea.prime
     };
 
     static entier(min:InputType, max:InputType):number {
@@ -87,6 +90,14 @@ class Alea {
             expression += ` + (${poids})*${monomes}`;
         }
         return MyMath.make(expression).expand().toString()
+    }
+    
+    static prime(n:InputType):number {
+        const _n = MyMath.toNumber(n);
+        if (isNaN(_n)) {
+            throw new Error(`n=${_n} Paramètre invalide pour Alea.prime`);
+        }   
+        return aleaPrime(_n);
     }
 }
 
