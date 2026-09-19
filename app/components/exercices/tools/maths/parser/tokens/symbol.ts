@@ -2,7 +2,7 @@ import { Token } from "./token"
 
 class TSymbol extends Token {
     /** @type {string} */
-    private _name
+    private _name: string
   
     /**
      * constructeur
@@ -21,8 +21,8 @@ class TSymbol extends Token {
         return this._name
     }
 
-    static readonly sREGEX = "[∞πa-zA-Z_][a-zA-Z0-9_]*"
-    static readonly REGEX = new RegExp("[∞πa-zA-Z_][a-zA-Z0-9_]*", 'i')
+    static readonly sREGEX = "(infini(?![a-zA-Z0-9_]))|(infinity(?![a-zA-Z0-9_]))|(inf(?![a-zA-Z0-9_]))|([∞πa-zA-Z_][a-zA-Z0-9_]*)"
+    static readonly REGEX = new RegExp("(infini(?![a-zA-Z0-9_]))|(infinity(?![a-zA-Z0-9_]))|(inf(?![a-zA-Z0-9_]))|([∞πa-zA-Z_][a-zA-Z0-9_]*)", 'i')
 
     /**
      * renvoie le niveau de priorité
