@@ -1,7 +1,7 @@
 import MyMath from '../mymath'
 import { Decimal } from 'decimal.js'
 import { NestedArray, InputType } from '@types'
-import { gcd } from '../misc/function'
+import { gcd } from '../misc/functions'
 
 class Calc {
     static readonly NAME = 'Calc'
@@ -146,10 +146,8 @@ class Calc {
         const ix = MyMath.tryInteger(x)
         const iy = MyMath.tryInteger(y)
         if ((ix !== false) && (iy !== false)) {
-            const a = Math.abs(ix)
-            const b = Math.abs(iy)
-            if (a === 0 || b === 0) return 0
-            return (a * b) / (Calc.pgcd(a, b) as number)
+            if (ix === 0 || iy === 0) return 0
+            return Math.abs(ix * iy) / gcd(ix, iy) as number
         }
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `ppcm(${x}; ${y})`
