@@ -86,6 +86,18 @@ On pourra ainsi utiliser
   * `diff(expression;x)` permet de calculer une dérivée *; aussi !*
   * `pgcd(x;y)` et `ppcm(x;y)`
 
+Il est également possible de forcer une représentation de variable en demandant un formatage. Ainsi dans le code ci-dessous, on substitue `pi` par son écriture décimale à 3 chiffres après la virgule.
+
+```
+@x = 5 + {pi:3f}
+```
+
+Autre exemple, supposons que l'on veuille $x = \frac{a\times d}{b \times d}$ dane le cadre d'un exercice de simplification de fraction. On voudrait alors que les calculs $a\times b$ et $b\times d$ soient effectués mais pas la simplification de la fraction. La formule ci-dessous permet de forcer cette écriture.
+
+```
+@x = {@a*@d:s}/{@b*@d:s}
+```
+
 #### Évaluation d'une pile
 
 Si l'expression à évaluer est entourée de `<P: >`, alors elle est comprise comme une pile. L'expression est alors découpées selon les espaces.
@@ -223,7 +235,7 @@ Comme les mêmes besoins reviennent constamment, il existe divers formats de nom
   * `@__a.f10`, alea flottant de 0 à 10 exclu
   * `@__a.s10`, alea entier de -10 à 10 exclus (de -9 à 9)
   * `@__a.S10`, alea entier de -10 à 10, inclus et sans le 0.
-  * `@__a.P10`, renvoie un premier aléatoire jusqu'à 10 compris. La borne peut aller de 2 à 1000 compris.
+  * `@__a.P10`, renvoie un premier aléatoire jusqu'à 10 compris. La borne peut aller de 2 à 1008 compris (car 1009 le plus grand premier de la liste prédéfinie est 997 et que le suivant est 1009)
   * `@__a.vxyz`, le `v` signale qu'une lettre sera choisi aléatoirement parmi `xyz`. Liste des variable au choix, par ex `@__a.vtAMnK`... Permet de varier les énoncés et de ne pas toujours utiliser `x` comme variable.
 
 #### Infini
@@ -411,13 +423,13 @@ Un paramètre peut aussi être un texte avec formatage. Par exemple `<param:imag
 
 Dans une zone de texte, on est susceptible d'ajouter une formule. On peut alors écrire un bloc de formatage `{expr:}`. Ce bloc indique que l'on veut formater expression selon un certain formatage. Bien sûr on peut vouloir afficher le contenu d'une variable : `{@x:}`. Il existe divers formages.
 
-  * `{@x:}` pas de formatage particulier
+  * `{@x:}` pas de formatage particulier, résultat brut.
 
-  * `{@x:$}` formaté en latex. Attention, ce formatage se contente de produire le code latex.
+  * `{@x:$}` formaté en latex non simplifié. Attention, ce formatage se contente de produire le code latex, par exemple `\times` pour une multiplication. Ce texte apparaîtra brut dans le champ de texte cible.
 
     Si on souhaite en plus que ce code soit identifié comme du latex et soit rendu en tant que tel, il faudra ajouter les `$`, donc écrire `${@x:$}`
 
-  * `{@x:s$}` est une version alternative pour le formatage en latex. En effet, nerdamer n'est pas toujours satisfaisant dans ses choix. Si on a $\exp(-3)$ il mettra automatiquement $\frac{1}{e^3}$. Ce formatage utilise alors un rendu personalisé  mais fait quelque simplification de façon à afficher correctement des cas comme `{@a*x^2+@b*x+@c:s$}` où l'un des coefficients serait nul ou égal à 1 ou -1.
+  * `{@x:s$}` est une version alternative pour le formatage en latex ajoutant une simplification légère. Ainsi les calculs évidents seront exécutés afin d'afficher correctement des cas comme `{@a*x^2+@b*x+@c:s$}` où l'un des coefficients serait nul ou égal à 1 ou -1.
 
   * `{@x:f}` ou `{@x:3f}` pour un affichage approximé. Si on ne précise pas de nombre de chiffres après la virgules, alors le nombre est écrit en entier.
 
@@ -432,6 +444,8 @@ Supposons que l'on ait produit un trinome de forme $a\cdot x^2 + b \cdot x + c$ 
 On pourrait croire qu'il suffit d'écrire `$@a x^2 + @b x + @c$` pour obtenir une représentation correcte du trinome.
 
 Mais cette méthode est mauvaise car `@a` pourrait être égal à `1` et `@b` pourrait être nul ou négatif... C'est pour cette raison qu'il convient d'utiliser le formatage. L'expression sera convenablement interprétée par nerdamer qui produira une représentation adéquat. On pourra donc noter : `${@a x^2 + @b x + @c:$}$`
+
+Il est enfin possible d'ajouter un calcul directement dans le formatage : `{1+3*5 -x:s}` commencera par parser l'expression et la simplifiera ce qui donnera `16-x`.
 
 ###### Utilisation de `expand`
 
@@ -1216,6 +1230,7 @@ Le vecteur est conçu pour ne pas être lié à des points. Donc, si on crée pa
   * `Alea.signe` renvoie `-1` ou `1` aléatoirement
   * `Alea.lagrangePolynom` reçoit `xmin`, `ymin`, `xmax`, `ymax` et `n`. Renvoie un polynome de degré `n` interpolant `n+1` points de coordonnées entières pris dans le cadre.
   * `Alea.choice`, reçoit un tableau et renvoie un des items du tableau au hasard
+  * `Alea.premier`, reçoit un entier `n` et renvoie un premier `<= n`. Attention, `n` peut aller de 2 à 1008 (la liste prédéfinie de premiers va de 2 à 997)
 
 
 #### Module table
