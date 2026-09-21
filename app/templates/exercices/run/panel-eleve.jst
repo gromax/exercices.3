@@ -1,4 +1,6 @@
-<h3><%- title %></h3>
+<h3><%- title %><%if (closed) {%>&emsp;<span class="badge bg-danger" title="Fermé"><i class="fa-solid fa-lock"></i></span><% } %></h3>
+<% if (closed) { %><p class="text-danger">Le devoir est verrouillé. Cet essai ne sera pas sauvegardé.</p><% } %>
+<h6>
 <h5>
   <%if (num>1) { %>
     <a href="#" role="button" class="btn btn-sm btn-outline-primary js-prev" title="Exercice précédent"><i class="fa-solid fa-chevron-left"></i></a>
