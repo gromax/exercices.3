@@ -5,25 +5,25 @@
 <td><%- dateDebutFr %></td>
 <td><%- dateFinFr %></td>
 <% if (showStatus) { %><td>
-  <%if (notStarted) { %>
-    <span class="badge bg-warning text-dark" title="Non commencé"><i class="fa-solid fa-lock"></i></span>
-  <% } else if (!notEnded) { %>
-    <span class="badge bg-danger" title="Terminé"><i class="fa-solid fa-lock"></i></span>
-  <% } else { %>
-    <span class="badge bg-success" title="En cours"><i class="fa-solid fa-lock-open"></i></span>
-  <% } %>
+    <%if (notStarted) { %>
+        <span class="badge bg-warning text-dark" title="Non commencé"><i class="fa-solid fa-lock"></i></span>
+    <% } else if (!notEnded) { %>
+        <span class="badge bg-danger" title="Terminé"><i class="fa-solid fa-lock"></i></span>
+    <% } else { %>
+        <span class="badge bg-success" title="En cours"><i class="fa-solid fa-lock-open"></i></span>
+    <% } %>
 </td><% } %>
 <td align="right">
-  <div class="btn-group" role="group">
-    <!-- Bouton notes -->
-    <% if (showNotesButton) { %><a role="button" class="btn btn-outline-primary btn-sm" title="Voir les notes" href="#devoir:<%- id %>/notes"><i class="fa-solid fa-square-poll-vertical"></i></a><% } %>
-    <!-- Bouton modification -->
-    <a role="button" class="btn btn-outline-primary btn-sm" title="Modifier" href="#devoir:<%- id %>/dashboard"><i class="fa-solid fa-screwdriver-wrench"></i></a>
-    <!-- Bouton clone -->
-    <button type="button" class="btn btn-outline-primary btn-sm js-clone" title="Cloner"><i class="fa-solid fa-copy" title="Cloner"></i></button>
-    <!-- Bouton archive -->
-    <% if (showArchiveButton) { %><button type="button" class="btn btn-outline-primary btn-sm js-archive" title="Archiver"><i class="fa-solid fa-box-archive" title="Archiver"></i></button><% } %>
-    <!-- Bouton suppression -->
-    <button type="button" class="btn btn-outline-danger btn-sm js-delete" title="Supprimer"><i class="fa fa-trash" aria-hidden="true" title="Supprimer"></i></button>
-  </div>
+    <div class="btn-group" role="group">
+        <!-- Bouton notes -->
+        <% if (showNotesButton) { %><a role="button" class="btn btn-outline-primary btn-sm" title="Voir les notes" href="#devoir:<%- id %>/notes"><i class="fa-solid fa-square-poll-vertical"></i></a><% } %>
+        <!-- Bouton modification -->
+        <a role="button" class="btn btn-outline-primary btn-sm" title="Modifier" href="#devoir:<%- id %>/dashboard"><i class="fa-solid fa-screwdriver-wrench"></i></a>
+        <!-- Bouton clone -->
+        <button type="button" class="btn btn-outline-primary btn-sm js-clone" title="Cloner"><i class="fa-solid fa-copy" title="Cloner"></i></button>
+        <!-- Bouton archive -->
+        <% if (showArchiveButton) { %><button type="button" class="btn btn-outline-primary btn-sm js-archive" title="Archiver"><i class="fa-solid fa-box-archive" title="Archiver"></i></button><% } %>
+        <!-- Bouton suppression -->
+        <button type="button" class="btn btn-outline-danger btn-sm js-delete" title="Supprimer"><i class="fa fa-trash" aria-hidden="true" title="Supprimer"></i></button>
+    </div>
 </td>

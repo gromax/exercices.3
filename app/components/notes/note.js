@@ -1,5 +1,5 @@
-import { MyModel, MyCollection } from "../common/entity.js";
-import Misc from "../common/misc.js";
+import { MyModel, MyCollection } from "../common/entity.js"
+import Misc from "../common/misc.js"
 
 const Item = MyModel.extend ({
     urlRoot: "api/notes",
@@ -24,33 +24,33 @@ const Item = MyModel.extend ({
     },
 
     toString() {
-        return `Note de ${this.get("prenomUser")} ${this.get("nomUser")} pour le devoir ${this.get("nom")} : ${this.get("note")} pts`;
+        return `Note de ${this.get("prenomUser")} ${this.get("nomUser")} pour le devoir ${this.get("nom")} : ${this.get("note")} pts`
     },
 
     parse(data) {
-        data.idOwner = Number(data.idOwner);
-        data.idDevoir = Number(data.idDevoir);
-        data.idUser = Number(data.idUser);
-        data.idClasse = Number(data.idClasse);
-        data.note = Number(data.note);
-        data.actif = Misc.parseBoolean(data.actif);
-        data.exoCount = Number(data.exoCount);
-        const timeToEnd = Misc.computeTimeFromNowToDate(data.dateFin, true);
-        const timeToBegin = Misc.computeTimeFromNowToDate(data.dateDebut, false);
-        data.notStarted = (timeToBegin > 0);
-        data.notEnded = (timeToEnd > 0);
-        data.timeLeft = Misc.computeTimeLeft(data.dateDebut, data.dateFin);
-        data.actif = (data.timeLeft !== null);
-        data.dateDebutFr = Misc.formatDateFrench(data.dateDebut);
-        data.dateFinFr = Misc.formatDateFrench(data.dateFin);
-        data.nomPrenomUser = `${data.nomUser} ${data.prenomUser}`;
-        return data;
+        data.idOwner = Number(data.idOwner)
+        data.idDevoir = Number(data.idDevoir)
+        data.idUser = Number(data.idUser)
+        data.idClasse = Number(data.idClasse)
+        data.note = Number(data.note)
+        data.actif = Misc.parseBoolean(data.actif)
+        data.exoCount = Number(data.exoCount)
+        const timeToEnd = Misc.computeTimeFromNowToDate(data.dateFin, true)
+        const timeToBegin = Misc.computeTimeFromNowToDate(data.dateDebut, false)
+        data.notStarted = (timeToBegin > 0)
+        data.notEnded = (timeToEnd > 0)
+        data.timeLeft = Misc.computeTimeLeft(data.dateDebut, data.dateFin)
+        data.actif = (data.timeLeft !== null)
+        data.dateDebutFr = Misc.formatDateFrench(data.dateDebut)
+        data.dateFinFr = Misc.formatDateFrench(data.dateFin)
+        data.nomPrenomUser = `${data.nomUser} ${data.prenomUser}`
+        return data
     },
-});
+})
 
 const Collection = MyCollection.extend({
     url: "api/notes",
     model: Item,
-});
+})
 
-export { Item, Collection };
+export { Item, Collection }
