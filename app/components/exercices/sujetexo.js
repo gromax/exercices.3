@@ -1,46 +1,61 @@
-import { MyModel, MyCollection } from "../common/entity";
-import Misc from "../common/misc";
+import { MyModel, MyCollection } from "../common/entity"
+import Misc from "../common/misc"
 
 const Item = MyModel.extend({
-  urlRoot: "api/exercices",
-  defaults: {
-    title: "Titre de l'exercice",
-    description: "Description de l'exercice",
-    keywords: "",
-    options: "",
-    code: "",
-    init: "",
-    published: false,
-  },
+    urlRoot: "api/exercices",
+    defaults: {
+        title: "Titre de l'exercice",
+        description: "Description de l'exercice",
+        keywords: "",
+        options: "",
+        code: "",
+        init: "",
+        published: false,
+    },
 
-  toString() {
-    const id = this.get('id') ? `#${this.get('id')} :` : "";
-    return `${id} ${this.get("title")}`;
-  },
+    toString() {
+        const id = this.get('id') ? `#${this.get('id')} :` : ""
+        return `${id} ${this.get("title")}`
+    },
 
-  parse(data) {
-    if (data.id) {
-      data.id = Number(data.id);
-    }
-    data.options = data.options || "";
-    data.keywords = data.keywords || "";
-    data.init = data.init || "";
-    data.code = data.code || "";
-    if (data.published !== undefined) {
-      data.published = Misc.parseBoolean(data.published);
-    }
-    if (typeof data.idOwner !== "undefined") {
-      data.idOwner = Number(data.idOwner);
-    }
-    return data;
-  },
-});
+    parse(data) {
+        if (data.id) {
+            data.id = Number(data.id)
+        }
+        data.options = data.options || ""
+        data.keywords = data.keywords || ""
+        data.init = data.init || ""
+        data.code = data.code || ""
+        if (data.published !== undefined) {
+            data.published = Misc.parseBoolean(data.published)
+        }
+        if (typeof data.idOwner !== "undefined") {
+            data.idOwner = Number(data.idOwner)
+        }
+        return data
+    },
+
+    validate(attrs, options) {
+        const errors = {}
+        if (!attrs.title) {
+            errors.title = "Ne doit pas être vide"
+        }  else if (attrs.title.length < 2) {
+            errors.title = "Trop court"
+        } else if (attrs.title.length > 50) {
+            errors.title = `${attrs.title.length} caractères - trop long (max 50)`
+        }
+
+        if (!_.isEmpty(errors)) {
+            return errors
+        }
+    },
+})
 
 
 const Collection = MyCollection.extend({
-  url: "api/exercices",
-  model: Item,
-  comparator: "id"
-});
+    url: "api/exercices",
+    model: Item,
+    comparator: "id"
+})
 
 export { Item, Collection }
