@@ -1,29 +1,29 @@
 <div class="table-responsive">
 <table class="table table-striped">
-  <%if (colheaders) { %>
-    <thead>
-    <tr>
-      <% if (rowheaders) { %>
-        <th scope="col"></th>
-      <% } %>
-      <% _.each(colheaders, function(header) { %>
-        <th scope="col"><%= header %></th>
-      <% }); %>
-    </tr>
-  </thead>
-  <% } %>
-  <tbody>
-    <% _.each(rows, function(row, index) { %>
-      <tr>
-        <% if (rowheaders) { %>
-          <th scope="row"><%= rowheaders[index] %></th>
-        <% } %>
-        <% _.each(row, function(cell) { %>
-          <td><%= cell %></td>
+    <%if (colheaders) { %>
+        <thead>
+        <tr>
+            <% if (rowheaders) { %>
+                <th scope="col"></th>
+            <% } %>
+            <% _.each(colheaders, function(header) { %>
+                <th scope="col"><%= header %></th>
+            <% }); %>
+        </tr>
+    </thead>
+    <% } %>
+    <tbody>
+        <% _.each(rows, function(row, index) { %>
+            <tr>
+                <% if (rowheaders) { %>
+                    <th scope="row"><%= rowheaders[index] %></th>
+                <% } %>
+                <% _.each(row, function(cell) { %>
+                    <td><%= cell %></td>
+                <% }); %>
+            </tr>
         <% }); %>
-      </tr>
-    <% }); %>
-  </tbody>
+    </tbody>
 </table>
 <p class="text-muted overflow-hint" style="display:none;"><i class="fa-solid fa-triangle-exclamation"></i> Faites défiler le tableau horizontalement</p>
 </div>

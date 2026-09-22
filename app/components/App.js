@@ -14,65 +14,65 @@ const mainRegion = new Region({ el: "#main-region" });
 const headerRegion = new Region({ el: "#header-region" });
 
 _.extend(Backbone.History.prototype, {
-  loadUrl: function(fragment) {
-    fragment = this.fragment = this.getFragment(fragment);
-    let matched = _.any(this.handlers, function(handler) {
-      if (handler.route.test(fragment)) {
-        handler.callback(fragment);
-        return true;
-      }
-    });
+    loadUrl: function(fragment) {
+        fragment = this.fragment = this.getFragment(fragment);
+        let matched = _.any(this.handlers, function(handler) {
+            if (handler.route.test(fragment)) {
+                handler.callback(fragment);
+                return true;
+            }
+        });
 
-    if (!matched) {
-      radioApp.trigger("not:found");
+        if (!matched) {
+            radioApp.trigger("not:found");
+        }
+
+        return matched;
     }
-
-    return matched;
-  }
 });
 
 
 const Manager = Application.extend({
-  region: '#app-container',
+    region: '#app-container',
 
-  getCurrentRoute() {
-    return Backbone.history && Backbone.history.fragment
-  },
+    getCurrentRoute() {
+        return Backbone.history && Backbone.history.fragment
+    },
 
-  navigate(route, options) {
-    options = options || {};
-    Backbone.history.navigate(route, options)
-  },
+    navigate(route, options) {
+        options = options || {};
+        Backbone.history.navigate(route, options)
+    },
 
-  onStart(app, options) {
-    this.version = APP_VERSION;
-    this.settings = {};
-    
-    //require('apps/classes/classes_app.coffee');
+    onStart(app, options) {
+        this.version = APP_VERSION;
+        this.settings = {};
+        
+        //require('apps/classes/classes_app.coffee');
 
-    // import de l'appli entities, session
-    const whenSessionLoaded = () => {
-      radioApp.reply("region:main", () => mainRegion);
-      radioApp.reply("region:header", () => headerRegion);
+        // import de l'appli entities, session
+        const whenSessionLoaded = () => {
+            radioApp.reply("region:main", () => mainRegion);
+            radioApp.reply("region:header", () => headerRegion);
 
-      require('./header/app.js').headerApp.show();
-      require('./home/app.js');
-      require('./ariane/app.js').arianeApp.show();
-      require('./alerts/app.js');
-      require('./dataManager.js');
-      require('./users/app.js');
-      require('./exercices/app.js');
-      require('./classes/app.js');
-      require('./devoirs/app.js');
-      require('./notes/app.js');
-      
-      //console.log("token", Radio.channel("app").request("jwt:get"));
-    
-      Backbone.history.start();
-    };
-    
-    new SessionApp({callBack:whenSessionLoaded});
-  }
+            require('./header/app.js').headerApp.show();
+            require('./home/app.js');
+            require('./ariane/app.js').arianeApp.show();
+            require('./alerts/app.js');
+            require('./dataManager.js');
+            require('./users/app.js');
+            require('./exercices/app.js');
+            require('./classes/app.js');
+            require('./devoirs/app.js');
+            require('./notes/app.js');
+            
+            //console.log("token", Radio.channel("app").request("jwt:get"));
+        
+            Backbone.history.start();
+        };
+        
+        new SessionApp({callBack:whenSessionLoaded});
+    }
 });
 
 

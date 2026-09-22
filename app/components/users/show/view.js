@@ -3,7 +3,7 @@ import show_user_tpl from '@templates/users/show/show-user.jst'
 
 
 const ShowUserView = View.extend ({
-  template: show_user_tpl,
+    template: show_user_tpl,
 });
 
 export { ShowUserView };

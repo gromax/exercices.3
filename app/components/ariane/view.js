@@ -4,43 +4,43 @@ import ariane_tpl from '@templates/ariane/show/show-list.jst'
 import not_loaded_tpl from '@templates/ariane/show/ariane-not-loaded-view.jst'
 
 const NoView = View.extend({
-  tagName: "li",
-  className: "breadcrumb-item active",
-  template: not_loaded_tpl
+    tagName: "li",
+    className: "breadcrumb-item active",
+    template: not_loaded_tpl
 });
 
 const ItemView = View.extend({
-  tagName: "li",
-  template: item_tpl,
-  className() {
-    if (this.model.get("active")){
-      return "breadcrumb-item";
-    } else {
-      // Ça peut paraître bizarre, mais c'est quand il n'y a pas de lien
-      // et que c'est inactif qu'il faut mettre la classe active avec bootstrap breadcrumb
-      return "breadcrumb-item active";
-    }
-  },
-  initialize() {
-    this.listenTo(
-      this.model,
-      "change:active",
-      function(){
-        this.render();
-      }
-    );
-  },
-  triggers: {
-  },
+    tagName: "li",
+    template: item_tpl,
+    className() {
+        if (this.model.get("active")){
+            return "breadcrumb-item";
+        } else {
+            // Ça peut paraître bizarre, mais c'est quand il n'y a pas de lien
+            // et que c'est inactif qu'il faut mettre la classe active avec bootstrap breadcrumb
+            return "breadcrumb-item active";
+        }
+    },
+    initialize() {
+        this.listenTo(
+            this.model,
+            "change:active",
+            function(){
+                this.render();
+            }
+        );
+    },
+    triggers: {
+    },
 });
 
 const ArianeView = CollectionView.extend({
-  tagName: "nav",
-  className: "breadcrumb",
-  childView: ItemView,
-  emptyView: NoView,
-  childViewContainer: "ol",
-  template: ariane_tpl,
+    tagName: "nav",
+    className: "breadcrumb",
+    childView: ItemView,
+    emptyView: NoView,
+    childViewContainer: "ol",
+    template: ariane_tpl,
 });
 
 export { ArianeView }

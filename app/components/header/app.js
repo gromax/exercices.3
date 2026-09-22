@@ -4,49 +4,49 @@ import { HeaderView } from './view.js';
 const navbar = new HeaderView();
 
 const HeaderApp = MnObject.extend({
-  channelName: "app",
-  radioEvents: {
-    'loading:up': 'onLoadingUp',
-    'loading:down': 'onLoadingDown',
-    'logged:changed': 'onLoggedChanged',
-    'header:refresh': 'onRefresh'
-  },
-  ajaxCount: 0,
+    channelName: "app",
+    radioEvents: {
+        'loading:up': 'onLoadingUp',
+        'loading:down': 'onLoadingDown',
+        'logged:changed': 'onLoggedChanged',
+        'header:refresh': 'onRefresh'
+    },
+    ajaxCount: 0,
 
-  initialize() {
-    const channel = this.getChannel();
-    navbar.on("home:show", () => { channel.trigger("home:show"); });
-    navbar.on("home:editme", () => { channel.trigger("user:show:me"); });
-    navbar.on("home:login", () => { channel.trigger("home:login"); });
-    navbar.on("logout", () => { channel.trigger("session:logout"); });
-    navbar.on("messages:list", () => { channel.trigger("messages:show:list"); });
-  },
+    initialize() {
+        const channel = this.getChannel();
+        navbar.on("home:show", () => { channel.trigger("home:show"); });
+        navbar.on("home:editme", () => { channel.trigger("user:show:me"); });
+        navbar.on("home:login", () => { channel.trigger("home:login"); });
+        navbar.on("logout", () => { channel.trigger("session:logout"); });
+        navbar.on("messages:list", () => { channel.trigger("messages:show:list"); });
+    },
 
-  show() {
-    const region = this.getChannel().request("region:header");
-    region.show(navbar);
-  },
+    show() {
+        const region = this.getChannel().request("region:header");
+        region.show(navbar);
+    },
 
-  onRefresh() {
-    navbar.render();
-  },
+    onRefresh() {
+        navbar.render();
+    },
 
-  onLoadingDown() {
-    this.ajaxCount--
-    if (this.ajaxCount <= 0) {
-      this.ajaxCount = 0;
-      navbar.hideSpinner();
+    onLoadingDown() {
+        this.ajaxCount--
+        if (this.ajaxCount <= 0) {
+            this.ajaxCount = 0;
+            navbar.hideSpinner();
+        }
+    },
+
+    onLoadingUp() {
+        this.ajaxCount++;
+        navbar.showSpinner();
+    },
+
+    onLoggedChanged() {
+        navbar.render();
     }
-  },
-
-  onLoadingUp() {
-    this.ajaxCount++;
-    navbar.showSpinner();
-  },
-
-  onLoggedChanged() {
-    navbar.render();
-  }
 });
 
 const headerApp = new HeaderApp();

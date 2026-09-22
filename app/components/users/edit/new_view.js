@@ -6,54 +6,54 @@ import signin_classe_tpl from '@templates/users/edit/user-classe-signin.jst'
 import change_classe_tpl from '@templates/users/edit/eleve-classe-change.jst'
 
 const NewUserView = View.extend ({
-  title: "Nouvel Utilisateur",
-  showPWD: true,
-  ranks: false,
-  editorIsAdmin: true,
-  template: edit_user_tpl,
-  behaviors: [Form],
-  templateContext() {
-    return {
-      showPWD: this.getOption("showPWD"),
-      ranks: this.getOption("ranks"),
-      editorIsAdmin: this.getOption("editorIsAdmin"),
-      title: this.getOption("title")
-    };
-  },
+    title: "Nouvel Utilisateur",
+    showPWD: true,
+    ranks: false,
+    editorIsAdmin: true,
+    template: edit_user_tpl,
+    behaviors: [Form],
+    templateContext() {
+        return {
+            showPWD: this.getOption("showPWD"),
+            ranks: this.getOption("ranks"),
+            editorIsAdmin: this.getOption("editorIsAdmin"),
+            title: this.getOption("title")
+        };
+    },
 });
 
 const ClasseSignin = View.extend ({
-  template: signin_classe_tpl,
-  behaviors: [Form],
-  templateContext() {
-    const classe = this.getOption("classe");
-    if (classe) {
-      return {
-        title: `Rejoindre la classe ${classe.get("nom")}`,
-        description: classe.get("description")
-      };
-    }
-    return {
-      title: "Rejoindre une classe"
-    };
-  },
+    template: signin_classe_tpl,
+    behaviors: [Form],
+    templateContext() {
+        const classe = this.getOption("classe");
+        if (classe) {
+            return {
+                title: `Rejoindre la classe ${classe.get("nom")}`,
+                description: classe.get("description")
+            };
+        }
+        return {
+            title: "Rejoindre une classe"
+        };
+    },
 });
 
 const ClasseChange = View.extend ({
-  template: change_classe_tpl,
-  behaviors: [Form],
-  templateContext() {
-    const classe = this.getOption("classe");
-    if (classe) {
-      return {
-        title: `Rejoindre la classe ${classe.get("nom")}`,
-        description: classe.get("description")
-      };
-    }
-    return {
-      title: "Changer de classe"
-    };
-  },
+    template: change_classe_tpl,
+    behaviors: [Form],
+    templateContext() {
+        const classe = this.getOption("classe");
+        if (classe) {
+            return {
+                title: `Rejoindre la classe ${classe.get("nom")}`,
+                description: classe.get("description")
+            };
+        }
+        return {
+            title: "Changer de classe"
+        };
+    },
 });
 
 export { NewUserView, ClasseSignin, ClasseChange };
