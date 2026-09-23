@@ -75,11 +75,18 @@ class GraphBloc extends Bloc implements FormItemImplementation {
         const cadre = this._getCadre()
         const options = {
         }
-        options["axis"] = getBooleanOption(this.params, "axis", true)
+        options["axis"] = getBooleanOption(this.params, ["axis", "axes"], true)
         options["pan"] = getBooleanOption(this.params, "pan", false)
         options["zoom"] = getBooleanOption(this.params, "zoom", false)
-        options["grid"] = getBooleanOption(this.params, "grid", true)
-
+        options["grid"] = getBooleanOption(this.params, ["grid", "grille"], true)
+        if ((typeof this.params["gridX"] !== "undefined") ||
+            (typeof this.params["gridY"] !== "undefined"))
+        {
+            const gridX = getNumberOption(this.params, ["gridx", "gridX"], 1)
+            const gridY = getNumberOption(this.params, ["gridy", "gridY"], 1)
+            options["majorStep"] = [gridX, gridY]
+        }
+ 
         const aspectRatio = getStringOption(this.params,"aspectratio", '1/1')
 
         return new GraphView({
