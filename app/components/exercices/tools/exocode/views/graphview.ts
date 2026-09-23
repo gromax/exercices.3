@@ -7,6 +7,7 @@ import GraphPoint from "../blocs/graphitems/point"
 type GraphOptions = {
     boundingbox:[number,number,number,number],
     axis:boolean,
+    grid: boolean,
     showCopyright:boolean,
     showNavigation?:boolean,
     pan?:{ enabled:boolean },
@@ -36,6 +37,9 @@ const GraphView = View.extend({
         const axis = typeof this.getOption("axis") !== "undefined"
             ? Boolean(this.getOption("axis"))
             : true
+        const grid = typeof this.getOption("grid") !== "undefined"
+            ? Boolean(this.getOption("grid"))
+            : true
         const zoom = typeof this.getOption("zoom") !== "undefined"
             ? Boolean(this.getOption("zoom"))
             : false
@@ -45,8 +49,10 @@ const GraphView = View.extend({
         const options:GraphOptions = {
             boundingbox: [xmin, ymax, xmax, ymin],
             axis: axis,
+            grid:false,
             showCopyright: false
         }
+
         if (!pan) {
             options.pan = {
                 enabled:false,
@@ -60,6 +66,21 @@ const GraphView = View.extend({
             }
         }
         const graph = JXG.JSXGraph.initBoard(container, options)
+
+        if (grid) {
+            // création de la grille
+            if (typeof this.getOption("majorStep") !== "undefined") {
+                const majorStep = this.getOption("majorStep") as [number, number]
+                graph.create('grid', [], {
+                    majorStep: majorStep
+                });
+            } else {
+                graph.create('grid', [], {
+                    majorStep: 'auto'
+                });
+            }
+        }
+
         const graphObjects: Record<string, JXG.GeometryElement> = {}
         const items = this.getOption("items") || []
         for (const graphItem of items) {
