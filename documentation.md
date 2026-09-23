@@ -930,6 +930,7 @@ Le bloc a lui-même quelques paramètres :
   * axis: affiche ou non les axes. Par défaut à true.
   * grid: affiche ou non la grille. Par défaut à true.
   * aspectratio: proportions du graphes. Par défaut 1/1, donc un carré. 2/1 par ex donnera un rectangle horizontal 2x plus large que haut.
+  * gridX et gridY: pas de grille
 
 Ensuite, on peut ajouter des sous-blocs pour les différents objets.
 
@@ -1259,6 +1260,7 @@ Le vecteur est conçu pour ne pas être lié à des points. Donc, si on crée pa
   * `Table.filter` reçoit un tableau, un opérateur parmi `==, !=, <, <=, >, >=`, et une valeur. Renvoie le tableau des items satisfaisant le test.
   * `Table.toBrut` reçoit les tableaux `valeurs` et `effectifs` et reconstitue la série brute, dans l'ordre.
   * `Table.sort` reçoit un tableau `valeurs` et renvoie une copie triée.
+  * `Table.shuffle` renvoie une copie mélangée d'un tableau `valeurs` 
 
 #### Module Calc
 
