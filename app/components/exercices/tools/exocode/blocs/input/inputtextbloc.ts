@@ -80,7 +80,8 @@ class InputTextBloc extends InputBloc {
                 !value.startsWith("var:") &&
                 !value.startsWith("equation:")&&
                 !value.startsWith("criterion:")&&
-                !value.startsWith("vecteur:")
+                !value.startsWith("vecteur:") &&
+                !value.startsWith("entier")
             ) {
                 console.warn(`Format inconnu pour le bloc <input:${this.header}> : ${value}`)
             }
