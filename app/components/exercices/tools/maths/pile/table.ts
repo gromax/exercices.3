@@ -27,6 +27,7 @@ class Table {
         'ECC2': Table.ECC2,
         'filter': Table.filter,
         'sort': Table.sort,
+        'shuffle': Table.shuffle
     }
 
     static get(arr:Array<InputType>, index:InputType):InputType {
@@ -334,6 +335,26 @@ class Table {
         const couples = values.map((val) => [val, MyMath.parseFloat(val)])
         couples.sort((a, b) => (a[1] as number) - (b[1] as number))
         return couples.map((c) => c[0])
+    }
+
+    /**
+     * Renvoi une copie mélangée du tableau fourni
+     * @param {Array} values
+     * @return {Array} valeurs mélangées
+     */
+    static shuffle(values:Array<InputType>):Array<InputType> {
+        if (!Array.isArray(values)) {
+            throw new Error(`L'argument de Table.shuffle doit être un tableau.`)
+        }
+        // algorithme de Fisher-Yates
+        const shuffled = [...values] as Array<InputType>
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const rand = Math.floor(Math.random() * (i + 1))
+            const temp:InputType = shuffled[i]
+            shuffled[i] = shuffled[rand]
+            shuffled[rand] = temp
+        }
+        return shuffled
     }
 }
 
