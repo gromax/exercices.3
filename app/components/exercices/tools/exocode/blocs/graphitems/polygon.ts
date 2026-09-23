@@ -50,6 +50,7 @@ class GraphPolygon extends GraphItem {
         if (getBooleanOption(this.item.params, 'solution', false) && !this._solMode) {
             options["visible"] = false
         }
+
         const polygon = open
             ? g.create('polygonalchain', points, options) as JXG.PolygonalChain
             : g.create('polygon', points, options) as JXG.Polygon
