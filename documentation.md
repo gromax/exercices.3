@@ -693,7 +693,7 @@ Les pictogrammes peuvent servir pour les daltoniens. On peut donc choisir de ne 
 
 ```
 <inputchoix:name>
-1 [label] => valeur 1
+1 {label} => valeur 1
 2 => valeur 2
 1 => valeur 3
 </inputchoix>
@@ -756,9 +756,9 @@ On pourrait aussi procédéer ainsi
 ```
 <form>
 <inputchoix:a>
-1 [tag] => $\mathbb{N}$
-2 [tag] => $\mathbb{Z}$
-3 [tag] => $\mathbb{D}$
+1 {tag} => $\mathbb{N}$
+2 {tag} => $\mathbb{Z}$
+3 {tag} => $\mathbb{D}$
 2 => -5
 1 => 8
 1 => 0
@@ -768,7 +768,7 @@ On pourrait aussi procédéer ainsi
 </form>
 ```
 
-Les trois lignes `[tag]` permettent de préciser l'étiquette correspondant à 1, 2 et 3.
+Les trois lignes `{tag}` permettent de préciser l'étiquette correspondant à 1, 2 et 3.
 
 Ainsi, on aura directement des étiquettes au lien des carrés de couleurs ou des pictogrammes pour les choix et il n'est pas nécessaire de faire précéder d'un bloc choix.
 
