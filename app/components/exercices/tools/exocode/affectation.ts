@@ -93,10 +93,20 @@ class Affectation extends Node {
     }
 
     private _assignValueInParams(value:NestedInput, params:TParams) {
-        if (Array.isArray(params[this._tag])) {
-            (params[this._tag] as Array<NestedInput>).push(value)
-        } else {
+        if (!this._isArrayAffectation) {
+            // affectation simple, on écrase la valeur existante
             params[this._tag] = value
+        } else {
+            if (Array.isArray(params[this._tag])) {
+                // existe déjà comme tableau. On push la nouvelle valeur
+                (params[this._tag] as Array<NestedInput>).push(value)
+            } else if (typeof params[this._tag] !== 'undefined') {
+                // existe mais pas comme tableau, on ajoute en tant que tableau
+                params[this._tag] = [params[this._tag], value]
+            } else {
+                // n'existe pas alors on crée le tableau avec la valeur dedans
+                params[this._tag] = [value]
+            }
         }
     }
     
