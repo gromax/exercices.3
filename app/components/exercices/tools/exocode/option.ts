@@ -8,7 +8,7 @@ class Option extends Node{
     private _value:string
     private _label:string
 
-    static readonly REGEX = /^(?<key>@?[\w]+)\s*(?<label>\[\w+\])?\s*=>(?<value>.*)/
+    static readonly REGEX = /^(?<key>@?[\w\[\]]+)\s*(?<label>\{\w+\})?\s*=>(?<value>.*)/
     static parse(line:string):Option|null {
         const m = line.match(Option.REGEX)
         if (m?.groups) {
