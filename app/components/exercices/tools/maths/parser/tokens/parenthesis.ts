@@ -12,7 +12,7 @@ class TParenthesis extends Token {
      */
     constructor (token:string) {
         super()
-        this._ouvrant = ((token == "(") || (token == "{") || (token == "["))
+        this._ouvrant = (token == "(")
         this._symbol = token
     }
 
@@ -27,8 +27,8 @@ class TParenthesis extends Token {
         return ")"
     }
 
-    static readonly sREGEX = "[\\(\\{\\}\\)\\[\\]]"
-    static readonly REGEX = new RegExp("[\\(\\{\\}\\)]" ,'i')
+    static readonly sREGEX = "[\\(\\)]"
+    static readonly REGEX = new RegExp("[\\(\\)]" ,'i')
 
     /**
      * renvoie le symbole
@@ -98,28 +98,16 @@ class TParenthesis extends Token {
      * accesseur
      * @type {string}
      */
-    get jumeau() {
-        if (this._symbol == "}") {
-            return "{"
-        }
+    get jumeau():string {
         if (this._symbol == ")") {
-            return "(";
-        }
-        if (this._symbol == "]") {
-            return "[";
-        }
-        if (this._symbol == "{") {
-            return "}";
+            return "("
         }
         if (this._symbol == "(") {
-            return ")";
+            return ")"
         }
-        if (this._symbol == "[") {
-            return "]";
-        }
-
-        throw new Error(`Parenthèse invalide : ${this._symbol}`);
+        throw new Error(`Parenthèse invalide : ${this._symbol}`)
     }
+
 }
 
 export { TParenthesis }
