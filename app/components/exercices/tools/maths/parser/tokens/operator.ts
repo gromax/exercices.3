@@ -1,4 +1,4 @@
-import { Token } from "./token";
+import { Token } from "./token"
 
 class TOperator extends Token {
     /** @type {string} */
@@ -10,11 +10,11 @@ class TOperator extends Token {
     constructor(opType:string) {
         super()
         if (opType === "cdot" || opType === "×" || opType === "⋅") {
-            this.opType = "*";
+            this.opType = "*"
         } else if (opType === "÷") {
-            this.opType = "/";
+            this.opType = "/"
         } else {
-            this.opType = opType;
+            this.opType = opType
         }
     }
 
@@ -23,7 +23,7 @@ class TOperator extends Token {
      * @returns {string}
      */
     toString():string {
-        return this.opType;
+        return this.opType
     }
 
     static readonly sREGEX = "[*×⋅\\+\\-\\/\\^÷;]|cdot"
@@ -93,12 +93,12 @@ class TOperator extends Token {
     changeToArityOne():boolean {
         if (this.opType == '-') {
             this.opType = '(-)';
-            return true;
+            return true
         } else if (this.opType == '+') {
-            this.opType = "(+)";
-            return true;
+            this.opType = "(+)"
+            return true
         }
-        return false;
+        return false
     }
 }
 
