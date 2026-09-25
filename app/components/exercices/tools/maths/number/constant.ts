@@ -4,11 +4,11 @@ import { Signature } from "./signature"
 import Decimal from "decimal.js"
 import { NestedString } from '@types'
 class Constant extends Base {
-    static readonly NAMES = ['e', 'pi', 'π', '∞', '-inf', '-∞', 'infinity', 'infini'] // i
+    static readonly NAMES = ['e', 'pi', 'π', '∞', '-inf', '-∞', 'infinity', 'infini', 'i']
     static readonly TEX = {
         'e': 'e',
         'π': '\\pi',
-        //'i': 'i',
+        'i': 'i',
         '∞': '\\infty',
         '-∞': '-\\infty',
     }
@@ -110,7 +110,6 @@ class Constant extends Base {
         switch (this._name) {
             case 'e': return Decimal.exp(1)
             case 'π': return Decimal.acos(-1)
-            //case 'i': return Decimal.I
             case '∞': return new Decimal(Infinity)
             case '-∞': return new Decimal(-Infinity)
             default: return new Decimal(NaN)
