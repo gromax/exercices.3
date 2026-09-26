@@ -63,6 +63,13 @@ class Collection extends Base {
         return Scalar.ONE
     }
 
+    /** 
+     * @returns {number} Le nombre d'enfants dans la collection.
+     */
+    get length(): number {
+        return this._children.length
+    }
+
     subVariables(): NestedString {
         return this._children.map( c => c.subVariables() ).flat()
     }
