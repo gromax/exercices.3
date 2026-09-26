@@ -54,6 +54,15 @@ class TOperator extends Token {
         }
     }
 
+    get arity():0|1|2 {
+        if (this.opType == "(-)" || this.opType == "(+)") {
+            return 1
+        } else if (this.opType == "*" || this.opType == "/" || this.opType == "+" || this.opType == "-" || this.opType == "^") {
+            return 2
+        }
+        return 0
+    }
+
     /**
      * prédicat : peut-il y avoir un opérateur binaire sur la gauche ?
      * @returns {boolean}
