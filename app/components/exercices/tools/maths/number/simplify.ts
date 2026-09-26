@@ -244,25 +244,29 @@ function multSimplify(node:Mult):Base {
 }
 
 function divSimplify(node:Div):Base {
-    let leftSim = simplify(node.left)
-    let rightSim = simplify(node.right)
-    if (leftSim.isZero()) {
+    const numSim = simplify(node.numerator)
+    const denomSim = simplify(node.denominator)
+    if (numSim.isZero()) {
         return Scalar.ZERO
     }
-    if (rightSim.isOne()) {
-        return leftSim
+    if (denomSim.isOne()) {
+        return numSim
     }
-    if (rightSim.isZero()) {
+    if (denomSim.isZero()) {
         return Scalar.NAN
     }
     // simplification des scalaires
-    if ((leftSim instanceof Scalar) && (rightSim instanceof Scalar)) {
-        return leftSim.div(rightSim)
+    if ((numSim instanceof Scalar) && (denomSim instanceof Scalar)) {
+        return numSim.div(denomSim)
     }
-    if ((leftSim instanceof Mult) && (rightSim instanceof Scalar)) {
-        return simplify(Mult.mult(leftSim, rightSim.inverse()))
+    if ((numSim instanceof Mult) && (denomSim instanceof Scalar)) {
+        return simplify(Mult.mult(numSim, denomSim.inverse()))
     }
-    return new Div(leftSim, rightSim)
+    if (numSim == node.numerator && denomSim == node.denominator) {
+        // pas de simplification possible
+        return node
+    }
+    return new Div(numSim, denomSim)
 }
 
 function addSimplify(node: AddMinus): Base {
