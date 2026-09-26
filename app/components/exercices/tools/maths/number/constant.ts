@@ -141,6 +141,22 @@ class Constant extends Base {
         return Scalar.ZERO
     }
 
+    /**
+     * prédicat : le noeud est-il l'infini positif ?
+     * @returns {boolean} true si le noeud représente l'infini positif, false sinon
+     */
+    isPlusInfinity():boolean {
+        return this._name === '∞'
+    }
+
+    /**
+     * prédicat : le noeud est-il l'infini négatif ?
+     * @returns {boolean} true si le noeud représente l'infini négatif, false sinon
+     */
+    isMinusInfinity():boolean {
+        return this._name === '-∞'
+    }
+
 }
 
 const E = Constant.fromString('e');
