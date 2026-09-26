@@ -6,51 +6,87 @@ import { TFunction } from './tokens/function'
 import { TOperator } from './tokens/operator'
 import { TParenthesis } from './tokens/parenthesis'
 import { TSymbol } from './tokens/symbol'
-import { build } from './rpnbuilder'
+import { TInterval } from './tokens/interval'
+
+import { build, buildEnsemble } from './rpnbuilder'
 import { Scalar } from "../number/scalar"
 import { Base} from "../number/base"
+import { Ensemble } from "../number/ensemble"
+
 
 const TOKENS = [TNumber, TFunction, TOperator, TParenthesis, TSymbol]
+const TOKENS_INTERVAL = [...TOKENS,TInterval]
+import type { TBuildOptions } from '@types'
 
 class Parser {
     /** @type{string} */
     private _saisie:string
 
-    /** @type{Array} */
-    private _rpn:Array<string>
+    /** @type{TBuildOptions} */
+    private _mode:TBuildOptions
 
-    static REGEX = new RegExp ( _.map(TOKENS, function(tok){ return `(${tok.sREGEX})`; } ).join("|"), "gi");
+    static REGEX = new RegExp (
+        _.map(
+            TOKENS,
+            (tok) => `(${tok.getRegexString()})`
+        ).join("|"),
+        "gi"
+    )
+
+    static REGEX_INTERVAL = new RegExp (
+        _.map(
+            TOKENS_INTERVAL,
+            (tok) => `(${tok.getRegexString()})`
+        ).join("|"),
+        "gi"
+    )
 
     /**
      * construit un objet Parser et parse la saisie
      * @param {string} expr 
      * @returns {Parser}
      */
-    static build(expr:string|number): Base {
+    static build(expr:string|number, mode:TBuildOptions = "default"): Base {
+        if (mode === "interval") {
+            throw new Error("`build ne devrait pas être appelé avec le mode interval.")
+        }
         if (typeof expr === "number") {
             return new Scalar(expr)
         }
         if (typeof expr !== "string") {
             expr = String(expr)
         }
-        return build(new Parser(expr).rpn);
+        const parser = new Parser(expr, mode)
+        return parser.base
+    }
+
+    /**
+     * @param {string} expr L'expression à parser
+     * @returns {Ensemble} L'ensemble construit à partir de l'expression
+     */
+    static buildEnsemble(expr:string): Ensemble {
+        if (typeof expr !== "string") {
+            expr = String(expr)
+        }
+        const parser = new Parser(expr, "interval")
+        return parser.ensemble
     }
 
     /**
      * constructeur
      * @param {string} saisie
      */
-    private constructor(saisie:string) {
+    private constructor(saisie:string, mode:TBuildOptions = "default") {
         this._saisie = saisie || ""
-        this._rpn = []
-        this._parse()
+        this._mode = mode
     }
 
-    /**
-     * @returns {Array<string>} copie de l'attribut _rpn
-     */
-    get rpn():Array<string> {
-        return [...this._rpn];
+    get base(): Base {
+        return this._parseToBase(this._saisie)
+    }
+
+    get ensemble(): Ensemble {
+        return this._parseToEnsemble(this._saisie)
     }
 
     /**
@@ -59,9 +95,9 @@ class Parser {
      * @returns {Token}
      */
     private _createToken(tokenString:string): Token {
-        for (let oToken of TOKENS) {
-            let regex = oToken.REGEX;
-            if (regex.test(tokenString)) {
+        const oTokens = this._mode === "interval" ? TOKENS_INTERVAL : TOKENS
+        for (let oToken of oTokens) {
+            if (oToken.test(tokenString)) {
                 return new oToken(tokenString)
             }
         }
@@ -70,25 +106,24 @@ class Parser {
 
     /**
      * modifie les opérateurs + ou - qui n'ont pas une opérande sur leur gauche
-     * @param {Array<Token>} tokensList
+     * @param {Array<Token>} tokensList Liste des tokens à corriger
      */
-    private _correctBinaireToUnaire(tokensList:Array<Token>): boolean {
+    private _correctBinaireToUnaire(tokensList:Array<Token>): void {
         for (let i=0; i<tokensList.length; i++) {
-            let oToken = tokensList[i]
-            let leftIsNotOperand = ((i==0) || !tokensList[i-1].acceptOperOnRight());
+            const oToken = tokensList[i]
+            const leftIsNotOperand = ((i==0) || !tokensList[i-1].acceptOperOnRight());
             if ((oToken instanceof TOperator) && (oToken.operateOnLeft()) && leftIsNotOperand && !oToken.changeToArityOne()){
                 throw new Error(`${oToken} devrait avoir potentiellement une opérande sur sa gauche`);
             }
         }
-        return true
     }
 
     /**
-     * renvoie true si les parenthèses sont équilibrées
-     * @params {Array<Token>} tokens
-     * @returns {boolean}
+     * vérifie si les parenthèses sont équilibrées, lance une erreur sinon
+     * @param {Array<Token>} tokens Liste des tokens à vérifier
+     * @returns {void}
      */
-    private _parenthesesAreGood(tokens:Array<Token>): boolean {
+    private _verifyParentheses(tokens:Array<Token>):void {
         let ouvrants:Array<string> = [];
         for (let tok of tokens) {
             if (tok instanceof TParenthesis) {
@@ -108,13 +143,12 @@ class Parser {
         if (ouvrants.length != 0) {
             throw new Error(`${ouvrants.pop()} n'a pas de fermant.`)
         }
-        return true
     }
 
     /**
      * transforme les frac A B en A / B
-     * @params {Array} tokens Liste de tokens
-     * @returns {Array|null} tokens corrigés ou null si échec
+     * @param {Array<Token>} tokens Liste de tokens
+     * @returns {Array<Token>} tokens corrigés
      */
     private _correctFracs(tokens:Array<Token>): Array<Token> {
         let correctedTokens:Array<Token> = []
@@ -152,11 +186,11 @@ class Parser {
     }
 
     /**
-     * renvoie true si les opérateurs agissent comme il se doit à gauche et à droite
+     * vérifie si les opérateurs agissent comme il se doit à gauche et à droite, lance une erreur sinon
      * @param {Array<Token>} tokens
-     * @returns {boolean}
+     * @returns {void}
      */
-    private _verifyOperators(tokens:Array<Token>): boolean {
+    private _verifyOperators(tokens:Array<Token>): void {
         for (let i=0; i<tokens.length; i++) {
             let tok = tokens[i]
             if (tok.operateOnLeft()) {
@@ -176,17 +210,15 @@ class Parser {
                 }
             }
         }
-        return true
     }
 
     /**
-     * renvoie la liste en notation polonaise inversée
-     * @params {Array<Token>} tokens
-     * @returns {Array<Token>} rpn
+     * @param {Array<Token>} tokens Liste des tokens à convertir en RPN
+     * @returns {Array<Token>} pile en notation polonaise inversée
      */
-    private _buildRPN(tokens:Array<Token>): Array<Token> {
-        let rpn:Array<Token> = []
-        let stack:Array<Token> = []
+    private _buildRpn(tokens:Array<Token>): Array<Token> {
+        const rpn:Array<Token> = []
+        const stack:Array<Token> = []
         for(let token of tokens) {
             if ((token instanceof TParenthesis) && token.ouvrant) {
                 stack.push(token)
@@ -194,7 +226,7 @@ class Parser {
             }
             if (token instanceof TParenthesis) { // fermant
                 while (stack.length>0) {
-                    let depile = stack.pop()
+                    const depile = stack.pop()
                     if (depile instanceof TParenthesis) {
                         break
                     }
@@ -207,18 +239,18 @@ class Parser {
                 continue
             }
             while (stack.length > 0) {
-                let depile = stack[stack.length - 1]
+                const depile = stack[stack.length - 1]
                 if ((depile instanceof TParenthesis) || depile.priority < token.priority) {
                     break
                 }
-                rpn.push(stack.pop())
+                rpn.push(stack.pop()!)
             }
             stack.push(token)
         }            
         while (stack.length > 0) {
-            let depile = stack.pop()
+            const depile = stack.pop()
             if (!(depile instanceof TParenthesis)) {
-                rpn.push(depile)
+                rpn.push(depile!)
             }
         }
         return rpn
@@ -248,7 +280,7 @@ class Parser {
      * renvoie, s'il existe, le premier caractère non tokenizé, sinon null
      * @param {string} expression
      * @param {Array} tokens
-     * @returns {string|null}
+     * @returns {string|null} Le premier caractère non tokenizé, ou null si tous les caractères sont reconnus.
      */
     private _charNotTokenized(expression:string, tokens:Array<string>): string|null {
         // Vérifier qu'il n'y a pas de caractères non reconnus
@@ -266,12 +298,11 @@ class Parser {
     }
 
     /**
-     * parse la chaîne fournie, renvoie true en cas de succès
-     * @returns {boolean}
+     * Sanityse l'expression en corrigeant certains caractères et formats courants
+     * @param {string} expression
+     * @returns {string}
      */
-    private _parse():boolean {
-        let expression = this._saisie
-
+    private _sanityseExpression(expression:string): string {
         if (expression.includes('.') && expression.includes(',')) {
             throw new Error("Utilisez soit le point soit la virgule comme séparateur décimal, pas les deux.")
         }
@@ -287,14 +318,18 @@ class Parser {
         expression = expression.replace(/³/g, "^3 ")
         // Dans certains cas, le - est remplacé par un autre caractère plus long
         expression = expression.replace(/−/g, "-")
-      
-        let matchList = expression.match(Parser.REGEX)
-        if (!matchList) {
-            throw new Error("Aucun item valide reconnu !")
-        }
-        
-        // Vérifier qu'il n'y a pas de caractères non reconnus
-        const notTokenizedChar = this._charNotTokenized(expression, matchList)
+        return expression.trim()
+    }
+
+    /**
+     * Vérifie qu'il n'y a pas de caractères non tokenizés dans l'expression.
+     * Lance une erreur si un caractère non reconnu est trouvé.
+     * @param {string} expression
+     * @param {Array} tokens
+     * @returns {void}
+     */
+    private _verifyNotTokenized(expression:string, tokens:Array<string>): void {
+        const notTokenizedChar = this._charNotTokenized(expression, tokens)
         if (notTokenizedChar !== null) {
             if (notTokenizedChar === '.' || notTokenizedChar === ',') {
                 throw new Error(`Séparateur décimal isolé : '${notTokenizedChar}'. Vérifiez.`)
@@ -302,37 +337,119 @@ class Parser {
                 throw new Error(`Caractère non reconnu : '${notTokenizedChar}'.`)
             }
         }
-        let tokensList: Array<Token> = []
-        for (let strToken of matchList) {
-            let token = this._createToken(strToken);
-            if (token === null) {
-                return false;
-            }
-            tokensList.push(token);
-        }
+    }
 
-        if (!this._correctBinaireToUnaire(tokensList)) {
-            return false;
-        }
-
-        if (!this._parenthesesAreGood(tokensList)) {
-            return false;
-        }
-
+    /**
+     * Corrige certains problèmes courants dans la liste de tokens.
+     * @param {Array<Token>} tokensList La liste de tokens à corriger
+     * @returns {Array<Token>} La liste de tokens corrigée
+     */
+    private _sanityseTokenList(tokensList: Array<Token>): Array<Token> {
+        // Implémenter ici les corrections nécessaires sur la liste de tokens
+        this._correctBinaireToUnaire(tokensList)
+        this._verifyParentheses(tokensList)
         tokensList = this._correctFracs(tokensList)
-        if (tokensList == null) {
-            return false;
-        }
-
         tokensList = this._insertMissingMults(tokensList)
+        this._verifyOperators(tokensList)
+        return tokensList
+    }
 
-        if (!this._verifyOperators(tokensList)) {
-            return false;
+    /**
+     * parse la chaîne fournie, renvoie le nombre sous forme d'objet Base
+     * @param {string|undefined} inExpression L'expression à analyser
+     * @returns {Base} Le nombre sous forme d'objet Base
+     */
+    private _parseToBase(inExpression?:string):Base {
+        const expression = inExpression
+            ? this._sanityseExpression(inExpression)
+            : this._sanityseExpression(this._saisie)
+        const matchList = expression.match(Parser.REGEX)
+        if (!matchList) {
+            throw new Error("Aucun item valide reconnu !")
         }
+        
+        // Vérifier qu'il n'y a pas de caractères non reconnus
+        this._verifyNotTokenized(expression, matchList)
 
-        let rpn = this._buildRPN(tokensList)
-        this._rpn = _.map(rpn, function(item){ return String(item);})
-        return true
+        const tokensList: Array<Token> = []
+        for (let strToken of matchList) {
+            const token = this._createToken(strToken);
+            if (token === null) {
+                throw new Error(`Token non reconnu : '${strToken}'.`)
+            }
+            tokensList.push(token)
+        }
+        const stokensList = this._sanityseTokenList(tokensList)
+        return build(this._buildRpn(stokensList), this._mode == "complex")
+    }
+
+    /**
+     * Analyse l'expression comme intervalle
+     * Analyse l'expression comme intervalle et renvoie la liste de tokens en notation polonaise inversée (RPN)
+     * @param {string} inExpression L'expression à analyser
+     * @returns {Ensemble} L'ensemble produit
+     */
+    private _parseToEnsemble(inExpression:string):Ensemble {
+        // pas encore implémenté
+        const expression = this._sanityseExpression(inExpression)
+        const matchList = expression.match(Parser.REGEX)
+        if (!matchList) {
+            throw new Error("Aucun item valide reconnu !")
+        }
+        
+        // Vérifier qu'il n'y a pas de caractères non reconnus
+        this._verifyNotTokenized(expression, matchList)
+
+        const tokensList: Array<Token> = []
+        for (let strToken of matchList) {
+            const token = this._createToken(strToken)
+            if (token === null) {
+                throw new Error(`Token non reconnu : '${strToken}'.`)
+            }
+            tokensList.push(token)
+        }
+        // nous avons maintenant une liste de tokens qui contient peut être des items intervalles
+        // il va falloir le traiter
+
+        // On commence par identifier les ] [ des intervalles
+        let startIntervalle = _.findIndex(
+            tokensList,
+            (token) => (token instanceof TInterval) && token.isBracket
+        )
+        while (startIntervalle !== -1) {
+            // Traiter l'intervalle trouvé
+            const stopIntervalle = _.findIndex(
+                tokensList,
+                (token, index) => index > startIntervalle && (token instanceof TInterval) && token.isBracket,
+                startIntervalle+1
+            )
+            if (stopIntervalle === -1) {
+                throw new Error(`<${this._saisie}> l'intervalle ouvert n'est pas refermé !`)
+            }
+            const opening = tokensList[startIntervalle]
+            const closing = tokensList[stopIntervalle]
+            const tokenInterval = new TInterval(`${opening}${closing}`)
+            const children = tokensList.slice(startIntervalle + 1, stopIntervalle)
+            const sChildren = this._sanityseTokenList(children)
+            const childrenRpn = this._buildRpn(sChildren)
+            tokenInterval.setSubTokensList(childrenRpn)
+            tokensList.splice(startIntervalle, stopIntervalle - startIntervalle + 1, tokenInterval)
+            
+            startIntervalle = _.findIndex(
+                tokensList,
+                (token) => (token instanceof TInterval) && token.isBracket
+            )
+        }
+        // à ce stade les intervalles sont renfermés comme des nœuds uniques dans la liste des tokens
+        // On peut traiter maintenant la liste des tokens nomalement
+        const sTokensList = this._sanityseTokenList(tokensList)
+        // cette liste ne devrait contenir que des parenthèses et des TInterval
+        for (let token of sTokensList) {
+            if (!(token instanceof TInterval) && !(token instanceof TParenthesis)) {
+                throw new Error(`<${this._saisie}> Intervalle mal construit.`)
+            }
+        }
+        return buildEnsemble(this._buildRpn(sTokensList) as Array<TInterval>)
     }
 }
 
