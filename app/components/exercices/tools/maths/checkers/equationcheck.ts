@@ -43,12 +43,12 @@ class EquationCheck extends AbsChecker {
             this._message = "Membre droit vide"
             return false
         }
-        const checkLeft = new VarsCheck(membres[0], this._vars)
+        const checkLeft = new VarsCheck(membres[0], `var:${this._vars}`)
         if (!checkLeft.formatIsValid) {
             this._message = checkLeft.message
             return false
         }
-        const checkRight = new VarsCheck(membres[1], this._vars)
+        const checkRight = new VarsCheck(membres[1], `var:${this._vars}`)
         if (!checkRight.formatIsValid) {
             this._message = checkRight.message
             return false
