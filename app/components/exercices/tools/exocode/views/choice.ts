@@ -1,10 +1,9 @@
 import { View, CollectionView } from 'backbone.marionette'
-import { Model, Collection } from 'backbone'
+import { Model } from 'backbone'
 import type ChoiceManager from '../blocs/choicemanager'
 import choice_tpl from '@templates/exercices/bloc/choice-item.jst'
 import form_choice_layout_tpl from '@templates/exercices/bloc/form-choice-layout.jst'
 import renderTexInDomElement from '../../../../common/rendertex'
-import Colors from "../colors"
 
 const ChoiceView = View.extend({
     template: choice_tpl,
@@ -24,8 +23,7 @@ const ChoiceView = View.extend({
      */
     itemClick(
         manager:ChoiceManager,
-        inputNode:JQuery<HTMLElement>,
-        notshuffledCollection:Collection
+        inputNode:JQuery<HTMLElement>
     ):void {
         const model = this.model
         let idx = model.get('index')
