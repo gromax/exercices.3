@@ -47,6 +47,11 @@ class MyMath {
         return MyMath.toFloat(value)
     }
 
+    /**
+     * Convertit la valeur en nombre entier
+     * @param {AcceptedInput} value La valeur à convertir en nombre entier
+     * @returns {number} Le nombre entier correspondant à la valeur fournie
+     */
     static toInteger(value:AcceptedInput):number {
         const f = MyMath.toFloat(value)
         if (isNaN(f)) {
@@ -72,6 +77,11 @@ class MyMath {
         }
     }
 
+    /**
+     * Inverse un opérateur de comparaison.
+     * @param {string} operator L'opérateur à inverser
+     * @returns {string} L'opérateur inversé
+     */
     static reverseOperator(operator:string):string {
         switch (operator) {
             case '<':
@@ -91,6 +101,11 @@ class MyMath {
         }
     }
 
+    /**
+     * Analyse une valeur et la convertit en nombre à virgule flottante.
+     * @param {AcceptedInput} value La valeur à analyser
+     * @returns {number} Le nombre à virgule flottante correspondant à la valeur fournie
+     */
     static parseFloat(value:AcceptedInput):number {
         if (typeof value === 'number') {
             return value
@@ -111,6 +126,11 @@ class MyMath {
         return MyMath.toFloat(value)
     }
 
+    /**
+     * Analyse une valeur et la convertit en nombre entier.
+     * @param {AcceptedInput} value La valeur à analyser
+     * @returns {number} Le nombre entier correspondant à la valeur fournie
+     */
     static parseInt(value:AcceptedInput):number {
         const f = MyMath.parseFloat(value)
         const n = Math.trunc(f)
@@ -139,10 +159,20 @@ class MyMath {
         return new MyMath({ expression: String(expression) })
     }
 
+    /**
+     * Renvoie l'écriture latex d'une expression
+     * @param {AcceptedInput} expression L'expression à convertir en MyMath
+     * @returns {string} L'écriture latex de l'expression fournie
+     */
     static latex(expression:AcceptedInput):string {
         return MyMath.make(expression).latex()
     }
     
+    /**
+     * Analyse une expression fournie par l'utilisateur et la convertit en instance de MyMath.
+     * @param {string} expression L'expression utilisateur à analyser
+     * @returns {MyMath} L'instance de MyMath correspondant à l'expression fournie
+     */
     static parseUser(expression:string): MyMath {
         // user ne va pas forcément respecter les * ou ce genre de détails
         // je vais donc préprocesser
@@ -155,6 +185,13 @@ class MyMath {
         }
     }
 
+    /**
+     * Convertit une expression ou un tableau d'expression en
+     * un expression (ou tableau) où les parties numériques sont fixées
+     * @param {NestedArray<AcceptedInput>} expression L'expression à convertir
+     * @param {number} n Le nombre de décimales
+     * @returns {NestedArray<string>} Le tableau de chaînes de caractères avec le nombre fixe de décimales
+     */
     static toFixedArray(expression:NestedArray<AcceptedInput>, n:number):NestedArray<string> {
         if (Array.isArray(expression)) {
             return expression.map(item => MyMath.toFixedArray(item, n))
@@ -162,6 +199,11 @@ class MyMath {
         return MyMath.make(expression).toFixed(n)
     }
 
+    /**
+     * Convertit une expression en nombre à virgule flottante.
+     * @param {AcceptedInput} expression L'expression à convertir
+     * @returns {number} Le nombre à virgule flottante correspondant à l'expression fournie
+     */
     static toFloat(expression:AcceptedInput):number {
         if (typeof expression === 'number') {
             return expression
@@ -169,10 +211,21 @@ class MyMath {
         return MyMath.make(expression).toFloat()
     }
 
+    /**
+     * Convertit une expression en instance de Decimal.
+     * @param {AcceptedInput} expression L'expression à convertir
+     * @returns {Decimal} L'instance de Decimal correspondant à l'expression fournie
+     */
     static toDecimal(expression:AcceptedInput):Decimal {
         return MyMath.make(expression).toDecimal()
     }
 
+    /**
+     * Convertit une expression en une chaîne de caractères formatée selon le format spécifié.
+     * @param {AcceptedInput} expression L'expression à convertir
+     * @param {string} format Le format à appliquer
+     * @returns {string} La chaîne de caractères formatée
+     */
     static toFormat(expression:AcceptedInput, format:string):string {
         if (typeof expression === 'string' && expression.startsWith('"') && expression.endsWith('"')) {
             // chaîne de caractères
@@ -182,14 +235,31 @@ class MyMath {
         return MyMath.make(expression).toFormat(format)
     }
 
+    /**
+     * Récupère toutes les variables présentes dans une expression.
+     * @param {AcceptedInput} expression L'expression à analyser
+     * @returns {Array<string>} Un tableau contenant les noms des variables
+     */
     static variables(expression:AcceptedInput): Array<string> {
         return MyMath.make(expression).variables
     }
 
+    /**
+     * Construit une fonction JavaScript à partir d'une expression mathématique.
+     * @param {AcceptedInput} expression L'expression à convertir en fonction
+     * @returns {Function} La fonction JavaScript correspondante
+     */
     static buildFunction(expression:AcceptedInput): Function {
         return MyMath.make(expression).buildFunction()
     }
 
+    /**
+     * Résout une équation dans l'ensemble des nombres complexes (C) pour une variable donnée.
+     * @param {string} exprLeft L'expression du côté gauche de l'équation
+     * @param {string} exprRight L'expression du côté droit de l'équation
+     * @param {string} varName Le nom de la variable à résoudre
+     * @returns {Array<string>} Un tableau de solutions sous forme de chaînes de caractères
+     */
     static solveInC(exprLeft:string, exprRight:string, varName:string):Array<string> {
         try {
             const equation:string = `${exprLeft} = ${exprRight}`
@@ -204,6 +274,13 @@ class MyMath {
         }
     }
 
+    /**
+     * Résout une équation dans l'ensemble des nombres réels (R) pour une variable donnée.
+     * @param {string} exprLeft L'expression du côté gauche de l'équation
+     * @param {string} exprRight L'expression du côté droit de l'équation
+     * @param {string} varName Le nom de la variable à résoudre
+     * @returns {Array<string>} Un tableau de solutions sous forme de chaînes de caractères
+     */
     static solveInR(exprLeft:string, exprRight:string, varName:string):Array<string> {
         const solutionsStr = MyMath.solveInC(exprLeft, exprRight, varName)
         // je filtre les solutions complexes
@@ -235,6 +312,12 @@ class MyMath {
         return MyMath.make(leftExpr).compare(rightExpr, operator)
     }
 
+    /**
+     * Normalise une expression mathématique en remplaçant certains caractères et fonctions par leur équivalent standard
+     * autrement dit du français vers l'anglais standardisé
+     * @param {string} expression expression à normaliser
+     * @returns {string} expression normalisée
+     */
     static normalization(expression:string):string {
         if (typeof expression !== 'string') {
             throw new Error('L\'expression doit être une chaîne de caractères')
@@ -248,6 +331,11 @@ class MyMath {
             .replace(/%/g, '/100')        // % → /100
     }
 
+    /**
+     * Convertit l'expression de sa version normalisée (anglaise) à la version dénormalisée (française)
+     * @param {string} expression expression normalisée
+     * @returns {string} expression dénormalisée
+     */
     static denormalization(expression:string):string {
         if (typeof expression !== 'string') {
             throw new Error('L\'expression doit être une chaîne de caractères')
@@ -261,6 +349,11 @@ class MyMath {
             
     }
 
+    /**
+     * Convertit l'expression normalisée en expression LaTeX
+     * @param {string} expression expression normalisée
+     * @returns {string} expression LaTeX
+     */
     static latexDenormalization(expression:string):string {
         if (typeof expression !== 'string') {
             throw new Error('L\'expression doit être une chaîne de caractères')
@@ -291,6 +384,13 @@ class MyMath {
         })
     }
 
+    /**
+     * Aide récursive pour la substitution des expressions
+     * @param {NestedArray<InputType>} replacement valeur à substituer
+     * @param {string} format format de sortie
+     * @param {number} depth profondeur de récursion
+     * @returns {string} chaîne formatée
+     */
     private static _substituteExpressionsHelper(
         replacement:NestedArray<InputType>,
         format:string,
@@ -313,7 +413,10 @@ class MyMath {
         return MyMath.make(replacement).toFormat(format)
     }
 
-    // Méthodes d'instance
+    /**
+     * Constructeur de la classe MyMath
+     * @param {MyMathOptions} options options d'initialisation
+     */
     private constructor(options: MyMathOptions = {}) {
         if (typeof options.invalid !== 'undefined') {
             this._invalid = (options.invalid === true)
@@ -333,6 +436,10 @@ class MyMath {
         }
     }
 
+    /**
+     * Initialise l'objet MyMath à partir d'une expression sous forme de chaîne
+     * @param {string} expression expression mathématique sous forme de chaîne
+     */
     private _initFromExpression(expression:string) {
         if (typeof expression !== 'string') {
             throw new Error('L\'expression doit être une chaîne de caractères')
@@ -349,6 +456,10 @@ class MyMath {
         this._expression = expression
     }
 
+    /**
+     * Renvoie l'objet Base correspondant à l'expression
+     * @returns {Base} objet Base
+     */
     private _getMyNumber(): Base {
         if (typeof this._mynumber === "undefined") {
             try {
@@ -363,7 +474,11 @@ class MyMath {
         return this._mynumber
     }
 
-    private _getNerdamerProcessed() {
+    /**
+     * Renvoie l'objet nerdamer correspondant à l'expression
+     * @returns {nerdamer.Expression} expression nerdamer
+     */
+    private _getNerdamerProcessed(): nerdamer.Expression {
         if (typeof this._nerdamer_processed !== "undefined") {
             return this._nerdamer_processed
         }
@@ -380,15 +495,27 @@ class MyMath {
         return this._nerdamer_processed
     }
 
+    /**
+     * Renvoie l'expression sous forme de chaîne
+     * @returns {string} expression sous forme de chaîne
+     */
     get expression():string {
         return this._expression
     }
 
+    /**
+     * Renvoie la liste des variables présentes dans l'expression
+     * @returns {Array<string>} tableau des noms de variables
+     */
     get variables():Array<string> {
         return this._getMyNumber().variables
         //return this._getNerdamerProcessed().variables()
     }
 
+    /**
+     * Convertit l'expression en nombre à virgule flottante
+     * @returns {number} valeur en nombre à virgule flottante ou NaN en cas d'erreur
+     */
     toFloat():number {
         try {
             return this._getMyNumber().toDecimal(undefined).toNumber()
@@ -415,11 +542,19 @@ class MyMath {
         return this._getMyNumber().toDecimal(undefined)
     }
 
+    /**
+     * Renvoie la représentation de l'expression sous forme de chaîne
+     * @returns {string} expression sous forme de chaîne
+     */
     toString():string {
         //console.log(this._getNerdamerProcessed().toString())
         return this._expression
     }
 
+    /**
+     * Renvoie la représentation simplifiée de l'expression sous forme de chaîne
+     * @returns {string} expression simplifiée
+     */
     toStringSimplified():string {
         const mn = this._getMyNumber()
         if (this.invalid) {
@@ -428,6 +563,10 @@ class MyMath {
         return simplify(mn).toString()
     }
 
+    /**
+     * Renvoie la représentation LaTeX de l'expression simplifiée
+     * @returns {string} LaTeX de l'expression simplifiée
+     */
     latex():string {
         if (this.isPlusInfinity()) {
             return "+\\infty"
@@ -533,6 +672,12 @@ class MyMath {
         return lStr.minus(rStr).abs().lt('1e-30')
     }
 
+    /**
+     * Compare l'expression avec une autre valeur en utilisant un opérateur donné
+     * @param {NestedArray<AcceptedInput>} rightExpr - l'autre valeur ou tableau de valeurs à comparer
+     * @param {string} operator - opérateur de comparaison (==, !=, <, <=, >, >=)
+     * @returns {NestedArray<boolean>} résultat de la comparaison
+     */
     compare(rightExpr:NestedArray<AcceptedInput>, operator:string):NestedArray<boolean> {
         if (Array.isArray(rightExpr)) {
             return rightExpr.map(r => this.compare(r, operator) as boolean)
@@ -563,6 +708,12 @@ class MyMath {
         }
     }
 
+    /**
+     * Prédicat pour tester une comparaison impliquant l'infini
+     * @param {MyMath} othervalue - l'autre valeur à comparer
+     * @param {string} operator - opérateur de comparaison (==, !=, <, <=, >, >=)
+     * @returns {boolean} vrai si le nombre est invalide, faux sinon
+     */
     private _compareInfinityCase(othervalue:MyMath, operator:string):boolean {
         switch (operator) {
             case '==':
@@ -582,22 +733,44 @@ class MyMath {
         }
     }
 
+    /**
+     * Prédicat pour tester si le nombre est infini
+     * @returns {boolean} vrai si le nombre est infini, faux sinon
+     */
     isInfinity():boolean {
         return this.isPlusInfinity() || this.isMinusInfinity()
     }
 
+    /**
+     * Prédicat pour tester si le nombre est plus l'infini
+     * @returns {boolean} vrai si le nombre est plus l'infini, faux sinon
+     */
     isPlusInfinity():boolean {
-        return this._getNerdamerProcessed().eq('+infinity')
+        return this._getMyNumber().isPlusInfinity(undefined)
+        //return this._getNerdamerProcessed().eq('+infinity')
     }
 
+    /**
+     * Prédicat pour tester si le nombre est moins l'infini
+     * @returns {boolean} vrai si le nombre est moins l'infini, faux sinon
+     */
     isMinusInfinity():boolean {
-        return this._getNerdamerProcessed().eq('-infinity')
+        return this._getMyNumber().isMinusInfinity(undefined)
+        //return this._getNerdamerProcessed().eq('-infinity')
     }
 
+    /**
+     * Prédicat pour tester si le nombre est développé
+     * @returns {boolean} vrai si le nombre est développé, faux sinon
+     */
     isExpanded():boolean {
         return this._getMyNumber().isExpanded()
     }
 
+    /**
+     * Prédicat pour tester si le nombre est simplifié
+     * @returns {boolean} vrai si le nombre est simplifié, faux sinon
+     */
     isSimplified():boolean {
         return this._getMyNumber().isSimplified()
     }
@@ -606,6 +779,12 @@ class MyMath {
         return new MyMath({ nerdamer: this._getNerdamerProcessed().expand() })
     }
 
+    /**
+     * Substitue une variable par une valeur
+     * @param {string} varName - nom de la variable
+     * @param {AcceptedInput} value - valeur à substituer
+     * @returns {MyMath} nouveau MyMath avec la substitution effectuée
+     */
     sub(varName:string, value:AcceptedInput):MyMath {
         const base_value = value instanceof MyMath ? value._getMyNumber() : value
         const newMyNumber = this._getMyNumber().substituteVariable(varName, base_value)
@@ -614,6 +793,11 @@ class MyMath {
         // return new MyMath({ nerdamer: this._getNerdamerProcessed().sub(varName, valueStr) })
     }
 
+    /**
+     * Substitue plusieurs variables par leurs valeurs
+     * @param {Record<string, AcceptedInput>} vars - dictionnaire des variables et de leurs valeurs
+     * @returns {MyMath} nouveau MyMath avec les substitutions effectuées
+     */
     subs(vars:Record<string, AcceptedInput>):MyMath {
         let n = this._getNerdamerProcessed()
         for (const [varName, value] of Object.entries(vars)) {
@@ -623,6 +807,11 @@ class MyMath {
         return new MyMath({ nerdamer: n })
     }
 
+    /**
+     * Calcule la dérivée par rapport à une variable
+     * @param {string} varName - nom de la variable
+     * @returns {MyMath} nouveau MyMath représentant la dérivée
+     */
     diff(varName:string=""):MyMath {
         const b = this._getMyNumber()
         if (varName == "") {
@@ -637,14 +826,26 @@ class MyMath {
         return new MyMath({mynumber:db})
     }
 
+    /**
+     * Construit une fonction JavaScript à partir de l'expression
+     * @returns {Function} fonction JavaScript correspondant à l'expression
+     */
     buildFunction():Function {
         return this._getNerdamerProcessed().buildFunction()
     }
 
+    /**
+     * Simplifie l'expression
+     * @returns {MyMath} nouveau MyMath représentant l'expression simplifiée
+     */
     simplify():MyMath {
         return MyMath.make(simplify(this._getMyNumber()))
     }
 
+    /**
+     * Prédicat pour tester si le nombre est invalide
+     * @returns {boolean} vrai si le nombre est invalide, faux sinon
+     */
     get invalid():boolean {
         return this._invalid
     }
