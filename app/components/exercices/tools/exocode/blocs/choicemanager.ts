@@ -122,6 +122,9 @@ class ChoiceManager {
             model.set('index', v)
             model.set('color', this._colors.getColor(v))
             model.set('picto', this.squaresOnly ? 'square' : this._colors.getPicto(v))
+            if (v > 0) {
+                model.set('tag', this._tags[v] || '')
+            }
             if (v === model.get('goodIndex')) {
                 model.set('good', true)
                 count += 1
