@@ -62,6 +62,14 @@ class TFunction extends Token {
     operateOnRight():boolean {
         return true
     }
+
+    /**
+     * renvoie l'arité du token (0 si non applicable, 1 pour unaire, 2 pour binaire)
+     * @returns {0|1|2}
+     */
+    get arity():0|1|2 {
+        return 1
+    }
 }
 
 export { TFunction }
