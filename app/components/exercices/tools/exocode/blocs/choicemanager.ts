@@ -14,6 +14,8 @@ class ChoiceManager {
     private _collection:Collection<Model>
     private _notShuffledCollection:Collection<Model>
     private _valuemax:number
+    private _shuffle_index_walk:boolean
+    private _order_index?:Array<number>
 
     /**
      * constructeur
@@ -26,7 +28,7 @@ class ChoiceManager {
         params:TParams,
         colors:Colors,
         options:Array<Option>,
-        isform:boolean
+        isform:boolean,
     ) {
         this._params = params || {}
         this._colors = colors
@@ -48,7 +50,23 @@ class ChoiceManager {
                 {} as Record<number, string>
             )
         this._isform = isform || false
+        this._shuffle_index_walk = getBooleanOption(this._params, 'shuffleindexwalk', false)
         this._makeCollection()
+    }
+
+    /**
+     * décide du parcours des index lors des clics.
+     * Si shuffle_index_walk est vrai, l'ordre des index sera mélangé.
+     * @returns {Array<number>} l'ordre des index à suivre lors des clics
+     */
+    get order_index():Array<number> {
+        if (typeof this._order_index === 'undefined') {
+            this._order_index = Array.from({ length: this._valuemax }, (_, i) => i + 1)
+            if (this._shuffle_index_walk) {
+                this._order_index = _.shuffle(this._order_index)
+            }
+        }
+        return [...this._order_index]
     }
 
     private _shuffle():void {
