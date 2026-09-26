@@ -230,6 +230,26 @@ abstract class Base {
      * @returns {Base}
      */
     abstract derivate(varName:string):Base
+
+    /**
+     * prédicat : le noeud est-il l'infini positif ?
+     * @param {Record<string, Decimal|string|number>|undefined} values
+     * @returns {boolean} true si le noeud représente l'infini positif, false sinon
+     */
+    isPlusInfinity(values:Record<string, Decimal|string|number>|undefined):boolean {
+        const dec = this.toDecimal(values)
+        return dec.equals(Infinity)
+    }
+
+    /**
+     * prédicat : le noeud est-il l'infini négatif ?
+     * @param {Record<string, Decimal|string|number>|undefined} values
+     * @returns {boolean} true si le noeud représente l'infini négatif, false sinon
+     */
+    isMinusInfinity(values:Record<string, Decimal|string|number>|undefined):boolean {
+        const dec = this.toDecimal(values)
+        return dec.equals(-Infinity)
+    }
 }
 
 export { Base }
