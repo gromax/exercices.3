@@ -1,0 +1,1 @@
+export type TBuildOptions = "default" | "complex" | "interval"
