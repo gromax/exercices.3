@@ -27,9 +27,13 @@ const ChoiceView = View.extend({
     ):void {
         const model = this.model
         let idx = model.get('index')
-        idx += 1
-        if (idx > manager.valuemax) {
-            idx = 1
+        // On parcourt dans l'ordre défini par le manager
+        const order = manager.order_index
+        if (idx == 0) {
+            idx = order[0]
+        } else {
+            const currentPos = order.indexOf(idx)
+            idx = order[(currentPos + 1)%order.length] || order[0]
         }
         model.set({
             index: idx,
