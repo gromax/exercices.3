@@ -48,9 +48,9 @@ class Scalar extends Base {
 
 
     /** @type{string} */
-    private _chaine = ""
+    private _chaine:string = ""
     /** @type{Decimal} */
-    private _value = new Decimal(NaN)
+    private _value:Decimal = new Decimal(NaN)
     /** @type{Decimal|null} */
     private _denominator: Decimal | null = null
 
