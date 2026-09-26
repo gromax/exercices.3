@@ -11,7 +11,12 @@ class ChoiceBloc extends Bloc {
     }
 
     protected _getView(answers:Record<string, string>):AnyView {
-        const manager = new ChoiceManager(this._params, this._colors, this._options, false)
+        const manager = new ChoiceManager(
+            this._params,
+            this._colors,
+            this._options,
+            false
+        )
         return new ChoicesView({
             collection: manager.collection,
             button: false
