@@ -734,6 +734,7 @@ On peut préciser le param `<max:4/> pour indiquer que l'on autorise le choix à
 On dispose là encore de paramètres :
   * `shuffle:false` pour le mélange (mélangé par défaut)
   * `onlysquares:true` pour ne pas utiliser les pictogrammes
+  * `shuffleindexwalk:true` dans certain cas, on aura les items toujours dans le même sens. Par exemple j'ai un exercice avec trois A, B, C à reconnaître et je construis mon exercice de façon fixe de sorte que A est toujours la première des couleurs, B la seconde... Cela peut-être ennuyeux. Alors on peut forcer un parcours des valeurs aléatoire lors des clics de sorte que le A a beau toujours avoir la valeur 1, B 2 et C 3, ça ne se voit pas car les index sont parcourus dans un ordre quelconque.
 
 **Cas d'une réponse calculée**
 
