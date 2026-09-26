@@ -9,83 +9,131 @@ import { Constant } from "../number/constant"
 import { Symbol } from "../number/symbol"
 import { Collection } from "../number/collection"
 
+import { Ensemble, EnsembleCalculator } from "../number/ensemble"
 
-function build(rpn:Array<string>):Base {
+import { Token } from './tokens/token'
+import { TNumber } from './tokens/number'
+import { TInterval } from './tokens/interval'
+
+/**
+ * Construit un objet Base représentant un nombre
+ * @param {Array<Token>} rpn 
+ * @param {boolean} withComplex 
+ * @returns {Base}
+ */
+function build(rpn:Array<Token>, withComplex:boolean = false):Base {
     let stack:Array<Base> = [];
     for (let item of rpn) {
-        if (Function.isFunction(item)) {
+        const sItem = String(item)
+        if (item.arity == 1) {
+            // devrait correspondre à une fonction ou un opérateur unaire
             if (stack.length == 0) {
-                throw new Error(`La fonction ${item} n'a pas d'opérande à dépiler.`)
+                throw new Error(`${item} n'a pas d'opérande à dépiler.`)
             }
-            let child = stack.pop()
-            stack.push(new Function(item, child))
+            const child = stack.pop()
+            stack.push(new Function(sItem, child))
             continue
         }
-        if (item == "+") {
+        if (item.arity == 2) {
             if (stack.length <2) {
-                throw new Error(`L'addition n'a pas assez d'opérandes à dépiler.`);
-            }
-            let right = stack.pop()
-            let left = stack.pop()
-            stack.push(AddMinus.add(left, right))
-            continue;
-        }
-        if (item == "-") {
-            if (stack.length <2) {
-                throw new Error(`La soustraction n'a pas assez d'opérandes à dépiler.`)
-            }
-            let right = stack.pop()
-            let left = stack.pop()
-            stack.push(AddMinus.minus(left, right))
-            continue
-        }
-        if (item == "*") {
-            if (stack.length <2) {
-                throw new Error(`La multiplication n'a pas assez d'opérandes à dépiler.`)
-            }
-            let right = stack.pop()
-            let left = stack.pop()
-            stack.push(Mult.mult(left, right))
-            continue;
-        }
-        if (item == "/") {
-            if (stack.length <2) {
-                throw new Error(`La division n'a pas assez d'opérandes à dépiler.`);
-            }
-            let right = stack.pop();
-            let left = stack.pop();
-            stack.push(new Div(left, right))
-            continue;
-        }
-        if (item == "^") {
-            if (stack.length <2) {
-                throw new Error(`L'exponentiation n'a pas assez d'opérandes à dépiler.`)
-            }
-            let exposant = stack.pop()
-            let base = stack.pop()
-            stack.push(Exponential.make(base, exposant))
-            continue
-        }
-        if (item == ";") {
-            if (stack.length < 2) {
-                throw new Error(`La collection n'a pas assez d'opérandes à dépiler.`)
+                throw new Error(`${item} n'a pas assez d'opérandes à dépiler.`);
             }
             const right = stack.pop()
             const left = stack.pop()
-            let children = [left, right]
-            stack.push(new Collection(children))
+            if (sItem == "+") {
+                stack.push(AddMinus.add(left, right))
+            } else if (sItem == "-") {
+                stack.push(AddMinus.minus(left, right))
+            } else if (sItem == "*") {
+                stack.push(Mult.mult(left, right))
+            } else if (sItem == "/") {
+                stack.push(new Div(left, right))
+            } else if (sItem == "^") {
+                stack.push(Exponential.make(left, right))
+            } else if (sItem == ";") {
+                stack.push(new Collection([left, right]))
+            } else if (sItem == "∪") {
+                throw new Error(`Union d'intervalles non encor supportée.`)
+            } else if (sItem == "∩") {
+                
+                throw new Error(`Intersection d'intervalles non encore supportée.`)
+            } else {
+                throw new Error(`Opérateur binaire ${item} non reconnu.`)
+            }
             continue
         }
-        if (Constant.isConstant(item)) {
-            stack.push(Constant.fromString(item))
+        if (sItem === "i") {
+            // selon le mode, i est reconnu comme nombre complexe ou symbole
+            if (withComplex) {
+                stack.push(Constant.fromString("i"))
+            } else {
+                stack.push(Symbol.fromString("i"))
+            }
             continue
         }
-        if (Symbol.isSymbol(item)) {
-            stack.push(Symbol.fromString(item))
+        if (Constant.isConstant(sItem)) {
+            stack.push(Constant.fromString(sItem))
             continue
         }
-        if (Scalar.isScalar(item)) {
-            stack.push(new Scalar(item))
+        if (Symbol.isSymbol(sItem)) {
+            stack.push(Symbol.fromString(sItem))
+            continue
+        }
+        if (item instanceof TNumber) {
+            stack.push(new Scalar(sItem))
+            continue
+        }
+        if (item instanceof TInterval) {
+            throw new Error(`Intervalle pas encore pris en charge par le builder.`)
+        }
+        throw new Error(`token ${item} n'a pas été reconnu.`)
+    }
+    if (stack.length != 1) {
+        throw new Error(`La pile devrait contenir un seul item à la fin et pas ${stack.length}.`)
+    }
+    const result = stack.pop()
+    return result
+}
+
+function buildEnsemble(rpn:Array<TInterval>):Ensemble {
+    let stack:Array<Ensemble> = [];
+    for (let item of rpn) {
+        const sItem = String(item)
+        if (item.arity == 1) {
+            // devrait correspondre à une fonction ou un opérateur unaire
+            if (stack.length == 0) {
+                throw new Error(`${item} n'a pas d'opérande à dépiler.`)
+            }
+            throw new Error(`${item} n'existe pas pour un ensemble.`)
+        }
+        if (item.arity == 2) {
+            if (stack.length <2) {
+                throw new Error(`${item} n'a pas assez d'opérandes à dépiler.`);
+            }
+            const right = stack.pop()
+            const left = stack.pop()
+            if (sItem == "∪") {
+                stack.push(EnsembleCalculator.union(left, right))
+                continue
+            } else if (sItem == "∩") {
+                stack.push(EnsembleCalculator.intersection(left, right))
+                continue
+            } else {
+                throw new Error(`Opérateur binaire ${item} non reconnu.`)
+            }
+        }
+        if (item.isEmptySet()) {
+            stack.push(EnsembleCalculator.emptySet())
+            continue
+        }
+        if ((item instanceof TInterval) && item.isInterval) {
+            // L'objet contient des enfants qu'il faut analyser pour produire un nombre
+            const child:Base = build(item.subTokenList, false)
+            const sBornes = item.toString()
+            const interval = EnsembleCalculator.makeInterval(
+                sBornes[0], child, sBornes[1]
+            )
+            stack.push(interval)
             continue
         }
         throw new Error(`token ${item} n'a pas été reconnu.`)
@@ -97,4 +145,4 @@ function build(rpn:Array<string>):Base {
     return result
 }
 
-export { build }
+export { build, buildEnsemble }
