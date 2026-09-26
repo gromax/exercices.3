@@ -15,12 +15,29 @@ class Div extends Base {
     private _stringEN: string | null = null /** @type {string|null} représentation texte */
 
     /**
-     * accesseurs
+     * renvoie l'opérateur de gauche, donc le numérateur de la division
      */
     get left():Base {
         return this._left;
     }
 
+    /**
+     * renvoie le numérateur de la division (équivalent à left)
+     */
+    get numerator():Base {
+        return this._left;
+    }
+
+    /**
+     * renvoie le dénominateur de la division (équivalent à right)
+     */
+    get denominator():Base {
+        return this._right;
+    }
+
+    /**
+     * renvoie l'opérateur de droite, donc le dénominateur de la division
+     */
     get right():Base {
         return this._right;
     }
@@ -233,6 +250,10 @@ class Div extends Base {
             numerator,
             denominator
         )
+    }
+
+    get startsWithMinus():boolean {
+        return this._left.startsWithMinus
     }
 }
 
