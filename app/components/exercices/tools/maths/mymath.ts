@@ -23,6 +23,18 @@ interface MyMathOptions {
     invalid?:boolean
 }
 
+type TValue = "expression" | "brutText" | "ensemble" | "invalid"
+const PREFIX_ENSEMBLE = '//inter//'
+
+function _isBrutText(expression: string): boolean {
+    return expression.startsWith('"') && expression.endsWith('"')
+}
+
+function _isEnsemble(expression: string): boolean {
+    return expression.startsWith(PREFIX_ENSEMBLE)
+}
+
+
 
 class MyMath {
     /** @type{string} expression d'origine */
@@ -34,8 +46,8 @@ class MyMath {
     /** @type{Base|null} */
     private _mynumber?:Base
 
-    /** @type{boolean} */
-    private _invalid:boolean
+    /** @type{TValue} */
+    private _type:TValue = "expression" // type par défaut
 
     /**
      * alias de toFloat
@@ -411,21 +423,22 @@ class MyMath {
      * @param {MyMathOptions} options options d'initialisation
      */
     private constructor(options: MyMathOptions = {}) {
-        if (typeof options.invalid !== 'undefined') {
-            this._invalid = (options.invalid === true)
-        } else {
-            this._invalid = false
-        }
         if (typeof options.expression !== 'undefined') {
             this._initFromExpression(options.expression.trim())
         } else if (typeof options.nerdamer !== 'undefined') {
             this._nerdamer_processed = options.nerdamer
             this._expression = MyMath.denormalization(this._nerdamer_processed.toString())
+            this._type = "expression"
         } else if (typeof options.mynumber !== 'undefined') {
             this._mynumber = options.mynumber
             this._expression = this._mynumber.toString()
+            this._type = "expression"
         } else {
+            this._type = "invalid"
             throw new Error('MyMath doit être initialisé avec une expression, un nerdamer.Expression ou un Base')
+        }
+        if (typeof options.invalid !== 'undefined' && options.invalid === true) {
+            this._type = "invalid"
         }
     }
 
@@ -434,11 +447,16 @@ class MyMath {
      * @param {string} expression expression mathématique sous forme de chaîne
      */
     private _initFromExpression(expression:string) {
-        if (typeof expression !== 'string') {
-            throw new Error('L\'expression doit être une chaîne de caractères')
+        if (_isBrutText(expression)) {
+            this._type = "brutText"
+            this._expression = expression
+            return
         }
-        //if (expression.includes('diff(') || expression.includes('expand(')) {
-        // myMath prend maintenant en charge diff
+        if (_isEnsemble(expression)) {
+            this._type = "ensemble"
+            this._expression = expression
+            return
+        }
         if (expression.includes('expand(')) {
             // cas particulier où on a une commande nerdamer
             this._expression = expression
@@ -454,13 +472,16 @@ class MyMath {
      * @returns {Base} objet Base
      */
     private _getMyNumber(): Base {
+        if (this._type !== "expression") {
+            throw new Error(`<${this._expression}> : L'objet MyMath n'est pas de type expression.`)
+        }
         if (typeof this._mynumber === "undefined") {
             try {
                 this._mynumber = Parser.build(this._expression)
             } catch(e) {
                 console.warn("Erreur lors du parsing de l'expression :", this._expression)
                 console.warn(e.message)
-                this._invalid = true
+                this._type = "invalid"
                 return Parser.build("NaN")
             }
         }
@@ -472,6 +493,9 @@ class MyMath {
      * @returns {nerdamer.Expression} expression nerdamer
      */
     private _getNerdamerProcessed(): nerdamer.Expression {
+        if (this._type !== "expression") {
+            throw new Error(`<${this._expression}> : L'objet MyMath n'est pas de type expression.`)
+        }
         if (typeof this._nerdamer_processed !== "undefined") {
             return this._nerdamer_processed
         }
@@ -482,9 +506,10 @@ class MyMath {
             this._nerdamer_processed = nerdamer(normalized).evaluate()
         } catch (e) {
             console.warn(`Erreur lors du traitement avec nerdamer de ${normalized}:`, e)
-            this._invalid = true
+            this._type = "invalid"
             this._nerdamer_processed = nerdamer("NaN")
         }
+        this._type = "expression"
         return this._nerdamer_processed
     }
 
@@ -501,8 +526,8 @@ class MyMath {
      * @returns {Array<string>} tableau des noms de variables
      */
     get variables():Array<string> {
+        // _getMyNumber() vérifie déjà que l'objet est de type expression
         return this._getMyNumber().variables
-        //return this._getNerdamerProcessed().variables()
     }
 
     /**
@@ -510,6 +535,9 @@ class MyMath {
      * @returns {number} valeur en nombre à virgule flottante ou NaN en cas d'erreur
      */
     toFloat():number {
+        if (this._type !== "expression") {
+            throw new Error(`<${this._expression}> : L'objet MyMath n'est pas de type expression.`)
+        }
         try {
             return this._getMyNumber().toDecimal(undefined).toNumber()
         } catch (e) {
@@ -524,7 +552,15 @@ class MyMath {
      * @returns {boolean} true si l'expression est un texte, false sinon.
      */
     isText():boolean {
-        return this._expression.startsWith('"') && this._expression.endsWith('"')
+        return this._type === "brutText"
+    }
+
+    /**
+     * Vérifie si la saisie correspond bien à une expression
+     * @returns {boolean} true si la saisie est une expression, false sinon.
+     */
+    isExpression():boolean {
+        return this._type === "expression"
     }
 
     /**
@@ -532,6 +568,7 @@ class MyMath {
      * @returns {Decimal}
      */
     toDecimal():Decimal {
+        // _getMyNumber() vérifie déjà que l'objet est de type expression
         return this._getMyNumber().toDecimal(undefined)
     }
 
@@ -540,7 +577,11 @@ class MyMath {
      * @returns {string} expression sous forme de chaîne
      */
     toString():string {
-        //console.log(this._getNerdamerProcessed().toString())
+        if (this._type === "brutText") {
+            return this._expression.slice(1, -1)
+        } else if (this._type === "ensemble") {
+            return this._expression.slice(PREFIX_ENSEMBLE.length).trim()
+        }
         return this._expression
     }
 
@@ -549,11 +590,16 @@ class MyMath {
      * @returns {string} expression simplifiée
      */
     toStringSimplified():string {
-        const mn = this._getMyNumber()
-        if (this.invalid) {
-            return this.toString()
+        if (this._type === "ensemble") {
+            throw new Error(`<${this._expression}> : Pas implémenté pour le type ensemble.`)
+        } else if (this._type === "expression") {
+            const mn = this._getMyNumber()
+            if (this.invalid) {
+                return this.toString()
+            }
+            return simplify(mn).toString()
         }
-        return simplify(mn).toString()
+        return this.toString()
     }
 
     /**
@@ -561,14 +607,18 @@ class MyMath {
      * @returns {string} LaTeX de l'expression simplifiée
      */
     latex():string {
-        if (this.isPlusInfinity()) {
-            return "+\\infty"
-        } else if (this.isMinusInfinity()) {
-            return "-\\infty"
+        if (this._type === "expression") {
+            if (this.isPlusInfinity()) {
+                return "+\\infty"
+            } else if (this.isMinusInfinity()) {
+                return "-\\infty"
+            }
+            // je vais préférer ma version de latex
+            return this._getMyNumber().toTex()
+        } else if (this._type === "ensemble") {
+            throw new Error(`<${this._expression}> : Pas implémenté pour le type ensemble.`)
         }
-        // je vais préférer ma version de latex
-        return this._getMyNumber().toTex()
-        //return MyMath.latexDenormalization(this._getNerdamerProcessed().toTeX())
+        return this.toString()
     }
 
     /**
@@ -585,11 +635,21 @@ class MyMath {
         }
         if (format === 's$') {
             // format personnalisé pour contourner des soucis de nerdamer
-            return simplify(this._getMyNumber()).toTex()
+            if (this._type === "expression") {
+                return simplify(this._getMyNumber()).toTex()
+            } else if (this._type === "ensemble") {
+                throw new Error(`<${this._expression}> : Pas implémenté pour le type ensemble.`)
+            }
+            return this.latex()
         }
         if (format === 's') {
             // format personnalisé pour contourner des soucis de nerdamer
-            return simplify(this._getMyNumber()).toString()
+            if (this._type === "expression") {
+                return simplify(this._getMyNumber()).toString()
+            } else if (this._type === "ensemble") {
+                throw new Error(`<${this._expression}> : Pas implémenté pour le type ensemble.`)
+            }
+            return this.toString()
         }
         if (format === 'f') {
             return this._toFormatDecimal(-1)
@@ -614,6 +674,12 @@ class MyMath {
      * @returns {string}
      */
     private _toFormatDecimal(n:number):string {
+        if (this._type === "ensemble") {
+            throw new Error(`<${this._expression}> : Pas implémenté pour le type ensemble.`)
+        } else if (this._type !== "expression") {
+            return this.toString()
+        }
+        // cas général pour type expression
         // s'il y a des varriables, je passe par nerdamer. Sinon par mynumber
         if (this.variables.length > 0) {
             // La procédure de décimalisation va calculer ce qui peut l'être
@@ -635,6 +701,12 @@ class MyMath {
      * @returns {string}
      */
     toFixed(n:number, dot:string = '.'):string {
+        if (this._type === "ensemble") {
+            throw new Error(`<${this._expression}> : Pas implémenté pour le type ensemble.`)
+        } else if (this._type !== "expression") {
+            return this.toString()
+        }
+        // cas général pour type expression
         if (dot === '.') {
             return this._getMyNumber().toDecimal(undefined).toFixed(n)
         }
@@ -647,6 +719,13 @@ class MyMath {
      * @returns {string}
      */
     private _toTexDecimal(n:number):string {
+        if (this._type === "ensemble") {
+            throw new Error(`<${this._expression}> : Pas implémenté pour le type ensemble.`)
+        } else if (this._type !== "expression") {
+            return this.toString()
+        }
+        // cas général pour type expression
+
         const expr = this._toFormatDecimal(n)
         // ensuite on veut générer du TeX
         // J'utilise mon parser
@@ -659,6 +738,7 @@ class MyMath {
      * @param {InputType} right 
      */
     pseudoEquality(right:InputType):boolean {
+        // déclenchera une erreur sur Decimal() si _type pas expression sur this et right
         const lStr = this.toDecimal()
         const rStr = MyMath.make(right).toDecimal()
         // on admet un bruit de calcul très faible
@@ -672,10 +752,16 @@ class MyMath {
      * @returns {NestedArray<boolean>} résultat de la comparaison
      */
     compare(rightExpr:NestedInput, operator:string):NestedArray<boolean> {
+        if (!this.isExpression()) {
+            throw new Error(`<${this.expression}> : Comparaison pas implémenté pour le type non expression.`)
+        }
         if (Array.isArray(rightExpr)) {
             return rightExpr.map(r => this.compare(r, operator) as boolean)
         }
         const right = MyMath.make(rightExpr)
+        if (!right.isExpression()) {
+            throw new Error(`<${right.expression}> : Comparaison pas implémenté pour le type non expression.`)
+        }
         if (this.isInfinity()) {
             return this._compareInfinityCase(right, operator)
         } else if (right.isInfinity()) {
@@ -708,6 +794,7 @@ class MyMath {
      * @returns {boolean} vrai si le nombre est invalide, faux sinon
      */
     private _compareInfinityCase(othervalue:MyMath, operator:string):boolean {
+        // appelé seulement par compare - test sur type des valeurs inutile
         switch (operator) {
             case '==':
                 return this._getMyNumber().toString() === othervalue._getMyNumber().toString()
@@ -739,6 +826,9 @@ class MyMath {
      * @returns {boolean} vrai si le nombre est plus l'infini, faux sinon
      */
     isPlusInfinity():boolean {
+        if (!this.isExpression()) {
+            return false
+        }
         return this._getMyNumber().isPlusInfinity(undefined)
         //return this._getNerdamerProcessed().eq('+infinity')
     }
@@ -748,8 +838,10 @@ class MyMath {
      * @returns {boolean} vrai si le nombre est moins l'infini, faux sinon
      */
     isMinusInfinity():boolean {
+        if (!this.isExpression()) {
+            return false
+        }
         return this._getMyNumber().isMinusInfinity(undefined)
-        //return this._getNerdamerProcessed().eq('-infinity')
     }
 
     /**
@@ -757,6 +849,9 @@ class MyMath {
      * @returns {boolean} vrai si le nombre est développé, faux sinon
      */
     isExpanded():boolean {
+        if (!this.isExpression()) {
+            throw new Error(`<${this.expression}> : Vérification de l'expansion pas implémentée pour le type non expression.`)
+        }
         return this._getMyNumber().isExpanded()
     }
 
@@ -765,10 +860,16 @@ class MyMath {
      * @returns {boolean} vrai si le nombre est simplifié, faux sinon
      */
     isSimplified():boolean {
-        return this._getMyNumber().isSimplified()
+        if (this.isExpression()) {
+            return this._getMyNumber().isSimplified()
+        } else if (this._type === 'ensemble') {
+            throw new Error(`<${this.expression}> : Vérification de la simplification pas implémentée pour le type ensemble.`)
+        }
+        throw new Error(`<${this.expression}> : Vérification de la simplification impossible pour le type ${this._type}.`)
     }
 
     expand():MyMath {
+        // _gerNerdamerProcessed lèver une erreur si pas du bon _type
         return new MyMath({ nerdamer: this._getNerdamerProcessed().expand() })
     }
 
@@ -779,6 +880,9 @@ class MyMath {
      * @returns {MyMath} nouveau MyMath avec la substitution effectuée
      */
     sub(varName:string, value:InputType):MyMath {
+        if (!this.isExpression()) {
+            throw new Error(`<${this.expression}> : Substitution pas implémentée pour le type ${this._type}.`)
+        }
         const base_value = value instanceof MyMath ? value._getMyNumber() : value
         const newMyNumber = this._getMyNumber().substituteVariable(varName, base_value)
         return new MyMath({ mynumber: newMyNumber })
@@ -790,6 +894,9 @@ class MyMath {
      * @returns {MyMath} nouveau MyMath avec les substitutions effectuées
      */
     subs(vars:Record<string, InputType>):MyMath {
+        if (!this.isExpression()) {
+            throw new Error(`<${this.expression}> : Substitutions pas implémentées pour le type ${this._type}.`)
+        }
         const base_vars: Record<string, Base> = {}
         let n = this._getMyNumber()
         for (const [varName, value] of Object.entries(vars)) {
@@ -807,6 +914,7 @@ class MyMath {
      * @returns {MyMath} nouveau MyMath représentant la dérivée
      */
     diff(varName:string=""):MyMath {
+        // lèvera une erreur avec _getMyNumber() si le _type n'est pas correct
         const b = this._getMyNumber()
         if (varName == "") {
             let v = this.variables
@@ -825,6 +933,7 @@ class MyMath {
      * @returns {Function} fonction JavaScript correspondant à l'expression
      */
     buildFunction():Function {
+        // lèvera une erreur avec _getNerdamerProcessed() si le _type n'est pas correct
         return this._getNerdamerProcessed().buildFunction()
     }
 
@@ -833,7 +942,12 @@ class MyMath {
      * @returns {MyMath} nouveau MyMath représentant l'expression simplifiée
      */
     simplify():MyMath {
-        return new MyMath({ mynumber: simplify(this._getMyNumber()) })
+        if (this.isExpression()) {
+            return new MyMath({ mynumber: simplify(this._getMyNumber()) })
+        } else if (this._type === "ensemble") {
+            throw new Error(`<${this.expression}> : Simplification pas implémentée pour le type ${this._type}.`)
+        }
+        throw new Error(`<${this.expression}> : Simplification pas implémentée pour le type ${this._type}.`)
     }
 
     /**
@@ -841,7 +955,7 @@ class MyMath {
      * @returns {boolean} vrai si le nombre est invalide, faux sinon
      */
     get invalid():boolean {
-        return this._invalid
+        return this._type === "invalid"
     }
 }
 
