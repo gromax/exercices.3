@@ -1,4 +1,4 @@
-import MyMath from "@mathstools/mymath";
+import type MyMath from "@mathstools/mymath";
 type NestedArray<T> = T | Array<NestedArray<T>>
 export type NestedInput = NestedArray<InputType>
 export type InputType = MyMath|number|string
