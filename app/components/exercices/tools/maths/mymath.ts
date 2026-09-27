@@ -14,9 +14,8 @@ import { substituteParams } from './misc/substitution'
 import { Base } from './number/base'
 import { simplify, decimalize } from './number/simplify'
 import Decimal from 'decimal.js'
-import { TParams, InputType, NestedArray } from "@types"
+import { TParams, InputType, NestedArray, NestedInput } from "@types"
 
-type AcceptedInput = InputType | Base
 interface MyMathOptions {
     expression?: string,
     nerdamer?: nerdamer.Expression,
@@ -43,16 +42,16 @@ class MyMath {
      * @param {*} value 
      * @returns 
      */
-    static toNumber(value:AcceptedInput):number {
+    static toNumber(value:InputType):number {
         return MyMath.toFloat(value)
     }
 
     /**
      * Convertit la valeur en nombre entier
-     * @param {AcceptedInput} value La valeur à convertir en nombre entier
+     * @param {InputType} value La valeur à convertir en nombre entier
      * @returns {number} Le nombre entier correspondant à la valeur fournie
      */
-    static toInteger(value:AcceptedInput):number {
+    static toInteger(value:InputType):number {
         const f = MyMath.toFloat(value)
         if (isNaN(f)) {
             throw new Error(`La valeur ${value} ne peut pas être convertie en entier.`)
@@ -66,10 +65,10 @@ class MyMath {
 
     /**
      * Essaie de convertir la valeur en entier.
-     * @param value valeur à convertir en entier
+     * @param {InputType} value valeur à convertir en entier
      * @returns {false|number} l'entier correspondant ou false si la conversion échoue
      */
-    static tryInteger(value:AcceptedInput):false|number {
+    static tryInteger(value:InputType):false|number {
         try {
             return MyMath.toInteger(value)
         } catch (e) {
@@ -103,15 +102,12 @@ class MyMath {
 
     /**
      * Analyse une valeur et la convertit en nombre à virgule flottante.
-     * @param {AcceptedInput} value La valeur à analyser
+     * @param {InputType} value La valeur à analyser
      * @returns {number} Le nombre à virgule flottante correspondant à la valeur fournie
      */
-    static parseFloat(value:AcceptedInput):number {
+    static parseFloat(value:InputType):number {
         if (typeof value === 'number') {
             return value
-        }
-        if (value instanceof Base) {
-            return value.toDecimal(undefined).toNumber()
         }
         if (value instanceof MyMath) {
             return value.toFloat()
@@ -128,10 +124,10 @@ class MyMath {
 
     /**
      * Analyse une valeur et la convertit en nombre entier.
-     * @param {AcceptedInput} value La valeur à analyser
+     * @param {InputType} value La valeur à analyser
      * @returns {number} Le nombre entier correspondant à la valeur fournie
      */
-    static parseInt(value:AcceptedInput):number {
+    static parseInt(value:InputType):number {
         const f = MyMath.parseFloat(value)
         const n = Math.trunc(f)
         if (f !== n) {
@@ -142,15 +138,12 @@ class MyMath {
 
     /**
      * fabrique un MyMath à partir d'une expression
-     * @param {string|number|MyMath} expression 
+     * @param {InputType} expression 
      * @returns {MyMath}
      */
-    static make(expression:AcceptedInput): MyMath {
+    static make(expression:InputType): MyMath {
         if (expression instanceof MyMath) {
             return expression
-        }
-        if (expression instanceof Base) {
-            return new MyMath({ mynumber: expression })
         }
         if ((typeof expression !== 'string') && (typeof expression !== 'number')) {
             throw new Error('L\'expression doit être une chaîne de caractères, un nombre ou une instance de MyMath')
@@ -161,10 +154,10 @@ class MyMath {
 
     /**
      * Renvoie l'écriture latex d'une expression
-     * @param {AcceptedInput} expression L'expression à convertir en MyMath
+     * @param {InputType} expression L'expression à convertir en MyMath
      * @returns {string} L'écriture latex de l'expression fournie
      */
-    static latex(expression:AcceptedInput):string {
+    static latex(expression:InputType):string {
         return MyMath.make(expression).latex()
     }
     
@@ -188,11 +181,11 @@ class MyMath {
     /**
      * Convertit une expression ou un tableau d'expression en
      * un expression (ou tableau) où les parties numériques sont fixées
-     * @param {NestedArray<AcceptedInput>} expression L'expression à convertir
+     * @param {NestedInput} expression L'expression à convertir
      * @param {number} n Le nombre de décimales
      * @returns {NestedArray<string>} Le tableau de chaînes de caractères avec le nombre fixe de décimales
      */
-    static toFixedArray(expression:NestedArray<AcceptedInput>, n:number):NestedArray<string> {
+    static toFixedArray(expression:NestedInput, n:number):NestedArray<string> {
         if (Array.isArray(expression)) {
             return expression.map(item => MyMath.toFixedArray(item, n))
         }
@@ -201,10 +194,10 @@ class MyMath {
 
     /**
      * Convertit une expression en nombre à virgule flottante.
-     * @param {AcceptedInput} expression L'expression à convertir
+     * @param {InputType} expression L'expression à convertir
      * @returns {number} Le nombre à virgule flottante correspondant à l'expression fournie
      */
-    static toFloat(expression:AcceptedInput):number {
+    static toFloat(expression:InputType):number {
         if (typeof expression === 'number') {
             return expression
         }
@@ -213,20 +206,20 @@ class MyMath {
 
     /**
      * Convertit une expression en instance de Decimal.
-     * @param {AcceptedInput} expression L'expression à convertir
+     * @param {InputType} expression L'expression à convertir
      * @returns {Decimal} L'instance de Decimal correspondant à l'expression fournie
      */
-    static toDecimal(expression:AcceptedInput):Decimal {
+    static toDecimal(expression:InputType):Decimal {
         return MyMath.make(expression).toDecimal()
     }
 
     /**
      * Convertit une expression en une chaîne de caractères formatée selon le format spécifié.
-     * @param {AcceptedInput} expression L'expression à convertir
+     * @param {InputType} expression L'expression à convertir
      * @param {string} format Le format à appliquer
      * @returns {string} La chaîne de caractères formatée
      */
-    static toFormat(expression:AcceptedInput, format:string):string {
+    static toFormat(expression:InputType, format:string):string {
         if (typeof expression === 'string' && expression.startsWith('"') && expression.endsWith('"')) {
             // chaîne de caractères
             // renvoyée sans tenir compte du format
@@ -237,19 +230,19 @@ class MyMath {
 
     /**
      * Récupère toutes les variables présentes dans une expression.
-     * @param {AcceptedInput} expression L'expression à analyser
+     * @param {InputType} expression L'expression à analyser
      * @returns {Array<string>} Un tableau contenant les noms des variables
      */
-    static variables(expression:AcceptedInput): Array<string> {
+    static variables(expression:InputType): Array<string> {
         return MyMath.make(expression).variables
     }
 
     /**
      * Construit une fonction JavaScript à partir d'une expression mathématique.
-     * @param {AcceptedInput} expression L'expression à convertir en fonction
+     * @param {InputType} expression L'expression à convertir en fonction
      * @returns {Function} La fonction JavaScript correspondante
      */
-    static buildFunction(expression:AcceptedInput): Function {
+    static buildFunction(expression:InputType): Function {
         return MyMath.make(expression).buildFunction()
     }
 
@@ -289,14 +282,14 @@ class MyMath {
 
     /**
      * Effectue une comparaison entre deux expressions selon l'opérateur donné
-     * @param {*} leftExpr doit pouvoir être converti
-     * @param {*} rightExpr idem
+     * @param {NestedInput} leftExpr doit pouvoir être converti
+     * @param {NestedInput} rightExpr idem
      * @param {string} operator parmi ==, !=, <, <=, >, >=
      * @returns {boolean} le résultat de la comparaison
      */
     static compare(
-        leftExpr:NestedArray<AcceptedInput>,
-        rightExpr:NestedArray<AcceptedInput>,
+        leftExpr:NestedInput,
+        rightExpr:NestedInput,
         operator:string
     ):NestedArray<boolean>{
         if (Array.isArray(leftExpr)) {
@@ -392,7 +385,7 @@ class MyMath {
      * @returns {string} chaîne formatée
      */
     private static _substituteExpressionsHelper(
-        replacement:NestedArray<InputType>,
+        replacement:NestedInput,
         format:string,
         depth:number
     ):string {
@@ -663,9 +656,9 @@ class MyMath {
     /**
      * Fait une comparaison numérique sur la base d'une évaluation
      * donc ne vérifie pas symboliquement l'égalité
-     * @param {MyMath|string|number} right 
+     * @param {InputType} right 
      */
-    pseudoEquality(right:AcceptedInput):boolean {
+    pseudoEquality(right:InputType):boolean {
         const lStr = this.toDecimal()
         const rStr = MyMath.make(right).toDecimal()
         // on admet un bruit de calcul très faible
@@ -674,11 +667,11 @@ class MyMath {
 
     /**
      * Compare l'expression avec une autre valeur en utilisant un opérateur donné
-     * @param {NestedArray<AcceptedInput>} rightExpr - l'autre valeur ou tableau de valeurs à comparer
+     * @param {NestedInput} rightExpr - l'autre valeur ou tableau de valeurs à comparer
      * @param {string} operator - opérateur de comparaison (==, !=, <, <=, >, >=)
      * @returns {NestedArray<boolean>} résultat de la comparaison
      */
-    compare(rightExpr:NestedArray<AcceptedInput>, operator:string):NestedArray<boolean> {
+    compare(rightExpr:NestedInput, operator:string):NestedArray<boolean> {
         if (Array.isArray(rightExpr)) {
             return rightExpr.map(r => this.compare(r, operator) as boolean)
         }
@@ -782,29 +775,30 @@ class MyMath {
     /**
      * Substitue une variable par une valeur
      * @param {string} varName - nom de la variable
-     * @param {AcceptedInput} value - valeur à substituer
+     * @param {InputType} value - valeur à substituer
      * @returns {MyMath} nouveau MyMath avec la substitution effectuée
      */
-    sub(varName:string, value:AcceptedInput):MyMath {
+    sub(varName:string, value:InputType):MyMath {
         const base_value = value instanceof MyMath ? value._getMyNumber() : value
         const newMyNumber = this._getMyNumber().substituteVariable(varName, base_value)
         return new MyMath({ mynumber: newMyNumber })
-        // const valueStr = MyMath.normalization(MyMath.make(value).toString())
-        // return new MyMath({ nerdamer: this._getNerdamerProcessed().sub(varName, valueStr) })
     }
 
     /**
      * Substitue plusieurs variables par leurs valeurs
-     * @param {Record<string, AcceptedInput>} vars - dictionnaire des variables et de leurs valeurs
+     * @param {Record<string, InputType>} vars - dictionnaire des variables et de leurs valeurs
      * @returns {MyMath} nouveau MyMath avec les substitutions effectuées
      */
-    subs(vars:Record<string, AcceptedInput>):MyMath {
-        let n = this._getNerdamerProcessed()
+    subs(vars:Record<string, InputType>):MyMath {
+        const base_vars: Record<string, Base> = {}
+        let n = this._getMyNumber()
         for (const [varName, value] of Object.entries(vars)) {
-            const valueStr = MyMath.normalization(MyMath.make(value).toString())
-            n = n.sub(varName, valueStr)
+            if (!base_vars[varName]) {
+                base_vars[varName] = MyMath.make(value)._getMyNumber()
+            }
+            n = n.substituteVariable(varName, base_vars[varName])
         }
-        return new MyMath({ nerdamer: n })
+        return new MyMath({ mynumber: n })
     }
 
     /**
@@ -839,7 +833,7 @@ class MyMath {
      * @returns {MyMath} nouveau MyMath représentant l'expression simplifiée
      */
     simplify():MyMath {
-        return MyMath.make(simplify(this._getMyNumber()))
+        return new MyMath({ mynumber: simplify(this._getMyNumber()) })
     }
 
     /**
