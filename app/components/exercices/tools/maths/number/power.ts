@@ -84,7 +84,7 @@ class Power extends Base {
             : lang == 'tex'
                 ? this._exposant.toTex()
                 : String(this._exposant)
-        if (this._base.priority <= this.priority) {
+        if ((this._base.priority <= this.priority) || (this._base.startsWithMinus)) {
             if (lang === 'tex') {
                 baseStr = `\\left(${baseStr}\\right)`
             } else {
