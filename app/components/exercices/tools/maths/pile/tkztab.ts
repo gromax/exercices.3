@@ -83,8 +83,8 @@ class Tkztab {
     /**
      * Renvoie une chaîne représentant un ensemble solution
      * Pour une équation type expr > 0 ou exp >= 0...
-     * @param {MyMath} expr 
-     * @param {Array} bornes 
+     * @param {InputType} expr 
+     * @param {Array<InputType>} bornes 
      * @param {string} asked signe, 'p' (positif), 'n' (négatif), 'p0' (pos ou nul), 'n0' (neg ou nul)
      */
     static ensemble(expr:InputType, bornes:Array<InputType>, asked:string): string {
