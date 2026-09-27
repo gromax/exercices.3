@@ -4,7 +4,7 @@ import { Signature } from "./signature"
 import Decimal from "decimal.js"
 import { NestedString } from '@types'
 class Constant extends Base {
-    static readonly NAMES = ['e', 'pi', 'π', '∞', '-inf', '-∞', 'infinity', 'infini', 'i']
+    static readonly NAMES = ['e', 'pi', 'π', '∞', '-inf', '-∞', 'infinity', 'inf', 'infini', 'i']
     static readonly TEX = {
         'e': 'e',
         'π': '\\pi',
