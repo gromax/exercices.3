@@ -56,7 +56,7 @@ const Controller = MnObject.extend({
             }
             const notesDuDevoir = notes.filter(a => a.get('idDevoir') === idDevoir);
             const collecNotes = new notes.constructor(notesDuDevoir);
-            channel.trigger("ariane:push", { text: `Notes de ${devoir.get('nom')}`, link: `#devoir:${idDevoir}/notes` });
+            channel.trigger("ariane:push", { text: `Notes de ${devoir.get('nom')}`, link: `devoir:${idDevoir}/notes` });
             require("./list/controller.js").controller.showNotesListForDevoir(devoir, collecNotes);
         }).fail( (response) => {
             channel.trigger("data:fetch:fail", response);
@@ -96,10 +96,10 @@ const Controller = MnObject.extend({
             const collecNotesExo = new notesexos.constructor(notesExosDuDevoirUser);
             if (user.get('id') !== logged.get('id')) {
                 // prof / admin qui regarde les notes d'un élève
-                channel.trigger("ariane:push", { text: `Notes de ${user.get('nomComplet')} pour ${note.get('nom')}`, link: `#devoir:${idDevoir}/notes/user:${idUser}` });
+                channel.trigger("ariane:push", { text: `Notes de ${user.get('nomComplet')} pour ${note.get('nom')}`, link: `devoir:${idDevoir}/notes/user:${idUser}` });
             } else {
                 // élève qui regarde ses propres notes
-                channel.trigger("ariane:push", { text: `Notes pour ${note.get("nom")}`, link: `#mynotes:${idDevoir}` });
+                channel.trigger("ariane:push", { text: `Notes pour ${note.get("nom")}`, link: `mynotes:${idDevoir}` });
             }
             require("./exolist/controller.js").controller.showNotesExosListForDevoirUser(note, collecNotesExo, user);
         }).fail( (response) => {
@@ -128,7 +128,7 @@ const Controller = MnObject.extend({
                 // si utilisateur est user alors se sont ses notes et c'est le home
                 channel.trigger("ariane:reset", []);
             } else {
-                channel.trigger("ariane:push", { text: `Notes de ${user.get('nomComplet')}`, link: `#user:${idUser}/notes` });
+                channel.trigger("ariane:push", { text: `Notes de ${user.get('nomComplet')}`, link: `user:${idUser}/notes` });
             }
 
             require("./list/controller.js").controller.showNotesListForEleve(user, collecNotes);
@@ -151,7 +151,7 @@ const Controller = MnObject.extend({
         $.when(fetching).done( (trials) => {
             channel.trigger("ariane:push", {
                 text: `Essais élève #${idUser} pour exercice devoir #${idExoDevoir}`,
-                link: `#trials/user:${idUser}/exodevoir:${idExoDevoir}`
+                link: `trials/user:${idUser}/exodevoir:${idExoDevoir}`
             });
             require("./trials/controller.js").controller.showList(trials);
         }).fail( (response) => {
