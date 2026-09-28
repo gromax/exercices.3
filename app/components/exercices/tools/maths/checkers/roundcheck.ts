@@ -1,6 +1,7 @@
 import { AbsChecker } from "./abscheck"
 import { InputType } from "@components/types"
 import MyMath from '@mathstools/mymath'
+import { Decimal } from "decimal.js"
 
 
 class RoundCheck extends AbsChecker {
@@ -34,26 +35,30 @@ class RoundCheck extends AbsChecker {
         return test
     }
 
+    /**
+     * @param {InputType} excluded 
+     * @returns {boolean} renvoie true si la valeur est exclue, false sinon.
+     */
     valueIsExcluded(excluded: InputType): boolean {
         if (!this.formatIsValid) {
             return false
         }
-        const userFloat = MyMath.parseUser(this._expr).toFloat()
-        const excludedFloat = MyMath.make(excluded).toFloat()
-        if (isNaN(userFloat) || isNaN(excludedFloat)) {
+        const userFloat = MyMath.parseUser(this._expr).toDecimal()
+        const excludedFloat = MyMath.make(excluded).toDecimal()
+        if (userFloat.isNaN() || excludedFloat.isNaN()) {
             return false
         }
-        return Math.abs(userFloat - excludedFloat) == 0
+        return userFloat.eq(excludedFloat)
     }
 
     valueIsGood(expectedValue:InputType): boolean {
-        const userFloat = MyMath.parseUser(this._expr).toFloat()
-        const expectedFloat = MyMath.make(expectedValue).toFloat()
-        if (isNaN(userFloat) || isNaN(expectedFloat)) {
+        const userFloat:Decimal = MyMath.parseUser(this._expr).toDecimal()
+        const expectedFloat:Decimal = MyMath.make(expectedValue).toDecimal()
+        if (userFloat.isNaN() || expectedFloat.isNaN()) {
             return false
         }
-        const factor = Math.pow(10, this._digits)
-        return userFloat * factor === Math.round(expectedFloat * factor)
+        const factor = new Decimal(Math.pow(10, this._digits))
+        return userFloat.mul(factor).eq(expectedFloat.mul(factor).round())
     }
 
     toFormat():string {
