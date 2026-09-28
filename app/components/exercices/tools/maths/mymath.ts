@@ -232,11 +232,6 @@ class MyMath {
      * @returns {string} La chaîne de caractères formatée
      */
     static toFormat(expression:InputType, format:string):string {
-        if (typeof expression === 'string' && expression.startsWith('"') && expression.endsWith('"')) {
-            // chaîne de caractères
-            // renvoyée sans tenir compte du format
-            return expression.slice(1, -1)
-        }
         return MyMath.make(expression).toFormat(format)
     }
 
