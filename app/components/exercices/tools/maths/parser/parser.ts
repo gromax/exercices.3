@@ -390,9 +390,8 @@ class Parser {
      * @returns {Ensemble} L'ensemble produit
      */
     private _parseToEnsemble(inExpression:string):Ensemble {
-        // pas encore implémenté
         const expression = this._sanityseExpression(inExpression)
-        const matchList = expression.match(Parser.REGEX)
+        const matchList = expression.match(Parser.REGEX_INTERVAL)
         if (!matchList) {
             throw new Error("Aucun item valide reconnu !")
         }
@@ -408,6 +407,7 @@ class Parser {
             }
             tokensList.push(token)
         }
+
         // nous avons maintenant une liste de tokens qui contient peut être des items intervalles
         // il va falloir le traiter
 
