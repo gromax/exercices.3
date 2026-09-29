@@ -1,7 +1,7 @@
 import JXG from 'jsxgraph'
 import GraphItem from "./item"
 import _ from "underscore"
-import { getStringOption, getBooleanOption, inputTypeToString } from '../../misc'
+import { getStringOption, getBooleanOption } from '../../misc'
 
 class GraphIntegrale extends GraphItem {
     static readonly TYPE = 'Integrale'
@@ -56,12 +56,11 @@ class GraphIntegrale extends GraphItem {
      * @returns {[number,number]} abscisses de début et fin de l'intégrale
      */
     protected _getAbscisses(): [number, number] {
-        if (typeof this.item.params.abscisses === 'undefined') {
+        const abscissesStr = getStringOption(this.item.params, 'abscisses', '')
+        if (abscissesStr === '') {
             return [this._cadre[0], this._cadre[1]]
         }
-        const abscissesParam = this.item.params.abscisses
-        const abscisseStr = inputTypeToString(abscissesParam)
-        const stringItems = abscisseStr.split('|')
+        const stringItems = abscissesStr.split('|')
         if (stringItems.length !== 2) {
             throw new Error(`Intégrale ${this.item.header}, les abscisses doivent être séparées par '|'`)
         }
