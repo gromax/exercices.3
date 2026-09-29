@@ -1,7 +1,7 @@
 import JXG from 'jsxgraph'
 import GraphItem from "./item"
 import _ from "underscore"
-import { getNumberOption, getStringOption, getBooleanOption, inputTypeToString } from "../../misc"
+import { getNumberOption, getStringOption, getBooleanOption } from "../../misc"
 
 class GraphAngle extends GraphItem {
     static readonly TYPE = 'Angle'
@@ -48,11 +48,10 @@ class GraphAngle extends GraphItem {
      * @returns {[[number,number]|JXG.Point, [number,number]|JXG.Point, [number,number]|JXG.Point]} coordonnées de trois points de l'angle
      */
     protected _getPoints(graphObjects:Record<string, JXG.GeometryElement>): Array<[number,number]|JXG.Point> {
-        const stringPointsParam = this.item.params.points
-        if (typeof stringPointsParam === 'undefined') {
+        const stringPoints = getStringOption(this.item.params, 'points', '')
+        if (stringPoints === '') {
             throw new Error(`Angle ${this.item.header}: l'angle doit être défini par trois points`)
         }
-        const stringPoints = inputTypeToString(stringPointsParam)
         const points = stringPoints.split('|')
         if (points.length !=3) {
             throw new Error(`Angle ${this.item.header}, attribut points [${stringPoints}]: l'angle doit être défini par 3 points séparés par '|'`)
