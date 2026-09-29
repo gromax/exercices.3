@@ -106,13 +106,6 @@ function evaluate(
     // expression est alors forcément string
     const formatedExpr = MyMath.substituteExpressions(expression, params)
     const substitutedExpr = substituteParams(formatedExpr, params)
-
-    // dans le cas d'une expression entre guillemets, on renvoie la chaîne
-    if (expression.startsWith('"') && expression.endsWith('"')) {
-        return substitutedExpr
-    }
-
-    // sinon on parse
     return MyMath.make(substitutedExpr as InputType)
 }
 
