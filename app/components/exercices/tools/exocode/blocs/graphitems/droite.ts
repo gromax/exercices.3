@@ -1,6 +1,5 @@
 import JXG from 'jsxgraph'
 import GraphItem from "./item"
-import { inputTypeToString } from "../../misc"
 import _ from "underscore"
 import MyMath from "../../../maths/mymath"
 import { getBooleanOption, getNumberOption, getStringOption } from "../../misc"
@@ -12,10 +11,12 @@ class GraphDroite extends GraphItem {
         'label', 'labelsize', 'equation', 'points', 'fixed', 'header'
     ]
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
-        const points = (typeof this.item.params.equation !== 'undefined')
-            ? this._points_from_equation(inputTypeToString(this.item.params.equation))
+        const param_equation = getStringOption(this.item.params, 'equation', '')
+        const points = (param_equation !== '')
+            ? this._points_from_equation(param_equation)
             : this._points_from_points(graphObjects)
         const dash = getStringOption(this.item.params, 'dash', '')
+        const label = getStringOption(this.item.params, 'label', '')
         const options = {}
         if (dash) {
             options['dash'] = dash
@@ -27,7 +28,7 @@ class GraphDroite extends GraphItem {
         if (this.item.params.invisible == "true" || this.item.params.solution == "true" && !this._solMode) {
             options["visible"] = false
         }
-        if (this.item.params.label) {
+        if (label) {
             options["withLabel"] = true
             options["label"] = {
                 strokeColor: this.item.params.color || 'black',
@@ -42,8 +43,8 @@ class GraphDroite extends GraphItem {
             options["fixed"] = true // autrement JXG permet le déplacement
         }
         const line = g.create('line', points, options) as JXG.Line
-        if (this.item.params.label) {
-            line.label.setText(inputTypeToString(this.item.params.label))
+        if (label) {
+            line.label.setText(label)
         }
         if (this._choiceTag) {
             this._attachUniversalPopup(g, line, this._choiceTag)
@@ -104,11 +105,10 @@ class GraphDroite extends GraphItem {
      * @returns {[[number,number]|JXG.Point, [number,number]|JXG.Point]} coordonnées de deux points de la droite
      */
     protected _points_from_points(graphObjects:Record<string, JXG.GeometryElement>): [[number,number]|JXG.Point, [number,number]|JXG.Point] {
-        const stringPointsParam = this.item.params.points
-        if (typeof stringPointsParam === 'undefined') {
+        const stringPoints = getStringOption(this.item.params, 'points', '')
+        if (stringPoints === '') {
             throw new Error(`Droite ${this.item.header}: la droite doit être définie par une équation ou deux points`)
         }
-        const stringPoints = inputTypeToString(stringPointsParam)
         const points = stringPoints.split('|')
         if (points.length !== 2) {
             throw new Error(`Droite ${this.item.header}, attribut points [${stringPoints}]: la droite doit être définie par deux points séparés par '|'`)
