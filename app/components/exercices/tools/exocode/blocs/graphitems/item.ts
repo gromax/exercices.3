@@ -2,7 +2,7 @@ import JXG from 'jsxgraph'
 import Bloc from "../bloc"
 import Colors from '../../colors'
 import MyMath from "@components/exercices/tools/maths/mymath"
-import { inputTypeToString } from '@components/exercices/tools/exocode/misc'
+import { getStringOption, getNumberOption } from '@components/exercices/tools/exocode/misc'
 
 abstract class GraphItem {
     protected item:Bloc
@@ -33,11 +33,6 @@ abstract class GraphItem {
         if (unauthorizedParams.length > 0) {
             throw new Error(`Paramètres non autorisés pour ${this.type}:${this.item.header}: ${unauthorizedParams.join(', ')}`)
         }
-    }
-
-    getItemParam(paramName: string): string|undefined {
-        const paramValue = this.item.params[paramName]
-        return inputTypeToString(paramValue)
     }
 
     setSolMode():void {
@@ -97,14 +92,16 @@ abstract class GraphItem {
      */
     protected _assignColor(paramName:string):void {
         if (typeof this.item.params[paramName] !== 'undefined') {
-            const color = inputTypeToString(this.item.params[paramName])
-            const i = parseInt(color)
-            if (!isNaN(i)) {
+            const color = getNumberOption(this.item.params, paramName, NaN)
+            if (isNaN(color)) {
+                return
+            }
+            if (color == Math.floor(color)) {
                 if (!this._colors) {
                     throw new Error(`Colors object is not defined.`)
                 }
-                this.item.params[paramName] = this._colors.getColor(i)
-                const picto = this._colors.getPicto(i)
+                this.item.params[paramName] = this._colors.getColor(color)
+                const picto = this._colors.getPicto(color)
                 this._choiceTag = `<i class="fa-solid fa-${picto}"></i>`
             }
         }
@@ -163,10 +160,11 @@ abstract class GraphItem {
      */
     protected _getAttrToInputs():Record<string, string> {
         // Implémentation par défaut, à surcharger dans les sous-classes si nécessaire
-        if (typeof this.item.params["hasinputs"] === 'undefined') {
+        const inputsString:string = getStringOption(this.item.params, 'hasinputs', '')
+        if (inputsString === '') {
             return {}
         }
-        const inputsString:string = inputTypeToString(this.item.params["hasinputs"])
+
         const inputsArray = inputsString.split(';')
         const inputs:Record<string, string> = {}
         for (const input of inputsArray) {
