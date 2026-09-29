@@ -12,6 +12,7 @@ import 'nerdamer/all'
 import Parser from './parser/parser'
 import { substituteParams } from './misc/substitution'
 import { Base } from './number/base'
+import { Ensemble, EnsembleCalculator } from './number/ensemble'
 import { simplify, decimalize } from './number/simplify'
 import Decimal from 'decimal.js'
 import { TParams, InputType, NestedArray, NestedInput } from "@types"
@@ -20,11 +21,12 @@ interface MyMathOptions {
     expression?: string,
     nerdamer?: nerdamer.Expression,
     mynumber?: Base,
+    ensemble?: Ensemble,
     invalid?:boolean
 }
 
 type TValue = "expression" | "brutText" | "ensemble" | "invalid"
-const PREFIX_ENSEMBLE = '//inter//'
+const PREFIX_ENSEMBLE = '__inter__'
 
 function _isBrutText(expression: string): boolean {
     return expression.startsWith('"') && expression.endsWith('"')
@@ -40,11 +42,14 @@ class MyMath {
     /** @type{string} expression d'origine */
     private _expression:string
 
-    /** @type{nerdamer.Expression|null} */
+    /** @type{nerdamer.Expression?} */
     private _nerdamer_processed?:nerdamer.Expression
 
-    /** @type{Base|null} */
+    /** @type{Base?} */
     private _mynumber?:Base
+
+    /** @type{Ensemble?} */
+    private _ensemble?:Ensemble
 
     /** @type{TValue} */
     private _type:TValue = "expression" // type par défaut
@@ -187,6 +192,23 @@ class MyMath {
             console.warn("Erreur lors du parsing de l'expression utilisateur :", expression)
             console.warn(e.message)
             return new MyMath({ expression: "NaN", invalid:true })
+        }
+    }
+
+    /**
+     * Analyse une expression fournie par l'utilisateur et la convertit en instance de MyMath.
+     * @param {string} expression L'expression utilisateur à analyser
+     * @returns {MyMath} L'instance de MyMath correspondant à l'expression fournie
+     */
+    static parseUserEnsemble(expression:string): MyMath {
+        // user ne va pas forcément respecter les * ou ce genre de détails
+        // je vais donc préprocesser
+        try {
+            return new MyMath({ ensemble: Parser.buildEnsemble(expression) })
+        } catch (e) {
+            console.warn("Erreur lors du parsing de l'expression utilisateur :", expression)
+            console.warn(e.message)
+            return new MyMath({ expression: "Invalid Set", invalid:true })
         }
     }
 
@@ -377,9 +399,6 @@ class MyMath {
     static substituteExpressions(texte:string, params:TParams):string {
         return texte.replace(/\{([^:{}]+):\s*([\w]*(?:\$)?)?\}/g, (match, expr, format) => {
             const replacement = substituteParams(expr, params)
-            if (typeof replacement === 'string' && replacement.startsWith('"') && replacement.endsWith('"')) {
-                return replacement.slice(1, -1)
-            }
             return MyMath._substituteExpressionsHelper(replacement, format, 0)
         })
     }
@@ -403,13 +422,6 @@ class MyMath {
             }
             return res
         }
-        if (format === 'b') {
-            const brutReplacement = String(replacement)
-            if (brutReplacement.startsWith('"') && brutReplacement.endsWith('"')) {
-                return brutReplacement.slice(1, -1)
-            }
-            return brutReplacement
-        }
         return MyMath.make(replacement).toFormat(format)
     }
 
@@ -428,6 +440,9 @@ class MyMath {
             this._mynumber = options.mynumber
             this._expression = this._mynumber.toString()
             this._type = "expression"
+        } else if (typeof options.ensemble !== 'undefined') {
+            this._ensemble = options.ensemble
+            this._expression = PREFIX_ENSEMBLE +" " + this._ensemble.toString()
         } else {
             this._type = "invalid"
             throw new Error('MyMath doit être initialisé avec une expression, un nerdamer.Expression ou un Base')
@@ -484,6 +499,29 @@ class MyMath {
     }
 
     /**
+     * Renvoie l'objet Ensemble correspondant à l'expression
+     * @returns {Ensemble} objet Base
+     */
+    private _getEnsemble(): Ensemble {
+        if (this._type !== "ensemble") {
+            throw new Error(`<${this._expression}> : L'objet MyMath n'est pas de type ensemble.`)
+        }
+        if (typeof this._ensemble === "undefined") {
+            const ensemble_without_prefix = this._expression.slice(PREFIX_ENSEMBLE.length).trim()
+            try {
+                this._ensemble = Parser.buildEnsemble(ensemble_without_prefix)
+            } catch(e) {
+                console.warn("Erreur lors du parsing de l'ensemble :", ensemble_without_prefix)
+                console.warn(e.message)
+                this._type = "invalid"
+                return EnsembleCalculator.invalidSet()
+            }
+        }
+        return this._ensemble
+    }
+
+
+    /**
      * Renvoie l'objet nerdamer correspondant à l'expression
      * @returns {nerdamer.Expression} expression nerdamer
      */
@@ -527,34 +565,21 @@ class MyMath {
 
     /**
      * Convertit l'expression en nombre à virgule flottante
-     * @returns {number} valeur en nombre à virgule flottante ou NaN en cas d'erreur
+     * @returns {number} valeur en nombre à virgule flottante ou NaN en cas d'impossibilité de conversion
      */
     toFloat():number {
-        if (this._type !== "expression") {
-            throw new Error(`<${this._expression}> : L'objet MyMath n'est pas de type expression.`)
-        }
         try {
             return this._getMyNumber().toDecimal(undefined).toNumber()
         } catch (e) {
-            console.warn(`Erreur lors de la conversion de ${this._expression} en nombre décimal :`, e)
-            console.warn(e)
             return NaN
         }
-    }
-
-    /**
-     * Vérifie si l'expression est un texte (entouré de guillemets).
-     * @returns {boolean} true si l'expression est un texte, false sinon.
-     */
-    isText():boolean {
-        return this._type === "brutText"
     }
 
     /**
      * Vérifie si la saisie correspond bien à une expression
      * @returns {boolean} true si la saisie est une expression, false sinon.
      */
-    isExpression():boolean {
+    private _isExpression():boolean {
         return this._type === "expression"
     }
 
@@ -565,6 +590,20 @@ class MyMath {
     toDecimal():Decimal {
         // _getMyNumber() vérifie déjà que l'objet est de type expression
         return this._getMyNumber().toDecimal(undefined)
+    }
+
+    /**
+     * Renvoie la représentation de l'expression pour le stockage des params en BDD
+     * @returns {string} expression sous forme de chaîne
+     */
+    toSaveString():string {
+        if (this._type === "expression") {
+            return simplify(this._getMyNumber()).toString()
+        }
+        if (this._type === "ensemble") {
+            return PREFIX_ENSEMBLE + ' ' + this._getEnsemble().simplify().toString()
+        }
+        return this._expression        
     }
 
     /**
@@ -581,23 +620,6 @@ class MyMath {
     }
 
     /**
-     * Renvoie la représentation simplifiée de l'expression sous forme de chaîne
-     * @returns {string} expression simplifiée
-     */
-    toStringSimplified():string {
-        if (this._type === "ensemble") {
-            throw new Error(`<${this._expression}> : Pas implémenté pour le type ensemble.`)
-        } else if (this._type === "expression") {
-            const mn = this._getMyNumber()
-            if (this.invalid) {
-                return this.toString()
-            }
-            return simplify(mn).toString()
-        }
-        return this.toString()
-    }
-
-    /**
      * Renvoie la représentation LaTeX de l'expression simplifiée
      * @returns {string} LaTeX de l'expression simplifiée
      */
@@ -611,7 +633,7 @@ class MyMath {
             // je vais préférer ma version de latex
             return this._getMyNumber().toTex()
         } else if (this._type === "ensemble") {
-            throw new Error(`<${this._expression}> : Pas implémenté pour le type ensemble.`)
+            return this._getEnsemble().toTex()
         }
         return this.toString()
     }
@@ -633,7 +655,7 @@ class MyMath {
             if (this._type === "expression") {
                 return simplify(this._getMyNumber()).toTex()
             } else if (this._type === "ensemble") {
-                throw new Error(`<${this._expression}> : Pas implémenté pour le type ensemble.`)
+                return this._getEnsemble().simplify().toTex()
             }
             return this.latex()
         }
@@ -642,7 +664,7 @@ class MyMath {
             if (this._type === "expression") {
                 return simplify(this._getMyNumber()).toString()
             } else if (this._type === "ensemble") {
-                throw new Error(`<${this._expression}> : Pas implémenté pour le type ensemble.`)
+                return this._getEnsemble().simplify().toString()
             }
             return this.toString()
         }
@@ -747,14 +769,14 @@ class MyMath {
      * @returns {NestedArray<boolean>} résultat de la comparaison
      */
     compare(rightExpr:NestedInput, operator:string):NestedArray<boolean> {
-        if (!this.isExpression()) {
+        if (!this._isExpression()) {
             throw new Error(`<${this.expression}> : Comparaison pas implémenté pour le type non expression.`)
         }
         if (Array.isArray(rightExpr)) {
             return rightExpr.map(r => this.compare(r, operator) as boolean)
         }
         const right = MyMath.make(rightExpr)
-        if (!right.isExpression()) {
+        if (!right._isExpression()) {
             throw new Error(`<${right.expression}> : Comparaison pas implémenté pour le type non expression.`)
         }
         if (this.isInfinity()) {
@@ -821,7 +843,7 @@ class MyMath {
      * @returns {boolean} vrai si le nombre est plus l'infini, faux sinon
      */
     isPlusInfinity():boolean {
-        if (!this.isExpression()) {
+        if (!this._isExpression()) {
             return false
         }
         return this._getMyNumber().isPlusInfinity(undefined)
@@ -833,7 +855,7 @@ class MyMath {
      * @returns {boolean} vrai si le nombre est moins l'infini, faux sinon
      */
     isMinusInfinity():boolean {
-        if (!this.isExpression()) {
+        if (!this._isExpression()) {
             return false
         }
         return this._getMyNumber().isMinusInfinity(undefined)
@@ -844,7 +866,7 @@ class MyMath {
      * @returns {boolean} vrai si le nombre est développé, faux sinon
      */
     isExpanded():boolean {
-        if (!this.isExpression()) {
+        if (!this._isExpression()) {
             throw new Error(`<${this.expression}> : Vérification de l'expansion pas implémentée pour le type non expression.`)
         }
         return this._getMyNumber().isExpanded()
@@ -855,7 +877,7 @@ class MyMath {
      * @returns {boolean} vrai si le nombre est simplifié, faux sinon
      */
     isSimplified():boolean {
-        if (this.isExpression()) {
+        if (this._isExpression()) {
             return this._getMyNumber().isSimplified()
         } else if (this._type === 'ensemble') {
             throw new Error(`<${this.expression}> : Vérification de la simplification pas implémentée pour le type ensemble.`)
@@ -875,7 +897,7 @@ class MyMath {
      * @returns {MyMath} nouveau MyMath avec la substitution effectuée
      */
     sub(varName:string, value:InputType):MyMath {
-        if (!this.isExpression()) {
+        if (!this._isExpression()) {
             throw new Error(`<${this.expression}> : Substitution pas implémentée pour le type ${this._type}.`)
         }
         const base_value = value instanceof MyMath ? value._getMyNumber() : value
@@ -889,7 +911,7 @@ class MyMath {
      * @returns {MyMath} nouveau MyMath avec les substitutions effectuées
      */
     subs(vars:Record<string, InputType>):MyMath {
-        if (!this.isExpression()) {
+        if (!this._isExpression()) {
             throw new Error(`<${this.expression}> : Substitutions pas implémentées pour le type ${this._type}.`)
         }
         const base_vars: Record<string, Base> = {}
@@ -937,10 +959,10 @@ class MyMath {
      * @returns {MyMath} nouveau MyMath représentant l'expression simplifiée
      */
     simplify():MyMath {
-        if (this.isExpression()) {
+        if (this._isExpression()) {
             return new MyMath({ mynumber: simplify(this._getMyNumber()) })
         } else if (this._type === "ensemble") {
-            throw new Error(`<${this.expression}> : Simplification pas implémentée pour le type ${this._type}.`)
+            return new MyMath({ ensemble: this._getEnsemble().simplify() })
         }
         throw new Error(`<${this.expression}> : Simplification pas implémentée pour le type ${this._type}.`)
     }
