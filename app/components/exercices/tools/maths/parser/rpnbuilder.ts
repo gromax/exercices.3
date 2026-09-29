@@ -55,7 +55,6 @@ function build(rpn:Array<Token>, withComplex:boolean = false):Base {
             } else if (sItem == "∪") {
                 throw new Error(`Union d'intervalles non encor supportée.`)
             } else if (sItem == "∩") {
-                
                 throw new Error(`Intersection d'intervalles non encore supportée.`)
             } else {
                 throw new Error(`Opérateur binaire ${item} non reconnu.`)
