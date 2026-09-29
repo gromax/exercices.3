@@ -76,8 +76,8 @@ function _stringifyValue(value:any):NestedArray<string> {
     if (typeof value === 'undefined' || value === null) {
         return ''
     }
-    if (typeof (value as any).toStringSimplified === 'function') {
-        return (value as any).toStringSimplified()
+    if (typeof (value as any).toSaveString === 'function') {
+        return (value as any).toSaveString()
     }
     return String(value)
 }
