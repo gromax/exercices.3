@@ -81,7 +81,6 @@ const Controller = MnObject.extend ({
 
     showTrialForProf(noteexo, sujet, note, user, trial, region) {
         const channel = this.getChannel()
-        const logged = channel.request("logged:get")
         if (!noteexo||!note||!sujet||!user||!trial) {
             channel.trigger("popup:error", "Données de l'exercice ou du devoir incorrectes.")
             return
