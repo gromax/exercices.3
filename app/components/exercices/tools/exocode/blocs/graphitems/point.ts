@@ -3,7 +3,7 @@ import JXG from 'jsxgraph'
 import _ from "underscore"
 import MyMath from "../../../maths/mymath"
 
-import { getNumberOption, getStringOption, getBooleanOption, inputTypeToString } from "../../misc"
+import { getNumberOption, getStringOption, getBooleanOption } from "../../misc"
 import { NestedInput } from "@components/types/InputType"
 class GraphPoint extends GraphItem {
     static readonly KEYWORDS: string[] = ['point']
@@ -136,7 +136,8 @@ class GraphPoint extends GraphItem {
      * empêche un l'élément de se confondre avec un autre
      */
     setDistinct(JXG_Objects: Record<string, JXG.GeometryElement>): void {
-        if (!getBooleanOption(this.item.params, 'distinct', false)) {
+        const distinct = getStringOption(this.item.params, 'distinct', '')
+        if (distinct === '') {
             return
         }
         if (!JXG_Objects[this.name]) {
@@ -146,7 +147,6 @@ class GraphPoint extends GraphItem {
         if (!(obj instanceof JXG.Point)) {
             return
         }
-        const distinct = inputTypeToString(this.item.params.distinct)
         const tolerance = distinct.includes(";") ? parseFloat(distinct.split(";")[1]) : 1
         const namesString:string = distinct.includes(";") ? distinct.split(";")[0] : distinct
         const names:Array<string> = namesString.split(",").map((name: string) => name.trim())
@@ -191,11 +191,10 @@ class GraphPoint extends GraphItem {
     }
 
     protected _goodPointCoords(): [number, number, number]|undefined {
-        const goodParam = this.item.params["good"]
-        if (typeof goodParam === "undefined") {
+        const good = getStringOption(this.item.params, 'good', '')
+        if (good === '') {
             return undefined
         }
-        const good = inputTypeToString(goodParam)
         const regex =  /^\(\s*(-?\d+(?:[.,]\d+)?)\s*;\s*(-?\d+(?:[.,]\d+)?)(?:\s*;\s*(-?\d+(?:[.,]\d+)?))?\s*\)$/
         const match = good.match(regex)
         if (match) {
@@ -214,13 +213,12 @@ class GraphPoint extends GraphItem {
             // déjà fait
             return
         }
-        const goodParam = this.item.params["good"]
-        if (typeof goodParam === "undefined") {
+        const good = getStringOption(this.item.params, 'good', '')
+        if (good === '') {
             console.warn(`Le paramètre "good" de ${this.name} n'est pas défini`)
             this._isGood = true
             return
         }
-        const good = inputTypeToString(goodParam)
 
         const goodPointCoords = this._goodPointCoords()
         if (goodPointCoords) {
