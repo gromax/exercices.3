@@ -1,7 +1,7 @@
 import JXG from 'jsxgraph'
 import GraphItem from "./item"
 import _ from "underscore"
-import { getNumberOption, getStringOption, getBooleanOption, inputTypeToString } from "../../misc"
+import { getNumberOption, getStringOption, getBooleanOption } from "../../misc"
 
 class GraphSegment extends GraphItem {
     static readonly TYPE = 'Segment'
@@ -48,11 +48,10 @@ class GraphSegment extends GraphItem {
      * @returns {[[number,number]|JXG.Point, [number,number]|JXG.Point]} coordonnées de deux points du segment
      */
     protected _getPoints(graphObjects:Record<string, JXG.GeometryElement>): Array<[number,number]|JXG.Point> {
-        const stringPointsParams = this.item.params.points
-        if (typeof stringPointsParams === 'undefined') {
+        const stringPoints = getStringOption(this.item.params, 'points', '')
+        if (stringPoints === '') {
             throw new Error(`Segment ${this.item.header}: le segment doit être défini par deux points`)
         }
-        const stringPoints = inputTypeToString(stringPointsParams)
         const points = stringPoints.split('|')
         if (points.length !=2) {
             throw new Error(`Segment ${this.item.header}, attribut points [${stringPoints}]: le segment doit être défini par 2 points séparés par '|'`)
