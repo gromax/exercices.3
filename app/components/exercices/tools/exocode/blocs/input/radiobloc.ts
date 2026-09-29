@@ -1,5 +1,5 @@
 import _ from "underscore"
-import { inputTypeToString } from "../../misc"
+import { getNumberOption } from "../../misc"
 import InputBloc from "./inputbloc"
 import RadioView from "../../views/radioview"
 import { InputResultView } from "../../views/inputview"
@@ -50,11 +50,11 @@ class RadioBloc extends InputBloc {
         const name = this.header
         const userValue = userData[name] || ''
         const userValueTag = this._getOption(userValue)
-        const solution = inputTypeToString(this.params.solution)
+        const solution = getNumberOption(this.params, 'solution', NaN).toString()
         const solutionTag = this._getOption(solution)
         const tag = this.params.tag
         const entete = tag?`${tag} : `:''
-        if (!solution) {
+        if (solution == 'NaN') {
             const score = 0
             const resultView = new InputResultView({
                 name: name,
