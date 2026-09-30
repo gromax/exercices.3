@@ -240,7 +240,74 @@ Comme les mêmes besoins reviennent constamment, il existe divers formats de nom
 
 #### Infini
 
-On peut gérer une quantité infini avec `infinity`.
+On peut gérer une quantité infini avec `infinity` ou `inf` ou `infini` ou `∞`.
+
+#### Chaîne de caractères
+
+Il peut être utile de stocker une chaîne pour moduler des textes en fonction des paramètre d'un exercice. Par exemple, supposons que j'ai un taux `t` en % et que je veuille adapter le texte en disant **augmente** ou **dimminue** selon le signe de `t`.
+
+```
+<if @t > 0>
+  @taff = @t # taux affiché
+  @texte = "augmente"
+<else>
+  @taff = -@t
+  @texte = "diminue"
+<endif>
+<texte>
+On considère une quantité qui {@texte:} de ${@taff:f}\,\%$ par mois.
+</texte>
+```
+
+Ici, `{@texte:}` se contente de remplacer par le contenu entre les `" "`. On pourrait donc très bien faire ceci :
+
+```
+<if @__a.I2 == 1>
+@var = "x"
+<else>
+@var = "t"
+<endif>
+@formule = 3*@var^2 - 5@var + 1
+```
+
+Voyons différents cas :
+
+```
+@a = "x"      # est une chaîne
+@b = @a       # @b est une copie de @a, donc est une chaîne
+@c = 3 + @a   # @a remplacé par sa valeur texte et @c est expression 3+x
+@d = "3 + @a" # @d est la chaîne de caractère "3 + x"
+```
+
+#### Ensemble
+
+On peut définir des ensembles sous forme d'intervalles.
+
+```
+@a = __inter__ ]15;inf[
+```
+
+Le préfixe `__inter__` annonce qu'il faudra analyser la quantité en tant qu'intervalle.
+
+  * On n'autorisera pas de variables dans les bornes, mais on a le droit à des expression comme $\dfrac{\pi + \sqrt{2}}{4}$
+  * L'intervalle doit être dans le bon sens
+  * Les bornes sur infini doivent être ouvertes
+
+On pourra ensuite faire des calculs. On dispose pour cela des opérateurs :
+  * Union : `∪` ou encore | (qui est sur le clavier) ou `union`
+  * Intersection : `∩` ou encore `&` (qui est sur le clavier) ou `inter` ou `intersection`
+  * il faut annoncer par `__inter__` le calcul d'intervalles.
+
+```
+@A = __inter__ ]-10;inf[
+@B = __inter__ [0;35[
+@C = __inter__ @A & @B
+@D = __inter__ @A | @B
+```
+
+Le résultat est immédiatement calculé.
+
+On dispose également de `∅` pour ensemble vide. On pourra écrire `0` ou `vide` ou `empty`
 
 ### Contrôle de flux
 
