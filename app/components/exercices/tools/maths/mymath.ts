@@ -12,6 +12,7 @@ import 'nerdamer/all'
 import Parser from './parser/parser'
 import { substituteParams } from './misc/substitution'
 import { Base } from './number/base'
+import { NAN } from './number/constant'
 import { Ensemble, EnsembleCalculator } from './number/ensemble'
 import { simplify, decimalize } from './number/simplify'
 import Decimal from 'decimal.js'
@@ -22,10 +23,9 @@ interface MyMathOptions {
     nerdamer?: nerdamer.Expression,
     mynumber?: Base,
     ensemble?: Ensemble,
-    invalid?:boolean
 }
 
-type TValue = "expression" | "brutText" | "ensemble" | "invalid"
+type TValue = "expression" | "brutText" | "ensemble"
 const PREFIX_ENSEMBLE = '__inter__'
 
 function _isBrutText(expression: string): boolean {
@@ -191,7 +191,7 @@ class MyMath {
         } catch (e) {
             console.warn("Erreur lors du parsing de l'expression utilisateur :", expression)
             console.warn(e.message)
-            return new MyMath({ expression: "NaN", invalid:true })
+            return new MyMath({ mynumber : NAN })
         }
     }
 
@@ -208,7 +208,7 @@ class MyMath {
         } catch (e) {
             console.warn("Erreur lors du parsing de l'expression utilisateur :", expression)
             console.warn(e.message)
-            return new MyMath({ expression: "Invalid Set", invalid:true })
+            return new MyMath({ ensemble: EnsembleCalculator.invalidSet() })
         }
     }
 
@@ -444,11 +444,7 @@ class MyMath {
             this._ensemble = options.ensemble
             this._expression = PREFIX_ENSEMBLE +" " + this._ensemble.toString()
         } else {
-            this._type = "invalid"
-            throw new Error('MyMath doit être initialisé avec une expression, un nerdamer.Expression ou un Base')
-        }
-        if (typeof options.invalid !== 'undefined' && options.invalid === true) {
-            this._type = "invalid"
+            throw new Error('MyMath doit être initialisé avec une expression, un nerdamer.Expression ou un Base ou un Ensemble')
         }
     }
 
@@ -491,8 +487,7 @@ class MyMath {
             } catch(e) {
                 console.warn("Erreur lors du parsing de l'expression :", this._expression)
                 console.warn(e.message)
-                this._type = "invalid"
-                return Parser.build("NaN")
+                return NAN
             }
         }
         return this._mynumber
@@ -513,7 +508,6 @@ class MyMath {
             } catch(e) {
                 console.warn("Erreur lors du parsing de l'ensemble :", ensemble_without_prefix)
                 console.warn(e.message)
-                this._type = "invalid"
                 return EnsembleCalculator.invalidSet()
             }
         }
@@ -539,7 +533,6 @@ class MyMath {
             this._nerdamer_processed = nerdamer(normalized).evaluate()
         } catch (e) {
             console.warn(`Erreur lors du traitement avec nerdamer de ${normalized}:`, e)
-            this._type = "invalid"
             this._nerdamer_processed = nerdamer("NaN")
         }
         this._type = "expression"
@@ -603,7 +596,7 @@ class MyMath {
         if (this._type === "ensemble") {
             return PREFIX_ENSEMBLE + ' ' + this._getEnsemble().simplify().toString()
         }
-        return this._expression        
+        return this._expression
     }
 
     /**
@@ -615,8 +608,9 @@ class MyMath {
             return this._expression.slice(1, -1)
         } else if (this._type === "ensemble") {
             return this._expression.slice(PREFIX_ENSEMBLE.length).trim()
+        } else {
+            return this._getMyNumber().toString()
         }
-        return this._expression
     }
 
     /**
@@ -968,11 +962,10 @@ class MyMath {
     }
 
     /**
-     * Prédicat pour tester si le nombre est invalide
-     * @returns {boolean} vrai si le nombre est invalide, faux sinon
+     * 
      */
-    get invalid():boolean {
-        return this._type === "invalid"
+    isNaN():boolean {
+        return this._isExpression() && this._getMyNumber().isNaN()
     }
 }
 
