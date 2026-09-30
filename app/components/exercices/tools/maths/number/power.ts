@@ -250,7 +250,10 @@ class Power extends Base {
                 new Scalar(this._decExposant.minus('1'))
             )
         ])
+    }
 
+    isNaN():boolean {
+        return this._base.isNaN() || this._exposant.isNaN()
     }
 }
 

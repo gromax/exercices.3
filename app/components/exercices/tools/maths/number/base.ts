@@ -250,6 +250,12 @@ abstract class Base {
         const dec = this.toDecimal(values)
         return dec.equals(-Infinity)
     }
+
+    /**
+     * prédicat : le noeud est-il NaN ?
+     * @returns {boolean} true si le noeud représente NaN, false sinon
+     */
+    abstract isNaN():boolean
 }
 
 export { Base }

@@ -344,6 +344,10 @@ class AddMinus extends Base {
             this._positive.slice()
         )
     }
+
+    isNaN():boolean {
+        return this._children.some( c => c.isNaN() )
+    }
 }
 
 export { AddMinus};

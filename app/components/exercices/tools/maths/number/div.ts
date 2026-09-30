@@ -255,6 +255,10 @@ class Div extends Base {
     get startsWithMinus():boolean {
         return this._left.startsWithMinus
     }
+    
+    isNaN():boolean {
+        return this._left.isNaN() || this._right.isNaN()
+    }
 }
 
 export { Div }

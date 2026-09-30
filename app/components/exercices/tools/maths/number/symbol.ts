@@ -172,6 +172,10 @@ class Symbol extends Base {
     derivate(varName:string):Base {
         return this._name === varName ? Scalar.ONE : Scalar.ZERO
     }
+
+    isNaN():boolean {
+        return false
+    }
 }
 
 export { Symbol }

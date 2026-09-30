@@ -455,6 +455,10 @@ class Function extends Base {
         }
         throw new Error(`Dérivée non implémentée pour la fonction ${this._name}`)
     }
+
+    isNaN():boolean {
+        return this._child.isNaN()
+    }
 }
 
 export { Function }

@@ -217,6 +217,10 @@ class Collection extends Base {
             this._children.map( c => c.derivate(varName) )
         )
     }
+
+    isNaN():boolean {
+        return this._children.some( c => c.isNaN() )
+    }
 }
 
 export { Collection }

@@ -290,6 +290,10 @@ class Mult extends Base {
         }
         return AddMinus.addFromList(terms)
     }
+
+    isNaN():boolean {
+        return this._children.some( c => c.isNaN() )
+    }
 }
 
 export { Mult };

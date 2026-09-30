@@ -4,13 +4,14 @@ import { Signature } from "./signature"
 import Decimal from "decimal.js"
 import { NestedString } from '@types'
 class Constant extends Base {
-    static readonly NAMES = ['e', 'pi', 'π', '∞', '-inf', '-∞', 'infinity', 'inf', 'infini', 'i']
+    static readonly NAMES = ['e', 'pi', 'π', '∞', '-inf', '-∞', 'infinity', 'inf', 'infini', 'i', 'NaN', 'nan']
     static readonly TEX = {
         'e': 'e',
         'π': '\\pi',
         'i': 'i',
         '∞': '\\infty',
         '-∞': '-\\infty',
+        'NaN': '\\mathrm{NaN}',
     }
     
     private static _list:Record<string, Constant> = {}
@@ -31,6 +32,7 @@ class Constant extends Base {
             case 'infinity': return '∞'
             case 'infini': return '∞'
             case 'pi': return 'π'
+            case 'nan': return 'NaN'
             default: return name
         }
     }
@@ -157,12 +159,21 @@ class Constant extends Base {
         return this._name === '-∞'
     }
 
+    /**
+     * prédicat : le noeud est-il NaN ?
+     * @returns {boolean} true si le noeud représente NaN, false sinon
+     */
+    isNaN():boolean {
+        return this._name === 'NaN'
+    }
+
 }
 
 const E = Constant.fromString('e');
 const PI = Constant.fromString('pi');
 //const I = Constant.fromString('i');
 const INFINI = Constant.fromString('infini');
-const MINUS_INFINI = Constant.fromString('-∞'); 
+const MINUS_INFINI = Constant.fromString('-∞');
+const NAN = Constant.fromString('NaN');
 
-export { Constant, E, PI, INFINI, MINUS_INFINI } // I
+export { Constant, E, PI, INFINI, MINUS_INFINI, NAN } // I
