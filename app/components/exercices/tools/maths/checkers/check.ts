@@ -41,19 +41,20 @@ const CHECKERS:Array<any> = [
 const NON_OPTIONAL_CHECKERS:Array<any> = CHECKERS.filter(item => !OPTIONAL_CHECKERS.includes(item))
 
 /**
- * test if expr matches the expected format
- * @param {string} expr 
+ * teste si l'expression correspond au format attendu
+ * L'expression peut venir de l'élève ou du professeur concepteur
+ * @param {string} expression
  * @param {Array|string} format 
- * @returns {boolean|string} true if format is correct, error message otherwise
+ * @returns {true|string} true si le format est correct, message d'erreur sinon
  */
-function checkFormat(expr:string, format:string|Array<string> = 'none'): boolean|string {
+function checkFormat(expression:string, format:string|Array<string> = 'none'): true|string {
     // format peut être un tableau de formats acceptés
-    expr = expr.trim()
-    if (expr === '') {
+    expression = expression.trim()
+    if (expression === '') {
         return "Vous devez fournir une réponse."
     }
 
-    const checkers = formatsToCheckers(expr, format, CHECKERS)
+    const checkers = formatsToCheckers(expression, format, CHECKERS)
     if (checkers.some(item => item.formatIsValid)) {
         return true
     }
@@ -69,9 +70,10 @@ function checkFormat(expr:string, format:string|Array<string> = 'none'): boolean
     }
     // autres formats à ajouter ici
     // il faut vérifier que le parse passe bien
-    const mm = MyMath.make(expr)
-    if (mm.invalid) {
-        return `Expression invalide`
+    const mm = MyMath.parseUser(expression)
+
+    if (mm.isNaN()) {
+        return "Expression invalide"
     }
     return true
 }

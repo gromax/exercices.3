@@ -19,7 +19,7 @@ class NumericCheck extends AbsChecker {
 
     protected _testFormat():boolean {
         const mm = this.parsedUser()
-        if (mm.invalid) {
+        if (mm.isNaN()) {
             this._message = "Expression invalide."
             return false
         }

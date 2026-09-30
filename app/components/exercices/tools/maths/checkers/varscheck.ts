@@ -40,7 +40,7 @@ class VarsCheck extends AbsChecker {
 
     protected _testFormat():boolean {
         const mm = this.parsed()
-        if (mm.invalid) {
+        if (mm.isNaN()) {
             this._message = "Expression invalide"
             return false
         }
@@ -78,7 +78,7 @@ class VarsCheck extends AbsChecker {
     testExpectedFormat(expected: InputType): boolean {
         const mm = MyMath.make(expected)
         const notIncluded = this._sub(mm.variables, this._vars)
-        return ((notIncluded.length>0 || mm.invalid))
+        return ((notIncluded.length>0 || mm.isNaN()))
     }
 
 
