@@ -17,7 +17,13 @@ class TEnsemble extends Token {
      */
     constructor (token:string) {
         super()
-        this._symbol = token
+        if (token == "&") {
+            this._symbol = "∩"
+        } else if (token == "|") {
+            this._symbol = "∪"
+        } else {
+            this._symbol = token
+        }
     }
 
     /**
@@ -28,8 +34,8 @@ class TEnsemble extends Token {
         return this._symbol
     }
 
-    static readonly sREGEX = "[\\[\\]∩∪∅]"
-    static readonly REGEX = new RegExp("[\\[\\]∩∪∅]" ,'i')
+    static readonly sREGEX = "[\\[\\]∩∪∅&|]"
+    static readonly REGEX = new RegExp("[\\[\\]∩∪∅&|]" ,'i')
 
     /**
      * renvoie le symbole
