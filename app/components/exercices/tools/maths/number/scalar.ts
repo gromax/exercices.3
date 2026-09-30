@@ -368,6 +368,9 @@ class Scalar extends Base {
      * @returns {string}
      */
     toTex():string {
+        if (this.isNaN()) {
+            return "\\mathrm{NaN}"
+        }
         const numerator = this._value.toString().replace('.', ',')
         if (this._denominator === null) {
             return numerator;
@@ -431,7 +434,6 @@ class Scalar extends Base {
     derivate(varName:string):Base {
         return Scalar.ZERO
     }
-
 }
 
 /** @type {Scalar} */
