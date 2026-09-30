@@ -1,10 +1,10 @@
 import { Token } from "./token"
 
 /**
- * Représente les tokens utiles pour la gestion d'un intervalle
+ * Représente les tokens utiles pour la gestion d'un ensemble
  */
 
-class TInterval extends Token {
+class TEnsemble extends Token {
     /** @type {string} */
     private _symbol:string
 
@@ -135,4 +135,4 @@ class TInterval extends Token {
     }
 }
 
-export { TInterval }
+export { TEnsemble }
