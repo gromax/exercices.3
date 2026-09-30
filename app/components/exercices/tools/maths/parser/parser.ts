@@ -6,7 +6,7 @@ import { TFunction } from './tokens/function'
 import { TOperator } from './tokens/operator'
 import { TParenthesis } from './tokens/parenthesis'
 import { TSymbol } from './tokens/symbol'
-import { TInterval } from './tokens/interval'
+import { TEnsemble } from './tokens/ensemble'
 
 import { build, buildEnsemble } from './rpnbuilder'
 import { Scalar } from "../number/scalar"
@@ -15,7 +15,7 @@ import { Ensemble } from "../number/ensemble"
 
 
 const TOKENS = [TNumber, TFunction, TOperator, TParenthesis, TSymbol]
-const TOKENS_INTERVAL = [...TOKENS,TInterval]
+const TOKENS_INTERVAL = [...TOKENS,TEnsemble]
 import type { TBuildOptions } from '@types'
 
 class Parser {
@@ -414,13 +414,13 @@ class Parser {
         // On commence par identifier les ] [ des intervalles
         let startIntervalle = _.findIndex(
             tokensList,
-            (token) => (token instanceof TInterval) && token.isBracket
+            (token) => (token instanceof TEnsemble) && token.isBracket
         )
         while (startIntervalle !== -1) {
             // Traiter l'intervalle trouvé
             const stopIntervalle = _.findIndex(
                 tokensList,
-                (token, index) => index > startIntervalle && (token instanceof TInterval) && token.isBracket,
+                (token, index) => index > startIntervalle && (token instanceof TEnsemble) && token.isBracket,
                 startIntervalle+1
             )
             if (stopIntervalle === -1) {
@@ -428,7 +428,7 @@ class Parser {
             }
             const opening = tokensList[startIntervalle]
             const closing = tokensList[stopIntervalle]
-            const tokenInterval = new TInterval(`${opening}${closing}`)
+            const tokenInterval = new TEnsemble(`${opening}${closing}`)
             const children = tokensList.slice(startIntervalle + 1, stopIntervalle)
             const sChildren = this._sanityseTokenList(children)
             const childrenRpn = this._buildRpn(sChildren)
@@ -437,19 +437,19 @@ class Parser {
             
             startIntervalle = _.findIndex(
                 tokensList,
-                (token) => (token instanceof TInterval) && token.isBracket
+                (token) => (token instanceof TEnsemble) && token.isBracket
             )
         }
         // à ce stade les intervalles sont renfermés comme des nœuds uniques dans la liste des tokens
         // On peut traiter maintenant la liste des tokens nomalement
         const sTokensList = this._sanityseTokenList(tokensList)
-        // cette liste ne devrait contenir que des parenthèses et des TInterval
+        // cette liste ne devrait contenir que des parenthèses et des TEnsemble
         for (let token of sTokensList) {
-            if (!(token instanceof TInterval) && !(token instanceof TParenthesis)) {
+            if (!(token instanceof TEnsemble) && !(token instanceof TParenthesis)) {
                 throw new Error(`<${this._saisie}> Intervalle mal construit.`)
             }
         }
-        return buildEnsemble(this._buildRpn(sTokensList) as Array<TInterval>)
+        return buildEnsemble(this._buildRpn(sTokensList) as Array<TEnsemble>)
     }
 }
 
