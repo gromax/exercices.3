@@ -4,7 +4,7 @@ import { Div } from './div'
 import { Power } from './power'
 import { Exponential } from './exponential'
 import { Scalar } from './scalar'
-import { Constant, E, INFINI, MINUS_INFINI } from './constant'
+import { Constant, E, NAN } from './constant'
 import { Symbol } from './symbol'
 import { Base } from './base'
 import { Function } from './function'
@@ -28,6 +28,9 @@ function opposite(node:Base):Base {
  * @returns {Base}
  */
 function simplify(node:Base):Base {
+    if (node.isNaN()) {
+        return NAN
+    }
     if (node instanceof Scalar
         || (node instanceof Constant)
         || (node instanceof Symbol)) {
@@ -119,7 +122,7 @@ function powerSimplify(node:Power):Base {
     // cas des exposants nuls
     if (exposant.isZero()) {
         if (sbase.isZero()) {
-            return Scalar.NAN
+            return NAN
         }
         return Scalar.ONE
     }
