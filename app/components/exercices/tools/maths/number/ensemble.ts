@@ -127,10 +127,10 @@ class Interval extends Ensemble {
             throw new Error(`<${opening}${start} , ${end}${closing}> L'intervalle ne peut être vide.`)
         }
         if (this._startDecimal.equals(DEC_M_INFINITY) && this._opening) {
-            throw new Error(`<${opening}${start} , ${end}${closing}> L'intervalle ne peut pas commencer à -∞ avec un crochet ouvert.`)
+            throw new Error(`<${opening}${start} , ${end}${closing}> L'intervalle ne peut pas commencer à -∞ avec un crochet fermé.`)
         }
         if (this._endDecimal.equals(DEC_P_INFINITY) && !this._closing) {
-            throw new Error(`<${opening}${start} , ${end}${closing}> L'intervalle ne peut pas se terminer à +∞ avec un crochet ouvert.`)
+            throw new Error(`<${opening}${start} , ${end}${closing}> L'intervalle ne peut pas se terminer à +∞ avec un crochet fermé.`)
         }
     }
 
@@ -145,7 +145,7 @@ class Interval extends Ensemble {
         } else if (bracket == "[") {
             return true
         } else if (bracket == "]") {
-            return true
+            return false
         }
         throw new Error(`<${bracket}> Caractère invalide pour un crochet d'intervalle.`)
     }
@@ -260,11 +260,15 @@ class Interval extends Ensemble {
 
 
     _boolToBracket(value: boolean): string {
-        return value ? "[" : "("
+        return value ? "[" : "]"
     }
 
     toTex(): string {
-        return `\\left${this._boolToBracket(this._opening)} ${this._start.toTex()} \\,; ${this._end.toTex()}\\right${this._boolToBracket(this._closing)}`
+        const texStart = this._start.toTex()
+        const texEnd = this._end.isPlusInfinity({})
+            ? "+\\infty"
+            : this._end.toTex()
+        return `\\left${this._boolToBracket(this._opening)} ${texStart} \\,; ${texEnd}\\right${this._boolToBracket(this._closing)}`
     }
 
     simplify(): Ensemble {
@@ -397,8 +401,10 @@ class EnsembleCalculator {
         if (ensemble1 instanceof InvalidSet || ensemble2 instanceof InvalidSet) {
             return INVALID_SET
         }
-        if (ensemble1 instanceof EmptySet || ensemble2 instanceof EmptySet) {
-            return EMPTY_SET
+        if (ensemble1 instanceof EmptySet) {
+            return ensemble2
+        } else if(ensemble2 instanceof EmptySet) {
+            return ensemble1
         }
         const inters1 = ensemble1 instanceof Interval
             ? [ensemble1]
