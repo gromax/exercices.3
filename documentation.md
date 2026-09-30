@@ -1267,6 +1267,7 @@ Le vecteur est conçu pour ne pas être lié à des points. Donc, si on crée pa
 
   * `*` fait une multiplication. Attention, en notation polonaise inversée donc par ex `<P:3 5 *>` pour faire $3\times 5$
   * `-`, `+`, `/` : idem
+  * `pow` ou `^` ou `**` pour exponentiation
   * `div` pour la division entière
   * `mod` pour le modulo
   * `pgcd` pour le PGCD

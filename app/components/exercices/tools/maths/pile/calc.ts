@@ -12,6 +12,7 @@ class Calc {
         'sub': Calc.sub,
         'mod': Calc.mod,
         'div': Calc.intDivide,
+        'pow': Calc.pow,
         'intDivide': Calc.intDivide,
         'pgcd': Calc.pgcd,
         'ppcm': Calc.ppcm,
@@ -39,6 +40,9 @@ class Calc {
         '-': 'Calc.sub',
         'mod': 'Calc.mod',
         'div': 'Calc.intDivide',
+        '^': 'Calc.pow',
+        '**': 'Calc.pow',
+        'pow': 'Calc.pow',
         'pgcd': 'Calc.pgcd',
         'ppcm': 'Calc.ppcm',
         'factorial': 'Calc.factorial',
@@ -80,6 +84,22 @@ class Calc {
             return `(${x})/(${y})`
         }
         return MyMath.make(`(${String(x)})/(${String(y)})`)
+    }
+
+    /**
+     * Élève x à la puissance y.
+     * @param {InputType} x 
+     * @param {InputType} y 
+     * @returns {InputType} objet représentant x^y
+     */
+    static pow(x: InputType, y: InputType): InputType {
+        if ((typeof x === 'number') && (typeof y === 'number')) {
+            return Math.pow(x, y)
+        }
+        if ((typeof x === 'string') && (typeof y === 'string')) {
+            return `(${x})^(${y})`
+        }
+        return MyMath.make(`(${String(x)})^(${String(y)})`)
     }
 
     /**
