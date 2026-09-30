@@ -103,21 +103,21 @@ class InputTextBloc extends InputBloc {
      * renvoi true si ok, message d'erreur sinon
      * si pas d'argument, renvoie le name à valider
      * @param {string|undefined} userValue 
-     * @returns {string|boolean} true si ok, message d'erreur sinon
+     * @returns {true|string} true si ok, message d'erreur sinon
      */
-    validation(userValue?:string):string|boolean {
+    validation(userValue?:string):true|string {
         if (typeof userValue === 'undefined') {
             return this._name
         }
         const formatisValid = checkFormat(userValue, this._format || 'none')
-        if ((typeof formatisValid === "string") || (formatisValid === false)) {
+        if (formatisValid !== true) {
             // message d'erreur ou false
             return formatisValid
         }
         // Vérification que ce n'est pas une valeur exclue
         if (typeof this.params.excluded !== "undefined") {
             if (this._verifyExcluded(userValue)) {
-                return `Cette valeur n'est pas acceptée.`
+                return "Cette valeur n'est pas acceptée."
             }
         }
         return true

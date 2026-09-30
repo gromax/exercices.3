@@ -24,9 +24,9 @@ class InputEnsemble extends InputTextBloc {
      * renvoi true si ok, message d'erreur sinon
      * si pas d'argument, renvoie le name à valider
      * @param {string|undefined} userValue 
-     * @returns {string|boolean} true si ok, message d'erreur sinon
+     * @returns {true|string} true si ok, message d'erreur sinon
      */
-    validation(userValue?:string):boolean|string {
+    validation(userValue?:string):true|string {
         if (typeof userValue === 'undefined') {
             return this._name
         }
