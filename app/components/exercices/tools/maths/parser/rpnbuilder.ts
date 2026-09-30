@@ -13,7 +13,7 @@ import { Ensemble, EnsembleCalculator } from "../number/ensemble"
 
 import { Token } from './tokens/token'
 import { TNumber } from './tokens/number'
-import { TInterval } from './tokens/interval'
+import { TEnsemble } from './tokens/ensemble'
 
 /**
  * Construit un objet Base représentant un nombre
@@ -82,8 +82,8 @@ function build(rpn:Array<Token>, withComplex:boolean = false):Base {
             stack.push(new Scalar(sItem))
             continue
         }
-        if (item instanceof TInterval) {
-            throw new Error(`Intervalle pas encore pris en charge par le builder.`)
+        if (item instanceof TEnsemble) {
+            throw new Error(`Ensemble pas encore pris en charge par le builder.`)
         }
         throw new Error(`token ${item} n'a pas été reconnu.`)
     }
@@ -94,7 +94,7 @@ function build(rpn:Array<Token>, withComplex:boolean = false):Base {
     return result
 }
 
-function buildEnsemble(rpn:Array<TInterval>):Ensemble {
+function buildEnsemble(rpn:Array<TEnsemble>):Ensemble {
     let stack:Array<Ensemble> = [];
     for (let item of rpn) {
         const sItem = String(item)
@@ -125,7 +125,7 @@ function buildEnsemble(rpn:Array<TInterval>):Ensemble {
             stack.push(EnsembleCalculator.emptySet())
             continue
         }
-        if ((item instanceof TInterval) && item.isInterval) {
+        if ((item instanceof TEnsemble) && item.isInterval) {
             // L'objet contient des enfants qu'il faut analyser pour produire un nombre
             const child:Base = build(item.subTokenList, false)
             const sBornes = item.toString()
