@@ -442,14 +442,33 @@ class Parser {
         }
         // à ce stade les intervalles sont renfermés comme des nœuds uniques dans la liste des tokens
         // On peut traiter maintenant la liste des tokens nomalement
-        const sTokensList = this._sanityseTokenList(tokensList)
+        this._verifyParentheses(tokensList)
+        this._verifyOperators(tokensList)
+        
         // cette liste ne devrait contenir que des parenthèses et des TEnsemble
-        for (let token of sTokensList) {
-            if (!(token instanceof TEnsemble) && !(token instanceof TParenthesis)) {
-                throw new Error(`<${this._saisie}> Intervalle mal construit.`)
+        const filteredTokensList:Array<TEnsemble | TParenthesis> = []
+        for (let token of tokensList) {
+            if (token instanceof TEnsemble || token instanceof TParenthesis) {
+                filteredTokensList.push(token)
+                continue
             }
+            const chaine = token.toString().toLocaleLowerCase()
+            if (chaine == "vide" || chaine == "empty" || chaine == "0") {
+                filteredTokensList.push(new TEnsemble("∅"))
+                continue
+            }
+            if (chaine == "union") {
+                filteredTokensList.push(new TEnsemble("∪"))
+                continue
+            }
+            if (chaine == "intersection" || chaine == "inter") {
+                filteredTokensList.push(new TEnsemble("&"))
+                continue
+            }
+            console.log(chaine)
+            throw new Error(`<${this._saisie}> Intervalle mal construit.`)
         }
-        return buildEnsemble(this._buildRpn(sTokensList) as Array<TEnsemble>)
+        return buildEnsemble(this._buildRpn(filteredTokensList) as Array<TEnsemble>)
     }
 }
 
