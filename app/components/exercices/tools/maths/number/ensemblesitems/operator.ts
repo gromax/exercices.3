@@ -27,12 +27,6 @@ class Operator extends Ensemble {
     }
 
     toTex(): string {
-        if (this._operands.length === 0) {
-            return EmptySet.TEX
-        }
-        if (this._operands.length === 1) {
-            return this._operands[0].toTex()
-        }
         const operatorTex = this.isUnion
             ? "\\cup"
             : "\\cap"
@@ -47,13 +41,23 @@ class Operator extends Ensemble {
         ).join(` ${operatorTex} `)
     }
 
+    toTexDecimal(n: number): string {
+        const operatorTex = this.isUnion
+            ? "\\cup"
+            : "\\cap"
+        const mypriority = this.priority
+        return this._operands.map(
+            operand => {
+                if (operand.priority < mypriority) {
+                    return `\\left(${operand.toTexDecimal(n)}\\right)`
+                }
+                return operand.toTexDecimal(n)
+            }
+        ).join(` ${operatorTex} `)
+    }
+
+
     toString(): string {
-        if (this._operands.length === 0) {
-            return EmptySet.STRING
-        }
-        if (this._operands.length === 1) {
-            return this._operands[0].toString()
-        }
         const operatorString = this.isUnion
             ? " ∪ "
             : " ∩ "
