@@ -81,9 +81,10 @@ class InputTextBloc extends InputBloc {
                 !value.startsWith("equation:")&&
                 !value.startsWith("criterion:")&&
                 !value.startsWith("vecteur:") &&
+                !value.startsWith("ensemble") &&
                 !value.startsWith("entier")
             ) {
-                console.warn(`Format inconnu pour le bloc <input:${this.header}> : ${value}`)
+                throw new Error(`Format inconnu pour le bloc <input:${this.header}> : ${value}`)
             }
             // pour certains formats, je modifie aussi le clavier
             if (value === "infini") {
@@ -91,6 +92,12 @@ class InputTextBloc extends InputBloc {
                 this.setParam('keyboard', "pinfini")
             } else if (value === "empty") {
                 this.setParam('keyboard', "empty")
+            }
+            if (value.startsWith("ensemble")) {
+                this.setParam('keyboard', 'minfini')
+                this.setParam('keyboard', 'pinfini')
+                this.setParam('keyboard', 'empty')
+                this.setParam('keyboard', 'union')
             }
             this._format = this.assignNew(this._format, value)
             return
