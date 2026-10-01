@@ -1,5 +1,6 @@
 import _ from "underscore"
 import { View } from 'backbone.marionette'
+import Radio from 'backbone.radio'
 import form_tpl from '@templates/exercices/run/exercice.form.jst'
 
 const FormView = View.extend({
@@ -25,10 +26,19 @@ const FormView = View.extend({
     },
 
     onSubmit():void {
-        const form = this.el.querySelector('form')
-        const fdata = new FormData(form)
-        const data = Object.fromEntries(fdata.entries())
-        this.dataSubmit(data)
+        try {
+            const form = this.el.querySelector('form')
+            const fdata = new FormData(form)
+            const data = Object.fromEntries(fdata.entries())
+            this.dataSubmit(data)
+        } catch (error) {
+            console.error("Erreur lors de la soumission du formulaire :", error)
+            const errorMessage = this.getOption("errorMessage") || "Prévenez l'administrateur / le professeur."
+            Radio.channel("app").trigger("popup:error", {
+                title: "Erreur lors de la validation",
+                message: [errorMessage, {content: error.message, color: "danger"}]
+            })
+        }
     },
 
     dataSubmit(data:Record<string,string>):void {
