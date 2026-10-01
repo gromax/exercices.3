@@ -192,7 +192,7 @@ class EnsembleCalculator {
             return false
         }
         const children = ensemble.children()
-        if (children.some(child => EnsembleCalculator.isExpanded(child))) {
+        if (children.some(child => !EnsembleCalculator.isExpanded(child))) {
             return false
         }
         // on a donc une union. S'il est développé, il doit avoir
