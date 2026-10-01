@@ -189,6 +189,12 @@ class InputTextBloc extends InputBloc {
         const excluded = this.params.excluded
         return checkExcluded(userValue, excluded, this._format || 'none')
     }
+
+    protected verifyMyParams():void {
+        if (typeof this.params.format === 'undefined') {
+            throw new Error(`Dans <${this.tag}:${this.header}>, le format doit être spécifié.`)
+        }
+    }
 }
 
 export default InputTextBloc
