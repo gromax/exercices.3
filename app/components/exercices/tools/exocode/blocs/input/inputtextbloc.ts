@@ -191,8 +191,11 @@ class InputTextBloc extends InputBloc {
     }
 
     protected verifyMyParams():void {
-        if (typeof this.params.format === 'undefined') {
+        if (typeof this._format === 'undefined') {
             throw new Error(`Dans <${this.tag}:${this.header}>, le format doit être spécifié.`)
+        }
+        if (typeof this.params.solution === 'undefined') {
+            throw new Error(`Dans <${this.tag}:${this.header}>, la solution doit être spécifiée.`)
         }
     }
 }
