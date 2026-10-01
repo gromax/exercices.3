@@ -14,6 +14,7 @@ const KEYS = {
     'minfini': { tag: '$-\\infty$', rep:'-∞' },
     'empty': { tag: '$\\emptyset$', rep:'∅' },
     'union': { tag: '$\\cup$', rep:'∪' },
+    'intersection': { tag: '$\\cap$', rep:'∩' }
 }
 
 const InputView = View.extend({
@@ -49,14 +50,6 @@ const InputView = View.extend({
     },
     events: {
         'click button.js-keyboard': 'onKeyboardPress',
-        'click .js-sqrt': 'onKeyboardSqrt',
-        'click .js-power': 'onKeyboardPower',
-        'click .js-square': 'onKeyboardSquare',
-        'click .js-cube': 'onKeyboardCube',
-        'click .js-help': 'onKeyboardHelp',
-        'click .js-infini': 'onKeyboardInfini',
-        'click .js-empty': 'onKeyboardEmpty',
-        'click .js-union': 'onKeyboardUnion'
     },
 
     regions: {
