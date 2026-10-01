@@ -9,7 +9,8 @@ import { Constant } from "../number/constant"
 import { Symbol } from "../number/symbol"
 import { Collection } from "../number/collection"
 
-import { Ensemble, EnsembleCalculator } from "../number/ensemble"
+import { Ensemble } from "../number/ensemblesitems/parent"
+import { EnsembleCalculator } from "../number/ensemble"
 
 import { Token } from './tokens/token'
 import { TNumber } from './tokens/number'
@@ -112,10 +113,10 @@ function buildEnsemble(rpn:Array<TEnsemble>):Ensemble {
             const right = stack.pop()
             const left = stack.pop()
             if (sItem == "∪") {
-                stack.push(EnsembleCalculator.union(left, right))
+                stack.push(EnsembleCalculator.makeUnion(left, right))
                 continue
             } else if (sItem == "∩") {
-                stack.push(EnsembleCalculator.intersection(left, right))
+                stack.push(EnsembleCalculator.makeIntersection(left, right))
                 continue
             } else {
                 throw new Error(`Opérateur binaire ${item} non reconnu.`)
