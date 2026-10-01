@@ -1,5 +1,5 @@
 import { AbsChecker } from "./abscheck"
-import { NumericCheck } from "./numeric_check"
+import { NumericCheck } from "./numericcheck"
 import { InputType } from "@components/types"
 import MyMath from '@mathstools/mymath'
 
