@@ -130,13 +130,7 @@ class InputTextBloc extends InputBloc {
         const format = this._format || 'none'
         const entete = tag?`${tag} : `:''
         if (!solution) {
-            const score = 0
-            const resultView = new InputResultView({
-                name: name,
-                success: false,
-                message: entete + `Aucune réponse attendue.`,
-            })
-            return [resultView, score]
+            throw new Error(`Dans <${this.tag}:${this.header}>, la solution doit être spécifiée.`)
         }
         // C'est là qu'il faudra prévoir les divers vérifications
         // solution pourrait être un tableau et alors il suffit qu'une valeur convienne
@@ -194,7 +188,7 @@ class InputTextBloc extends InputBloc {
         if (typeof this._format === 'undefined') {
             throw new Error(`Dans <${this.tag}:${this.header}>, le format doit être spécifié.`)
         }
-        if (typeof this.params.solution === 'undefined') {
+        if (!this.params.solution) {
             throw new Error(`Dans <${this.tag}:${this.header}>, la solution doit être spécifiée.`)
         }
     }
