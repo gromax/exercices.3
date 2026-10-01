@@ -11,7 +11,7 @@ import { TEnsemble } from './tokens/ensemble'
 import { build, buildEnsemble } from './rpnbuilder'
 import { Scalar } from "../number/scalar"
 import { Base} from "../number/base"
-import { Ensemble } from "../number/ensemble"
+import type { Ensemble } from "../number/ensemblesitems/parent"
 
 
 const TOKENS = [TNumber, TFunction, TOperator, TParenthesis, TSymbol]
