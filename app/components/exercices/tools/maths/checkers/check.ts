@@ -15,6 +15,7 @@ import { ErreurCheck } from './erreurcheck'
 import { ExpandCheck } from './expandcheck'
 import { VectorCheck } from './vectorcheck'
 import { CriterionCheck } from './criterioncheck'
+import { EnsembleCheck } from './ensemblecheck'
 import { AbsChecker } from './abscheck'
 
 // infini et empty peuvent être mis avec
@@ -35,7 +36,8 @@ const CHECKERS:Array<any> = [
     ErreurCheck,
     ExpandCheck,
     VectorCheck,
-    CriterionCheck
+    CriterionCheck,
+    EnsembleCheck
 ]
 
 const NON_OPTIONAL_CHECKERS:Array<any> = CHECKERS.filter(item => !OPTIONAL_CHECKERS.includes(item))
@@ -121,7 +123,7 @@ function checkValue(userValue:string, expectedValue:InputType, format:string|Arr
     const parsedExpected = MyMath.make(expectedValue)
     const checkers = formatsToCheckers(userValue, format, NON_OPTIONAL_CHECKERS)
     if (checkers.length ==0) {
-        console.warn(`Aucun format pour valider ${userValue}`)
+        throw new Error(`Aucun format pour valider ${userValue}`)
     }
     return checkers.some(c => c.valueIsGood(parsedExpected))
 }
