@@ -444,6 +444,7 @@ class MyMath {
         } else if (typeof options.ensemble !== 'undefined') {
             this._ensemble = options.ensemble
             this._expression = PREFIX_ENSEMBLE +" " + this._ensemble.toString()
+            this._type = "ensemble"
         } else {
             throw new Error('MyMath doit être initialisé avec une expression, un nerdamer.Expression ou un Base ou un Ensemble')
         }
@@ -732,16 +733,15 @@ class MyMath {
      */
     private _toTexDecimal(n:number):string {
         if (this._type === "ensemble") {
-            throw new Error(`<${this._expression}> : Pas implémenté pour le type ensemble.`)
-        } else if (this._type !== "expression") {
-            return this.toString()
+            return this._getEnsemble().toTexDecimal(n)
+        } else if (this._type === "expression") {
+            const expr = this._toFormatDecimal(n)
+            // ensuite on veut générer du TeX
+            // J'utilise mon parser
+            return Parser.build(expr).toTex()
         }
         // cas général pour type expression
-
-        const expr = this._toFormatDecimal(n)
-        // ensuite on veut générer du TeX
-        // J'utilise mon parser
-        return Parser.build(expr).toTex()
+        return this.toString()
     }
 
     /**
@@ -755,6 +755,18 @@ class MyMath {
         const rStr = MyMath.make(right).toDecimal()
         // on admet un bruit de calcul très faible
         return lStr.minus(rStr).abs().lt('1e-30')
+    }
+
+    /**
+     * 
+     */
+    isEqualToEnsemble(right:MyMath, digits:number|undefined):boolean {
+        if (this._type !== "ensemble" || right._type !== "ensemble") {
+            throw new Error("isEqualToEnsemble : Les deux opérandes doivent être des ensembles.")
+        }
+        const ens1 = EnsembleCalculator.simplify(this._getEnsemble())
+        const ens2 = EnsembleCalculator.simplify(right._getEnsemble())
+        return ens1.equals(ens2, digits)
     }
 
     /**
@@ -861,10 +873,13 @@ class MyMath {
      * @returns {boolean} vrai si le nombre est développé, faux sinon
      */
     isExpanded():boolean {
-        if (!this._isExpression()) {
-            throw new Error(`<${this.expression}> : Vérification de l'expansion pas implémentée pour le type non expression.`)
+        if (this._type === "ensemble") {
+            return EnsembleCalculator.isExpanded(this._getEnsemble())
         }
-        return this._getMyNumber().isExpanded()
+        if (this._isExpression()) {
+            return this._getMyNumber().isExpanded()
+        }
+        throw new Error(`<${this.expression}> : Vérification de l'expansion pas implémentée pour ce type.`)
     }
 
     /**
@@ -875,7 +890,7 @@ class MyMath {
         if (this._isExpression()) {
             return this._getMyNumber().isSimplified()
         } else if (this._type === 'ensemble') {
-            throw new Error(`<${this.expression}> : Vérification de la simplification pas implémentée pour le type ensemble.`)
+            return this._getEnsemble().isSimplified()
         }
         throw new Error(`<${this.expression}> : Vérification de la simplification impossible pour le type ${this._type}.`)
     }
@@ -963,10 +978,19 @@ class MyMath {
     }
 
     /**
-     * 
+     * Prédicat indiquant si l'expression est NaN (Not a Number)
+     * @returns {boolean} true si l'expression est NaN, false sinon
      */
     isNaN():boolean {
         return this._isExpression() && this._getMyNumber().isNaN()
+    }
+
+    /**
+     * Prédicat indiquant s'il s'agit d'un ensemble invalide
+     * @returns {boolean} true si l'expression est un ensemble invalide, false sinon
+     */
+    isInvalidSet():boolean {
+        return this._type === "ensemble" && this._getEnsemble().isInvalid()
     }
 }
 
