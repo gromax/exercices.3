@@ -120,7 +120,7 @@ class MainBloc {
 
             if (trimmed === IfBloc.END) {
                 // ferme tous les blocs elif jusqu'au if.
-                let item
+                let item:Bloc
                 do {
                     item = stack.pop()
                     if (!(item instanceof IfBloc)) {
