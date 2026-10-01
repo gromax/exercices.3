@@ -304,7 +304,8 @@ class Parser {
      */
     private _sanityseExpression(expression:string): string {
         if (expression.includes('.') && expression.includes(',')) {
-            throw new Error("Utilisez soit le point soit la virgule comme séparateur décimal, pas les deux.")
+            console.warn("Utilisez soit le point soit la virgule comme séparateur décimal, pas les deux.")
+            //throw new Error("Utilisez soit le point soit la virgule comme séparateur décimal, pas les deux.")
         }
 
         // Pour ceux qui écriraient ** au lieu de ^ comme en Python
