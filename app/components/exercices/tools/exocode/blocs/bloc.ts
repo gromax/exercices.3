@@ -131,6 +131,7 @@ class Bloc extends Node {
                 this._children.push(runned)
             }
         }
+        this.verifyMyParams()
         return this
     }
 
@@ -192,6 +193,15 @@ class Bloc extends Node {
             }
         }
         return count
+    }
+
+    /**
+     * Lève une erreur si les paramètres ne sont pas valides.
+     * Déclencher après l'enregistrement des paramètres.
+     * @returns {void}
+     */
+    protected verifyMyParams():void {
+        return
     }
 
 
