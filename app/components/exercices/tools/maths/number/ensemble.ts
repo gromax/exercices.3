@@ -114,6 +114,26 @@ class EnsembleCalculator {
         return new Interval(opening, start, end, closing)
     }
 
+    /**
+     * Crée un opérateur représentant l'union de deux ensembles.
+     * @param {Ensemble} left L'ensemble de gauche pour l'union.
+     * @param {Ensemble} right L'ensemble de droite pour l'union.
+     * @returns {Operator} L'opérateur représentant l'union des deux ensembles.
+     */
+    static makeUnion(left:Ensemble, right:Ensemble): Operator {
+        return new Operator("union", [left, right])
+    }
+
+    /**
+     * Crée un opérateur représentant l'intersection de deux ensembles.
+     * @param {Ensemble} left L'ensemble de gauche pour l'intersection.
+     * @param {Ensemble} right L'ensemble de droite pour l'intersection.
+     * @returns {Operator} L'opérateur représentant l'intersection des deux ensembles.
+     */
+    static makeIntersection(left:Ensemble, right:Ensemble): Operator {
+        return new Operator("intersection", [left, right])
+    }
+
     static emptySet(): EmptySet {
         return EMPTY_SET
     }
@@ -122,11 +142,11 @@ class EnsembleCalculator {
         return INVALID_SET
     }
 
-    static simplify(ensemble: Ensemble): Ensemble {
+    static simplify(ensemble: Ensemble): EnsemblePrimitif {
         if (ensemble.isInvalid()) {
             return INVALID_SET
         }
-        return ensemble.simplifyBornes()
+        return EnsembleCalculator.develop(ensemble.simplifyBornes())
     }
 
     static develop(ensemble: Ensemble): EnsemblePrimitif {
@@ -186,6 +206,5 @@ class EnsembleCalculator {
 }
 
 export {
-    Ensemble,
     EnsembleCalculator
 }
