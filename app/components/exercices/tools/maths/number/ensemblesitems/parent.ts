@@ -34,6 +34,12 @@ abstract class Ensemble {
      * @returns {boolean} true si l'ensemble est invalide, false sinon.
      */
     abstract isInvalid(): boolean
+
+    /**
+     * Prédicat : true si l'ensemble est simplifié, false sinon.
+     * @returns {boolean} true si l'ensemble est simplifié, false sinon.
+     */
+    abstract isSimplified(): boolean
 }
 
 abstract class EnsemblePrimitif extends Ensemble {
