@@ -57,6 +57,10 @@ class NumericCheck extends AbsChecker {
     }
 
     testExpectedFormat(expected: InputType): boolean {
+        const mm = MyMath.make(expected)
+        if (mm.isNaN()) {
+            return false
+        }
         return true
     }
 }
