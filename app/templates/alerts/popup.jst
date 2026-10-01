@@ -15,7 +15,27 @@
     <% } %>
     <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
 </div>
+<% if (Array.isArray(message)) {
+    message.forEach( function(mess) {
+        if (typeof mess == "string") { %>
+        <div class="toast-body">
+            <%- mess %>
+        </div>
+        <% } else { %>
+        <div class="toast-body text-bg-<%- mess.color %>">
+            <%- mess.content %>
+        </div>
+        <% }
+    });
+} else {
+    if (typeof message =="string") { %>
 <div class="toast-body">
     <%- message %>
 </div>
+    <% } else { %>
+<div class="toast-body text-bg-<%- mess.color %>">
+    <%- mess.content %>
+</div>
+    <% }
+} %>
 </div>
