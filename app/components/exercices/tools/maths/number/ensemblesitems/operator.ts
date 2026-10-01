@@ -99,6 +99,16 @@ class Operator extends Ensemble {
     children(): Ensemble[] {
         return [...this._operands]
     }
+    
+    isSimplified(): boolean {
+        if (this._operands.some(operand => !operand.isSimplified())) {
+            return false
+        }
+        if (this._operands.some(operand => operand instanceof EmptySet)) {
+            return false
+        }
+        return true
+    }
 }
 
 export { Operator }

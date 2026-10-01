@@ -27,6 +27,10 @@ class EmptySet extends EnsemblePrimitif {
     isInvalid(): boolean {
         return false
     }
+
+    isSimplified(): boolean {
+        return true
+    }
 }
 
 const EMPTY_SET = new EmptySet() // objet unique

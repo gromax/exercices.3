@@ -25,6 +25,10 @@ class InvalidSet extends EnsemblePrimitif {
     isInvalid(): boolean {
         return true
     }
+
+    isSimplified(): boolean {
+        return true
+    }
 }
 
 const INVALID_SET = new InvalidSet() // objet unique

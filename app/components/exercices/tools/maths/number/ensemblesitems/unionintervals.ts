@@ -118,6 +118,10 @@ class UnionIntervals extends EnsemblePrimitif {
     get length(): number {
         return this._intervals.length
     }
+
+    isSimplified(): boolean {
+        return this._intervals.every(interval => interval.isSimplified())
+    }
 }
 
 export { UnionIntervals }

@@ -180,7 +180,7 @@ class EnsembleCalculator {
      * @param ensemble 
      * @returns 
      */
-    static isDevelopped(ensemble: Ensemble): boolean {
+    static isExpanded(ensemble: Ensemble): boolean {
         if (ensemble instanceof EnsemblePrimitif) {
             return true
         }
@@ -192,7 +192,7 @@ class EnsembleCalculator {
             return false
         }
         const children = ensemble.children()
-        if (children.some(child => EnsembleCalculator.isDevelopped(child))) {
+        if (children.some(child => EnsembleCalculator.isExpanded(child))) {
             return false
         }
         // on a donc une union. S'il est développé, il doit avoir
@@ -202,6 +202,15 @@ class EnsembleCalculator {
             return false
         }
         return dev.length === children.length
+    }
+
+    /**
+     * Indique si un ensemble est simplifié
+     * @param ensemble 
+     * @returns 
+     */
+    static isSimplified(ensemble: Ensemble): boolean {
+        return ensemble.isSimplified()
     }
 }
 

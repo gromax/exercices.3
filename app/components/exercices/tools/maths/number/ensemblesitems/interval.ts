@@ -207,6 +207,14 @@ class Interval extends EnsemblePrimitif {
     isInvalid(): boolean {
         return false
     }
+
+    /**
+     * Prédicat : true si l'intervalle est simplifié, false sinon.
+     * @returns {boolean} true si l'intervalle est simplifié, false sinon.
+     */
+    isSimplified(): boolean {
+        return this._start.isSimplified() && this._end.isSimplified()
+    }
 }
 
 export { Interval }
