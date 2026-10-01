@@ -18,20 +18,12 @@ This is a modern JS skeleton with MarionetteJS for [Webpack](https://webpack.git
 
 ## Problèmes à régler
 
-* J'ai réglé le problème des calculs à virgule avec nerdamer. Toutefois, si le concepteur de l'exo écrit par ex 0,5, nerdamer va peut être butter sur la virgule et il va mettre 1/2. Il faudrait donc trouver moyen de dire à nerdamer de ne pas faire cela, ou bien trouver un autre moteur de rendu tex. copilot m'a proposé une fonction pour conserver les décimaux.
-* pour un bloc de mises en correspondances d'items, les enfant pourraient être comme dans un bloc radio du genre 0=>a:b et ensuite ce n'est qu'un problème de rendu. 
+* Vérifier les exos à graphique voir si les attributs sont ok. Idem pour radio.
+* il faudrait assumer la levée d'une erreur dans les getMyNumber et autres.
 
 ## à faire
 
-* possibilité de parser un intervalle. On pourrait pour cela prévoir la prise en compte de caractère `]` `[` qui devraient vérifier les règles de parenthésage et rassemblés, il formeraient un token fonction avec 4 types selon la position : open-open, open-close...
-* si les intervalles existent, on peut faire de intersection et union.
-* le tri dans la liste élèves ne se fait pas bien. Il y a le nomUser qui est indiqué comme data-sort dans le template. Mais cela ne semble pas faire ce qui est prévu. Peut-être faudrait-il aussi forcer la capitalization des noms et prénoms. Cela pourrait se faire dans PHP.
-
-* une fonction permettant l'évaluation d'une fonction
-* une fonction s'appuyant sur le solve de nerdamer, qui extrait le tableau et enlève les éventuels résultats complexes
-* ce serait bien de cibler l'erreur sur une ligne si possible
 * prévoir une petite calculatrice
-
 * cas d'interface
   * zone d'édit intelligente
   * sauvegarde sur aperçu
