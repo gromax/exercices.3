@@ -50,6 +50,10 @@ const NON_OPTIONAL_CHECKERS:Array<any> = CHECKERS.filter(item => !OPTIONAL_CHECK
  * @returns {true|string} true si le format est correct, message d'erreur sinon
  */
 function checkFormat(expression:string, format:string|Array<string> = 'none'): true|string {
+    if (format === 'none') {
+        throw new Error("Aucun format de réponse fourni")
+    }
+    
     // format peut être un tableau de formats acceptés
     expression = expression.trim()
     if (expression === '') {
@@ -64,20 +68,8 @@ function checkFormat(expression:string, format:string|Array<string> = 'none'): t
         // il n'y a donc que des invalides
         return checkers.map(item => item.message).join(' OU ')
     }
-
     // aucun format
-    if (format !== 'none') {
-        // format inconnu
-        console.warn(`Format inconnu : ${format}`)
-    }
-    // autres formats à ajouter ici
-    // il faut vérifier que le parse passe bien
-    const mm = MyMath.parseUser(expression)
-
-    if (mm.isNaN()) {
-        return "Expression invalide"
-    }
-    return true
+    throw new Error(`Format inconnu : ${format}`)
 }
 
 function formatsToCheckers(value:string, formats:string|Array<string>, checkersList:Array<any>):Array<AbsChecker> {
