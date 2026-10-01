@@ -220,10 +220,12 @@ const Controller = MnObject.extend ({
             trial.set("intScore", 0)
             this.runExercice(mainPile, trial, layoutView)
         } catch (error) {
+            // attention ! l'erreur ne sera pas captée si elle se produit
+            // dans un callback asynchrone.
             console.error(error)
             channel.trigger("popup:error", {
                 title: "Erreur de compilation",
-                message: error.message
+                message: {content: error.message, color: "danger"}
             })
         }
     },
@@ -249,27 +251,36 @@ const Controller = MnObject.extend ({
             const itemView = item.view(answers)
             if (typeof itemView.onSubmit === 'function') {
                 itemView.on("validation:success", (data) => {
-                    // 1. ajouter dans trial les réponses
-                    trial.addAnswers(data)
-                    // 2. détruire la vue du formulaire
-                    itemView.el.remove()
-                    // 3. relancer la vue pour le même item.
-                    const newItemView = item.view(trial.get("answers"))
-                    region.appendChild(newItemView.el)
-                    newItemView.render()
-                    //        le formulaire doit afficher les résultats avec
-                    //        tous les commentaies nécessaires
-                    
-                    // si suite à cela l'exercice est fini, marquer le trial comme terminé
-                    if (mainPile.length === 0) {
-                        trial.set("finished", true)
+                    // il faut ajouter un try except ici car il ne sera
+                    // pas capté par les parties synchrones
+                    try {
+                        // 1. ajouter dans trial les réponses
+                        trial.addAnswers(data)
+                        // 2. détruire la vue du formulaire
+                        itemView.el.remove()
+                        // 3. relancer la vue pour le même item.
+                        const newItemView = item.view(trial.get("answers"))
+                        region.appendChild(newItemView.el)
+                        newItemView.render()
+                        // le formulaire doit afficher les résultats avec
+                        // tous les commentaies nécessaires
+                        
+                        // si suite à cela l'exercice est fini, marquer le trial comme terminé
+                        if (mainPile.length === 0) {
+                            trial.set("finished", true)
+                        }
+                        // mettre à jour le score
+                        trial.set("intScore", trial.get("intScore") + item.score(data))
+                        // 4. poursuivre l'exécution de la pile jusqu'au prochain stop
+                        //        ce qui pourra amener à modifier l'état "finished" de l'exercice
+                        this.runExercice(mainPile, trial, layoutView)
+                    } catch (error) {
+                        console.error("Erreur lors de la soumission du formulaire :", error)
+                        channel.trigger("popup:error", {
+                            title: "Erreur d'exécution",
+                            message: { content:error.message, color:"danger" }
+                        })
                     }
-                    // mettre à jour le score
-                    trial.set("intScore", trial.get("intScore") + item.score(data))
-                    // 4. poursuivre l'exécution de la pile jusqu'au prochain stop
-                    //        ce qui pourra amener à modifier l'état "finished" de l'exercice
-                    this.runExercice(mainPile, trial, layoutView)
-                    
                     // 5. sauvegarder l'état du trial
                     if (trial.needSave()) {
                         const saving = trial.save()
