@@ -1,7 +1,7 @@
 import _ from "underscore"
 import InputBloc from "./inputbloc"
 import { InputView, InputResultView } from "../../views/inputview"
-import { checkFormat, checkValue, checkExcluded } from "@mathstools/checkers/check"
+import { checkFormat, checkValue, checkExcluded, formatExists } from "@mathstools/checkers/check"
 import { formatValue } from "@components/exercices/tools/maths/misc/formatvalue"
 import { View } from "backbone.marionette"
 import { AnyView, NestedInput } from "@types"
@@ -70,20 +70,7 @@ class InputTextBloc extends InputBloc {
                 value = "empty"
             }
             // je veux éviter un format non défini
-            if (value !== "infini" &&
-                value !== "numeric" &&
-                value !== "none" &&
-                value !== "expand" &&
-                value !== "empty" &&
-                !value.startsWith("round:") &&
-                !value.startsWith("erreur:") &&
-                !value.startsWith("var:") &&
-                !value.startsWith("equation:")&&
-                !value.startsWith("criterion:")&&
-                !value.startsWith("vecteur:") &&
-                !value.startsWith("ensemble") &&
-                !value.startsWith("entier")
-            ) {
+            if (!formatExists(value)) {
                 throw new Error(`Format inconnu pour le bloc <input:${this.header}> : ${value}`)
             }
             // pour certains formats, je modifie aussi le clavier
