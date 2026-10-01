@@ -34,6 +34,7 @@ class FormBloc extends Bloc {
             (child) => child.view(answers)
         )
         const formView = new FormView({
+            errorMessage: "L'erreur est due à une erreur de conception de l'exercice. Prévenez l'administrateur / le professeur.",
             blocParent: this,
             name: this.header,
             subViews: subViews
