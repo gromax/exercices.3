@@ -40,15 +40,23 @@ abstract class Ensemble {
      * @returns {boolean} true si l'ensemble est simplifié, false sinon.
      */
     abstract isSimplified(): boolean
+
+    /**
+     * Retourne la représentation TeX de l'ensemble avec un nombre décimal spécifié.
+     * @param {number} n Le nombre décimal à utiliser dans la représentation TeX.
+     * @returns {string} La chaîne TeX représentant l'ensemble avec le nombre décimal spécifié.
+     */
+    abstract toTexDecimal(n: number): string
 }
 
 abstract class EnsemblePrimitif extends Ensemble {
     /**
      * Vérifie si deux ensembles primitifs sont égaux.
      * @param {EnsemblePrimitif} other L'ensemble avec lequel comparer.
+     * @param {number|undefined} digits Le nombre de chiffres après la virgule pour la comparaison.
      * @returns {boolean} true si les ensembles sont égaux, false sinon.
      */
-    abstract equals(other: EnsemblePrimitif): boolean
+    abstract equals(other: EnsemblePrimitif, digits:number|undefined): boolean
 }
 
 export { Ensemble, EnsemblePrimitif }

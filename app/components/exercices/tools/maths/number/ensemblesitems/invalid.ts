@@ -6,12 +6,15 @@ class InvalidSet extends EnsemblePrimitif {
      * @extends EnsemblePrimitif
      */
 
+    static readonly TEX = "\\text{Invalid Set}"
+    static readonly STRING = "Invalid Set"
+
     toTex(): string {
-        return "\\text{Invalid Set}"
+        return InvalidSet.TEX
     }
 
-    equals(other: EnsemblePrimitif): boolean {
-        return other instanceof InvalidSet
+    equals(other: EnsemblePrimitif, digits:number|undefined): boolean {
+        return false
     }
 
     simplifyBornes(): InvalidSet {
@@ -19,7 +22,7 @@ class InvalidSet extends EnsemblePrimitif {
     }
 
     toString(): string {
-        return "Invalid Set"
+        return InvalidSet.STRING
     }
     
     isInvalid(): boolean {
@@ -28,6 +31,10 @@ class InvalidSet extends EnsemblePrimitif {
 
     isSimplified(): boolean {
         return true
+    }
+
+    toTexDecimal(n: number): string {
+        return InvalidSet.TEX
     }
 }
 

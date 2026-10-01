@@ -89,14 +89,21 @@ class Interval extends EnsemblePrimitif {
     }
 
 
-    equals(other: EnsemblePrimitif): boolean {
+    equals(other: EnsemblePrimitif, digits:number|undefined): boolean {
         if (!(other instanceof Interval)) {
             return false
         }
-        return this._startDecimal.equals(other.borneInfDecimal) &&
-               this._endDecimal.equals(other.borneSupDecimal) &&
-               this._opening === other.opening &&
-               this._closing === other.closing
+        if (typeof digits !== "undefined") {
+            return this._startDecimal.toFixed(digits) == other._startDecimal.toFixed(digits) &&
+                   this._endDecimal.toFixed(digits) == other._endDecimal.toFixed(digits) &&
+                   this._opening === other.opening &&
+                   this._closing === other.closing
+        } else {
+            return this._startDecimal.equals(other._startDecimal) &&
+                   this._endDecimal.equals(other._endDecimal) &&
+                   this._opening === other.opening &&
+                   this._closing === other.closing
+        }
     }
 
     /**
@@ -133,7 +140,7 @@ class Interval extends EnsemblePrimitif {
             inters[startIndex]._opening, inters[startIndex]._start,
             inters[closeIndex]._end, inters[closeIndex]._closing
         )
-        if (interval.equals(inter2)) {
+        if (interval.equals(inter2, undefined)) {
             return [inter2]
         }
         return [interval]
@@ -173,7 +180,7 @@ class Interval extends EnsemblePrimitif {
             inters[startIndex]._opening, inters[startIndex]._start,
             inters[closeIndex]._end, inters[closeIndex]._closing
         )
-        if (interval.equals(inter1)) {
+        if (interval.equals(inter1, undefined)) {
             return [inter1]
         }
         return [interval]
@@ -214,6 +221,16 @@ class Interval extends EnsemblePrimitif {
      */
     isSimplified(): boolean {
         return this._start.isSimplified() && this._end.isSimplified()
+    }
+
+    toTexDecimal(n: number): string {
+        const texStart = this._start.isMinusInfinity({})
+            ? "-\\infty"
+            : this._startDecimal.toFixed(n).replace('.', ',')
+        const texEnd = this._end.isPlusInfinity({})
+            ? "+\\infty"
+            : this._endDecimal.toFixed(n).replace('.', ',')
+        return `\\left${this._boolToBracket(this._opening)} ${texStart} \\,; ${texEnd}\\right${this._boolToBracket(this._closing)}`
     }
 }
 

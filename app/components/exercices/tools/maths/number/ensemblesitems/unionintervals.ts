@@ -75,10 +75,11 @@ class UnionIntervals extends EnsemblePrimitif {
 
     /**
      * Vérifie si deux ensembles d'intervalles sont égaux.
-     * @param other L'ensemble avec lequel comparer
+     * @param {EnsemblePrimitif} other L'ensemble avec lequel comparer
+     * @param {number|undefined} digits Le nombre de chiffres à considérer pour la comparaison des bornes des intervalles.
      * @returns {boolean} true si les ensembles sont égaux, false sinon
      */
-    equals(other: EnsemblePrimitif): boolean {
+    equals(other: EnsemblePrimitif, digits:number|undefined): boolean {
         if (!(other instanceof UnionIntervals)) {
             return false
         }
@@ -86,7 +87,7 @@ class UnionIntervals extends EnsemblePrimitif {
             return false
         }
         for (let i = 0; i < this._intervals.length; i++) {
-            if (!this._intervals[i].equals(other._intervals[i])) {
+            if (!this._intervals[i].equals(other._intervals[i], digits)) {
                 return false
             }
         }
@@ -121,6 +122,10 @@ class UnionIntervals extends EnsemblePrimitif {
 
     isSimplified(): boolean {
         return this._intervals.every(interval => interval.isSimplified())
+    }
+
+    toTexDecimal(n: number): string {
+        return this._intervals.map(interval => interval.toTexDecimal(n)).join(" \\cup ")
     }
 }
 

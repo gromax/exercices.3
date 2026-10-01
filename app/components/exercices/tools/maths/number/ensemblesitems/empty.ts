@@ -12,7 +12,7 @@ class EmptySet extends EnsemblePrimitif {
         return EmptySet.TEX
     }
 
-    equals(other: EnsemblePrimitif): boolean {
+    equals(other: EnsemblePrimitif, digits:number|undefined): boolean {
         return other instanceof EmptySet
     }
 
@@ -30,6 +30,10 @@ class EmptySet extends EnsemblePrimitif {
 
     isSimplified(): boolean {
         return true
+    }
+
+    toTexDecimal(n: number): string {
+        return EmptySet.TEX
     }
 }
 
