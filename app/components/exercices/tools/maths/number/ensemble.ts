@@ -500,6 +500,10 @@ class EnsembleCalculator {
     static invalidSet(): Ensemble {
         return INVALID_SET
     }
+
+    static simplify(ensemble: Ensemble): Ensemble {
+        return ensemble.simplify()
+    }
 }
 
 export {

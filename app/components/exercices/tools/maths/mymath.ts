@@ -594,7 +594,7 @@ class MyMath {
             return simplify(this._getMyNumber()).toString()
         }
         if (this._type === "ensemble") {
-            return PREFIX_ENSEMBLE + ' ' + this._getEnsemble().simplify().toString()
+            return PREFIX_ENSEMBLE + ' ' + EnsembleCalculator.simplify(this._getEnsemble()).toString()
         }
         return this._expression
     }
@@ -649,7 +649,7 @@ class MyMath {
             if (this._type === "expression") {
                 return simplify(this._getMyNumber()).toTex()
             } else if (this._type === "ensemble") {
-                return this._getEnsemble().simplify().toTex()
+                return EnsembleCalculator.simplify(this._getEnsemble()).toTex()
             }
             return this.latex()
         }
@@ -658,7 +658,7 @@ class MyMath {
             if (this._type === "expression") {
                 return simplify(this._getMyNumber()).toString()
             } else if (this._type === "ensemble") {
-                return this._getEnsemble().simplify().toString()
+                return EnsembleCalculator.simplify(this._getEnsemble()).toString()
             }
             return this.toString()
         }
@@ -956,7 +956,7 @@ class MyMath {
         if (this._isExpression()) {
             return new MyMath({ mynumber: simplify(this._getMyNumber()) })
         } else if (this._type === "ensemble") {
-            return new MyMath({ ensemble: this._getEnsemble().simplify() })
+            return new MyMath({ ensemble: EnsembleCalculator.simplify(this._getEnsemble()) })
         }
         throw new Error(`<${this.expression}> : Simplification pas implémentée pour le type ${this._type}.`)
     }
