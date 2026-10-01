@@ -72,6 +72,15 @@ function checkFormat(expression:string, format:string|Array<string> = 'none'): t
     throw new Error(`Format inconnu : ${format}`)
 }
 
+/**
+ * vérifie si le format existe
+ * @param {string} format 
+ * @returns {boolean} true si le format existe, false sinon
+ */
+function formatExists(format:string):boolean {
+    return CHECKERS.some(C => (C as any).testFormat(format))
+}
+
 function formatsToCheckers(value:string, formats:string|Array<string>, checkersList:Array<any>):Array<AbsChecker> {
     if (typeof formats == "string") {
         formats = [formats]
@@ -156,6 +165,7 @@ function checkExcluded(userValue:string, excluded:NestedInput, format:string|Arr
 
 export {
     checkFormat,
+    formatExists,
     checkValue,
     checkExcluded,
     formatsToCheckers,
