@@ -910,7 +910,12 @@ class MyMath {
         if (!this._isExpression()) {
             throw new Error(`<${this.expression}> : Substitution pas implémentée pour le type ${this._type}.`)
         }
-        const base_value = value instanceof MyMath ? value._getMyNumber() : value
+
+        const base_value = value instanceof MyMath
+            ? value._getMyNumber()
+            : typeof value === "string"
+                ? MyMath.make(value)._getMyNumber()
+                : value
         const newMyNumber = this._getMyNumber().substituteVariable(varName, base_value)
         return new MyMath({ mynumber: newMyNumber })
     }
