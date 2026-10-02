@@ -65,6 +65,19 @@ class MyMath {
     }
 
     /**
+     * Extrait le texte brut d'une expression entourée de guillemets.
+     * @param {string} expression 
+     * @returns {string} Le texte brut extrait de l'expression.
+     */
+    static extractBrutText(expression: InputType): string {
+        const strExpression = String(expression)
+        if (_isBrutText(strExpression)) {
+            return strExpression.slice(1, -1)
+        }
+        return strExpression
+    }
+
+    /**
      * Convertit la valeur en nombre entier
      * @param {InputType} value La valeur à convertir en nombre entier
      * @returns {number} Le nombre entier correspondant à la valeur fournie
@@ -400,7 +413,7 @@ class MyMath {
     static substituteExpressions(texte:string, params:TParams):string {
         return texte.replace(/\{([^:{}]+):\s*([\w]*(?:\$)?)?\}/g, (match, expr, format) => {
             const replacement = substituteParams(expr, params)
-            return MyMath._substituteExpressionsHelper(replacement, format, 0)
+            return MyMath._substituteExpressionsHelper(replacement, format || '', 0)
         })
     }
 
@@ -642,14 +655,17 @@ class MyMath {
      * @returns {string} la valeur formatée
      */
     toFormat(format:string):string {
-        format = (format || '').trim()
+        format = format.trim()
         if (format === '$') {
             return this.latex()
         }
         if (format === 's$') {
             // format personnalisé pour contourner des soucis de nerdamer
-            if (this._type === "expression") {
-                return simplify(this._getMyNumber()).toTex()
+            if (this._isExpression()) {
+                const simplified = simplify(this._getMyNumber())
+                return simplified.isPlusInfinity(undefined)
+                    ? "+\\infty"
+                    : simplified.toTex()
             } else if (this._type === "ensemble") {
                 return EnsembleCalculator.simplify(this._getEnsemble()).toTex()
             }
