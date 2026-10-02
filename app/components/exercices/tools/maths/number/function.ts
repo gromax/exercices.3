@@ -52,7 +52,26 @@ class Function extends Base {
     private _derForDiff: Base | null = null
 
     static readonly NAMES = [
-        'sqrt', '(-)', '(+)', 'cos', 'sin', 'tan', 'atan', 'ln', 'log', 'exp', 'inverse', 'sign', 'mod', 'div', 'diff', 'pgcd', 'ppcm'
+        'sqrt',
+        '(-)',
+        '(+)',
+        'cos',
+        'sin',
+        'tan',
+        'atan',
+        'ln',
+        'log',
+        'exp',
+        'inverse',
+        'sign',
+        'mod',
+        'div',
+        'diff',
+        'pgcd',
+        'ppcm',
+        'max',
+        'min',
+        'abs'
     ]
 
     static readonly EN_NAMES = {
@@ -62,7 +81,8 @@ class Function extends Base {
         'ppcm': 'lcm',
     }
 
-    static readonly ARITY2 = ['mod', 'div', 'diff', 'pgcd', 'ppcm']
+    static readonly ARITY2 = ['mod', 'div', 'diff']
+    static readonly ARITYN = ['max', 'min', 'pgcd', 'ppcm']
 
     /**
      * constructeur d'une fonction mathématique
@@ -76,7 +96,7 @@ class Function extends Base {
         }
         this._name = name
         const childSize = child instanceof Collection ? child.children.length : 1
-        if (childSize != this.arity) {
+        if (childSize != this.arity && this.arity != -1) {
             throw new Error(`La fonction ${name} attend ${this.arity} argument(s), mais en a reçu ${childSize}.`)
         }
 
@@ -100,6 +120,9 @@ class Function extends Base {
      * @returns {number}
      */
     get arity():number {
+        if (Function.ARITYN.indexOf(this._name) >= 0) {
+            return -1 // arité variable
+        }
         return Function.ARITY2.indexOf(this._name) >= 0 ? 2 : 1
     }
 
@@ -128,6 +151,7 @@ class Function extends Base {
             case 'sin': return Decimal.sin(value)
             case 'tan': return Decimal.tan(value)
             case 'atan': return Decimal.atan(value)
+            case 'abs': return Decimal.abs(value)
             case '(-)': return value.negated()
             case '(+)': return value
             case 'inverse': return new Decimal(1).dividedBy(value)
@@ -149,8 +173,28 @@ class Function extends Base {
             case 'div': return value1.minus(value1.modulo(value2)).dividedBy(value2)
             case 'pgcd': return PGCD(value1, value2)
             case 'ppcm': return PPCM(value1, value2)
+            case 'min': return Decimal.min(value1, value2)
+            case 'max': return Decimal.max(value1, value2)
             default: return new Decimal(NaN)
         }
+    }
+
+    /**
+     * exécute une fonction numérique pour les opérateurs à deux arguments
+     * @param {string} name 
+     * @param {Decimal[]} values
+     * @returns {Decimal}
+     */
+    static calcn(name:string, values:Decimal[]):Decimal {
+        if (values.length == 0) {
+            return new Decimal(NaN)
+        }
+        while (values.length > 1) {
+            const value1 = values.pop()
+            const value2 = values.pop()
+            values.push(Function.calc2(name, value1, value2))
+        }
+        return values[0]
     }
 
     /**
@@ -304,6 +348,17 @@ class Function extends Base {
             const [left, right] = (this._child as Collection).children
             return `\\text{ppcm}\\left(${left.toTex()}\\,; ${right.toTex()}\\right)`
         }
+        if (this._name == 'abs') {
+            return `\\left|${this._child.toTex()}\\right|`
+        }
+        if (this._name == 'min') {
+            const [left, right] = (this._child as Collection).children
+            return `\\text{min}\\left(${left.toTex()}\\,; ${right.toTex()}\\right)`
+        }
+        if (this._name == 'max') {
+            const [left, right] = (this._child as Collection).children
+            return `\\text{max}\\left(${left.toTex()}\\,; ${right.toTex()}\\right)`
+        }
         if (this._name == 'atan') {
             return `\\arctan\\left(${this._child.toTex()}\\right)`
         }
@@ -326,6 +381,11 @@ class Function extends Base {
             let leftDec = left.toDecimal(values)
             let rightDec = right.toDecimal(values)
             return Function.calc2(this._name, leftDec, rightDec)
+        } else if (this.arity == -1) {
+            const decvalues = this._child instanceof Collection
+                ? this._child.children.map(child => child.toDecimal(values))
+                : [this._child.toDecimal(values)]
+            return Function.calcn(this._name, decvalues)
         }
         throw new Error(`Unsupported arity: ${this.arity}`)
     }
@@ -474,7 +534,25 @@ class Function extends Base {
         if (this._name == 'sqrt' && (this._child instanceof Scalar) && this._child.isPerfectSquare()) {
             return false
         }
+        if (this.arity == -1 && this.length == 1) {
+            return false
+        }
+        if ((this._name == 'min' || this._name == 'max' || this._name == 'abs') &&
+             this.variables.length == 0) {
+            // en l'absence de variables on devrait pouvoir simplifier la fonction
+            return false
+        }
         return true
+    }
+
+    /**
+     * Returns the number of child elements of the function.
+     * @returns {number} The number of child elements.
+     */
+    get length(): number {
+        return this._child instanceof Collection
+            ? (this._child as Collection).children.length
+            : 1
     }
 }
 
