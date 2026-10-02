@@ -165,13 +165,32 @@ function functionSimplify(node:Function):Base {
     }
 
     if (node.arity === 2) {
-        const [left, right] = (childSim as Collection).children
-        const sLeft = simplify(left)
-        const sRight = simplify(right)
-        if (sLeft === left && sRight === right) {
+        if (childSim == child) {
             return node
         }
-        return new Function(funcName, new Collection([sLeft, sRight]))
+        return new Function(funcName, childSim)
+    }
+
+    if (node.arity === -1) {
+        if (node.length === 1) {
+            return childSim
+        }
+        const isconstant = childSim.variables.length == 0
+        if (isconstant && funcName === 'min') {
+            // On va chercher l'enfant mini
+            const children = (childSim as Collection).children.sort((a, b) => a.toDecimal(undefined).cmp(b.toDecimal(undefined)))
+            return children[0]
+        }
+        if (isconstant && funcName === 'max') {
+            // On va chercher l'enfant maxi
+            const children = (childSim as Collection).children.sort((a, b) => a.toDecimal(undefined).cmp(b.toDecimal(undefined)))
+            return children[children.length - 1]
+        }
+        if (childSim == child) {
+            return node
+        } else {
+            return new Function(funcName, childSim)
+        }
     }
 
     if (childSim instanceof Function && childSim.name == 'exp' && funcName == 'ln') {
@@ -215,10 +234,21 @@ function functionSimplify(node:Function):Base {
             return Scalar.MINUS_ONE
         }
     }
-    
+
+    if (funcName === 'abs') {
+        if (d.isZero()) {
+            return Scalar.ZERO
+        }
+        if (d.isPositive()) {
+            return childSim
+        }
+        if (d.isNegative()) {
+            return simplify(new Function('(-)', childSim))
+        }
+    }
 
     if (d.isZero()) {
-        if (funcName === '(+)' || funcName === '(-)' || funcName === 'sin' || funcName === 'sqrt') {
+        if (funcName === '(+)' || funcName === '(-)' || funcName === 'sin' || funcName === 'sqrt' || funcName === 'abs') {
             return Scalar.ZERO
         }
         if (funcName === 'exp' || funcName === 'cos') {
@@ -228,6 +258,8 @@ function functionSimplify(node:Function):Base {
             return Scalar.NAN
         }
     }
+
+
 
     if (childSim === child) {
         return node
