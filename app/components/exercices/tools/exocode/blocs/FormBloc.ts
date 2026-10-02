@@ -37,7 +37,8 @@ class FormBloc extends Bloc {
             errorMessage: "L'erreur est due à une erreur de conception de l'exercice. Prévenez l'administrateur / le professeur.",
             blocParent: this,
             name: this.header,
-            subViews: subViews
+            subViews: subViews,
+            header: this.header || '',
         })
         return formView
     }
