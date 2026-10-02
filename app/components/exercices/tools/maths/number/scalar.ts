@@ -337,7 +337,15 @@ class Scalar extends Base {
     }
 
     /**
-     * Renvoie vrai si == 1
+     * Renvoie vrai si == -1
+     * @returns { boolean }
+     */
+    isMinusOne(): boolean {
+        return this._value.equals(-1) && (this._denominator === null)
+    }
+
+    /**
+     * Renvoie vrai si == 0
      * @returns { boolean }
      */
     isZero(): boolean {
@@ -441,6 +449,13 @@ class Scalar extends Base {
         }
         const sqrtValue = this._value.sqrt()
         return sqrtValue.isInteger()
+    }
+
+    isEven():boolean {
+        if (this.isNaN() || !this.isInteger()) {
+            return false
+        }
+        return this._value.mod(2).isZero()
     }
 }
 
