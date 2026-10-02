@@ -81,10 +81,12 @@ Exemple :
 On pourra ainsi utiliser
   * les symboles habituels `+`, `-`, `*`, `/`,
   * puissance avec `^` ou `**`, le symbol `²` est reconnu
-  * `cos`, `sin`, `tan`, `atan`, `exp`, `log`, `ln`, `tan`, `sqrt`
+  * `cos`, `sin`, `tan`, `atan`, `exp`, `log`, `ln`, `tan`, `sqrt`, `abs`
   * `mod(x;y)` pour modulo et `div(x;y)` pour la division entière *Attention à bien uttiliser ;*
   * `diff(expression;x)` permet de calculer une dérivée *; aussi !*
-  * `pgcd(x;y)` et `ppcm(x;y)`
+  * `pgcd(x;y)` et `ppcm(x;y)` ou même `pgcd(x;y;z)`
+  * `min(x;y;z...)`, `max(x;y;z...)`
+
 
 Il est également possible de forcer une représentation de variable en demandant un formatage. Ainsi dans le code ci-dessous, on substitue `pi` par son écriture décimale à 3 chiffres après la virgule.
 
@@ -1342,6 +1344,7 @@ Le vecteur est conçu pour ne pas être lié à des points. Donc, si on crée pa
   * `float` pour obtenir un float
   * `abs` pour valeur absolue
   * `exp` calcule l'exponentielle
+  * `sqrt` calcule la racine carrée
   * `factorial` calcule la factorielle
   * `sign` renvoie `-1` pour un négatif et `+1` pour un positif
   * `solve` reçoit `left`, `right` (deux membres de l'équation) et `name` nom de la variable. Renvoie les solutions
