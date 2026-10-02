@@ -142,7 +142,7 @@ class InputEnsemble extends InputTextBloc {
                 ? this.params.tagSolution
                 : this._formatSolution(solution)
             const complement = Array.isArray(solutionFormatted)
-                ? `Les bonnes réponses possibles étaient : ${solutionFormatted.join(', ')}.`
+                ? `Les bonnes réponses possibles étaient : ${solutionFormatted.join(' ; ')}.`
                 :`La réponse attendue était : ${solutionFormatted}.`
             const score = 0
             const resultView = new InputResultView({
