@@ -33,7 +33,7 @@ class Tkztab {
                     line[2*i] = ''
                 }
             }
-            return line.join(',')
+            return `"${line.join(',')}"`
         }
         if (variables.length > 1) {
             throw new Error("Tkztab.sign ne gère que les fonctions d'une seule variable.")
@@ -61,7 +61,7 @@ class Tkztab {
             // On peut calculer le signe en 0
             const value0 = f.sub(varName, 0).toFloat()
             line[1] = value0 > 0 ? '+' : (value0 < 0 ? '-' : '0')
-            return line.join(',')
+            return `${line.join(',')}"`
         }
         // sinon si on -infini à gauche on fait comme si c'était le suivant -10
         if (f_bornes[0] === -Infinity) {
@@ -77,7 +77,7 @@ class Tkztab {
             const valueMid = f.sub(varName, mid).toFloat()
             line[2*i + 1] = valueMid > 0 ? '+' : (valueMid < 0 ? '-' : '0')
         }
-        return line.join(',')
+        return `"${line.join(',')}"`
     }
 
     /**
@@ -85,17 +85,19 @@ class Tkztab {
      * Pour une équation type expr > 0 ou exp >= 0...
      * @param {InputType} expr 
      * @param {Array<InputType>} bornes 
-     * @param {string} asked signe, 'p' (positif), 'n' (négatif), 'p0' (pos ou nul), 'n0' (neg ou nul)
+     * @param {string} asked signe, '>' (positif), '<' (négatif), '>=' (pos ou nul), '<=' (neg ou nul)
+     * @returns {string} une chaîne représentant l'ensemble solution
      */
-    static ensemble(expr:InputType, bornes:Array<InputType>, asked:string): string {
-        if (!['p', 'n', 'p0', 'n0'].includes(asked)) {
+    static ensemble(expr:InputType, bornes:Array<InputType>, asked:InputType): MyMath {
+        const strAsked = MyMath.extractBrutText(asked)
+        if (!['<', '<=', '>', '>=', '\\leqslant', '\\geqslant'].includes(strAsked)) {
             throw new Error(`Tkztab.ensemble asked parameter invalide: asked=${asked}`)
         }
-        const s = Tkztab.sign(expr, bornes).split(',')
+        const s = MyMath.extractBrutText(Tkztab.sign(expr, bornes)).split(',')
         const strBornes = bornes.map(b => String(b))
         const inters = []
-        const pos = (asked === 'p' || asked === 'p0')
-        const nul = (asked === 'p0' || asked === 'n0')
+        const pos = (strAsked === '>' || strAsked === '>=' || strAsked === '\\geqslant')
+        const nul = (strAsked === '\\leqslant' || strAsked === '<=' || strAsked === '\\geqslant' || strAsked === '>=')
         // on prend les bornes des positifs
         for (let i = 0; i < s.length; i++) {
             if (i % 2 === 0) {
@@ -128,7 +130,7 @@ class Tkztab {
         }
         // on forme le résultat final
         const resIntersStr = resInters.map(inter => inter[0]+inter[1]+';'+inter[2]+inter[3])
-        return resIntersStr.join('union')
+        return MyMath.parseUserEnsemble(resIntersStr.join('union'))
     }
 }
 
