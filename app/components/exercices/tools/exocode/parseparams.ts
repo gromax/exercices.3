@@ -40,7 +40,7 @@ function _getInit(nodes:Array<Node>, options:TOptions):TParams|null {
         let item = program.pop()
         if (item instanceof Halt) {
             // arrêt de l'initialisation
-            return params
+            return _stringifyParams(params)
         }
         if (item instanceof TextNode) {
             continue
@@ -64,9 +64,19 @@ function _getInit(nodes:Array<Node>, options:TOptions):TParams|null {
         item.doAffectation(params, options)
     }
     // Filtrage des noms en _nom
+    return _stringifyParams(params)
+}
+
+/**
+ * @param {TParams}params L'objet de paramètres à transformer en chaînes de caractères.
+ * @returns {TParams} L'objet de paramètres avec toutes les valeurs transformées en chaînes de caractères.
+ */
+function _stringifyParams(params:TParams):TParams {
+    // Filtrage des noms en _nom
     const keys = Object.keys(params).filter(key => !key.startsWith('_'))
     const filtered = _.pick(params, keys)
     return _.mapObject(filtered, (val,key) => _stringifyValue(val))
+
 }
 
 function _stringifyValue(value:any):NestedArray<string> {
