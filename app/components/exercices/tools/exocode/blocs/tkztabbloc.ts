@@ -33,6 +33,13 @@ class TkzTabBloc extends Bloc implements FormItemImplementation {
         }
         if (typeof this._tkzTab === "undefined") {
             const config = this._getConfig()
+            // il faut choisir la couleur
+            if (typeof config.color !== "undefined") {
+                const indexColor = parseInt(String(config.color))
+                if (!isNaN(indexColor)) {
+                    config.color = this._colors.getColor(indexColor)
+                }
+            }
             this._tkzTab = new TkzTab(this._xList, config)
             this._tkzTab.addLines(this._lines)
         }
