@@ -63,7 +63,7 @@ function _executePile(pile:Array<NestedInput>):InputType {
         if (operandes.length < n) {
             throw new Error(`Pas assez d'opérandes pour l'opération ${top}`);
         }
-        const args = operandes.splice(operandes.length - n, n);
+        const args = operandes.splice(operandes.length - n, n)
         const result = f(...args);
         if (result !== undefined) {
             operandes.push(result);
