@@ -9,6 +9,7 @@ import { Power } from "./power"
 import Decimal from "decimal.js"
 import { Signature } from "./signature"
 import { NestedString } from '@types'
+import { INFINI } from "./constant"
 
 function PGCD(a: Decimal, b: Decimal): Decimal {
     if (!a.isInteger() || !b.isInteger()) {
@@ -522,7 +523,8 @@ class Function extends Base {
 
     isSimplified():boolean {
         if (this._name == '(+)') {
-            return false
+            // si c'est devant +inf, c'est accepté
+            return this._child == INFINI
         }
         if (!this._child.isSimplified()) {
             return false
