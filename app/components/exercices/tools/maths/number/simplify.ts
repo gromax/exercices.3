@@ -31,8 +31,13 @@ function simplify(node:Base):Base {
     if (node.isNaN()) {
         return NAN
     }
-    if (node instanceof Scalar
-        || (node instanceof Constant)
+    if (node instanceof Scalar) {
+        if (node.isZero()) {
+            return Scalar.ZERO
+        }
+        return node
+    }
+    if ((node instanceof Constant)
         || (node instanceof Symbol)) {
         return node
     }
