@@ -8,23 +8,20 @@ class VarsCheck extends AbsChecker {
     protected _parsed:MyMath
     protected _expand: boolean
 
+    static readonly REGEX = /^vars?:([a-zA-Z, ]+)(:expand)?$/
+
     constructor(expr:string, format:string = "") {
         super(expr,format)
-        const parts = format.split(":")
-        if (parts[0] !== "var") {
+        const match = VarsCheck.REGEX.exec(format)
+        if (!match) {
             throw new Error(`Format invalide: ${format}`)
         }
-        if (parts.length < 2) {
-            throw new Error(`Format invalide: ${format}`)
-        }
-        this._vars = parts[1].trim()
-        this._expand = parts.length > 2
-            ? parts[2].trim() === "expand"
-            : false
+        this._vars = match[1]
+        this._expand = match[2] !== undefined
     }
 
     static testFormat(format: string): boolean {
-        return format.startsWith("var:")
+        return VarsCheck.REGEX.test(format)
     }
 
     protected parsed():MyMath {
