@@ -27,6 +27,7 @@ class Calc {
         'floor': Calc.floor,
         'expand': Calc.expand,
         'exp':Calc.exp,
+        'sqrt': Calc.sqrt,
         'diff': Calc.diff,
         'derivate': Calc.derivate,
         'max': Calc.max,
@@ -56,6 +57,7 @@ class Calc {
         'floor': 'Calc.floor',
         'expand': 'Calc.expand',
         'exp': 'Calc.exp',
+        'sqrt': 'Calc.sqrt',
         'diff': 'Calc.diff',
         'derivate': 'Calc.derivate',
         'deriver': 'Calc.derivate',
@@ -268,6 +270,21 @@ class Calc {
             return `exp(${x})`
         }
         return MyMath.make(`exp(${String(x)})`)
+    }
+
+    /**
+     * racine carrée de x.
+     * @param {InputType} x 
+     * @returns {InputType} objet représentant √x
+     */
+    static sqrt(x: InputType): InputType {
+        if (typeof x === 'number') {
+            return Math.sqrt(x)
+        }
+        if (typeof x === 'string') {
+            return `sqrt(${x})`
+        }
+        return MyMath.make(`sqrt(${String(x)})`)
     }
 
     /**
