@@ -157,9 +157,14 @@ class Power extends Base {
         if (!this._base.isExpanded()) {
             return false
         }
-        if (this._decExposant.gte(0) && this._base.canBeDistributed) {
+        const canBeExpanded = this._base.canBeDistributed ||
+            (this._base instanceof Power) ||
+            (this._base instanceof Scalar) ||
+            (this._base instanceof Mult)
+        if (this._decExposant.gte(0) && canBeExpanded) {
             return false
         }
+        
         return true
     }
 
