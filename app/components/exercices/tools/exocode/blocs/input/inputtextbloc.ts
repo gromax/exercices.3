@@ -157,7 +157,7 @@ class InputTextBloc extends InputBloc {
                 }
             }
             const complement = Array.isArray(solutionFormatted)
-                ? `Les bonnes réponses possibles étaient : ${solutionFormatted.join(', ')}.`
+                ? `Les bonnes réponses possibles étaient : ${solutionFormatted.join(' ; ')}.`
                 :`La réponse attendue était : ${solutionFormatted}.`
             const score = 0
             const resultView = new InputResultView({
