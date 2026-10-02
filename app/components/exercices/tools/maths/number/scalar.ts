@@ -434,6 +434,14 @@ class Scalar extends Base {
     derivate(varName:string):Base {
         return Scalar.ZERO
     }
+
+    isPerfectSquare():boolean {
+        if (this.isNaN() || !this.isInteger()) {
+            return false
+        }
+        const sqrtValue = this._value.sqrt()
+        return sqrtValue.isInteger()
+    }
 }
 
 /** @type {Scalar} */
