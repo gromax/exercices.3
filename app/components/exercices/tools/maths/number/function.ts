@@ -459,6 +459,23 @@ class Function extends Base {
     isNaN():boolean {
         return this._child.isNaN()
     }
+
+    isSimplified():boolean {
+        if (this._name == '(+)') {
+            return false
+        }
+        if (!this._child.isSimplified()) {
+            return false
+        }
+        
+        if (this._name == '(-)' && this._child.startsWithMinus) {
+            return false
+        }
+        if (this._name == 'sqrt' && (this._child instanceof Scalar) && this._child.isPerfectSquare()) {
+            return false
+        }
+        return true
+    }
 }
 
 export { Function }
