@@ -32,8 +32,8 @@ class NumericCheck extends AbsChecker {
             this._message = "Expression numérique attendue (pas d'infini)."
             return false
         }
-        // on souhaite également que l'expression soit développée
-        if (!mm.isExpanded()) {
+        // on souhaite également que l'expression soit simplifiée
+        if (!mm.isSimplified()) {
             this._message = "Vous devez simplifier."
             return false
         }
@@ -49,7 +49,8 @@ class NumericCheck extends AbsChecker {
     }
 
     toFormat():string {
-        return `$${this.parsedUser().latex()}$`
+        // on attend bien sûr une forme simplifiée
+        return `$${this.parsedUser().toFormat('s$')}$`
     }
 
     name():string {
