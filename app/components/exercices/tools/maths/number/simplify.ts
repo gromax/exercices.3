@@ -178,6 +178,16 @@ function functionSimplify(node:Function):Base {
         return childSim.child
     }
 
+    if (funcName == 'sqrt') {
+        if (childSim instanceof Scalar && childSim.isPerfectSquare()) {
+            return new Scalar(childSim.toDecimal({}).sqrt())
+        }
+        if (childSim instanceof Power && childSim.exposant instanceof Scalar && childSim.exposant.isEven()) {
+            const nExp = new Scalar(childSim.exposant.toDecimal({}).div(2))
+            return simplify(new Power(childSim.base, nExp))
+        }
+    }
+
     if (funcName === 'inverse') {
         if (childSim instanceof Div) {
             return simplify(new Div(childSim.right, childSim.left))
@@ -240,9 +250,16 @@ function multSimplify(node:Mult):Base {
         return scalarFactor
     }
 
-    if (!scalarFactor.isOne()) {
-        nonScalarFactors.unshift(scalarFactor)
+    if (scalarFactor.isOne()) {
+        return Mult.fromList(nonScalarFactors)
+    } else if (scalarFactor.isMinusOne()) {
+        if (typeof (nonScalarFactors[0] as any).opposite === 'function') {
+            nonScalarFactors[0] = (nonScalarFactors[0] as any).opposite()
+            return Mult.fromList(nonScalarFactors)
+        }
+        return new Function('(-)', Mult.fromList(nonScalarFactors))
     }
+    nonScalarFactors.unshift(scalarFactor)
     return Mult.fromList(nonScalarFactors)
 }
 
