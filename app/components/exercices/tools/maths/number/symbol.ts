@@ -139,7 +139,7 @@ class Symbol extends Base {
         return new Signature({[this._name]:1})
     }
 
-    substituteVariable(varName:string, value:Base|string|Decimal|number):Base {
+    substituteVariable(varName:string, value:Base|Decimal|number):Base {
         if (this._name === varName) {
             if (value instanceof Base) {
                 return value
@@ -150,7 +150,7 @@ class Symbol extends Base {
         return this
     }
 
-    substituteVariables(substitions:Record<string, Base|string|Decimal|number>):Base {
+    substituteVariables(substitions:Record<string, Base|Decimal|number>):Base {
         if (this._name in substitions) {
             return this.substituteVariable(this._name, substitions[this._name])
         }

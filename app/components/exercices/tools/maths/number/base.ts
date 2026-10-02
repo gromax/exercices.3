@@ -173,19 +173,19 @@ abstract class Base {
     /**
      * crée un clone avec la variable substituée par la valeur donnée
      * @param {string} varName 
-     * @param {Base|number} value 
+     * @param {Base|Decimal|number} value 
      * @returns {Base}
      */
-    substituteVariable(varName:string, value:Base|string|Decimal|number):Base {
+    substituteVariable(varName:string, value:Base|Decimal|number):Base {
         return this;
     }
 
     /**
      * substitue d'un coup plusieurs variables
-     * @param {object} substitutions de forme {varName: Base|number, ...}
+     * @param {Record<string, Base|Decimal|number>} substitutions de forme {varName: Base|Decimal|number, ...}
      * @returns {Base}
      */
-    substituteVariables(substitutions:Record<string, Base|string|Decimal|number>):Base {
+    substituteVariables(substitutions:Record<string, Base|Decimal|number>):Base {
         return this;
     }
 

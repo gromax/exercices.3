@@ -102,10 +102,10 @@ class Collection extends Base {
     /**
      * Produit une copie de l'objet en substituant la variable spécifiée
      * @param {string} varName le nom de la variable à substituer
-     * @param {Base|string|Decimal|number} value la valeur à substituer à la variable
+     * @param {Base|Decimal|number} value la valeur à substituer à la variable
      * @returns {Base} le nouveau noeud après substitution
      */
-    substituteVariable(varName:string, value:Base|string|Decimal|number):Base {
+    substituteVariable(varName:string, value:Base|Decimal|number):Base {
         const children = this._children.map( c => c.substituteVariable(varName, value) )
         if (children.every( (c, i) => c === this._children[i] )) {
             // pas de changement
@@ -116,10 +116,10 @@ class Collection extends Base {
 
     /**
      * Produit une copie de l'objet en substituant plusieurs variables
-     * @param {Record<string, Base|string|Decimal|number>} substitutions un objet contenant les substitutions à effectuer
+     * @param {Record<string, Base|Decimal|number>} substitutions un objet contenant les substitutions à effectuer
      * @returns {Base} le nouveau noeud après substitution
      */
-    substituteVariables(substitutions:Record<string, Base|string|Decimal|number>):Base {
+    substituteVariables(substitutions:Record<string, Base|Decimal|number>):Base {
         const children = this._children.map( c => c.substituteVariables(substitutions) )
         if (children.every( (c, i) => c === this._children[i] )) {
             // pas de changement

@@ -218,7 +218,7 @@ class AddMinus extends Base {
         return true;
     }
 
-    substituteVariable(varName:string, value:Base|string|Decimal|number):Base {
+    substituteVariable(varName:string, value:Base|Decimal|number):Base {
         const children = this._children.map( c => c.substituteVariable(varName, value) )
         if (children.every( (c, i) => c === this._children[i] )) {
             // pas de changement
@@ -227,7 +227,7 @@ class AddMinus extends Base {
         return new AddMinus(children, this._positive)
     }
 
-    substituteVariables(substitutions:Record<string, Base|string|Decimal|number>):Base {
+    substituteVariables(substitutions:Record<string, Base|Decimal|number>):Base {
         const children = this._children.map( c => c.substituteVariables(substitutions) )
         if (children.every( (c, i) => c === this._children[i] )) {
             // pas de changement

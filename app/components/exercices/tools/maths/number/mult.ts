@@ -106,7 +106,7 @@ class Mult extends Base {
         return this._children.map( c => c.subVariables() )
     }
 
-    substituteVariable(varName:string, value:Base|string|Decimal|number):Base {
+    substituteVariable(varName:string, value:Base|Decimal|number):Base {
         if (!this.isFunctionOf(varName)) {
             return this
         }
@@ -114,7 +114,7 @@ class Mult extends Base {
         return new Mult(children)
     }
 
-    substituteVariables(substitions:Record<string, Base|string|Decimal|number>):Base {
+    substituteVariables(substitions:Record<string, Base|Decimal|number>):Base {
         const children = this._children.map( c => c.substituteVariables(substitions) )
         if (children.every((child, index) => child === this._children[index])) {
             // pas de changement

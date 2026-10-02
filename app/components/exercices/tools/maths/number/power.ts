@@ -203,7 +203,7 @@ class Power extends Base {
         return this._base.signature().power(this._decExposant.toNumber())
     }
 
-    substituteVariable(varName:string, value:Base|string|Decimal|number):Base {
+    substituteVariable(varName:string, value:Base|Decimal|number):Base {
         const newBase = this._base.substituteVariable(varName, value)
         if (newBase === this._base) {
             // pas de changement
@@ -212,7 +212,7 @@ class Power extends Base {
         return new Power(newBase, this._exposant)
     }
 
-    substituteVariables(values:Record<string, Base|string|Decimal|number>):Base {
+    substituteVariables(values:Record<string, Base|Decimal|number>):Base {
         const newBase = this._base.substituteVariables(values)
         const newExposant = this._exposant.substituteVariables(values)
         if (newBase === this._base && newExposant === this._exposant) {

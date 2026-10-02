@@ -88,7 +88,7 @@ class Div extends Base {
         return [...this._left.subVariables(), ...this._right.subVariables()]
     }
 
-    substituteVariable(varName:string, value:Base|string|Decimal|number):Base {
+    substituteVariable(varName:string, value:Base|Decimal|number):Base {
         const newLeft = this._left.substituteVariable(varName, value)
         const newRight = this._right.substituteVariable(varName, value)
         if (newLeft === this._left && newRight === this._right) {
@@ -98,7 +98,7 @@ class Div extends Base {
         return new Div(newLeft, newRight)
     }
 
-    substituteVariables(substitutions:Record<string, Base|string|Decimal|number>):Base {
+    substituteVariables(substitutions:Record<string, Base|Decimal|number>):Base {
         const leftSub = this._left.substituteVariables(substitutions)
         const rightSub = this._right.substituteVariables(substitutions)
         if (leftSub === this._left && rightSub === this._right) {

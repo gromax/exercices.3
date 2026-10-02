@@ -350,7 +350,7 @@ class Function extends Base {
         return new Function('(-)', this)
     }
 
-    substituteVariable(varName:string, value:Base|string|Decimal|number):Base {
+    substituteVariable(varName:string, value:Base|Decimal|number):Base {
         if (this._name == "diff") {
             return this._getDerForDiff().substituteVariable(varName, value)
         }
@@ -361,7 +361,7 @@ class Function extends Base {
         return new Function(this._name, newChild)
     }
 
-    substituteVariables(substitutions:Record<string, Base|string|Decimal|number>):Base {
+    substituteVariables(substitutions:Record<string, Base|Decimal|number>):Base {
         if (this._name == "diff") {
             return this._getDerForDiff().substituteVariables(substitutions)
         }
