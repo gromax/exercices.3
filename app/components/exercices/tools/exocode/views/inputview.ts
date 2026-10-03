@@ -51,7 +51,8 @@ const InputView = View.extend({
             name: this.getOption("name"),
             tag: this.getOption("tag"),
             answer: this.getOption("answer"),
-            keyboard: this._getKeyboard()
+            keyboard: this._getKeyboard(),
+            placeholder: this.getOption("placeholder") || 'Entrez votre réponse'
         }
     },
     events: {

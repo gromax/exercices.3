@@ -459,8 +459,8 @@ Certains paramètres sont essentiels au fonctionnement. Par exemple :
 
 ```
 <input:x>
-<tag:$x$/>
-<solution:3>
+  <tag:$x$/>
+  <solution:3>
 </input>
 ```
 
@@ -585,18 +585,19 @@ Un champ input se traduira par une zone de saisie dans laquelle on peut entrer d
 * header : c'est l'identifiant de la réponse telle qu'elle sera sauvée dans la BDD. Il faut donc que tous les input en ait un différent. De plus, cet identifiant ne devrait pas rentrer en conflit avec ceux déjà déclaré avec `@` dans l'initialisation et les options.
 * tag : ce qui sera affiché pour représenter la valeur demandée. Un affichage Tex est possible. Par exemple $x_A$.
 * solution : la valeur attendue. Il est possible de fournir un tableau. Dans ce cas, la réponse sera considére valide du moment qu'elle correspond à au moins un item de solution.
-* tagSolution : on peut désirer forcer un affichage de solution. On peut le faire avec tagSolution. Voici un exemple d'usage :
+* `tagSolution` : on peut désirer forcer un affichage de solution. On peut le faire avec tagSolution. Voici un exemple d'usage :
+* `placeholder` : dans un champ de saisie, on peut donner une indicatiojn en griser. Par défaut ce sera "Entrez votre réponse". Mais on peut choisir autre chose. Par exemple, si on veut inviter l'élève à entrer une équation de droite, on peut mettre "y=mx+p"
 
 ```
 @f = (x+5)*(x+7)
 <form>
-<input:d>
-<tag:Développer ${@f:$}$/>
-<solution:@f/>
-<format:expand/>
-<keyboard:square/>
-<tagSolution:${expand(@f):$}$/>
-</input>
+  <input:d>
+    <tag:Développer ${@f:$}$/>
+    <solution:@f/>
+    <vars:x:expand/>
+    <keyboard:square/>
+    <tagSolution:${expand(@f):$}$/>
+  </input>
 </form>
 ```
 
@@ -668,12 +669,35 @@ On peut aussi ajouter son clavier custom :
   * `name` est un identifiant unique
   * `tag` est ce qui apparaîtra sur le bouton
   * `replacement` est le texte qui sera placé au niveau du curseur dans le champs
+  * `pre` et `post` : servent si l'utilisateur à sélectionner du texte et appuie le bouton
 
-Par exempele 
+**Quelques exemples :**
+
+```
+<keyboard:exp/>
+```
+
+Dans ce cas, le bouton est étiqueté `exp` et le bouton ajoutera `exp` dans le champ de saisie.
+
+```
+<keyboard:exp:$e^x$/>
+```
+
+Dans ce cas, le bouton est étiqueté `$e^x$` et le bouton ajoutera `exp` dans le champ de saisie.
 
 ```
 <keyboard:exp:$e^x$:e^x/>
 ```
+
+Dans ce cas, le bouton est étiqueté `$e^x$` et le bouton ajoutera `e^x` dans le champ de saisie.
+
+```
+<keyboard:exp:$e^x$:e^x:exp(:)/>
+```
+
+Dans ce cas, le bouton est étiqueté `$e^x$`. Si aucun caractère n'est sélectionné dans le champ de saisie, alors le bouton ajoute `e^x`. Si on avait préalablement sélectionné par exemple les caractères `3t` dans le champ de saisie, le bouton remplace par `exp(3t)`
+
+
 
 ###### Pas de formule en solution !
 

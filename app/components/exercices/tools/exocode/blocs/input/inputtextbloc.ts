@@ -6,6 +6,7 @@ import { formatValue } from "@components/exercices/tools/maths/misc/formatvalue"
 import { View } from "backbone.marionette"
 import { AnyView, NestedInput } from "@types"
 import TextBloc from "../textbloc"
+import { getStringOption } from "../../misc"
 
 class InputTextBloc extends InputBloc {
     static LABEL = 'input'
@@ -38,7 +39,8 @@ class InputTextBloc extends InputBloc {
             name: this.header,
             tag: this.params.tag || this.header,
             answer: answers[this.header] || null,
-            keyboard: this.params.keyboard || []
+            keyboard: this.params.keyboard || [],
+            placeholder: getStringOption(this.params, "placeholder", '')
         })
 
         const helpViews = aideBlocs.map(bloc => {
