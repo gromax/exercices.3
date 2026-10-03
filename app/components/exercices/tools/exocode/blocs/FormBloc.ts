@@ -3,6 +3,7 @@ import Bloc from "./bloc"
 import FormView from "../views/formview"
 import ResultsView from "../views/resultsview"
 import { AnyView } from "@types"
+import TextNode from "../textnode"
 
 /* Il faut vérifier les answers dans entity et choisir si on affiche
    le formulaire ou pas. */
@@ -29,7 +30,7 @@ class FormBloc extends Bloc {
 
     private _viewFormCase(answers:Record<string, string>):AnyView {
         const subViews:Array<AnyView> = this._children.filter(
-            (child): child is Bloc => child instanceof Bloc
+            (child): child is any => (child instanceof Bloc) || (child instanceof TextNode)
         ).map(
             (child) => child.view(answers)
         )

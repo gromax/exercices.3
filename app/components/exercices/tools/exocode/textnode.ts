@@ -1,7 +1,8 @@
 import _ from "underscore"
 import MyMath from '@mathstools/mymath'
-import { TParams } from '@types'
-import { Node, TRunResult } from './node'
+import { TParams, AnyView } from '@types'
+import { Node } from './node'
+import TextNodeView from './views/textnode'
 
 class TextNode extends Node {
     private _text:string
@@ -11,6 +12,16 @@ class TextNode extends Node {
     constructor(text:string) {
         super('textnode')
         this._text = text
+    }
+
+    view(answers:Record<string, string>):AnyView {
+        if (!this._runned) {
+            throw new Error("Le bloc doit être exécuté avant de pouvoir générer des vues.")
+        }
+        return new TextNodeView({
+            text: this._text,
+            style: this._style
+        })
     }
 
     toString():string {
