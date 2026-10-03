@@ -12,7 +12,7 @@ const KEYS = {
     'infini': { tag: '$\\infty$', rep:'∞' },
     'pinfini': { tag: '$+\\infty$', rep:'+∞' },
     'minfini': { tag: '$-\\infty$', rep:'-∞' },
-    'empty': { tag: '$\\emptyset$', rep:'∅' },
+    'empty': { tag: '$\\varnothing$', rep:'∅' },
     'union': { tag: '$\\cup$', rep:'∪' },
     'intersection': { tag: '$\\cap$', rep:'∩' }
 }
@@ -34,8 +34,14 @@ const InputView = View.extend({
             const name = fragments[0]
             const tag = fragments.length > 1 ? fragments[1] : name
             const replacement = fragments.length > 2 ? fragments[2] : name
-            const keyObj = { tag: tag, rep: replacement }
-            this._keyboardKeys[name] = keyObj
+            if (fragments.length == 5) {
+                const pre = fragments[3]
+                const post = fragments[4]
+                this._keyboardKeys[name] = { tag: tag, pre: pre, post: post, rep: replacement }
+            } else {
+                this._keyboardKeys[name] = { tag: tag, rep: replacement }
+            }
+            
         }
         return this._keyboardKeys
     },
