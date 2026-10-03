@@ -8,6 +8,7 @@ import Decimal from "decimal.js"
 import { Signature } from "./signature"
 import { NestedString } from '@types'
 import { gcd } from "../misc/functions"
+
 class Div extends Base {
     private _left:Base /** @type {Base} */
     private _right:Base /** @type {Base} */
@@ -182,8 +183,11 @@ class Div extends Base {
         if (n.isNaN() || d.isNaN()) {
             return false
         }
-        const gcdValue = gcd(n.toNumber(), d.toNumber())
-        return gcdValue !== 1
+        if (d.equals(1)) {
+            return true
+        }
+        const gcdValue = gcd(n, d)
+        return !gcdValue.equals(1)
     }
 
     /**

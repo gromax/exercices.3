@@ -147,10 +147,10 @@ class Calc {
      * @returns {InputType} objet représentant pgcd(x, y)
      */
     static pgcd(x: InputType, y: InputType): InputType {
-        const ix = MyMath.tryInteger(x)
-        const iy = MyMath.tryInteger(y)
-        if ((ix !== false) && (iy !== false)) {
-            return gcd(ix, iy)
+        const decX = MyMath.toDecimal(x)
+        const decY = MyMath.toDecimal(y)
+        if (!decX.isNaN() && !decY.isNaN()) {
+            return MyMath.make(gcd(decX, decY).toString())
         }
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `pgcd(${x}; ${y})`
@@ -165,11 +165,11 @@ class Calc {
      * @returns {InputType} objet représentant ppcm(x, y)
      */
     static ppcm(x: InputType, y: InputType): InputType {
-        const ix = MyMath.tryInteger(x)
-        const iy = MyMath.tryInteger(y)
-        if ((ix !== false) && (iy !== false)) {
-            if (ix === 0 || iy === 0) return 0
-            return Math.abs(ix * iy) / gcd(ix, iy) as number
+        const decX = MyMath.toDecimal(x)
+        const decY = MyMath.toDecimal(y)
+        if (!decX.isNaN() && !decY.isNaN()) {
+            if (decX.isZero() || decY.isZero()) return MyMath.make('0')
+            return MyMath.make(decX.mul(decY).div(gcd(decX, decY)).abs().toString())
         }
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `ppcm(${x}; ${y})`

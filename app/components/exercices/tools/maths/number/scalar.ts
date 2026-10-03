@@ -2,30 +2,8 @@ import { Base } from "./base"
 import { Signature } from "./signature"
 import Decimal from "decimal.js"
 import { NestedString } from '@types'
+import { gcd } from "../misc/functions"
 
-/** Calcul du plus grand commun diviseur de deux entiers a et b
- * Valable même pour a et b décimaux
- * @param {Decimal} a
- * @param {Decimal} b
- * @returns {Decimal}
- */
-function gcd(a:Decimal, b:Decimal):Decimal {
-    if (b.isZero()) {
-        return a
-    }
-    if (a.isZero()) {
-        return b
-    }
-    a = a.abs()
-    b = b.abs()
-    let r = a.mod(b)
-    while (!r.isZero()) {
-        a = b
-        b = r
-        r = a.mod(b)
-    }
-    return new Decimal(b)
-}
 
 class Scalar extends Base {
 
@@ -119,7 +97,7 @@ class Scalar extends Base {
         } else {
             throw new Error(`entree = ${entree} invalide pour un Scalar`)
         }
-        // si un dennominateur est donné, on est dans un cas où on veut simplifier
+        // si un denominateur est donné, on est dans un cas où on veut simplifier
         if (!(denominator instanceof Decimal)) {
             return
         }

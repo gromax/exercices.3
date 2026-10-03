@@ -1,3 +1,5 @@
+import Decimal from "decimal.js"
+
 const PREMIERS = [
     2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101,
     103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229,
@@ -26,21 +28,41 @@ function aleaPrime(n:number): number {
     return primes[i]
     }
 
-function gcd(a: number, b: number): number {
-    a = Math.abs(a)
-    b = Math.abs(b)
-    if (!Number.isInteger(a) || !Number.isInteger(b)) {
-        throw new Error(`[${String(a)} , ${String(b)}] Entiers requis pour le PGCD.`)
+/** Calcul du plus grand commun diviseur de deux entiers a et b
+ * Valable même pour a et b décimaux
+ * @param {Decimal} a
+ * @param {Decimal} b
+ * @returns {Decimal}
+ */
+function gcd(a:Decimal, b:Decimal):Decimal {
+    if (a.isNaN() || b.isNaN()) {
+        return new Decimal("NaN")
     }
-    if (a==0 && b==0) {
-        throw new Error(`PGCD(0;0) n'est pas défini.`)
+    if (b.isZero()) {
+        if (a.isZero()) {
+            return new Decimal("NaN")
+        }
+        return a
     }
-    while (b !== 0) {
-        const r = a % b
+    if (a.isZero()) {
+        return b
+    }
+    a = a.abs()
+    b = b.abs()
+    let r = a.mod(b)
+    while (!r.isZero()) {
         a = b
         b = r
+        r = a.mod(b)
     }
-    return a
+    return new Decimal(b)
 }
 
-export { gcd, aleaPrime }
+function ppcm(a: Decimal, b: Decimal): Decimal {
+    if (a.isZero() && b.isZero()) return new Decimal("NaN")
+    a = a.abs()
+    b = b.abs()
+    return a.times(b).dividedBy(gcd(a, b))
+}
+
+export { gcd, aleaPrime, ppcm }

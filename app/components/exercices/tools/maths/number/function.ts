@@ -10,29 +10,13 @@ import Decimal from "decimal.js"
 import { Signature } from "./signature"
 import { NestedString } from '@types'
 import { INFINI } from "./constant"
-
-function PGCD(a: Decimal, b: Decimal): Decimal {
-    if (!a.isInteger() || !b.isInteger()) {
-        return new Decimal('NaN') // Entiers requis pour le PGCD.
-    }
-    if (a.isZero() && b.isZero()) {
-        return new Decimal('NaN') // PGCD(0,0) n'est pas défini.
-    }
-    a = a.abs()
-    b = b.abs()
-    while (!b.isZero()) {
-        const r = a.modulo(b)
-        a = b
-        b = r
-    }
-    return a
-}
+import { gcd } from "../misc/functions"
 
 function PPCM(a: Decimal, b: Decimal): Decimal {
     if (a.isZero() || b.isZero()) return new Decimal(0)
     a = a.abs()
     b = b.abs()
-    return a.times(b).dividedBy(PGCD(a, b))
+    return a.times(b).dividedBy(gcd(a, b))
 }
 
 
@@ -172,7 +156,7 @@ class Function extends Base {
         switch (name) {
             case 'mod': return value1.modulo(value2)
             case 'div': return value1.minus(value1.modulo(value2)).dividedBy(value2)
-            case 'pgcd': return PGCD(value1, value2)
+            case 'pgcd': return gcd(value1, value2)
             case 'ppcm': return PPCM(value1, value2)
             case 'min': return Decimal.min(value1, value2)
             case 'max': return Decimal.max(value1, value2)
