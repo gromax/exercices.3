@@ -18,8 +18,6 @@ abstract class Bloc extends Node {
     protected _children:Array<Node>
     protected _closed:boolean
     protected _paramsString:string
-    protected _defaultOption?:string
-    protected _options?:Array<Option>
 
     constructor(tag:string, paramsString:string, closed:boolean) {
         super(tag)
@@ -67,8 +65,10 @@ abstract class FluxBloc extends Bloc {
 }
 
 class ContentBloc extends Bloc {
-    readonly HAS_PARAMS = false
     protected _params:TParams
+    protected _defaultOption?:string
+    protected _options?:Array<Option>
+
 
     constructor(tag:string, paramsString:string, closed:boolean) {
         super(tag, paramsString, closed)
@@ -127,6 +127,9 @@ class ContentBloc extends Bloc {
     }
 
     setOption(option:Option):void {
+        if (!this.hasOptions) {
+            throw new Error(`Le bloc <${this.tag}> n'accepte pas d'options.`)
+        }
         if (this._defaultOption === undefined) {
             this._defaultOption = option.key
         }
@@ -144,7 +147,10 @@ class ContentBloc extends Bloc {
      * @param {string} key 
      * @param {NestedInput} value 
      */
-    setParam(key:string, value:NestedInput):void {
+    protected setParam(key:string, value:NestedInput):void {
+        if (!this.hasParams) {
+            throw new Error(`Le bloc <${this.tag}> n'accepte pas de paramètres.`)
+        }
         const realKey = key.endsWith('[]')
             ? key.slice(0, -2)
             : key
@@ -183,7 +189,7 @@ class ContentBloc extends Bloc {
     }
 
     get params():TParams {
-        if (this.HAS_PARAMS) {
+        if (this.hasParams) {
             return this._params
         }
         throw new Error(`Un bloc <${this.tag}> n'a pas de paramètres`)
@@ -198,11 +204,18 @@ class ContentBloc extends Bloc {
         return
     }
 
+    get hasParams():boolean {
+        return Boolean(this["HAS_PARAMS"])
+    }
 
+    get hasOptions():boolean {
+        return Boolean(this["HAS_OPTIONS"])
+    }
 }
 
 abstract class BlocWithView extends ContentBloc {
     protected _colors?:Colors
+    readonly HAS_PARAMS = true
 
     protected abstract _getView(answers:Record<string, string>):AnyView
 
