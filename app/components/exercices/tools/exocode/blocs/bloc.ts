@@ -135,17 +135,6 @@ class Bloc extends Node {
         return this
     }
 
-    protected _getView(answers:Record<string, string>):AnyView {
-        return new UnknownView({ name:this.tag, code: this.toString() })
-    }
-
-    view(answers:Record<string, string>):AnyView {
-        if (!this._runned) {
-            throw new Error("Le bloc doit être exécuté avant de pouvoir générer des vues.")
-        }
-        return this._getView(answers)
-    }
-
     setOption(option:Option):void {
         if (this._defaultOption === undefined) {
             this._defaultOption = option.key
@@ -183,9 +172,18 @@ class Bloc extends Node {
     protected verifyMyParams():void {
         return
     }
+}
 
+abstract class BlocWithView extends Bloc {
+    protected abstract _getView(answers:Record<string, string>):AnyView
 
+    view(answers:Record<string, string>):AnyView {
+        if (!this._runned) {
+            throw new Error("Le bloc doit être exécuté avant de pouvoir générer des vues.")
+        }
+        return this._getView(answers)
+    }
 
 }
 
-export default Bloc
+export { Bloc, BlocWithView }
