@@ -1,4 +1,4 @@
-import Bloc from "./bloc"
+import { Bloc } from "./bloc"
 import TextBloc from "./textbloc"
 import InputTextBloc from "./input/inputtextbloc"
 import RadioBloc from "./input/radiobloc"
@@ -53,8 +53,7 @@ function parseBloc(line:string):Bloc|null {
     if (GraphItemBloc.LABELS.includes(label)) {
         return new GraphItemBloc(label, paramsString)
     }
-
-    return new Bloc(label, paramsString, false)
+    return null
 }
 
 export { parseBloc }
