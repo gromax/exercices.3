@@ -1,4 +1,4 @@
-import Bloc from '../blocs/bloc'
+import { Bloc } from '../blocs/bloc'
 import parseExpression from './logicalparser'
 import LogicalNode from './logicalnode'
 import { Node } from "../node"

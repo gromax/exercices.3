@@ -1,4 +1,4 @@
-import Bloc from './bloc'
+import { Bloc } from './bloc'
 
 class OptionBloc extends Bloc {
     static readonly LABELS = ['option']

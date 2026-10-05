@@ -1,4 +1,4 @@
-import Bloc from '../bloc'
+import { Bloc } from '../bloc'
 import { GRAPHS_KEYWORDS } from './parsegraphitem'
 
 class GraphItemBloc extends Bloc {
