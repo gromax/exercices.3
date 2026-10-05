@@ -1,9 +1,9 @@
-import Bloc from "./bloc"
+import { BlocWithView } from "./bloc"
 import { ChoicesView } from "../views/choice"
 import { AnyView } from '@types'
 import ChoiceManager from './choicemanager'
 
-class ChoiceBloc extends Bloc {
+class ChoiceBloc extends BlocWithView {
     static readonly LABELS = ['choices', 'choix']
     
     constructor(tag:string, paramsString:string) {
