@@ -1,7 +1,7 @@
-import { Bloc } from '../bloc'
+import { BlocWithParams } from '../bloc'
 import { GRAPHS_KEYWORDS } from './parsegraphitem'
 
-class GraphItemBloc extends Bloc {
+class GraphItemBloc extends BlocWithParams {
     static readonly LABELS = GRAPHS_KEYWORDS
 
     constructor(tag:string, paramsString:string) {
