@@ -1,7 +1,7 @@
-import { Bloc, FluxBloc } from '../blocs/bloc'
+import { FluxBloc } from '../blocs/bloc'
 import parseExpression from './logicalparser'
 import LogicalNode from './logicalnode'
-import { Node } from "../node"
+import type { Node } from "../node"
 import { TParams } from "@types"
 
     
