@@ -1,10 +1,10 @@
-import Bloc from './bloc'
+import { BlocWithView } from './bloc'
 import { AnyView, TParams } from "@types"
 import TextView from '../views/textview'
 import HelpView from '../views/helpview'
 import TextNode from '../textnode'
 
-class TextBloc extends Bloc {
+class TextBloc extends BlocWithView {
     static readonly LABELS = ['text', 'texte', 'warning', 'aide', 'info', 'help']
     protected _text:Array<string> = []
     private _textnodes: TextNode[] = []

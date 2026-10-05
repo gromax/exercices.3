@@ -1,8 +1,8 @@
-import Bloc from "../bloc"
+import { BlocWithView } from "../bloc"
 import FormItemImplementation from "../../implementation/formitem"
 import { AnyView } from "@types"
 
-abstract class InputBloc extends Bloc implements FormItemImplementation {
+abstract class InputBloc extends BlocWithView implements FormItemImplementation {
     readonly IMPLEMENTATION_FORMITEM = true
     protected _resultView?:AnyView
     protected _score?:number

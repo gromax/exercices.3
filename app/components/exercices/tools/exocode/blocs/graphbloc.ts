@@ -1,5 +1,5 @@
 import _ from "underscore"
-import Bloc from "./bloc"
+import { BlocWithView } from "./bloc"
 import { GraphItemBloc } from "./graphitems/graphitembloc"
 import GraphView from "../views/graphview"
 import { View } from "backbone.marionette"
@@ -11,7 +11,7 @@ import FormItemImplementation from "../implementation/formitem"
 
 type AnyView = View<any>|Array<View<any>>
 
-class GraphBloc extends Bloc implements FormItemImplementation {
+class GraphBloc extends BlocWithView implements FormItemImplementation {
     static readonly LABELS = ['graph', 'graphe']
     private _cadre:[number, number, number, number]
     private _graphItems:Array<GraphItem>

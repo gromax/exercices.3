@@ -1,9 +1,9 @@
 import _ from "underscore"
-import Bloc from './bloc'
+import { BlocWithView } from './bloc'
 import { AnyView, NestedInput } from "@types"
 import TableView from '../views/tableview'
 
-class TableBloc extends Bloc {
+class TableBloc extends BlocWithView {
     static readonly LABELS = ['table']
     private _rows?:Array<Array<string>>
     private _rowheaders?:Array<string>

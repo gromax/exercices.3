@@ -1,12 +1,12 @@
 import _ from "underscore"
-import Bloc from "./bloc";
+import { BlocWithView } from "./bloc";
 import TkzTabView from "../views/tkztabview";
 import TkzTab from "../views/tkztab/tkztab";
 import TabVarLineInput from "../views/tkztab/tabvarlineinput"
-import { AnyView, InputType, NestedInput, TabLineConfig, TLineType } from "@types";
+import { AnyView, NestedInput, TabLineConfig, TLineType } from "@types";
 import FormItemImplementation from "../implementation/formitem"
 
-class TkzTabBloc extends Bloc implements FormItemImplementation {
+class TkzTabBloc extends BlocWithView implements FormItemImplementation {
     readonly IMPLEMENTATION_FORMITEM = true
     static readonly LABELS = ['tkztab']
 
