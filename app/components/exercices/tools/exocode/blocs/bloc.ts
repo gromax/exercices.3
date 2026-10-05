@@ -146,26 +146,6 @@ class Bloc extends Node {
         return this._getView(answers)
     }
 
-    parseOption():[string, string, Record<string, string>] {
-        if (this._tag !== 'option') {
-            throw new Error("Seul un bloc <option> peut être analysé par cette méthode")
-        }
-        if (this._paramsString === '') {
-            throw new Error("Un bloc <option> doit avoir une étiquette <option:étiquette>")
-        }
-        this.run({})
-        const options:Record<string, string> = {}
-        if (this._options) {
-            for (const option of this._options) {
-                if (options[option.key] !== undefined) {
-                    console.warn(`La clé ${option.key} est définie plusieurs fois dans les options d'un même bloc <option>`)
-                }
-                options[option.key] = option.value
-            }
-        }
-        return [this._paramsString, this._defaultOption, options]
-    }
-
     setOption(option:Option):void {
         if (this._defaultOption === undefined) {
             this._defaultOption = option.key
