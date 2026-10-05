@@ -3,7 +3,7 @@ import { parseBloc } from "./blocs/parsebloc"
 import IfBloc from "./flux/ifbloc"
 import FluxManager from "./flux/fluxmanager"
 import Affectation from "./affectation"
-import { Bloc } from "./blocs/bloc"
+import { Bloc, BlocWithView } from "./blocs/bloc"
 import TextNode from "./textnode"
 import Parameter from "./parameter"
 import Option from "./option"
@@ -140,7 +140,10 @@ class MainBloc {
 
             const bloc = parseBloc(trimmed)
             if (bloc) {
-                bloc.setColors(colors)
+                if (bloc instanceof BlocWithView) {
+                    bloc.setColors(colors)
+                }
+                
                 if (bloc.closed) {
                     stack.pushInLast(bloc)
                 } else {
