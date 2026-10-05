@@ -89,10 +89,6 @@ class ContentBloc extends Bloc {
             throw new Error(`Le bloc <${this.tag}> a déjà été exécuté.`)
         }
         this._runned = true
-        /*if (this.tag ==="shuffle") {
-            // on mélange les enfants
-            return _.shuffle(this._children)
-        }*/
         const pile = [...this._children].reverse()
         this._children = []
         while (pile.length > 0) {
