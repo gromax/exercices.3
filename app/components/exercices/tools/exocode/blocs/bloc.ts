@@ -7,7 +7,6 @@ import _ from 'underscore'
 import { Node, TRunResult } from '../node'
 import { AnyView, TParams, NestedInput } from '@types'
 import FormItemImplementation from '../implementation/formitem'
-import UnknownView from '../views/unknownview'
 import Colors from '../colors'
 import Parameter from '../parameter'
 import Option from '../option'
@@ -16,62 +15,20 @@ class Bloc extends Node {
     protected _children:Array<Node>
     protected _closed:boolean
     protected _paramsString:string
-    protected _params:TParams
     protected _defaultOption?:string
     protected _options?:Array<Option>
-    protected _colors?:Colors
 
     constructor(tag:string, paramsString:string, closed:boolean) {
         super(tag)
         this._children = []
         this._closed = closed || false
         this._paramsString = paramsString
-        this._params = { header:paramsString }
-    }
-
-    /**
-     * Définir les couleurs à utiliser
-     * @param {Colors} colors 
-     */
-    setColors(colors:Colors):void {
-        this._colors = colors
-    }
-
-    /**
-     * Ajoute un paramètre au bloc
-     * Si ce paramètre existe déjà, le paramètre devient un tableau
-     * [] n'est donc requis que si on veut forcer  un tableau
-     * avec une seule valeur
-     * @param {string} key 
-     * @param {NestedInput} value 
-     */
-    setParam(key:string, value:NestedInput):void {
-        const realKey = key.endsWith('[]')
-            ? key.slice(0, -2)
-            : key
-        if (this._params[realKey] !== undefined) {
-            if (!Array.isArray(this._params[realKey])) {
-                this._params[realKey] = [this._params[realKey], value]
-            } else {
-                this._params[realKey].push(value)
-            }
-            return
-        }
-        if (key.endsWith('[]')) {
-            // bien que ce soit la première valeur, on l'a met en tableau
-            this._params[realKey] = [value]
-        } else {
-            this._params[realKey] = value
-        }
     }
 
     get header():string {
         return this._paramsString || ''
     }
 
-    get params():TParams {
-        return this._params
-    }
 
     get children():Array<Node> {
         return this._children.filter(item => !item.empty)
@@ -112,28 +69,38 @@ class Bloc extends Node {
         this._children = []
         while (pile.length > 0) {
             let item = pile.pop()
-            if (item instanceof Parameter) {
-                const result = item.getParam(params)
-                this.setParam(item.tag, result)
-                continue
-            }
-            if (item instanceof Option) {
-                this.setOption(item.getValue(params))
-            }
-            const runned:TRunResult = item.run(params)
-            if (runned === "halt") {
+            if (item && this.handlePoppedItem(item, params, pile)) {
                 break
-            } else if (runned === "nothing") {
-                continue
-            } else if (Array.isArray(runned)) {
-                pile.push(...runned.reverse())
-            } else {
-                this._children.push(runned)
             }
         }
         this.verifyMyChildren()
-        this.verifyMyParams()
         return this
+    }
+
+    /**
+     * gère un item dépilé lors du run
+     * @param {Node} item dépilé
+     * @param {TParams} params Les paramètres du bloc
+     * @return {boolean} renvoie true pour stopper le déroulement du run
+     */
+    protected handlePoppedItem(item:Node, params:TParams, pile:Array<Node>):boolean {
+        // Implémentation par défaut : ne fait rien
+        if (item instanceof Option) {
+            this.setOption(item.getValue(params))
+        }
+        const runned:TRunResult = item.run(params)
+        if (runned === "halt") {
+            return true
+        } else if (runned === "nothing") {
+            return false
+        } else if (Array.isArray(runned)) {
+            pile.push(...runned.reverse())
+            return false
+        } else {
+            this._children.push(runned)
+            return false
+        }
+
     }
 
     setOption(option:Option):void {
@@ -166,15 +133,6 @@ class Bloc extends Node {
     }
 
     /**
-     * Lève une erreur si les paramètres ne sont pas valides.
-     * Déclencher après l'enregistrement des paramètres.
-     * @returns {void}
-     */
-    protected verifyMyParams():void {
-        return
-    }
-
-    /**
      * Lève une erreur si les enfants ne sont pas valides
      * @returns 
      */
@@ -183,7 +141,76 @@ class Bloc extends Node {
     }
 }
 
-abstract class BlocWithView extends Bloc {
+
+class BlocWithParams extends Bloc {
+    protected _params:TParams
+
+    constructor(tag:string, paramsString:string, closed:boolean) {
+        super(tag, paramsString, closed)
+        this._params = { header:paramsString }
+    }
+
+    get params():TParams {
+        return this._params
+    }
+
+    /**
+     * Ajoute un paramètre au bloc
+     * Si ce paramètre existe déjà, le paramètre devient un tableau
+     * [] n'est donc requis que si on veut forcer  un tableau
+     * avec une seule valeur
+     * @param {string} key 
+     * @param {NestedInput} value 
+     */
+    setParam(key:string, value:NestedInput):void {
+        const realKey = key.endsWith('[]')
+            ? key.slice(0, -2)
+            : key
+        if (this._params[realKey] !== undefined) {
+            if (!Array.isArray(this._params[realKey])) {
+                this._params[realKey] = [this._params[realKey], value]
+            } else {
+                this._params[realKey].push(value)
+            }
+            return
+        }
+        if (key.endsWith('[]')) {
+            // bien que ce soit la première valeur, on l'a met en tableau
+            this._params[realKey] = [value]
+        } else {
+            this._params[realKey] = value
+        }
+    }
+
+    run(params:TParams):Bloc|Array<Node> {
+        super.run(params)
+        this.verifyMyParams()
+        return this
+    }
+
+    protected handlePoppedItem(item: Node, params: TParams, pile: Array<Node>): boolean {
+        if (item instanceof Parameter) {
+            const result = item.getParam(params)
+            this.setParam(item.tag, result)
+            return false
+        }
+        return super.handlePoppedItem(item, params, pile)
+    }
+
+    /**
+     * Lève une erreur si les paramètres ne sont pas valides.
+     * Déclencher après l'enregistrement des paramètres.
+     * @returns {void}
+     */
+    protected verifyMyParams():void {
+        return
+    }
+
+}
+
+abstract class BlocWithView extends BlocWithParams {
+    protected _colors?:Colors
+
     protected abstract _getView(answers:Record<string, string>):AnyView
 
     view(answers:Record<string, string>):AnyView {
@@ -193,6 +220,14 @@ abstract class BlocWithView extends Bloc {
         return this._getView(answers)
     }
 
+    /**
+     * Définir les couleurs à utiliser
+     * @param {Colors} colors 
+     */
+    setColors(colors:Colors):void {
+        this._colors = colors
+    }
+
 }
 
-export { Bloc, BlocWithView }
+export { Bloc, BlocWithView, BlocWithParams }
