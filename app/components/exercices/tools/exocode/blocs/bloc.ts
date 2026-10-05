@@ -131,6 +131,7 @@ class Bloc extends Node {
                 this._children.push(runned)
             }
         }
+        this.verifyMyChildren()
         this.verifyMyParams()
         return this
     }
@@ -170,6 +171,14 @@ class Bloc extends Node {
      * @returns {void}
      */
     protected verifyMyParams():void {
+        return
+    }
+
+    /**
+     * Lève une erreur si les enfants ne sont pas valides
+     * @returns 
+     */
+    protected verifyMyChildren():void {
         return
     }
 }
