@@ -2,13 +2,15 @@ import Bloc from "./bloc"
 import TextBloc from "./textbloc"
 import InputTextBloc from "./input/inputtextbloc"
 import RadioBloc from "./input/radiobloc"
-import InputEnsemble from "./input/inputensemble"
 import FormBloc from "./FormBloc"
 import GraphBloc from "./graphbloc"
 import ChoiceBloc from "./choice"
 import TkzTabBloc from "./tkztabbloc"
 import InputChoice from "./input/inputchoice"
 import TableBloc from "./tablebloc"
+import { GraphItemBloc } from "./graphitems/graphitembloc"
+import { OptionBloc } from "./optionBloc"
+
 
 function parseBloc(line:string):Bloc|null {
     const regex = /^<(\w+)\s*(:\s*[^>/]+)?>$/
@@ -30,9 +32,6 @@ function parseBloc(line:string):Bloc|null {
     if (RadioBloc.LABEL == label) {
         return new RadioBloc(label, paramsString)
     }
-    if (InputEnsemble.LABEL == label) {
-        return new InputEnsemble(label, paramsString)
-    }
     if (FormBloc.LABELS.includes(label)) {
         return new FormBloc(label, paramsString, false)
     }
@@ -48,6 +47,13 @@ function parseBloc(line:string):Bloc|null {
     if (TkzTabBloc.LABELS.includes(label)) {
         return new TkzTabBloc(label, paramsString)
     }
+    if (OptionBloc.LABELS.includes(label)) {
+        return new OptionBloc(label, paramsString)
+    }
+    if (GraphItemBloc.LABELS.includes(label)) {
+        return new GraphItemBloc(label, paramsString)
+    }
+
     return new Bloc(label, paramsString, false)
 }
 
