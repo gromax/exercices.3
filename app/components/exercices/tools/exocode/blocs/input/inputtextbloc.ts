@@ -194,6 +194,13 @@ class InputTextBloc extends InputBloc {
             throw new Error(`Dans <${this.tag}:${this.header}>, la solution doit être spécifiée.`)
         }
     }
+
+    protected verifyMyChildren():void {
+        // on accepte les TextNode et les Text
+        if (this._children.some(child => !((child instanceof TextBloc)&& child.isHelp))) {
+            throw new Error(`<${this.tag}:${this.header}> ne peut avoir que des blocs d'aide comme enfants.`)
+        }
+    }
 }
 
 export default InputTextBloc
