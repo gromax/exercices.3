@@ -1,5 +1,5 @@
 import { Bloc } from "../blocs/bloc"
-import { Node, TRunResult } from "../node"
+import { Node } from "../node"
 import LogicalNode from "./logicalnode"
 import parseExpression from "./logicalparser"
 import { TParams } from "@types"
