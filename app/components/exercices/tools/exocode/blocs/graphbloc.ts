@@ -1,30 +1,11 @@
 import _ from "underscore"
 import Bloc from "./bloc"
+import { GraphItemBloc } from "./graphitems/graphitembloc"
 import GraphView from "../views/graphview"
 import { View } from "backbone.marionette"
+import { childToGraphItem } from "./graphitems/parsegraphitem"
 import GraphItem from "./graphitems/item"
-import GraphFunction from "./graphitems/function"
-import GraphPoint from "./graphitems/point"
-import GraphReels from "./graphitems/reels"
-import GraphDroite from "./graphitems/droite"
-import GraphIntegrale from "./graphitems/integrale"
-import GraphPolygon from "./graphitems/polygon"
-import GraphAngle from "./graphitems/angle"
-import GraphSegment from "./graphitems/segment"
-import GraphVector from "./graphitems/vector"
 import { getNumberOption, getBooleanOption, getStringOption } from "../misc"
-
-const GRAPHS_CLASS = [
-    GraphPoint,
-    GraphFunction,
-    GraphReels,
-    GraphDroite,
-    GraphIntegrale,
-    GraphPolygon,
-    GraphAngle,
-    GraphSegment,
-    GraphVector
-]
 
 import FormItemImplementation from "../implementation/formitem"
 
@@ -44,10 +25,14 @@ class GraphBloc extends Bloc implements FormItemImplementation {
         }
         this._graphItems = []
         for (const child of this._children) {
-            if (!(child instanceof Bloc)) {
+            if (!(child instanceof GraphItemBloc)) {
                 continue
             }
-            const graphItem = this._childToGraphItem(child)
+            const graphItem = childToGraphItem(
+                child,
+                this._getCadre(),
+                this._colors
+            )
             if (graphItem !== null) {
                 this._graphItems.push(graphItem)
             }
@@ -98,15 +83,6 @@ class GraphBloc extends Bloc implements FormItemImplementation {
             items: this._getItems(),
             aspectRatio: aspectRatio,
         })
-    }
-
-    private _childToGraphItem(item:Bloc):GraphItem|null {
-        for (const classe of GRAPHS_CLASS) {
-            if (classe.KEYWORDS.includes(item.tag)) {
-                return new classe(item, this._getCadre(), this._colors)
-            }
-        }
-        return null
     }
 
     /* Implémentation de FormItemImplementation */
