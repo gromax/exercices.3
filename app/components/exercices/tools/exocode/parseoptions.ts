@@ -1,7 +1,6 @@
 import MainBloc from "./mainbloc"
 import { Node } from "./node"
 import { OptionBloc } from "./blocs/optionBloc"
-import TextNode from "./textnode"
 
 function parseOptions(content:string) {
     const mainBlock = MainBloc._parse(content)
