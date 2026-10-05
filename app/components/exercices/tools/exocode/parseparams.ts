@@ -45,8 +45,8 @@ function _getInit(nodes:Array<Node>, options:TOptions):TParams|null {
             continue
         }
         if (item instanceof Needed) {
-            const result:"halt"|"nothing" = item.runSimple({ ...params, ...options })
-            if (result === "halt") {
+            const goOn = item.goOn({ ...params, ...options })
+            if (!goOn) {
                 return null
             }
             continue
