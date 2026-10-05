@@ -47,7 +47,12 @@ abstract class Node {
 }
 
 abstract class SimpleNode extends Node {
-    abstract runSimple(params:TParams):SimpleNode|"nothing"|"halt"
+    abstract runSimple(params:TParams):SimpleNode|null
 }
 
-export { Node, SimpleNode }
+abstract class FluxNode extends Node {
+    abstract goOn(params:TParams):boolean
+}
+
+
+export { Node, SimpleNode, FluxNode }
