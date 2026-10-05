@@ -1,11 +1,12 @@
 import JXG from 'jsxgraph'
-import Bloc from "../bloc"
+import type { GraphItemBloc } from "./graphitembloc"
 import Colors from '../../colors'
 import MyMath from "@components/exercices/tools/maths/mymath"
 import { getStringOption, getNumberOption } from '@components/exercices/tools/exocode/misc'
+import { TParams } from '@types'
+
 
 abstract class GraphItem {
-    protected item:Bloc
     protected _colors?:Colors
     protected _cadre:readonly [number, number, number, number]
     protected _attrToInputs:Record<string, string>
@@ -13,25 +14,29 @@ abstract class GraphItem {
     protected _assignedInputs: Record<string, number> = {}
     protected _solMode:boolean = false // indique si on est en mode solution
     protected _choiceTag:string // sert pour les daltoniens si un indice de couleur est utilisé
-
+    protected header:string
+    protected params: TParams
+    
     static readonly KEYWORDS: string[] = []
     static readonly AUTHORIZED_PARAMS:Array<string> = []
     static readonly TYPE: string = 'GraphItem'
     static readonly KNOWNS_INPUTS_ATTRIBUTES:string[] = []
 
-    constructor(item:Bloc, cadre: [number, number, number, number], colors:Colors) {
-        this.item = item
+    constructor(item:GraphItemBloc, cadre: [number, number, number, number], colors:Colors) {
+        this.header = item.header
+        const {header: _, ...paramsSansHeader} = item.params
+        this.params = paramsSansHeader
         this._colors = colors
         this._cadre = cadre
         this._choiceTag = ''
         this._assignColor('strokecolor')
         this._assignColor('color')
         this._attrToInputs = this._getAttrToInputs()
-        const unauthorizedParams = Object.keys(this.item.params).filter(
+        const unauthorizedParams = Object.keys(this.params).filter(
             key => !(this.constructor as typeof GraphItem).AUTHORIZED_PARAMS.includes(key)
         )
         if (unauthorizedParams.length > 0) {
-            throw new Error(`Paramètres non autorisés pour ${this.type}:${this.item.header}: ${unauthorizedParams.join(', ')}`)
+            throw new Error(`Paramètres non autorisés pour ${this.type}:${this.header}: ${unauthorizedParams.join(', ')}`)
         }
     }
 
@@ -71,7 +76,7 @@ abstract class GraphItem {
     }
 
     get name():string {
-        return this.item.header
+        return this.header
     }
 
     get type():string {
@@ -91,8 +96,8 @@ abstract class GraphItem {
      * @param {string} paramName Le nom du paramètre de couleur à assigner.
      */
     protected _assignColor(paramName:string):void {
-        if (typeof this.item.params[paramName] !== 'undefined') {
-            const color = getNumberOption(this.item.params, paramName, NaN)
+        if (typeof this.params[paramName] !== 'undefined') {
+            const color = getNumberOption(this.params, paramName, NaN)
             if (isNaN(color)) {
                 return
             }
@@ -100,7 +105,7 @@ abstract class GraphItem {
                 if (!this._colors) {
                     throw new Error(`Colors object is not defined.`)
                 }
-                this.item.params[paramName] = this._colors.getColor(color)
+                this.params[paramName] = this._colors.getColor(color)
                 const picto = this._colors.getPicto(color)
                 this._choiceTag = `<i class="fa-solid fa-${picto}"></i>`
             }
@@ -160,7 +165,7 @@ abstract class GraphItem {
      */
     protected _getAttrToInputs():Record<string, string> {
         // Implémentation par défaut, à surcharger dans les sous-classes si nécessaire
-        const inputsString:string = getStringOption(this.item.params, 'hasinputs', '')
+        const inputsString:string = getStringOption(this.params, 'hasinputs', '')
         if (inputsString === '') {
             return {}
         }
@@ -241,7 +246,7 @@ abstract class GraphItem {
     protected _getXY(coordString: string): [number, number] {
         const result = this._parseFloatCoords(coordString)
         if (result === null) {
-            throw new Error(`Objet ${this.type} ${this.item.header}: Coordonnées invalides: ${coordString}`)
+            throw new Error(`Objet ${this.type} ${this.header}: Coordonnées invalides: ${coordString}`)
         }
         return result
     }
@@ -282,15 +287,6 @@ abstract class GraphItem {
         element.on('up', hideTooltip)
 
     }
-
-    get params() {
-        return this.item.params
-    }
-
-    get header() {
-        return this.item.header
-    }
-
 }
 
 export default GraphItem
