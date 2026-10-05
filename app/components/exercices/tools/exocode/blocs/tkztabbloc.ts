@@ -82,7 +82,7 @@ class TkzTabBloc extends BlocWithView implements FormItemImplementation {
         })
     }
 
-    setParam(key:string, value:NestedInput):void {
+    protected setParam(key:string, value:NestedInput):void {
         if (TkzTab.LINESTYPES.includes(key)) {
             if (typeof value !== 'string') {
                 throw new Error("<tkztab> format de la ligne invalide : key")

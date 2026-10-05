@@ -49,7 +49,7 @@ class TableBloc extends BlocWithView {
         }
     }
 
-    setParam(key:string, value:NestedInput):void {
+    protected setParam(key:string, value:NestedInput):void {
         if (/^(rowheaders|colheaders)(\[\])?$/.test(key)) {
             this._verifParam(key, value)
             return

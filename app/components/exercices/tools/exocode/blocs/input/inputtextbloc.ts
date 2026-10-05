@@ -59,7 +59,7 @@ class InputTextBloc extends InputBloc {
         return view
     }
 
-    setParam(key:string, value:NestedInput):void {
+    protected setParam(key:string, value:NestedInput):void {
         if (key === 'format') {
             if (typeof value !== "string") {
                 throw new Error("<format> devrait être un texte.")
