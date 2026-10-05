@@ -1,4 +1,4 @@
-import { Bloc } from "./bloc"
+import { ContentBloc } from "./bloc"
 import TextBloc from "./textbloc"
 import InputTextBloc from "./input/inputtextbloc"
 import RadioBloc from "./input/radiobloc"
@@ -12,7 +12,7 @@ import { GraphItemBloc } from "./graphitems/graphitembloc"
 import { OptionBloc } from "./optionBloc"
 
 
-function parseBloc(line:string):Bloc|null {
+function parseBloc(line:string):ContentBloc|null {
     const regex = /^<(\w+)\s*(:\s*[^>/]+)?>$/
     const m = line.match(regex)
     if (m=== null) {
