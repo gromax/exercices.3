@@ -24,8 +24,8 @@ class Parameter extends SimpleNode {
         return getValue(this._param, params) ?? MyMath.substituteExpressions(this._param, params)
     }
 
-    runSimple(params:TParams):"nothing" {
-        return "nothing"
+    runSimple(params:TParams):null {
+        return null
     }
 
     toString():string {

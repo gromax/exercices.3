@@ -57,8 +57,8 @@ class Option extends SimpleNode{
         return new Option(String(key), this._label, value)
     }
 
-    runSimple(params:TParams):"nothing" {
-        return "nothing"
+    runSimple(params:TParams):null {
+        return null
     }
 
     toString():string {

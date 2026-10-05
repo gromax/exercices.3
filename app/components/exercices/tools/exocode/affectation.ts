@@ -139,9 +139,9 @@ class Affectation extends SimpleNode {
         return `@${this._tag} = ${this._expression}`
     }
 
-    runSimple(params:TParams):"nothing" {
+    runSimple(params:TParams):null {
         this.doAffectation(params, {})
-        return "nothing"
+        return null
     }
 }
 
