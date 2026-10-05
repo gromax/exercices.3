@@ -6,7 +6,6 @@ import TextNode from '../textnode'
 
 class TextBloc extends BlocWithView {
     static readonly LABELS = ['text', 'texte', 'warning', 'aide', 'info', 'help']
-    protected _text:Array<string> = []
     private _textnodes: TextNode[] = []
 
     constructor(tag:string, paramsString:string) {
@@ -20,19 +19,10 @@ class TextBloc extends BlocWithView {
         }
         super.run(params)
         // pour un bloc de texte ne conserve que le texte
-        this._text = this._children.filter(
-            (child): child is TextNode => child instanceof TextNode
-        ).map(
-            child => child.text
-        )
         this._textnodes = this._children.filter(
-            (child) => child instanceof TextNode
+            (child:any) => child instanceof TextNode
         )
         return this
-    }
-
-    get text():Array<string> {
-        return this._text
     }
 
     get isHelp():boolean {
