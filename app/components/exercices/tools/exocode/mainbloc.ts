@@ -3,7 +3,7 @@ import { parseBloc } from "./blocs/parsebloc"
 import IfBloc from "./flux/ifbloc"
 import FluxManager from "./flux/fluxmanager"
 import Affectation from "./affectation"
-import { Bloc, BlocWithView } from "./blocs/bloc"
+import { Bloc, ContentBloc, BlocWithView } from "./blocs/bloc"
 import TextNode from "./textnode"
 import Parameter from "./parameter"
 import Option from "./option"
@@ -47,10 +47,10 @@ class Stack {
 }
 
 class MainBloc {
-    private _mainBloc:Bloc
+    private _mainBloc:ContentBloc
     private _runned:boolean = false
 
-    constructor(container:Bloc) {
+    constructor(container:ContentBloc) {
         this._mainBloc = container
     }
 
@@ -68,7 +68,7 @@ class MainBloc {
         const colors = new Colors() // instancie une palette pour les blocs qui en auraient besoin
         const lines = content.split('\n')
         const stack = new Stack()
-        const mainBloc = new Bloc("main", "", false)
+        const mainBloc = new ContentBloc("main", "", false)
         stack.push(mainBloc)
 
         for (const line of lines) {
@@ -77,9 +77,6 @@ class MainBloc {
                 continue
             }
             const trimmed = line.split('#')[0].trim()
-            if (trimmed === '</main>') {
-                throw new Error("Erreur de syntaxe : fin de bloc main interdite")
-            }
 
             if (FluxManager.isElse(trimmed)) {
                 const last = stack.last
@@ -155,6 +152,9 @@ class MainBloc {
             const m = trimmed.match(/^<\/(\w+)>$/)
             if (m) {
                 // fin de bloc
+                if (stack.length === 1) {
+                    throw new Error(`Erreur de syntaxe : fin de bloc ${trimmed} sans début`)
+                }
                 const tag = m[1]
                 const item = stack.pop()
                 if (!(item instanceof Bloc)) {
@@ -173,7 +173,8 @@ class MainBloc {
             stack.pushInLast(new TextNode(trimmed))
         }
         if (stack.length !== 1) {
-            throw new Error("Erreur de syntaxe : blocs non fermés")
+            const last = stack.pop()
+            throw new Error(`Erreur de syntaxe : bloc <${last.tag}> non fermé`)
         }
         
         return new MainBloc(mainBloc)
