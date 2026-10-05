@@ -1,4 +1,4 @@
-import { Bloc } from "../blocs/bloc"
+import { FluxBloc } from "../blocs/bloc"
 import { Node } from "../node"
 import LogicalNode from "./logicalnode"
 import parseExpression from "./logicalparser"
@@ -6,7 +6,7 @@ import { TParams } from "@types"
 import IfBloc from "./ifbloc"
 import Affectation from "../affectation"
 
-class Until extends Bloc {
+class Until extends FluxBloc {
     static MAXITERATIONS = 100
     private _counter:number
     private _expression:LogicalNode
@@ -32,7 +32,7 @@ class Until extends Bloc {
         this._children.push(child as Node);
     }
 
-    run(params:TParams):Array<Node> {
+    getFlux(params:TParams):Array<Node> {
         // renvoie les enfants et le until ensuite en incrémentant le compteur
         this._counter += 1
         if (this._counter > Until.MAXITERATIONS) {

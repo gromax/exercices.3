@@ -1,11 +1,11 @@
-import { Bloc } from '../blocs/bloc'
+import { Bloc, FluxBloc } from '../blocs/bloc'
 import parseExpression from './logicalparser'
 import LogicalNode from './logicalnode'
 import { Node } from "../node"
 import { TParams } from "@types"
 
-
-class IfBloc extends Bloc {
+    
+class IfBloc extends FluxBloc {
     static readonly END = '<endif>'
     static readonly ENDIF = 'endif'
     static readonly IF = 'if'
@@ -77,7 +77,7 @@ class IfBloc extends Bloc {
         return out;
     }
 
-    run(params:TParams):Array<Node> {
+    getFlux(params:TParams):Array<Node> {
         const result = this._evaluateCondition(params);
         const ifChildren = result ? this._children : this._elseChildren;
         return ifChildren;
