@@ -24,33 +24,33 @@ class GraphPoint extends GraphItem {
     static readonly KNOWNS_INPUTS_ATTRIBUTES = ["x", "y"]
     
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, any>):JXG.GeometryElement|Record<string, JXG.GeometryElement> {
-        const x = this._assignedInputs["x"] || getNumberOption(this.item.params, 'x', 0)
-        const y = this._assignedInputs["y"] || getNumberOption(this.item.params, 'y', 0)
-        const labelSize = getNumberOption(this.item.params, 'labelsize', 14)
-        const fixed = getBooleanOption(this.item.params, 'fixed', false)
-        const assignedName = getStringOption(this.item.params, 'name', '')
-        const forme = getStringOption(this.item.params, ['forme', 'face'], 'circle')
+        const x = this._assignedInputs["x"] || getNumberOption(this.params, 'x', 0)
+        const y = this._assignedInputs["y"] || getNumberOption(this.params, 'y', 0)
+        const labelSize = getNumberOption(this.params, 'labelsize', 14)
+        const fixed = getBooleanOption(this.params, 'fixed', false)
+        const assignedName = getStringOption(this.params, 'name', '')
+        const forme = getStringOption(this.params, ['forme', 'face'], 'circle')
         const options = {
-            size: getNumberOption(this.item.params, 'size', 2),
+            size: getNumberOption(this.params, 'size', 2),
             label: {
                 autoPosition: true,
                 fontSize: labelSize
             },
-            color: getStringOption(this.item.params, 'color', 'red'),
+            color: getStringOption(this.params, 'color', 'red'),
             face: forme
         }
         if (assignedName) {
             options['name'] = assignedName
         }
 
-        if (fixed || this.isInput() && this._solMode) {
+        if (fixed || (this.isInput() && this._solMode)) {
             // ce paramètre est prioritaire sur celui passé dans les options
             options['fixed'] = true
         }
-        if (getBooleanOption(this.item.params, 'solution', false) && !this._solMode && !this.isInput()) {
+        if (getBooleanOption(this.params, 'solution', false) && !this._solMode && !this.isInput()) {
             options["visible"] = false
         }
-        const [typeElement, attr] = this._calcCible(x, y, this.item.params.on, graphObjects)
+        const [typeElement, attr] = this._calcCible(x, y, this.params.on, graphObjects)
         const point = g.create(typeElement, attr, options) as JXG.GeometryElement
         const name = point.getName()
         if (this._isGood === true) {
@@ -88,7 +88,7 @@ class GraphPoint extends GraphItem {
                 "name": `${name} ${GraphPoint.GOOD_SYMBOL}`,
             } as JXG.PointAttributes
             goodOptions.label.strokeColor = GraphPoint.GOOD_COLOR
-            const [typeElementG, attrG] = this._calcCible(goodPointCoords[0], goodPointCoords[1], this.item.params.on, graphObjects)
+            const [typeElementG, attrG] = this._calcCible(goodPointCoords[0], goodPointCoords[1], this.params.on, graphObjects)
             const goodPoint = typeElementG === "glider"
                 ? g.create("glider", attrG, goodOptions)
                 : g.create("point", attrG, goodOptions)
@@ -120,10 +120,10 @@ class GraphPoint extends GraphItem {
      */
     protected _connect_inputs(obj:JXG.GeometryElement):void {
         const inputs = this._getAttrToInputs()
-        const item = this
+        const graphItem = this
         obj.on("up", function() {
             for (const [attr, inputName] of Object.entries(inputs)) {
-                const newValue = item.getValue(obj, attr)
+                const newValue = graphItem.getValue(obj, attr)
                 const inputElement = document.querySelector(`input[name="${inputName}"]`) as HTMLInputElement | null
                 if (inputElement) {
                     inputElement.value = newValue
@@ -136,7 +136,7 @@ class GraphPoint extends GraphItem {
      * empêche un l'élément de se confondre avec un autre
      */
     setDistinct(JXG_Objects: Record<string, JXG.GeometryElement>): void {
-        const distinct = getStringOption(this.item.params, 'distinct', '')
+        const distinct = getStringOption(this.params, 'distinct', '')
         if (distinct === '') {
             return
         }
@@ -191,7 +191,7 @@ class GraphPoint extends GraphItem {
     }
 
     protected _goodPointCoords(): [number, number, number]|undefined {
-        const good = getStringOption(this.item.params, 'good', '')
+        const good = getStringOption(this.params, 'good', '')
         if (good === '') {
             return undefined
         }
@@ -213,7 +213,7 @@ class GraphPoint extends GraphItem {
             // déjà fait
             return
         }
-        const good = getStringOption(this.item.params, 'good', '')
+        const good = getStringOption(this.params, 'good', '')
         if (good === '') {
             console.warn(`Le paramètre "good" de ${this.name} n'est pas défini`)
             this._isGood = true
@@ -225,7 +225,7 @@ class GraphPoint extends GraphItem {
             // On a une coordonnée
             const [x, y, tolerance] = goodPointCoords
             if (isNaN(x) || isNaN(y) || isNaN(tolerance)) {
-                console.warn(`Le paramètre "good" de ${this.name} n'est pas correctement formaté: ${this.item.params["good"]}`)
+                console.warn(`Le paramètre "good" de ${this.name} n'est pas correctement formaté: ${this.params["good"]}`)
                 this._isGood = true
                 return
             }

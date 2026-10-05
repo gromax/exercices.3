@@ -14,11 +14,11 @@ class GraphSegment extends GraphItem {
 
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const points = this._getPoints(graphObjects)
-        const strokeColor = getStringOption(this.item.params, ['strokecolor', 'color'], 'black')
-        const strokeWidth = getNumberOption(this.item.params, 'strokewidth', 1)
-        const dash = getStringOption(this.item.params, 'dash', '')
+        const strokeColor = getStringOption(this.params, ['strokecolor', 'color'], 'black')
+        const strokeWidth = getNumberOption(this.params, 'strokewidth', 1)
+        const dash = getStringOption(this.params, 'dash', '')
 
-        const fixed = getBooleanOption(this.item.params, 'fixed', false)
+        const fixed = getBooleanOption(this.params, 'fixed', false)
         const options = {
             strokeWidth: strokeWidth,
             strokeColor: strokeColor,
@@ -27,12 +27,12 @@ class GraphSegment extends GraphItem {
         if (dash) {
             options['dash'] = dash
         }
-        if (this.item.params.name) {
-            options['name'] = this.item.params.name
+        if (this.params.name) {
+            options['name'] = this.params.name
             options['withLabel'] = true
         }
 
-        if (getBooleanOption(this.item.params, 'solution', false) && !this._solMode) {
+        if (getBooleanOption(this.params, 'solution', false) && !this._solMode) {
             options["visible"] = false
         }
         const segment = g.create('segment', points, options) as JXG.Line
@@ -48,13 +48,13 @@ class GraphSegment extends GraphItem {
      * @returns {[[number,number]|JXG.Point, [number,number]|JXG.Point]} coordonnées de deux points du segment
      */
     protected _getPoints(graphObjects:Record<string, JXG.GeometryElement>): Array<[number,number]|JXG.Point> {
-        const stringPoints = getStringOption(this.item.params, 'points', '')
+        const stringPoints = getStringOption(this.params, 'points', '')
         if (stringPoints === '') {
-            throw new Error(`Segment ${this.item.header}: le segment doit être défini par deux points`)
+            throw new Error(`Segment ${this.header}: le segment doit être défini par deux points`)
         }
         const points = stringPoints.split('|')
         if (points.length !=2) {
-            throw new Error(`Segment ${this.item.header}, attribut points [${stringPoints}]: le segment doit être défini par 2 points séparés par '|'`)
+            throw new Error(`Segment ${this.header}, attribut points [${stringPoints}]: le segment doit être défini par 2 points séparés par '|'`)
         }
         return points.map((p: string) => this._getPoint(graphObjects, p.trim()))
     }

@@ -13,11 +13,11 @@ class GraphAngle extends GraphItem {
 
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const points = this._getPoints(graphObjects)
-        const color = getStringOption(this.item.params, 'color', 'red')
-        const radius = getNumberOption(this.item.params, 'radius', 1)
-        const showValue = getBooleanOption(this.item.params, 'showvalue', false)
-        const fixed = getBooleanOption(this.item.params, 'fixed', false)
-        const ortho = getBooleanOption(this.item.params, 'ortho', false)
+        const color = getStringOption(this.params, 'color', 'red')
+        const radius = getNumberOption(this.params, 'radius', 1)
+        const showValue = getBooleanOption(this.params, 'showvalue', false)
+        const fixed = getBooleanOption(this.params, 'fixed', false)
+        const ortho = getBooleanOption(this.params, 'ortho', false)
             ? 'square'
             : 'sector'
         const options = {
@@ -27,12 +27,12 @@ class GraphAngle extends GraphItem {
             showValue: showValue,
             fixed: fixed,
         }
-        if (this.item.params.name) {
-            options['name'] = this.item.params.name
+        if (this.params.name) {
+            options['name'] = this.params.name
             options['withLabel'] = true
         }
 
-        if (this.item.params.solution == "true" && !this._solMode) {
+        if (this.params.solution == "true" && !this._solMode) {
             options["visible"] = false
         }
         const angle = g.create('angle', points, options) as JXG.Angle
@@ -48,13 +48,13 @@ class GraphAngle extends GraphItem {
      * @returns {[[number,number]|JXG.Point, [number,number]|JXG.Point, [number,number]|JXG.Point]} coordonnées de trois points de l'angle
      */
     protected _getPoints(graphObjects:Record<string, JXG.GeometryElement>): Array<[number,number]|JXG.Point> {
-        const stringPoints = getStringOption(this.item.params, 'points', '')
+        const stringPoints = getStringOption(this.params, 'points', '')
         if (stringPoints === '') {
-            throw new Error(`Angle ${this.item.header}: l'angle doit être défini par trois points`)
+            throw new Error(`Angle ${this.header}: l'angle doit être défini par trois points`)
         }
         const points = stringPoints.split('|')
         if (points.length !=3) {
-            throw new Error(`Angle ${this.item.header}, attribut points [${stringPoints}]: l'angle doit être défini par 3 points séparés par '|'`)
+            throw new Error(`Angle ${this.header}, attribut points [${stringPoints}]: l'angle doit être défini par 3 points séparés par '|'`)
         }
         return points.map((p: string) => this._getPoint(graphObjects, p.trim()))
     }

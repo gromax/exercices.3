@@ -13,18 +13,18 @@ class GraphPolygon extends GraphItem {
     ]
 
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
-        const open = getBooleanOption(this.item.params, ['open', 'ouvert'], false)
+        const open = getBooleanOption(this.params, ['open', 'ouvert'], false)
         const points = this._getPoints(graphObjects)
-        const strokeWidth:number = getNumberOption(this.item.params, 'strokewidth', 1)
-        const strokeColor = this.item.params.strokecolor || this.item.params.color||'black'
-        const fillOpacity = getNumberOption(this.item.params, ['opacite', 'opacity'], 50)/100
+        const strokeWidth:number = getNumberOption(this.params, 'strokewidth', 1)
+        const strokeColor = this.params.strokecolor || this.params.color||'black'
+        const fillOpacity = getNumberOption(this.params, ['opacite', 'opacity'], 50)/100
         const options = {
             vertices: {
                 withLabel: false,
-                fixed:this.item.params.fixed === "true"
+                fixed:this.params.fixed === "true"
             }
         }
-        const dash = getStringOption(this.item.params, 'dash', '')
+        const dash = getStringOption(this.params, 'dash', '')
         if (strokeWidth !== 0) {
             options['borders'] = {
                 strokeColor: strokeColor,
@@ -38,7 +38,7 @@ class GraphPolygon extends GraphItem {
             options['withLines'] = false
         }
 
-        const color = getStringOption(this.item.params, 'color', '')
+        const color = getStringOption(this.params, 'color', '')
         if (!color) {
             options['fillColor'] = 'none'
             options['fillOpacity'] = 0
@@ -47,7 +47,7 @@ class GraphPolygon extends GraphItem {
             options['fillColor'] = color
             options['fillOpacity'] = fillOpacity
         }
-        if (getBooleanOption(this.item.params, 'solution', false) && !this._solMode) {
+        if (getBooleanOption(this.params, 'solution', false) && !this._solMode) {
             options["visible"] = false
         }
 
@@ -66,13 +66,13 @@ class GraphPolygon extends GraphItem {
      * @returns {[[number,number]|JXG.Point, [number,number]|JXG.Point]} coordonnées de deux points de la droite
      */
     protected _getPoints(graphObjects:Record<string, JXG.GeometryElement>): Array<[number,number]|JXG.Point> {
-        const stringPoints = getStringOption(this.item.params, 'points', '')
+        const stringPoints = getStringOption(this.params, 'points', '')
         if (stringPoints === '') {
-            throw new Error(`Polygon ${this.item.header}: la polyligne doit être définie par une équation ou deux points`)
+            throw new Error(`Polygon ${this.header}: la polyligne doit être définie par une équation ou deux points`)
         }
         const points = stringPoints.split('|')
         if (points.length < 2) {
-            throw new Error(`Polygon ${this.item.header}, attribut points [${stringPoints}]: la polyligne doit avoir au moins deux points séparés par '|'`)
+            throw new Error(`Polygon ${this.header}, attribut points [${stringPoints}]: la polyligne doit avoir au moins deux points séparés par '|'`)
         }
         return points.map((p: string) => this._getPoint(graphObjects, p.trim()))
     }

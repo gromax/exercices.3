@@ -11,35 +11,35 @@ class GraphDroite extends GraphItem {
         'label', 'labelsize', 'equation', 'points', 'fixed', 'header'
     ]
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
-        const param_equation = getStringOption(this.item.params, 'equation', '')
+        const param_equation = getStringOption(this.params, 'equation', '')
         const points = (param_equation !== '')
             ? this._points_from_equation(param_equation)
             : this._points_from_points(graphObjects)
-        const dash = getStringOption(this.item.params, 'dash', '')
-        const label = getStringOption(this.item.params, 'label', '')
+        const dash = getStringOption(this.params, 'dash', '')
+        const label = getStringOption(this.params, 'label', '')
         const options = {}
         if (dash) {
             options['dash'] = dash
         }
-        options['strokeColor'] = getStringOption(this.item.params, ['color', 'strokecolor'], 'black')
-        options['strokeWidth'] = getNumberOption(this.item.params, 'strokewidth', 1)
+        options['strokeColor'] = getStringOption(this.params, ['color', 'strokecolor'], 'black')
+        options['strokeWidth'] = getNumberOption(this.params, 'strokewidth', 1)
 
-        const labelSize = this.item.params.labelsize || 14 // taille par défaut des labels
-        if (this.item.params.invisible == "true" || this.item.params.solution == "true" && !this._solMode) {
+        const labelSize = this.params.labelsize || 14 // taille par défaut des labels
+        if (this.params.invisible == "true" || this.params.solution == "true" && !this._solMode) {
             options["visible"] = false
         }
         if (label) {
             options["withLabel"] = true
             options["label"] = {
-                strokeColor: this.item.params.color || 'black',
+                strokeColor: this.params.color || 'black',
                 autoPosition: true,
                 fontSize: labelSize
             }
         }
-        const fixed = typeof this.item.params.fixed !== 'undefined'
-            ? getBooleanOption(this.item.params, 'fixed', false)
+        const fixed = typeof this.params.fixed !== 'undefined'
+            ? getBooleanOption(this.params, 'fixed', false)
             : null
-        if (fixed || typeof this.item.params.equation !== 'undefined') {
+        if (fixed || typeof this.params.equation !== 'undefined') {
             options["fixed"] = true // autrement JXG permet le déplacement
         }
         const line = g.create('line', points, options) as JXG.Line
@@ -105,13 +105,13 @@ class GraphDroite extends GraphItem {
      * @returns {[[number,number]|JXG.Point, [number,number]|JXG.Point]} coordonnées de deux points de la droite
      */
     protected _points_from_points(graphObjects:Record<string, JXG.GeometryElement>): [[number,number]|JXG.Point, [number,number]|JXG.Point] {
-        const stringPoints = getStringOption(this.item.params, 'points', '')
+        const stringPoints = getStringOption(this.params, 'points', '')
         if (stringPoints === '') {
-            throw new Error(`Droite ${this.item.header}: la droite doit être définie par une équation ou deux points`)
+            throw new Error(`Droite ${this.header}: la droite doit être définie par une équation ou deux points`)
         }
         const points = stringPoints.split('|')
         if (points.length !== 2) {
-            throw new Error(`Droite ${this.item.header}, attribut points [${stringPoints}]: la droite doit être définie par deux points séparés par '|'`)
+            throw new Error(`Droite ${this.header}, attribut points [${stringPoints}]: la droite doit être définie par deux points séparés par '|'`)
         }
         return points.map((p: string) => this._getPoint(graphObjects, p.trim())) as [[number,number]|JXG.Point, [number,number]|JXG.Point]
     }

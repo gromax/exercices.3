@@ -13,14 +13,14 @@ class GraphReels extends GraphItem {
     ]
 
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
-        const y = getNumberOption(this.item.params, 'y', 0)
-        const color = getStringOption(this.item.params, 'color', 'black')
-        const titleSize = getNumberOption(this.item.params, 'titlesize', 20)
-        const tickSize = getNumberOption(this.item.params, 'ticksize', 12)
-        const majorHeight = getNumberOption(this.item.params, 'majorheight', 10)
-        const minorHeight = getNumberOption(this.item.params, 'minorheight', 5)
-        const minorTicks = getNumberOption(this.item.params, 'minorticks', 4)
-        const strokeWidth = getNumberOption(this.item.params, 'strokewidth', 1)
+        const y = getNumberOption(this.params, 'y', 0)
+        const color = getStringOption(this.params, 'color', 'black')
+        const titleSize = getNumberOption(this.params, 'titlesize', 20)
+        const tickSize = getNumberOption(this.params, 'ticksize', 12)
+        const majorHeight = getNumberOption(this.params, 'majorheight', 10)
+        const minorHeight = getNumberOption(this.params, 'minorheight', 5)
+        const minorTicks = getNumberOption(this.params, 'minorticks', 4)
+        const strokeWidth = getNumberOption(this.params, 'strokewidth', 1)
         
         const options = {
             withLabel: true,

@@ -283,6 +283,14 @@ abstract class GraphItem {
 
     }
 
+    get params() {
+        return this.item.params
+    }
+
+    get header() {
+        return this.item.header
+    }
+
 }
 
 export default GraphItem

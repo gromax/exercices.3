@@ -13,12 +13,12 @@ class GraphVector extends GraphItem {
 
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const points = this._getPoints(graphObjects)
-        const strokeColor = getStringOption(this.item.params, ['strokecolor', 'color'], 'black')
-        const strokeWidth = getNumberOption(this.item.params, 'strokewidth', 1)
-        const dash = getStringOption(this.item.params, 'dash', '')
+        const strokeColor = getStringOption(this.params, ['strokecolor', 'color'], 'black')
+        const strokeWidth = getNumberOption(this.params, 'strokewidth', 1)
+        const dash = getStringOption(this.params, 'dash', '')
 
-        const fixed = getBooleanOption(this.item.params, 'fixed', false)
-        const showsEnd = getBooleanOption(this.item.params, 'showsend', false)
+        const fixed = getBooleanOption(this.params, 'fixed', false)
+        const showsEnd = getBooleanOption(this.params, 'showsend', false)
         const options = {
             strokeWidth: strokeWidth,
             strokeColor: strokeColor,
@@ -44,12 +44,12 @@ class GraphVector extends GraphItem {
         if (fixed) {
             options['fixed'] = true
         }
-        if (this.item.params.name) {
-            options['name'] = this.item.params.name
+        if (this.params.name) {
+            options['name'] = this.params.name
             options['withLabel'] = true
         }
 
-        if (getBooleanOption(this.item.params, 'solution', false) && !this._solMode) {
+        if (getBooleanOption(this.params, 'solution', false) && !this._solMode) {
             options["visible"] = false
         }
         const vector = g.create('segment', [_vStart, _vEnd], options) as JXG.Line
@@ -65,13 +65,13 @@ class GraphVector extends GraphItem {
      * @returns {[[number,number]|JXG.Point, [number,number]|JXG.Point]} coordonnées de deux points du vecteur
      */
     protected _getPoints(graphObjects:Record<string, JXG.GeometryElement>): [[number,number], [number,number]] {
-        const stringPoints = getStringOption(this.item.params, ['points', 'coords'], '')
+        const stringPoints = getStringOption(this.params, ['points', 'coords'], '')
         if (stringPoints === '') {
-            throw new Error(`Vector ${this.item.header}: le vecteur doit être défini par deux points`)
+            throw new Error(`Vector ${this.header}: le vecteur doit être défini par deux points`)
         }
         const points = stringPoints.split('|')
         if ((points.length ==0) || (points.length > 2)) {
-            throw new Error(`Vector ${this.item.header}, attribut points ou coords [${stringPoints}]: le vecteur doit être défini par 1 paire de coordonnées ou 2 points séparés par '|'`)
+            throw new Error(`Vector ${this.header}, attribut points ou coords [${stringPoints}]: le vecteur doit être défini par 1 paire de coordonnées ou 2 points séparés par '|'`)
         }
         const points2 = points
             .map((p: string) => this._getPoint(graphObjects, p.trim()))
@@ -84,7 +84,7 @@ class GraphVector extends GraphItem {
         if (points2.length == 1) {
             const startPoint = this._getPoint(
                 graphObjects,
-                getStringOption(this.item.params, 'start', "(0;0)")
+                getStringOption(this.params, 'start', "(0;0)")
             )
             const startCoords:[number,number] = startPoint instanceof JXG.Point
                 ? [startPoint.X(), startPoint.Y()]

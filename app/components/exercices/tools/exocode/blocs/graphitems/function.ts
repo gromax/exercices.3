@@ -13,18 +13,18 @@ class GraphFunction extends GraphItem {
         'xmin', 'xmax', 'solution', 'header', 'color'
     ]
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
-        const expressionStr = getStringOption(this.item.params, 'expression', '0')
-        const xmin = getNumberOption(this.item.params, 'xmin', this._cadre[0])
-        const xmax = getNumberOption(this.item.params, 'xmax', this._cadre[1])
-        const dash = getStringOption(this.item.params, 'dash', '')
+        const expressionStr = getStringOption(this.params, 'expression', '0')
+        const xmin = getNumberOption(this.params, 'xmin', this._cadre[0])
+        const xmax = getNumberOption(this.params, 'xmax', this._cadre[1])
+        const dash = getStringOption(this.params, 'dash', '')
         const options = {
-            'strokeWidth': getNumberOption(this.item.params, 'strokewidth', 1),
-            'strokeColor': getStringOption(this.item.params, ['strokecolor', 'color'], 'black')
+            'strokeWidth': getNumberOption(this.params, 'strokewidth', 1),
+            'strokeColor': getStringOption(this.params, ['strokecolor', 'color'], 'black')
         }
         if (dash) {
             options['dash'] = dash
         }
-        if (getBooleanOption(this.item.params, 'solution', false) && !this._solMode) {
+        if (getBooleanOption(this.params, 'solution', false) && !this._solMode) {
             options["visible"] = false
         }
         const func = MyMath.buildFunction(expressionStr)
