@@ -1,11 +1,10 @@
 import _ from "underscore"
 import MainBloc from "./mainbloc"
-import { Node, TRunResult } from "./node"
-import { TOptions, TParams, NestedArray, NestedInput } from "@types"
-import FluxManager from "./flux/fluxmanager"
-import IfBloc from "./flux/ifbloc"
-import Until from "./flux/until"
+import { Node } from "./node"
+import { TOptions, TParams, NestedArray } from "@types"
+import { FluxBloc } from "./blocs/bloc"
 import Halt from "./flux/halt"
+import Needed from "./flux/needed"
 import Affectation from "./affectation"
 import TextNode from "./textnode"
 
@@ -45,15 +44,15 @@ function _getInit(nodes:Array<Node>, options:TOptions):TParams|null {
         if (item instanceof TextNode) {
             continue
         }
-        if (FluxManager.isNeeded(item)) {
-            const result:TRunResult = item.run({ ...params, ...options })
+        if (item instanceof Needed) {
+            const result:"halt"|"nothing" = item.runSimple({ ...params, ...options })
             if (result === "halt") {
                 return null
             }
             continue
         }
-        if ((item instanceof IfBloc) || (item instanceof Until)) {
-            const children = item.run({ ...params, ...options })
+        if (item instanceof FluxBloc) {
+            const children = item.getFlux({ ...params, ...options })
             program.push(...children.reverse())
             continue
         }
