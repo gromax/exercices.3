@@ -6,7 +6,7 @@ import { AnyView } from "@types"
 class InputChoice extends InputBloc {
     static LABELS = ['inputchoice', 'inputchoix', 'choixinput', 'choiceinputchoix']
     private _manager?:ChoiceManager
-
+    readonly HAS_OPTIONS = true
 
     nombrePts():number {
         // les options avec le label 'tag' ne sont pas des questions
