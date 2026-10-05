@@ -1,6 +1,6 @@
-import { SimpleNode } from "../node"
+import { FluxNode } from "../node"
 
-class Halt extends SimpleNode{
+class Halt extends FluxNode {
     static readonly REGEX = /^<(halt|stop)\/?>$/
     static parse(line:string):Halt|null {
         const m = line.match(Halt.REGEX)
@@ -15,8 +15,8 @@ class Halt extends SimpleNode{
         super("halt")
     }
 
-    runSimple(params:any):"halt" {
-        return "halt"
+    goOn(params:any):boolean {
+        return false
     }
 
     toString():string {

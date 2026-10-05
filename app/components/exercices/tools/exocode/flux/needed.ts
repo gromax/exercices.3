@@ -1,9 +1,9 @@
 import parseExpression from "./logicalparser"
 import LogicalNode from "./logicalnode"
 import { TParams } from "@types"
-import { SimpleNode } from "../node"
+import { FluxNode } from "../node"
 
-class Needed extends SimpleNode {
+class Needed extends FluxNode {
     private _expression:LogicalNode
 
     constructor(tag:string, paramsString:string) {
@@ -14,12 +14,12 @@ class Needed extends SimpleNode {
         return `<needed ${this._expression.toString()}>`
     }
 
-    runSimple(params:TParams):"nothing"|"halt" {
+    goOn(params:TParams):boolean {
         const success = this._expression.evaluate(params)
         if (Array.isArray(success)) {
             throw new Error("<needed> : La condition ne devrait pas renvoyer un tableau")
         }
-        return success ? "nothing" : "halt"
+        return success
     }
 }
 
