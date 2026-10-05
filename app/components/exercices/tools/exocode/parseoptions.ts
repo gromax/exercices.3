@@ -1,6 +1,6 @@
 import MainBloc from "./mainbloc"
 import { Node } from "./node"
-import Bloc from "./blocs/bloc"
+import { OptionBloc } from "./blocs/optionBloc"
 import TextNode from "./textnode"
 
 function parseOptions(content:string) {
@@ -22,11 +22,7 @@ function _parseOptions(nodes:Array<Node>):TParseOptionsReturn {
     const options = {}
     const defaultsOptions = {}
     for (const child of nodes) {
-        if (child instanceof TextNode){
-            continue
-        }
-
-        if (!(child instanceof Bloc) || child.tag !== 'option') {
+        if (!(child instanceof OptionBloc)) {
             throw new Error("Le contenu des options ne peut contenir que des blocs <option>.")
         }
 
