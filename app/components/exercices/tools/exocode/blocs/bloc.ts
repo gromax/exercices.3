@@ -4,7 +4,7 @@
  */
 
 import _ from 'underscore'
-import { Node, SimpleNode } from '../node'
+import { Node, SimpleNode, FluxNode } from '../node'
 import { AnyView, TParams, NestedInput } from '@types'
 import FormItemImplementation from '../implementation/formitem'
 import Colors from '../colors'
@@ -68,6 +68,7 @@ class ContentBloc extends Bloc {
     protected _params:TParams
     protected _defaultOption?:string
     protected _options?:Array<Option>
+    protected _halted:boolean = false
 
 
     constructor(tag:string, paramsString:string, closed:boolean) {
@@ -75,6 +76,9 @@ class ContentBloc extends Bloc {
         this._params = {header: paramsString}
     }
 
+    setHalted():void {
+        this._halted = true
+    }
 
     /**
      * Exécute les morceaux de code du bloc
@@ -84,7 +88,7 @@ class ContentBloc extends Bloc {
      * @param {TParams} params
      */
 
-    run(params:TParams):ContentBloc {
+    run(params:TParams):void {
         if (this._runned) {
             throw new Error(`Le bloc <${this.tag}> a déjà été exécuté.`)
         }
@@ -94,32 +98,39 @@ class ContentBloc extends Bloc {
         while (pile.length > 0) {
             let item = pile.pop()
             if (item instanceof Option) {
-                this.setOption(item)
+                this.setOption(item.getValue(params))
             } else if (item instanceof Parameter) {
                 const result = item.getParam(params)
                 this.setParam(item.tag, result)
+            } else if (item instanceof FluxNode) {
+                const goOn = item.goOn(params)
+                if (!goOn) {
+                    this.setHalted()
+                    break
+                }
             } else if (item instanceof SimpleNode) {
                 const runned = item.runSimple(params)
-                if (runned == "halt") {
-                    break
-                } else if (runned == "nothing") {
+                if (runned === null) {
                     continue
                 } else {
                     this._children.push(runned)
                 }
             } else if (item instanceof ContentBloc) {
-                const runned = item.run(params)
-                this._children.push(runned)
+                item.run(params)
+                this._children.push(item)
+                if (item._halted) {
+                    this.setHalted()
+                    break
+                }
             } else if (item instanceof FluxBloc) {
-                const runned = item.getFlux(params)
-                this._children.push(...runned.reverse())
+                const flux = item.getFlux(params)
+                this._children.push(...flux.reverse())
             } else {
                 throw new Error(`Unsupported item type: ${item.constructor.name}`)
             }
         }
         this.verifyMyChildren()
         this.verifyMyParams()
-        return this
     }
 
     setOption(option:Option):void {
@@ -145,7 +156,7 @@ class ContentBloc extends Bloc {
      */
     protected setParam(key:string, value:NestedInput):void {
         if (!this.hasParams) {
-            throw new Error(`Le bloc <${this.tag}> n'accepte pas de paramètres.`)
+            throw new Error(`Le bloc <${this.tag}> n'accepte pas de paramètres. Paramètre <${key}:###/> rejeté.`)
         }
         const realKey = key.endsWith('[]')
             ? key.slice(0, -2)
