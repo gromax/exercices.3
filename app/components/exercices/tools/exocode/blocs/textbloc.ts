@@ -12,19 +12,6 @@ class TextBloc extends BlocWithView {
         super(tag, paramsString, false)
     }
 
-    run(params:TParams):this {
-        if (this._runned) {
-            // déjà exécuté
-            return this
-        }
-        super.run(params)
-        // pour un bloc de texte ne conserve que le texte
-        this._textnodes = this._children.filter(
-            (child:any) => child instanceof TextNode
-        )
-        return this
-    }
-
     get isHelp():boolean {
         return this.tag === 'help' || this.tag === 'aide'
     }
@@ -45,6 +32,15 @@ class TextBloc extends BlocWithView {
             info: this.tag === "info",
             warning: this.tag === 'warning',
         })
+    }
+
+    verifyMyChildren():void {
+        this._textnodes = this._children.filter(
+            (child:any) => child instanceof TextNode
+        )
+        if (this._children.some((child:any) => !(child instanceof TextNode))) {
+            throw new Error(`Un bloc <${this.tag}> ne peut contenir que du texte.`)
+        }
     }
 }
 
