@@ -1,6 +1,6 @@
-import { Bloc } from './bloc'
+import { ContentBloc } from './bloc'
 
-class OptionBloc extends Bloc {
+class OptionBloc extends ContentBloc {
     static readonly LABELS = ['option']
 
     constructor(tag:string, paramsString:string) {
