@@ -1,8 +1,6 @@
 import _ from "underscore"
 import { TParams } from "@types"
 
-type TRunResult = "halt" | "nothing" | Node | Array<Node>
-
 abstract class Node {
     protected _tag: string
     protected _runned:boolean
@@ -46,8 +44,10 @@ abstract class Node {
     get empty():boolean {
         return false
     }
-
-    abstract run(params:TParams):TRunResult
 }
 
-export { Node, TRunResult }
+abstract class SimpleNode extends Node {
+    abstract runSimple(params:TParams):SimpleNode|"nothing"|"halt"
+}
+
+export { Node, SimpleNode }
