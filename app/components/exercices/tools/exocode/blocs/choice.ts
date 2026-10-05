@@ -5,6 +5,7 @@ import ChoiceManager from './choicemanager'
 
 class ChoiceBloc extends BlocWithView {
     static readonly LABELS = ['choices', 'choix']
+    readonly HAS_OPTIONS = true
     
     constructor(tag:string, paramsString:string) {
         super(tag, paramsString, false)

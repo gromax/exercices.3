@@ -4,11 +4,8 @@ import InputBloc from "./inputbloc"
 import RadioView from "../../views/radioview"
 import { InputResultView } from "../../views/inputview"
 import { AnyView } from "@types"
-import Option from "../../option"
-
 class RadioBloc extends InputBloc {
-    protected _options:Array<Option>
-
+    readonly HAS_OPTIONS = true
     static readonly LABEL = 'radio'
 
     constructor(label:string, paramsString:string) {

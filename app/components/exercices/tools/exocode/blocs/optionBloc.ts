@@ -2,6 +2,7 @@ import { ContentBloc } from './bloc'
 
 class OptionBloc extends ContentBloc {
     static readonly LABELS = ['option']
+    readonly HAS_OPTIONS = true
 
     constructor(tag:string, paramsString:string) {
         super(tag, paramsString, false)
