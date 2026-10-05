@@ -1,9 +1,9 @@
 import { getValue } from '../maths/misc/substitution'
 import MyMath from '@mathstools/mymath'
 import { TParams, NestedInput } from "@types"
-import { Node, TRunResult } from "./node"
+import { SimpleNode } from "./node"
 
-class Parameter extends Node {
+class Parameter extends SimpleNode {
     private _param:string
     static readonly REGEX = /^<(\w+(?:\[\])?)\s*:(.*)\/>$/
     static parse(line:string):Parameter|null {
@@ -24,7 +24,7 @@ class Parameter extends Node {
         return getValue(this._param, params) ?? MyMath.substituteExpressions(this._param, params)
     }
 
-    run(params:TParams):TRunResult {
+    runSimple(params:TParams):"nothing" {
         return "nothing"
     }
 

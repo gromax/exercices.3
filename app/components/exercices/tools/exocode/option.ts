@@ -1,9 +1,9 @@
 import { getValue } from '@mathstools/misc/substitution'
 import MyMath from '@mathstools/mymath'
-import { Node, TRunResult } from './node'
+import { SimpleNode } from './node'
 import { TParams } from "@types"
 
-class Option extends Node{
+class Option extends SimpleNode{
     private _key:string
     private _value:string
     private _label:string
@@ -57,7 +57,7 @@ class Option extends Node{
         return new Option(String(key), this._label, value)
     }
 
-    run(params:TParams):TRunResult {
+    runSimple(params:TParams):"nothing" {
         return "nothing"
     }
 

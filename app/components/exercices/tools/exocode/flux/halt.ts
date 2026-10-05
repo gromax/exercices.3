@@ -1,6 +1,6 @@
-import { Node, TRunResult } from "../node"
+import { SimpleNode } from "../node"
 
-class Halt extends Node{
+class Halt extends SimpleNode{
     static readonly REGEX = /^<(halt|stop)\/?>$/
     static parse(line:string):Halt|null {
         const m = line.match(Halt.REGEX)
@@ -15,7 +15,7 @@ class Halt extends Node{
         super("halt")
     }
 
-    run(params:any):TRunResult {
+    runSimple(params:any):"halt" {
         return "halt"
     }
 

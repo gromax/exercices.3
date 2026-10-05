@@ -1,10 +1,10 @@
 import _ from "underscore"
 import MyMath from '@mathstools/mymath'
 import { TParams, AnyView } from '@types'
-import { Node } from './node'
+import { SimpleNode } from './node'
 import TextNodeView from './views/textnode'
-
-class TextNode extends Node {
+    
+class TextNode extends SimpleNode {
     private _text:string
     private _style:string = ""
     private _closed:boolean = false
@@ -28,7 +28,7 @@ class TextNode extends Node {
        return this._text
     }
 
-    run(params:TParams):TextNode {
+    runSimple(params:TParams):SimpleNode {
         if (!this._runned) {
             this._text = MyMath.substituteExpressions(this._text, params)
             this._reformat()

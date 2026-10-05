@@ -1,10 +1,10 @@
 import { getValue } from '@mathstools/misc/substitution'
 import evaluate from '@mathstools/pile/evaluation'
-import { Node, TRunResult } from './node'
+import { SimpleNode } from './node'
 import MyMath from "@mathstools/mymath"
 import { TParams, NestedArray, InputType, NestedInput } from "@types"
 
-class Affectation extends Node {
+class Affectation extends SimpleNode {
     private _expression:string
     private _repeater:string|undefined
     private _isArrayAffectation:boolean
@@ -139,7 +139,7 @@ class Affectation extends Node {
         return `@${this._tag} = ${this._expression}`
     }
 
-    run(params:TParams):TRunResult {
+    runSimple(params:TParams):"nothing" {
         this.doAffectation(params, {})
         return "nothing"
     }
