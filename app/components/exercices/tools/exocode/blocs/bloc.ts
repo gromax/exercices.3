@@ -4,14 +4,17 @@
  */
 
 import _ from 'underscore'
-import { Node, TRunResult } from '../node'
+import { Node, SimpleNode } from '../node'
 import { AnyView, TParams, NestedInput } from '@types'
 import FormItemImplementation from '../implementation/formitem'
 import Colors from '../colors'
 import Parameter from '../parameter'
 import Option from '../option'
 
-class Bloc extends Node {
+
+
+
+abstract class Bloc extends Node {
     protected _children:Array<Node>
     protected _closed:boolean
     protected _paramsString:string
@@ -49,6 +52,30 @@ class Bloc extends Node {
         this._children.push(child)
     }
 
+    toString():string {
+        let out = `<${this.tag}>`
+        for (const child of this._children) {
+            out += `\n  ${child.toString().replace(/\n/g, '\n  ')}`
+        }
+        out += `\n</${this.tag}>`
+        return out
+    }
+}
+
+abstract class FluxBloc extends Bloc {
+    abstract getFlux(params:TParams):Array<Node>
+}
+
+class ContentBloc extends Bloc {
+    readonly HAS_PARAMS = false
+    protected _params:TParams
+
+    constructor(tag:string, paramsString:string, closed:boolean) {
+        super(tag, paramsString, closed)
+        this._params = {header: paramsString}
+    }
+
+
     /**
      * Exécute les morceaux de code du bloc
      * et effectue les substitutions de texte nécessaire
@@ -56,51 +83,47 @@ class Bloc extends Node {
      * être rendu.
      * @param {TParams} params
      */
-    run(params:TParams):Bloc|Array<Node> {
+
+    run(params:TParams):ContentBloc {
         if (this._runned) {
             throw new Error(`Le bloc <${this.tag}> a déjà été exécuté.`)
         }
         this._runned = true
-        if (this.tag ==="shuffle") {
+        /*if (this.tag ==="shuffle") {
             // on mélange les enfants
             return _.shuffle(this._children)
-        }
+        }*/
         const pile = [...this._children].reverse()
         this._children = []
         while (pile.length > 0) {
             let item = pile.pop()
-            if (item && this.handlePoppedItem(item, params, pile)) {
-                break
+            if (item instanceof Option) {
+                this.setOption(item)
+            } else if (item instanceof Parameter) {
+                const result = item.getParam(params)
+                this.setParam(item.tag, result)
+            } else if (item instanceof SimpleNode) {
+                const runned = item.runSimple(params)
+                if (runned == "halt") {
+                    break
+                } else if (runned == "nothing") {
+                    continue
+                } else {
+                    this._children.push(runned)
+                }
+            } else if (item instanceof ContentBloc) {
+                const runned = item.run(params)
+                this._children.push(runned)
+            } else if (item instanceof FluxBloc) {
+                const runned = item.getFlux(params)
+                this._children.push(...runned.reverse())
+            } else {
+                throw new Error(`Unsupported item type: ${item.constructor.name}`)
             }
         }
         this.verifyMyChildren()
+        this.verifyMyParams()
         return this
-    }
-
-    /**
-     * gère un item dépilé lors du run
-     * @param {Node} item dépilé
-     * @param {TParams} params Les paramètres du bloc
-     * @return {boolean} renvoie true pour stopper le déroulement du run
-     */
-    protected handlePoppedItem(item:Node, params:TParams, pile:Array<Node>):boolean {
-        // Implémentation par défaut : ne fait rien
-        if (item instanceof Option) {
-            this.setOption(item.getValue(params))
-        }
-        const runned:TRunResult = item.run(params)
-        if (runned === "halt") {
-            return true
-        } else if (runned === "nothing") {
-            return false
-        } else if (Array.isArray(runned)) {
-            pile.push(...runned.reverse())
-            return false
-        } else {
-            this._children.push(runned)
-            return false
-        }
-
     }
 
     setOption(option:Option):void {
@@ -111,47 +134,6 @@ class Bloc extends Node {
             this._options = []
         }
         this._options.push(option)
-    }
-
-    toString():string {
-        let out = `<${this.tag}>`
-        for (const child of this._children) {
-            out += `\n  ${child.toString().replace(/\n/g, '\n  ')}`
-        }
-        out += `\n</${this.tag}>`
-        return out
-    }
-
-    nombrePts():number {
-        let count = 0
-        for (const item of this._children){
-            if (typeof (item as any).IMPLEMENTATION_FORMITEM != 'undefined') {
-                count += ((item as unknown) as FormItemImplementation).nombrePts()
-            }
-        }
-        return count
-    }
-
-    /**
-     * Lève une erreur si les enfants ne sont pas valides
-     * @returns 
-     */
-    protected verifyMyChildren():void {
-        return
-    }
-}
-
-
-class BlocWithParams extends Bloc {
-    protected _params:TParams
-
-    constructor(tag:string, paramsString:string, closed:boolean) {
-        super(tag, paramsString, closed)
-        this._params = { header:paramsString }
-    }
-
-    get params():TParams {
-        return this._params
     }
 
     /**
@@ -182,19 +164,29 @@ class BlocWithParams extends Bloc {
         }
     }
 
-    run(params:TParams):Bloc|Array<Node> {
-        super.run(params)
-        this.verifyMyParams()
-        return this
+    nombrePts():number {
+        let count = 0
+        for (const item of this._children){
+            if (typeof (item as any).IMPLEMENTATION_FORMITEM != 'undefined') {
+                count += ((item as unknown) as FormItemImplementation).nombrePts()
+            }
+        }
+        return count
     }
 
-    protected handlePoppedItem(item: Node, params: TParams, pile: Array<Node>): boolean {
-        if (item instanceof Parameter) {
-            const result = item.getParam(params)
-            this.setParam(item.tag, result)
-            return false
+    /**
+     * Lève une erreur si les enfants ne sont pas valides
+     * @returns 
+     */
+    protected verifyMyChildren():void {
+        return
+    }
+
+    get params():TParams {
+        if (this.HAS_PARAMS) {
+            return this._params
         }
-        return super.handlePoppedItem(item, params, pile)
+        throw new Error(`Un bloc <${this.tag}> n'a pas de paramètres`)
     }
 
     /**
@@ -206,9 +198,10 @@ class BlocWithParams extends Bloc {
         return
     }
 
+
 }
 
-abstract class BlocWithView extends BlocWithParams {
+abstract class BlocWithView extends ContentBloc {
     protected _colors?:Colors
 
     protected abstract _getView(answers:Record<string, string>):AnyView
@@ -230,4 +223,5 @@ abstract class BlocWithView extends BlocWithParams {
 
 }
 
-export { Bloc, BlocWithView, BlocWithParams }
+
+export { Bloc, ContentBloc, BlocWithView, FluxBloc }
