@@ -18,15 +18,21 @@ import { CriterionCheck } from './criterioncheck'
 import { EnsembleCheck } from './ensemblecheck'
 import { AbsChecker } from './abscheck'
 
+type CheckerClass = {
+    new (value: string, format: string): AbsChecker,
+    testFormat(format: string): boolean,
+    standardName: () => string,
+}
+
 // infini et empty peuvent être mis avec
 // un des autres, mais cela n'aurait pas de sens que
 // de mettre par ex Equation avec Round
-const OPTIONAL_CHECKERS:Array<any> = [
+const OPTIONAL_CHECKERS:Array<CheckerClass> = [
     EmptyCheck,
     InfiniteCheck
 ]
 
-const CHECKERS:Array<any> = [
+const CHECKERS:Array<CheckerClass> = [
     EmptyCheck,
     InfiniteCheck,
     EquationCheck,
@@ -40,7 +46,7 @@ const CHECKERS:Array<any> = [
     EnsembleCheck
 ]
 
-const NON_OPTIONAL_CHECKERS:Array<any> = CHECKERS.filter(item => !OPTIONAL_CHECKERS.includes(item))
+const NON_OPTIONAL_CHECKERS:Array<CheckerClass> = CHECKERS.filter(item => !OPTIONAL_CHECKERS.includes(item))
 
 /**
  * teste si l'expression correspond au format attendu
@@ -78,16 +84,40 @@ function checkFormat(expression:string, format:string|Array<string> = 'none'): t
  * @returns {boolean} true si le format existe, false sinon
  */
 function formatExists(format:string):boolean {
-    return CHECKERS.some(C => (C as any).testFormat(format))
+    return CHECKERS.some(
+        C => (C as CheckerClass).testFormat(format)
+    )
 }
 
-function formatsToCheckers(value:string, formats:string|Array<string>, checkersList:Array<any>):Array<AbsChecker> {
+/**
+ * renvoie le nom standard du format demandé, s'il existe
+ * sinon ""
+ * @param {string} format 
+ * @returns {string}
+ */
+function standardName(format:string):string {
+    const c = CHECKERS.find(
+        C => (C as CheckerClass).testFormat(format)
+    )
+    if (c) {
+        return (c as CheckerClass).standardName()
+    }
+    return ""
+}
+
+function formatsToCheckers(
+    value:string,
+    formats:string|Array<string>,
+    checkersList:Array<CheckerClass>
+):Array<AbsChecker> {
     if (typeof formats == "string") {
         formats = [formats]
     }
     const checkers:Array<AbsChecker> = []
     for (const f of formats) {
-        const C:any = checkersList.find(C => (C as any).testFormat(f))
+        const C:CheckerClass = checkersList.find(
+            C => (C as CheckerClass).testFormat(f)
+        )
         if (typeof C == "undefined") {
             // pas d'erreur. Il est normal que les formats non optionnels
             // par exemple ne soient pas reconnus
@@ -166,6 +196,7 @@ function checkExcluded(userValue:string, excluded:NestedInput, format:string|Arr
 export {
     checkFormat,
     formatExists,
+    standardName,
     checkValue,
     checkExcluded,
     formatsToCheckers,
