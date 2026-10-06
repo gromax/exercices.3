@@ -10,7 +10,7 @@ class GraphFunction extends GraphItem {
     static readonly KEYWORDS: string[] = ['function', 'fonction']
     static readonly AUTHORIZED_PARAMS = [
         'strokecolor', 'strokewidth', 'dash', 'expression',
-        'xmin', 'xmax', 'solution', 'header', 'color'
+        'xmin', 'xmax', 'solution', 'color'
     ]
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const expressionStr = getStringOption(this.params, 'expression', '0')
