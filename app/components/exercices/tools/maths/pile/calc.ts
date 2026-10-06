@@ -2,6 +2,7 @@ import MyMath from '../mymath'
 import { Decimal } from 'decimal.js'
 import { NestedArray, InputType } from '@types'
 import { gcd } from '../misc/functions'
+import { taylor } from '../number/taylor'
 
 class Calc {
     static readonly NAME = 'Calc'
@@ -33,6 +34,7 @@ class Calc {
         'max': Calc.max,
         'min': Calc.min,
         'simplify': Calc.simplify,
+        'taylor': Calc.taylor,
     }
     static readonly SHORTCUTS:Record<string,string> = {
         'abs': 'Calc.abs',
@@ -63,7 +65,9 @@ class Calc {
         'deriver': 'Calc.derivate',
         'max': 'Calc.max',
         'min': 'Calc.min',
-        'simplify': 'Calc.simplify'
+        'simplify': 'Calc.simplify',
+        'taylor': 'Calc.taylor'
+
     }
     static mult(x: InputType, y: InputType): InputType {
         if ((typeof x === 'number') && (typeof y === 'number')) {
@@ -230,11 +234,11 @@ class Calc {
      * @returns {number|string} 1 si x positif, -1 si x négatif, 0 si x nul, ou expression symbolique si x n'est pas un nombre
      */
     static sign(x: InputType): number|string {
-        const a = MyMath.toNumber(x);
+        const a = MyMath.toNumber(x)
         if (isNaN(a)) {
-            return `sign(${String(x)})`;
+            return `sign(${String(x)})`
         }
-        return Math.sign(a);
+        return Math.sign(a)
     }
 
     /**
@@ -297,7 +301,7 @@ class Calc {
         const a = MyMath.toDecimal(x)
         const digits = MyMath.toInteger(n)
         if (a.isNaN()) {
-            return 'NaN';
+            return 'NaN'
         }
         const multiplier = "1" + "0".repeat(Math.abs(digits))
         return digits > 0
@@ -349,9 +353,9 @@ class Calc {
      */
     static substitute(expr:InputType, name:string, value:NestedArray<InputType>):NestedArray<string> {
         if (Array.isArray(value)) {
-            return value.map(v => Calc.substitute(expr, name, v));
+            return value.map(v => Calc.substitute(expr, name, v))
         }
-        return MyMath.make(expr).sub(name, value).toString();
+        return MyMath.make(expr).sub(name, value).toString()
     }
 
     /**
@@ -360,7 +364,7 @@ class Calc {
      * @returns {string} expression développée
      */
     static expand(expr:InputType):string {
-        return MyMath.make(expr).expand().toString();
+        return MyMath.make(expr).expand().toString()
     }
 
     /**
@@ -371,7 +375,7 @@ class Calc {
      * @returns {array} liste des solutions
      */
     static solve(exprLeft:string, exprRight:string, varName:string):Array<string> {
-        return MyMath.solveInR(exprLeft, exprRight, varName);
+        return MyMath.solveInR(exprLeft, exprRight, varName)
     }
 
     /**
@@ -381,13 +385,13 @@ class Calc {
      */
     static float(expression:NestedArray<InputType>):NestedArray<number> {
         if (Array.isArray(expression)) {
-            return expression.map(expr => Calc.float(expr));
+            return expression.map(expr => Calc.float(expr))
         }
         try {
-            return MyMath.toFloat(expression);
+            return MyMath.toFloat(expression)
         } catch (e) {
-            console.warn(`Erreur lors de la conversion en float de l'expression ${expression} :`, e);
-            return NaN;
+            console.warn(`Erreur lors de la conversion en float de l'expression ${expression} :`, e)
+            return NaN
         }
     }
 
@@ -397,8 +401,25 @@ class Calc {
      * @returns 
      */
     static diff(expression:InputType, variable:InputType):string {
-        const varName = variable.toString();
-        return MyMath.make(expression).diff(varName).toString();
+        const varName = variable.toString()
+        return MyMath.make(expression).diff(varName).toString()
+    }
+
+    /**
+     * Développement limité en 0 à l'ordre spécifié.
+     * @param {InputType} expression 
+     * @param {string} xName nom de la variable 
+     * @param {number} order 
+     * @returns {string} expression développée limitée
+     */
+    static taylor(expression:InputType, xName:InputType, order:InputType):MyMath {
+        const n = MyMath.tryInteger(order)
+        if ( n === false || n< 0) {
+            throw new Error(`L'ordre spécifié n'est pas un entier positif valide : ${order}`)
+        }
+        xName = xName.toString()
+        const number = MyMath.make(expression).getMyNumber()
+        return MyMath.make(taylor(number, xName, n))
     }
 
 
@@ -408,7 +429,7 @@ class Calc {
      * @returns 
      */
     static derivate(expression:InputType):string {
-        return MyMath.make(expression).diff().toString();
+        return MyMath.make(expression).diff().toString()
     }
 
     /**
@@ -452,4 +473,4 @@ class Calc {
     }
 
 }
-export default Calc;
+export default Calc
