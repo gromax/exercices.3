@@ -2,11 +2,11 @@ import _ from "underscore"
 import MainBloc from "./mainbloc"
 import { Node } from "./node"
 import { TOptions, TParams, NestedArray } from "@types"
-import { FluxBloc } from "./blocs/bloc"
+import { FluxBloc } from "./flux/fluxbloc"
 import Halt from "./flux/halt"
 import Needed from "./flux/needed"
-import Affectation from "./affectation"
-import TextNode from "./textnode"
+import Affectation from "./simplenodes/affectation"
+import TextNode from "./simplenodes/textnode"
 
 const TRYNUMBER = 100
 
