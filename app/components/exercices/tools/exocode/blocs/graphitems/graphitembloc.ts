@@ -2,6 +2,7 @@ import { ContentBloc } from '../contentbloc'
 import { GRAPHS_KEYWORDS } from './parsegraphitem'
 
 class GraphItemBloc extends ContentBloc {
+    // pas d'ALLOWED_PARAMS ici, géré à la création des instances
     static readonly LABELS = GRAPHS_KEYWORDS
     static readonly NEEDS_ID = true
     static readonly HAS_PARAMS = true
