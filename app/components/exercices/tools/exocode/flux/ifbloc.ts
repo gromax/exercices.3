@@ -81,7 +81,7 @@ class IfBloc extends FluxBloc {
     getFlux(params:TParams):Array<Node> {
         const result = this._evaluateCondition(params);
         const ifChildren = result ? this._children : this._elseChildren;
-        return ifChildren;
+        return [...ifChildren]
     }
 }
 
