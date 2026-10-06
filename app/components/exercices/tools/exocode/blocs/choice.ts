@@ -1,16 +1,12 @@
-import { BlocWithView } from "./bloc"
+import { BlocWithView } from "./contentbloc"
 import { ChoicesView } from "../views/choice"
 import { AnyView } from '@types'
 import ChoiceManager from './choicemanager'
 
 class ChoiceBloc extends BlocWithView {
-    static readonly LABELS = ['choices', 'choix']
+    static readonly LABELS = ['choices', 'choix', 'choice']
     readonly HAS_OPTIONS = true
-    
-    constructor(tag:string, paramsString:string) {
-        super(tag, paramsString, false)
-    }
-
+    static ACCEPTS_HEADER = false
     protected _getView(answers:Record<string, string>):AnyView {
         const manager = new ChoiceManager(
             this._params,
