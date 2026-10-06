@@ -16,6 +16,7 @@ class ChoiceManager {
     private _valuemax:number
     private _shuffle_index_walk:boolean
     private _order_index?:Array<number>
+    static readonly ALLOWED_PARAMS = ['max', 'shuffleindexwalk', 'onlysquares', 'shuffle']
 
     /**
      * constructeur
