@@ -1,4 +1,5 @@
-import { FluxBloc } from '../blocs/bloc'
+import { Bloc } from '../blocs/bloc'
+import { FluxBloc } from './fluxbloc'
 import parseExpression from './logicalparser'
 import LogicalNode from './logicalnode'
 import type { Node } from "../node"
@@ -15,9 +16,9 @@ class IfBloc extends FluxBloc {
     private _elseChildren:Array<Node> = []
     private _expression:LogicalNode
 
-    constructor(tag:string, paramsString:string) {
-        super(tag, paramsString, false)
-        this._expression = parseExpression(paramsString)
+    constructor(tag:string, expressionLogique:string) {
+        super(tag)
+        this._expression = parseExpression(expressionLogique)
     }
 
     closeIfBranch():void {
@@ -30,7 +31,7 @@ class IfBloc extends FluxBloc {
         this._ifClosed = true;
     }
 
-    closeIfNecessary(previous:any) {
+    closeIfNecessary(previous:Bloc) {
         if (this.tag === IfBloc.IF) {
             return
         }
