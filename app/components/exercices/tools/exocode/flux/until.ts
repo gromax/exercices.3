@@ -1,20 +1,20 @@
-import { FluxBloc } from "../blocs/bloc"
+import { FluxBloc } from "./fluxbloc"
 import { Node } from "../node"
 import LogicalNode from "./logicalnode"
 import parseExpression from "./logicalparser"
 import { TParams } from "@types"
 import IfBloc from "./ifbloc"
-import Affectation from "../affectation"
+import Affectation from "../simplenodes/affectation"
 
 class Until extends FluxBloc {
     static MAXITERATIONS = 100
     private _counter:number
     private _expression:LogicalNode
 
-    constructor(tag:string, paramsString:string) {
-        super(tag, paramsString, false)
+    constructor(tag:string, expressionLogique:string) {
+        super(tag)
         this._counter = 0
-        this._expression = parseExpression(paramsString);
+        this._expression = parseExpression(expressionLogique);
     }
     
     toString():string {
