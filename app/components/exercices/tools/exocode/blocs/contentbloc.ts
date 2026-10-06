@@ -103,6 +103,10 @@ class ContentBloc extends Bloc {
         if (!this.hasParams) {
             throw new Error(`Le bloc <${this.tag}> n'accepte pas de paramètres. Paramètre <${key}:###/> rejeté.`)
         }
+        const allowedParams = this.constructor["ALLOWED_PARAMS"]
+        if (allowedParams && Array.isArray(allowedParams) && !allowedParams.includes(key)) {
+            throw new Error(`Le paramètre <${key}> n'est pas autorisé pour le bloc <${this.tag}>.`)
+        }
         const realKey = key.endsWith('[]')
             ? key.slice(0, -2)
             : key
