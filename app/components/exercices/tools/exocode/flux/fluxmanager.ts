@@ -16,25 +16,21 @@ class FluxManager {
         if (!m) {
             return null;
         }
-        const [, tag, paramsString] = m;
+        const [, tag, equationLogique] = m;
         if (tag === 'needed') {
-            return new Needed(tag, paramsString);
+            return new Needed(tag, equationLogique);
         }
         if (tag === 'until') {
-            return new Until(tag, paramsString);
+            return new Until(tag, equationLogique);
         }
         if (tag === 'shuffle') {
-            return new ShuffleBloc(tag, paramsString);
+            return new ShuffleBloc(tag);
         }
-        return new IfBloc(tag, paramsString);
+        return new IfBloc(tag, equationLogique);
     }
 
     static isElse(line:string):boolean {
         return /^<\s*else\s*>$/.test(line);
-    }
-
-    static isNeeded(item:any):boolean {
-        return (item !== null && item instanceof Needed);
     }
 }
 
