@@ -9,10 +9,20 @@ import FormItemImplementation from '../implementation/formitem'
 import Parameter from '../simplenodes/parameter'
 
 class ContentBloc extends Bloc {
-    protected _params:TParams
+    protected _params?:TParams
     protected _defaultOption?:string
     protected _options?:Array<Option>
     protected _halted:boolean = false
+
+    constructor(tag:string) {
+        super(tag)
+        if (this.hasParams) {
+            this._params = {}
+        }
+        if (this.hasOptions) {
+            this._options = []
+        }
+    }
 
     setHalted():void {
         this._halted = true
@@ -62,7 +72,7 @@ class ContentBloc extends Bloc {
                 }
             } else if (item instanceof FluxBloc) {
                 const flux = item.getFlux(params)
-                this._children.push(...flux.reverse())
+                pile.push(...flux.reverse())
             } else {
                 throw new Error(`Unsupported item type: ${item.constructor.name}`)
             }
@@ -77,9 +87,6 @@ class ContentBloc extends Bloc {
         }
         if (this._defaultOption === undefined) {
             this._defaultOption = option.key
-        }
-        if (this._options === undefined) {
-            this._options = []
         }
         this._options.push(option)
     }
@@ -150,11 +157,11 @@ class ContentBloc extends Bloc {
     }
 
     get hasParams():boolean {
-        return Boolean(this["HAS_PARAMS"])
+        return Boolean(this.constructor["HAS_PARAMS"])
     }
 
     get hasOptions():boolean {
-        return Boolean(this["HAS_OPTIONS"])
+        return Boolean(this.constructor["HAS_OPTIONS"])
     }
 
     /**
@@ -183,7 +190,8 @@ class ContentBloc extends Bloc {
         if (this.NEEDS_ID && !paramsStrings) {
             throw new Error(`<${tag}> nécessite un identifiant`)
         }
-        if (!this.ACCEPTS_HEADER && paramsStrings) {
+        
+        if (!this.ACCEPTS_HEADER && !this.NEEDS_ID && paramsStrings) {
             throw new Error(`<${tag}> n'accepte pas d'en-tête`)
         }
         return new this(tag, paramsStrings || '')
@@ -192,7 +200,7 @@ class ContentBloc extends Bloc {
 
 abstract class BlocWithView extends ContentBloc {
     protected _colors?:Colors
-    readonly HAS_PARAMS = true
+    static readonly HAS_PARAMS = true
 
     protected abstract _getView(answers:Record<string, string>):AnyView
 
