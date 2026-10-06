@@ -9,7 +9,7 @@ class GraphReels extends GraphItem {
     static readonly KEYWORDS: string[] = ['réels', 'reels', 'reals']
     static readonly AUTHORIZED_PARAMS: string[] = [
         'y', 'color', 'titlesize', 'ticksize', 'majorheight',
-        'minorheight', 'minorticks', 'strokewidth', 'header'
+        'minorheight', 'minorticks', 'strokewidth'
     ]
 
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {

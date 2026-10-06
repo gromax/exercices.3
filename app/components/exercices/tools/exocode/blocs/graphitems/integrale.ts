@@ -8,19 +8,19 @@ class GraphIntegrale extends GraphItem {
     static readonly KEYWORDS: string[] = ['integrale', 'integral']
     static readonly AUTHORIZED_PARAMS = [
         'color', 'hidelabel', 'fixleft', 'fixright', 'fixed',
-        'solution', 'abscisses', 'fct', 'header'
+        'solution', 'abscisses', 'fct'
     ]
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const abscisses = this._getAbscisses()
         const fctName = getStringOption(this.params, 'fct', '')
         if (!fctName) {
-            throw new Error(`Intégrale ${this.header}: la fonction doit être définie dans un objet intégrale (paramètres fct)`)
+            throw new Error(`Intégrale ${this._identifiant}: la fonction doit être définie dans un objet intégrale (paramètres fct)`)
         }
         if (typeof graphObjects[fctName] === 'undefined') {
-            throw new Error(`Intégrale ${this.header}: la fonction ${fctName} n'existe pas dans les objets graphiques`)
+            throw new Error(`Intégrale ${this._identifiant}: la fonction ${fctName} n'existe pas dans les objets graphiques`)
         }
         if (!(graphObjects[fctName] instanceof JXG.Curve)) {
-            throw new Error(`Intégrale ${this.header}: l'objet ${fctName} n'est pas une fonction graphique`)
+            throw new Error(`Intégrale ${this._identifiant}: l'objet ${fctName} n'est pas une fonction graphique`)
         }
         const fctObject = graphObjects[fctName] as JXG.Curve
         const options = {
@@ -44,7 +44,7 @@ class GraphIntegrale extends GraphItem {
         if (getBooleanOption(this.params, 'solution', false) && !this._solMode) {
             options["visible"] = false
         }
-        const object = g.create('integral', [abscisses, fctObject], options) as JXG.Line
+        const object = g.create('integral', [abscisses, fctObject], options) as JXG.Integral
         if (this._choiceTag) {
             this._attachUniversalPopup(g, object, this._choiceTag)
         }
@@ -62,7 +62,7 @@ class GraphIntegrale extends GraphItem {
         }
         const stringItems = abscissesStr.split('|')
         if (stringItems.length !== 2) {
-            throw new Error(`Intégrale ${this.header}, les abscisses doivent être séparées par '|'`)
+            throw new Error(`Intégrale ${this._identifiant}, les abscisses doivent être séparées par '|'`)
         }
         return [this._getX(stringItems[0].trim()), this._getX(stringItems[1].trim())]
     }
@@ -70,7 +70,7 @@ class GraphIntegrale extends GraphItem {
     protected _getX(coordString: string): number {
         const x = parseFloat(coordString)
         if (isNaN(x)) {
-            throw new Error(`Intégrale ${this.header}: Coordonnée invalide: ${coordString}`)
+            throw new Error(`Intégrale ${this._identifiant}: Coordonnée invalide: ${coordString}`)
         }
         return x
     }

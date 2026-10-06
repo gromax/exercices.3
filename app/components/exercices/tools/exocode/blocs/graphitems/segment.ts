@@ -8,7 +8,7 @@ class GraphSegment extends GraphItem {
 
     static readonly KEYWORDS: string[] = ['segment']
     static readonly AUTHORIZED_PARAMS: string[] = [
-        "header", "points", "strokewidth", "strokecolor",
+        "points", "strokewidth", "strokecolor",
         "color", "fixed", "solution", "name", "dash"
     ]
 
@@ -50,11 +50,11 @@ class GraphSegment extends GraphItem {
     protected _getPoints(graphObjects:Record<string, JXG.GeometryElement>): Array<[number,number]|JXG.Point> {
         const stringPoints = getStringOption(this.params, 'points', '')
         if (stringPoints === '') {
-            throw new Error(`Segment ${this.header}: le segment doit être défini par deux points`)
+            throw new Error(`Segment ${this._identifiant}: le segment doit être défini par deux points`)
         }
         const points = stringPoints.split('|')
         if (points.length !=2) {
-            throw new Error(`Segment ${this.header}, attribut points [${stringPoints}]: le segment doit être défini par 2 points séparés par '|'`)
+            throw new Error(`Segment ${this._identifiant}, attribut points [${stringPoints}]: le segment doit être défini par 2 points séparés par '|'`)
         }
         return points.map((p: string) => this._getPoint(graphObjects, p.trim()))
     }

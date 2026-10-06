@@ -7,7 +7,7 @@ class GraphVector extends GraphItem {
     static readonly TYPE = 'Vector'
     static readonly KEYWORDS: string[] = ['vector', 'vecteur']
     static readonly AUTHORIZED_PARAMS: string[] = [
-        "header", "points", "strokewidth", "strokecolor", "color",
+        "points", "strokewidth", "strokecolor", "color",
         "solution", "name", "dash", "coords", "start", "fixed", "showsend"
     ]
 
@@ -67,11 +67,11 @@ class GraphVector extends GraphItem {
     protected _getPoints(graphObjects:Record<string, JXG.GeometryElement>): [[number,number], [number,number]] {
         const stringPoints = getStringOption(this.params, ['points', 'coords'], '')
         if (stringPoints === '') {
-            throw new Error(`Vector ${this.header}: le vecteur doit être défini par deux points`)
+            throw new Error(`Vector ${this._identifiant}: le vecteur doit être défini par deux points`)
         }
         const points = stringPoints.split('|')
         if ((points.length ==0) || (points.length > 2)) {
-            throw new Error(`Vector ${this.header}, attribut points ou coords [${stringPoints}]: le vecteur doit être défini par 1 paire de coordonnées ou 2 points séparés par '|'`)
+            throw new Error(`Vector ${this._identifiant}, attribut points ou coords [${stringPoints}]: le vecteur doit être défini par 1 paire de coordonnées ou 2 points séparés par '|'`)
         }
         const points2 = points
             .map((p: string) => this._getPoint(graphObjects, p.trim()))

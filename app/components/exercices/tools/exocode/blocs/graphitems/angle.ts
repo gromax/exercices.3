@@ -8,7 +8,7 @@ class GraphAngle extends GraphItem {
     static readonly KEYWORDS: string[] = ['angle']
     static readonly AUTHORIZED_PARAMS: string[] = [
         'color', 'radius', 'showvalue', 'fixed', 'name',
-        'solution', 'points', 'header', 'ortho' 
+        'solution', 'points', 'ortho' 
     ]
 
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
@@ -50,11 +50,11 @@ class GraphAngle extends GraphItem {
     protected _getPoints(graphObjects:Record<string, JXG.GeometryElement>): Array<[number,number]|JXG.Point> {
         const stringPoints = getStringOption(this.params, 'points', '')
         if (stringPoints === '') {
-            throw new Error(`Angle ${this.header}: l'angle doit être défini par trois points`)
+            throw new Error(`Angle ${this._identifiant}: l'angle doit être défini par trois points`)
         }
         const points = stringPoints.split('|')
         if (points.length !=3) {
-            throw new Error(`Angle ${this.header}, attribut points [${stringPoints}]: l'angle doit être défini par 3 points séparés par '|'`)
+            throw new Error(`Angle ${this._identifiant}, attribut points [${stringPoints}]: l'angle doit être défini par 3 points séparés par '|'`)
         }
         return points.map((p: string) => this._getPoint(graphObjects, p.trim()))
     }

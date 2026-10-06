@@ -9,7 +9,7 @@ class GraphPolygon extends GraphItem {
     static readonly AUTHORIZED_PARAMS: string[] = [
         'points', 'strokewidth', 'strokecolor', 'color',
         'opacite', 'opacity', 'fixed', 'solution', 'dash',
-        'header', 'open'
+        'open'
     ]
 
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
@@ -68,11 +68,11 @@ class GraphPolygon extends GraphItem {
     protected _getPoints(graphObjects:Record<string, JXG.GeometryElement>): Array<[number,number]|JXG.Point> {
         const stringPoints = getStringOption(this.params, 'points', '')
         if (stringPoints === '') {
-            throw new Error(`Polygon ${this.header}: la polyligne doit être définie par une équation ou deux points`)
+            throw new Error(`Polygon ${this._identifiant}: la polyligne doit être définie par une équation ou deux points`)
         }
         const points = stringPoints.split('|')
         if (points.length < 2) {
-            throw new Error(`Polygon ${this.header}, attribut points [${stringPoints}]: la polyligne doit avoir au moins deux points séparés par '|'`)
+            throw new Error(`Polygon ${this._identifiant}, attribut points [${stringPoints}]: la polyligne doit avoir au moins deux points séparés par '|'`)
         }
         return points.map((p: string) => this._getPoint(graphObjects, p.trim()))
     }

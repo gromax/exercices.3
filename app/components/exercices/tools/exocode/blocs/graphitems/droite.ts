@@ -8,7 +8,7 @@ class GraphDroite extends GraphItem {
     static readonly KEYWORDS: string[] = ['droite', 'line']
     static readonly AUTHORIZED_PARAMS: string[] = [
         'color', 'strokewidth', 'dash', 'invisible', 'solution',
-        'label', 'labelsize', 'equation', 'points', 'fixed', 'header'
+        'label', 'labelsize', 'equation', 'points', 'fixed'
     ]
     public createJXGItem(g:JXG.Board, graphObjects:Record<string, JXG.GeometryElement>):JXG.GeometryElement {
         const param_equation = getStringOption(this.params, 'equation', '')
@@ -107,11 +107,11 @@ class GraphDroite extends GraphItem {
     protected _points_from_points(graphObjects:Record<string, JXG.GeometryElement>): [[number,number]|JXG.Point, [number,number]|JXG.Point] {
         const stringPoints = getStringOption(this.params, 'points', '')
         if (stringPoints === '') {
-            throw new Error(`Droite ${this.header}: la droite doit être définie par une équation ou deux points`)
+            throw new Error(`Droite ${this._identifiant}: la droite doit être définie par une équation ou deux points`)
         }
         const points = stringPoints.split('|')
         if (points.length !== 2) {
-            throw new Error(`Droite ${this.header}, attribut points [${stringPoints}]: la droite doit être définie par deux points séparés par '|'`)
+            throw new Error(`Droite ${this._identifiant}, attribut points [${stringPoints}]: la droite doit être définie par deux points séparés par '|'`)
         }
         return points.map((p: string) => this._getPoint(graphObjects, p.trim())) as [[number,number]|JXG.Point, [number,number]|JXG.Point]
     }

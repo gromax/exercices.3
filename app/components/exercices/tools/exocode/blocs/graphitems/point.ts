@@ -17,7 +17,7 @@ class GraphPoint extends GraphItem {
     static BAD_SYMBOL = '✗'
     static readonly AUTHORIZED_PARAMS: string[] = [
         'x', 'y', 'name', 'size', 'color', 'fixed', 'solution', 'on',
-        'header', 'distinct', 'hasinputs', 'good', 'labelsize', 'forme', 'face'
+        'distinct', 'hasinputs', 'good', 'labelsize', 'forme', 'face'
     ]
 
     protected _isGoodassignedInputs: Record<string, number> = {}
