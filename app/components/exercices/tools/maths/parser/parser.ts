@@ -14,8 +14,21 @@ import { Base} from "../number/base"
 import type { Ensemble } from "../number/ensemblesitems/parent"
 
 
-const TOKENS = [TNumber, TFunction, TOperator, TParenthesis, TSymbol]
-const TOKENS_INTERVAL = [...TOKENS,TEnsemble]
+type HasTokenFunctions = {
+    new (tokenString:string): Token,
+    getRegexString: ()  => string,
+    test: (tokenString:string) => boolean
+}
+
+
+const TOKENS: Array<HasTokenFunctions> = [
+    TNumber,
+    TFunction,
+    TOperator,
+    TParenthesis,
+    TSymbol
+]
+const TOKENS_INTERVAL: Array<HasTokenFunctions> = [...TOKENS,TEnsemble]
 import type { TBuildOptions } from '@types'
 
 class Parser {
