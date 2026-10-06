@@ -40,12 +40,10 @@ class Power extends Base {
     }
 
     static make(base:Base, exposant:Scalar):Base {
-        if (exposant instanceof Scalar) {
-            if (exposant.isZero()) {
-                return Scalar.ONE
-            } else if (exposant.isOne()) {
-                return base
-            }
+        if (exposant.isZero()) {
+            return Scalar.ONE
+        } else if (exposant.isOne()) {
+            return base
         }
         return new Power(base, exposant)
     }
