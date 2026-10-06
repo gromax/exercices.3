@@ -14,7 +14,7 @@ abstract class GraphItem {
     protected _assignedInputs: Record<string, number> = {}
     protected _solMode:boolean = false // indique si on est en mode solution
     protected _choiceTag:string // sert pour les daltoniens si un indice de couleur est utilisé
-    protected header:string
+    protected _identifiant:string
     protected params: TParams
     
     static readonly KEYWORDS: string[] = []
@@ -23,9 +23,8 @@ abstract class GraphItem {
     static readonly KNOWNS_INPUTS_ATTRIBUTES:string[] = []
 
     constructor(item:GraphItemBloc, cadre: [number, number, number, number], colors:Colors) {
-        this.header = item.header
-        const {header: _, ...paramsSansHeader} = item.params
-        this.params = paramsSansHeader
+        this._identifiant = item.identifiant
+        this.params = item.params
         this._colors = colors
         this._cadre = cadre
         this._choiceTag = ''
@@ -36,7 +35,7 @@ abstract class GraphItem {
             key => !(this.constructor as typeof GraphItem).AUTHORIZED_PARAMS.includes(key)
         )
         if (unauthorizedParams.length > 0) {
-            throw new Error(`Paramètres non autorisés pour ${this.type}:${this.header}: ${unauthorizedParams.join(', ')}`)
+            throw new Error(`Paramètres non autorisés pour ${this.type}:${this._identifiant}: ${unauthorizedParams.join(', ')}`)
         }
     }
 
@@ -76,7 +75,7 @@ abstract class GraphItem {
     }
 
     get name():string {
-        return this.header
+        return this._identifiant
     }
 
     get type():string {
@@ -246,7 +245,7 @@ abstract class GraphItem {
     protected _getXY(coordString: string): [number, number] {
         const result = this._parseFloatCoords(coordString)
         if (result === null) {
-            throw new Error(`Objet ${this.type} ${this.header}: Coordonnées invalides: ${coordString}`)
+            throw new Error(`Objet ${this.type} ${this._identifiant}: Coordonnées invalides: ${coordString}`)
         }
         return result
     }
