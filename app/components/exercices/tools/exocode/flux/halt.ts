@@ -1,4 +1,4 @@
-import { FluxNode } from "../node"
+import { FluxNode } from "./fluxnode"
 
 class Halt extends FluxNode {
     static readonly REGEX = /^<(halt|stop)\/?>$/
