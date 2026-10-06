@@ -2,14 +2,16 @@ import _ from "underscore"
 import { parseBloc } from "./blocs/parsebloc"
 import IfBloc from "./flux/ifbloc"
 import FluxManager from "./flux/fluxmanager"
-import Affectation from "./affectation"
-import { Bloc, ContentBloc, BlocWithView } from "./blocs/bloc"
-import TextNode from "./textnode"
-import Parameter from "./parameter"
-import Option from "./option"
+import Affectation from "./simplenodes/affectation"
+import { Bloc } from "./blocs/bloc"
+import { ContentBloc, BlocWithView } from "./blocs/contentbloc"
+import { FluxBloc } from "./flux/fluxbloc"
+import TextNode from "./simplenodes/textnode"
+import Parameter from "./simplenodes/parameter"
+import Option from "./simplenodes/option"
 import Colors from "./colors"
 import { Node } from "./node"
-import Until from "./flux/until"
+import { FluxNode } from "./flux/fluxnode"
 import { TParams, TOptions } from "@types"
 
 class Stack {
@@ -68,7 +70,7 @@ class MainBloc {
         const colors = new Colors() // instancie une palette pour les blocs qui en auraient besoin
         const lines = content.split('\n')
         const stack = new Stack()
-        const mainBloc = new ContentBloc("main", "", false)
+        const mainBloc = new ContentBloc("main")
         stack.push(mainBloc)
 
         for (const line of lines) {
@@ -87,16 +89,16 @@ class MainBloc {
                 continue
             }
 
-            const condition = FluxManager.tryParse(trimmed)
-            if (condition instanceof Until) {
-                stack.push(condition)
+            const fluxNode = FluxManager.tryParse(trimmed)
+            if (fluxNode instanceof IfBloc) {
+                fluxNode.closeIfNecessary(stack.last)
+                stack.push(fluxNode)
                 continue
-            } else if (condition instanceof IfBloc) {
-                condition.closeIfNecessary(stack.last)
-                stack.push(condition)
+            } else if (fluxNode instanceof FluxBloc) {
+                stack.push(fluxNode)
                 continue
-            } else if (condition instanceof Node) {
-                stack.pushInLast(condition)
+            } else if (fluxNode instanceof FluxNode) {
+                stack.pushInLast(fluxNode)
                 continue
             }
 
