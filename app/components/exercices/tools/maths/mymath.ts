@@ -169,10 +169,13 @@ class MyMath {
 
     /**
      * fabrique un MyMath à partir d'une expression
-     * @param {InputType} expression 
+     * @param {InputType|Base} expression 
      * @returns {MyMath}
      */
-    static make(expression:InputType): MyMath {
+    static make(expression:InputType|Base): MyMath {
+        if (expression instanceof Base) {
+            return new MyMath({ mynumber: expression })
+        }
         if (expression instanceof MyMath) {
             return expression
         }
@@ -492,7 +495,7 @@ class MyMath {
      * Renvoie l'objet Base correspondant à l'expression
      * @returns {Base} objet Base
      */
-    private _getMyNumber(): Base {
+    getMyNumber(): Base {
         if (this._type !== "expression") {
             throw new Error(`<${this._expression}> : L'objet MyMath n'est pas de type expression.`)
         }
@@ -567,8 +570,8 @@ class MyMath {
      * @returns {Array<string>} tableau des noms de variables
      */
     get variables():Array<string> {
-        // _getMyNumber() vérifie déjà que l'objet est de type expression
-        return this._getMyNumber().variables
+        // getMyNumber() vérifie déjà que l'objet est de type expression
+        return this.getMyNumber().variables
     }
 
     /**
@@ -577,7 +580,7 @@ class MyMath {
      */
     toFloat():number {
         try {
-            return this._getMyNumber().toDecimal(undefined).toNumber()
+            return this.getMyNumber().toDecimal(undefined).toNumber()
         } catch (e) {
             return NaN
         }
@@ -596,8 +599,8 @@ class MyMath {
      * @returns {Decimal}
      */
     toDecimal():Decimal {
-        // _getMyNumber() vérifie déjà que l'objet est de type expression
-        return this._getMyNumber().toDecimal(undefined)
+        // getMyNumber() vérifie déjà que l'objet est de type expression
+        return this.getMyNumber().toDecimal(undefined)
     }
 
     /**
@@ -606,7 +609,7 @@ class MyMath {
      */
     toSaveString():string {
         if (this._type === "expression") {
-            return simplify(this._getMyNumber()).toString()
+            return simplify(this.getMyNumber()).toString()
         }
         if (this._type === "ensemble") {
             return PREFIX_ENSEMBLE + ' ' + EnsembleCalculator.simplify(this._getEnsemble()).toString()
@@ -624,7 +627,7 @@ class MyMath {
         } else if (this._type === "ensemble") {
             return this._expression.slice(PREFIX_ENSEMBLE.length).trim()
         } else {
-            return this._getMyNumber().toString()
+            return this.getMyNumber().toString()
         }
     }
 
@@ -640,7 +643,7 @@ class MyMath {
                 return "-\\infty"
             }
             // je vais préférer ma version de latex
-            return this._getMyNumber().toTex()
+            return this.getMyNumber().toTex()
         } else if (this._type === "ensemble") {
             return this._getEnsemble().toTex()
         }
@@ -662,7 +665,7 @@ class MyMath {
         if (format === 's$') {
             // format personnalisé pour contourner des soucis de nerdamer
             if (this._isExpression()) {
-                const simplified = simplify(this._getMyNumber())
+                const simplified = simplify(this.getMyNumber())
                 return simplified.isPlusInfinity(undefined)
                     ? "+\\infty"
                     : simplified.toTex()
@@ -674,7 +677,7 @@ class MyMath {
         if (format === 's') {
             // format personnalisé pour contourner des soucis de nerdamer
             if (this._type === "expression") {
-                return simplify(this._getMyNumber()).toString()
+                return simplify(this.getMyNumber()).toString()
             } else if (this._type === "ensemble") {
                 return EnsembleCalculator.simplify(this._getEnsemble()).toString()
             }
@@ -714,13 +717,13 @@ class MyMath {
             // La procédure de décimalisation va calculer ce qui peut l'être
             // et on peut fixer au besoin, sinon on garde toute la précision
             return n>=0
-                ? decimalize(this._getMyNumber()).toFixed(n).toString()
-                : decimalize(this._getMyNumber()).toString()
+                ? decimalize(this.getMyNumber()).toFixed(n).toString()
+                : decimalize(this.getMyNumber()).toString()
         }
         if (n >= 0) {
-            return this._getMyNumber().toDecimal(undefined).toFixed(n).replace('.', ',')
+            return this.getMyNumber().toDecimal(undefined).toFixed(n).replace('.', ',')
         }
-        return this._getMyNumber().toDecimal(undefined).toString().replace('.', ',')
+        return this.getMyNumber().toDecimal(undefined).toString().replace('.', ',')
     }
 
 
@@ -737,9 +740,9 @@ class MyMath {
         }
         // cas général pour type expression
         if (dot === '.') {
-            return this._getMyNumber().toDecimal(undefined).toFixed(n)
+            return this.getMyNumber().toDecimal(undefined).toFixed(n)
         }
-        return this._getMyNumber().toDecimal(undefined).toFixed(n).replace('.', dot)
+        return this.getMyNumber().toDecimal(undefined).toFixed(n).replace('.', dot)
     }
 
     /**
@@ -837,9 +840,9 @@ class MyMath {
         // appelé seulement par compare - test sur type des valeurs inutile
         switch (operator) {
             case '==':
-                return this._getMyNumber().toString() === othervalue._getMyNumber().toString()
+                return this.getMyNumber().toString() === othervalue.getMyNumber().toString()
             case '!=':
-                return this._getMyNumber().toString() !== othervalue._getMyNumber().toString()
+                return this.getMyNumber().toString() !== othervalue.getMyNumber().toString()
             case '<':
                 return this.isMinusInfinity() && !othervalue.isMinusInfinity()
             case '<=':
@@ -869,7 +872,7 @@ class MyMath {
         if (!this._isExpression()) {
             return false
         }
-        return this._getMyNumber().isPlusInfinity(undefined)
+        return this.getMyNumber().isPlusInfinity(undefined)
         //return this._getNerdamerProcessed().eq('+infinity')
     }
 
@@ -881,7 +884,7 @@ class MyMath {
         if (!this._isExpression()) {
             return false
         }
-        return this._getMyNumber().isMinusInfinity(undefined)
+        return this.getMyNumber().isMinusInfinity(undefined)
     }
 
     /**
@@ -893,7 +896,7 @@ class MyMath {
             return EnsembleCalculator.isExpanded(this._getEnsemble())
         }
         if (this._isExpression()) {
-            return this._getMyNumber().isExpanded()
+            return this.getMyNumber().isExpanded()
         }
         throw new Error(`<${this.expression}> : Vérification de l'expansion pas implémentée pour ce type.`)
     }
@@ -904,7 +907,7 @@ class MyMath {
      */
     isSimplified():boolean {
         if (this._isExpression()) {
-            return this._getMyNumber().isSimplified()
+            return this.getMyNumber().isSimplified()
         } else if (this._type === 'ensemble') {
             return this._getEnsemble().isSimplified()
         }
@@ -928,11 +931,11 @@ class MyMath {
         }
 
         const base_value = value instanceof MyMath
-            ? value._getMyNumber()
+            ? value.getMyNumber()
             : typeof value === "string"
-                ? MyMath.make(value)._getMyNumber()
+                ? MyMath.make(value).getMyNumber()
                 : value
-        const newMyNumber = this._getMyNumber().substituteVariable(varName, base_value)
+        const newMyNumber = this.getMyNumber().substituteVariable(varName, base_value)
         return new MyMath({ mynumber: newMyNumber })
     }
 
@@ -946,10 +949,10 @@ class MyMath {
             throw new Error(`<${this.expression}> : Substitutions pas implémentées pour le type ${this._type}.`)
         }
         const base_vars: Record<string, Base> = {}
-        let n = this._getMyNumber()
+        let n = this.getMyNumber()
         for (const [varName, value] of Object.entries(vars)) {
             if (!base_vars[varName]) {
-                base_vars[varName] = MyMath.make(value)._getMyNumber()
+                base_vars[varName] = MyMath.make(value).getMyNumber()
             }
             n = n.substituteVariable(varName, base_vars[varName])
         }
@@ -962,8 +965,8 @@ class MyMath {
      * @returns {MyMath} nouveau MyMath représentant la dérivée
      */
     diff(varName:string=""):MyMath {
-        // lèvera une erreur avec _getMyNumber() si le _type n'est pas correct
-        const b = this._getMyNumber()
+        // lèvera une erreur avec getMyNumber() si le _type n'est pas correct
+        const b = this.getMyNumber()
         if (varName == "") {
             let v = this.variables
             if (v.length == 0) {
@@ -991,7 +994,7 @@ class MyMath {
      */
     simplify():MyMath {
         if (this._isExpression()) {
-            return new MyMath({ mynumber: simplify(this._getMyNumber()) })
+            return new MyMath({ mynumber: simplify(this.getMyNumber()) })
         } else if (this._type === "ensemble") {
             return new MyMath({ ensemble: EnsembleCalculator.simplify(this._getEnsemble()) })
         }
@@ -1003,7 +1006,7 @@ class MyMath {
      * @returns {boolean} true si l'expression est NaN, false sinon
      */
     isNaN():boolean {
-        return this._isExpression() && this._getMyNumber().isNaN()
+        return this._isExpression() && this.getMyNumber().isNaN()
     }
 
     /**
