@@ -1,14 +1,14 @@
 import parseExpression from "./logicalparser"
 import LogicalNode from "./logicalnode"
 import { TParams } from "@types"
-import { FluxNode } from "../node"
+import { FluxNode } from "./fluxnode"
 
 class Needed extends FluxNode {
     private _expression:LogicalNode
 
-    constructor(tag:string, paramsString:string) {
+    constructor(tag:string, expressionLogique:string) {
         super(tag)
-        this._expression = parseExpression(paramsString)
+        this._expression = parseExpression(expressionLogique)
     }
     toString():string {
         return `<needed ${this._expression.toString()}>`
