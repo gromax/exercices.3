@@ -1,8 +1,8 @@
 import _ from "underscore"
 import MyMath from '@mathstools/mymath'
 import { TParams, AnyView } from '@types'
-import { SimpleNode } from './node'
-import TextNodeView from './views/textnode'
+import { SimpleNode } from './simplenode'
+import TextNodeView from '../views/textnode'
     
 class TextNode extends SimpleNode {
     private _text:string

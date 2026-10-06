@@ -1,6 +1,6 @@
 import { getValue } from '@mathstools/misc/substitution'
 import MyMath from '@mathstools/mymath'
-import { SimpleNode } from './node'
+import { SimpleNode } from './simplenode'
 import { TParams } from "@types"
 
 class Option extends SimpleNode{

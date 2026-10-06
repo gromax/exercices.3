@@ -1,7 +1,7 @@
-import { getValue } from '../maths/misc/substitution'
+import { getValue } from '../../maths/misc/substitution'
 import MyMath from '@mathstools/mymath'
 import { TParams, NestedInput } from "@types"
-import { SimpleNode } from "./node"
+import { SimpleNode } from "./simplenode"
 
 class Parameter extends SimpleNode {
     private _param:string

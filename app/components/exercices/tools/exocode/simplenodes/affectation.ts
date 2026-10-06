@@ -1,6 +1,6 @@
 import { getValue } from '@mathstools/misc/substitution'
 import evaluate from '@mathstools/pile/evaluation'
-import { SimpleNode } from './node'
+import { SimpleNode } from './simplenode'
 import MyMath from "@mathstools/mymath"
 import { TParams, NestedArray, InputType, NestedInput } from "@types"
 
