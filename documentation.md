@@ -1382,6 +1382,7 @@ Le vecteur est conçu pour ne pas être lié à des points. Donc, si on crée pa
   * `max` reçoit `x` et `y` et renvoie le plus grand des deux
   * `min` reçoit `x` et `y` et renvoie le plus petit des deux
   * `simplify` reçoit `x` et en renvoie une version simplifiée
+  * `taylor`, reçoit une expression, une variable et un ordre (0 à 5) et renvoie l'expression du développement limité en 0 de l'expression, à l'ordre demandé.
 
 
 #### Module Dist
