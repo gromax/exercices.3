@@ -115,6 +115,14 @@ abstract class AbsChecker {
         return this._expr
     }
 
+    /**
+     * nom standardisé du format
+     * @returns {string} Nom standardisé du format
+     */
+    static standardName():string {
+        throw new Error("Méthode standardName() non implémentée")
+    }
+
 }
 
 export { AbsChecker }

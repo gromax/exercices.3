@@ -64,6 +64,10 @@ class NumericCheck extends AbsChecker {
         }
         return true
     }
+    
+    static standardName():string {
+        return "numeric"
+    }
 }
 
 export { NumericCheck }

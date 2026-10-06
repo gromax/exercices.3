@@ -136,6 +136,10 @@ class CriterionCheck extends AbsChecker {
         }
         return true
     }
+
+    static standardName():string {
+        return "criterion"
+    }
 }
 
 export { CriterionCheck }

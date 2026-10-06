@@ -137,6 +137,10 @@ class EquationCheck extends AbsChecker {
         }
         return true
     }
+    
+    static standardName():string {
+        return "equation"
+    }
 }
 
 export { EquationCheck }

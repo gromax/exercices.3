@@ -157,6 +157,10 @@ class VectorCheck extends AbsChecker {
         }
         return true
     }
+
+    static standardName():string {
+        return "vector"
+    }
 }
 
 export { VectorCheck }

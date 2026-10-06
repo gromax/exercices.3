@@ -4,7 +4,7 @@ import { InputType } from "@components/types"
 
 class EmptyCheck extends AbsChecker {
     static testFormat(format: string): boolean {
-        return format == "empty"
+        return format == "empty" || format == "vide"
     }
 
     private _test(expr:string):boolean {
@@ -36,6 +36,10 @@ class EmptyCheck extends AbsChecker {
 
     testExpectedFormat(expected: InputType): boolean {
         return this._test(String(expected))
+    }
+
+    static standardName():string {
+        return "empty"
     }
 }
 

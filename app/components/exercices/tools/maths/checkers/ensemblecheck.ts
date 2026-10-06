@@ -82,6 +82,10 @@ class EnsembleCheck extends AbsChecker {
         }
         return true
     }
+    
+    static standardName():string {
+        return "ensemble"
+    }
 }
 
 export { EnsembleCheck }

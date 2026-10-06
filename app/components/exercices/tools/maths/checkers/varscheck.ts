@@ -78,6 +78,9 @@ class VarsCheck extends AbsChecker {
         return ((notIncluded.length>0 || mm.isNaN()))
     }
 
+    static standardName():string {
+        return "vars"
+    }
 
 }
 
