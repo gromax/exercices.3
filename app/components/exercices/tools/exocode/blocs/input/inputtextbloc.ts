@@ -1,7 +1,12 @@
 import _ from "underscore"
 import InputBloc from "./inputbloc"
 import { InputView, InputResultView } from "../../views/inputview"
-import { checkFormat, checkValue, checkExcluded, formatExists } from "@mathstools/checkers/check"
+import {
+    checkFormat,
+    checkValue,
+    checkExcluded,
+    standardName
+} from "@mathstools/checkers/check"
 import { formatValue } from "@components/exercices/tools/maths/misc/formatvalue"
 import { View } from "backbone.marionette"
 import { AnyView, NestedInput } from "@types"
@@ -9,8 +14,11 @@ import TextBloc from "../textbloc"
 import { getStringOption } from "../../misc"
 
 class InputTextBloc extends InputBloc {
-    static LABEL = 'input'
-    protected _format?:string|Array<string>
+    static readonly LABEL = 'input'
+    static readonly ALLOWED_PARAMS = [
+        'format', 'keyboard', 'placeholder', 'tag', 'excluded', 'solution', 'tagSolution'
+    ]
+    protected _format:Array<string> = []
     
     protected _getView(answers:Record<string, string>):AnyView {
         // On peut accepter un bloc de texte de type aide
@@ -64,31 +72,27 @@ class InputTextBloc extends InputBloc {
             if (typeof value !== "string") {
                 throw new Error("<format> devrait être un texte.")
             }
-            if (value === "inf") {
-                console.warn(`Le format "inf" pour le bloc <input:${this._name}> est obsolète. Utilisez "infini" à la place.`)
-                value = "infini"
-            } else if (value === "vide") {
-                console.warn(`Le format "vide" pour le bloc <input:${this._name}> est obsolète. Utilisez "empty" à la place.`)
-                value = "empty"
-            }
             // je veux éviter un format non défini
-            if (!formatExists(value)) {
+            const standard = standardName(value)
+            if (standard === "") {
                 throw new Error(`Format inconnu pour le bloc <input:${this._name}> : ${value}`)
             }
             // pour certains formats, je modifie aussi le clavier
-            if (value === "infini") {
+            if (standard === "infini") {
                 this.setParam('keyboard', "minfini")
                 this.setParam('keyboard', "pinfini")
-            } else if (value === "empty") {
+            } else if (standard === "empty") {
                 this.setParam('keyboard', "empty")
             }
-            if (value.startsWith("ensemble")) {
+            if (standard === "ensemble") {
                 this.setParam('keyboard', 'minfini')
                 this.setParam('keyboard', 'pinfini')
                 this.setParam('keyboard', 'empty')
                 this.setParam('keyboard', 'union')
             }
-            this._format = this.assignNew(this._format, value)
+            if (!this._format.includes(standard)) {
+                this._format.push(standard)
+            }
             return
         }
         super.setParam(key, value)
