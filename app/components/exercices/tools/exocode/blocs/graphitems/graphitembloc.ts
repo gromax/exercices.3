@@ -3,8 +3,8 @@ import { GRAPHS_KEYWORDS } from './parsegraphitem'
 
 class GraphItemBloc extends ContentBloc {
     static readonly LABELS = GRAPHS_KEYWORDS
-    static NEEDS_ID = false
-    readonly HAS_PARAMS = true
+    static readonly NEEDS_ID = true
+    static readonly HAS_PARAMS = true
     readonly identifiant: string
 
     constructor(tag:string, identifiant:string) {

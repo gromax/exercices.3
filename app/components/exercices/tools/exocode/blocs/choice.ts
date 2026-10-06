@@ -5,8 +5,8 @@ import ChoiceManager from './choicemanager'
 
 class ChoiceBloc extends BlocWithView {
     static readonly LABELS = ['choices', 'choix', 'choice']
-    readonly HAS_OPTIONS = true
-    static ACCEPTS_HEADER = false
+    static readonly HAS_OPTIONS = true
+    static readonly ACCEPTS_HEADER = false
     protected _getView(answers:Record<string, string>):AnyView {
         const manager = new ChoiceManager(
             this._params,

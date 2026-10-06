@@ -3,7 +3,7 @@ import FormItemImplementation from "../../implementation/formitem"
 import { AnyView } from "@types"
 
 abstract class InputBloc extends BlocWithView implements FormItemImplementation {
-    static NEED_ID = true
+    static readonly NEEDS_ID = true
     readonly IMPLEMENTATION_FORMITEM = true
     protected _resultView?:AnyView
     protected _score?:number

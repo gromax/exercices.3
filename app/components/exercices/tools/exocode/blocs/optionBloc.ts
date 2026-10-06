@@ -2,8 +2,8 @@ import { ContentBloc } from './contentbloc'
 
 class OptionBloc extends ContentBloc {
     static readonly LABELS = ['option']
-    static NEEDS_ID = true
-    readonly HAS_OPTIONS = true
+    static readonly NEEDS_ID = true
+    static readonly HAS_OPTIONS = true
     private readonly _identifiant: string
 
     constructor(tag:string, identifiant:string) {

@@ -5,7 +5,7 @@ import HelpView from '../views/helpview'
 import TextNode from '../simplenodes/textnode'
 
 class TextBloc extends BlocWithView {
-    static ACCEPTS_HEADER = false
+    static readonly ACCEPTS_HEADER = true
     static readonly LABELS = ['text', 'texte', 'warning', 'aide', 'info', 'help']
     private _textnodes: TextNode[] = []
     private readonly _header: string
