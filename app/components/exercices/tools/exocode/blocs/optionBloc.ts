@@ -4,6 +4,7 @@ class OptionBloc extends ContentBloc {
     static readonly LABELS = ['option']
     static readonly NEEDS_ID = true
     static readonly HAS_OPTIONS = true
+    static readonly ALLOWED_PARAMS = []
     private readonly _identifiant: string
 
     constructor(tag:string, identifiant:string) {

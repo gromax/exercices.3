@@ -9,7 +9,11 @@ import FormItemImplementation from "../implementation/formitem"
 class TkzTabBloc extends BlocWithView implements FormItemImplementation {
     readonly IMPLEMENTATION_FORMITEM = true
     static readonly LABELS = ['tkztab']
-    static ACCEPTS_HEADER = false
+    static readonly ACCEPTS_HEADER = false
+    static readonly ALLOWED_PARAMS = [
+        'xlist', 'tag', 'color', 'pixelsperline', 'lgt', 'espcl', 'margin', 'headerheight',
+        ...TkzTab.LINESTYPES
+    ]
 
     private _lines:Array<TabLineConfig>
     private _color:string
@@ -86,7 +90,7 @@ class TkzTabBloc extends BlocWithView implements FormItemImplementation {
     protected setParam(key:string, value:NestedInput):void {
         if (TkzTab.LINESTYPES.includes(key)) {
             if (typeof value !== 'string') {
-                throw new Error("<tkztab> format de la ligne invalide : key")
+                throw new Error(`<tkztab> format de la ligne invalide : ${key}`)
             }
             this._lines.push(TkzTab.parseLine(key, value))
             return

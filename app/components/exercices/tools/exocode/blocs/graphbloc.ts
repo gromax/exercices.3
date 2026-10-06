@@ -13,6 +13,11 @@ type AnyView = View<any>|Array<View<any>>
 
 class GraphBloc extends BlocWithView implements FormItemImplementation {
     static readonly LABELS = ['graph', 'graphe']
+    static readonly ALLOWED_PARAMS = [
+        "xmin", "xmax", "ymin", "ymax", "axis",
+        "axes", "pan", "zoom", "grid", "grille",
+        "gridX", "gridY", "gridx", "gridy", "aspectratio"
+    ]
     static ACCEPTS_HEADER = false
     private _cadre:[number, number, number, number]
     private _graphItems:Array<GraphItem>

@@ -10,6 +10,7 @@ import TextNode from "../simplenodes/textnode"
 
 class FormBloc extends BlocWithView {
     static ACCEPTS_HEADER = true
+    static readonly ALLOWED_PARAMS = []
     private readonly _header: string
     private constructor(tag:string, header:string) {
         super(tag)

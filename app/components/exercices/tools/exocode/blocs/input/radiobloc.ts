@@ -5,6 +5,7 @@ import RadioView from "../../views/radioview"
 import { InputResultView } from "../../views/inputview"
 import { AnyView } from "@types"
 class RadioBloc extends InputBloc {
+    static readonly ALLOWED_PARAMS = ['solution', 'tag']
     static readonly HAS_OPTIONS = true
     static readonly LABEL = 'radio'
 

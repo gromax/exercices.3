@@ -7,6 +7,7 @@ import TextNode from '../simplenodes/textnode'
 class TextBloc extends BlocWithView {
     static readonly ACCEPTS_HEADER = true
     static readonly LABELS = ['text', 'texte', 'warning', 'aide', 'info', 'help']
+    static readonly ALLOWED_PARAMS = ['subtitle', 'footer']
     private _textnodes: TextNode[] = []
     private readonly _header: string
 

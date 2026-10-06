@@ -4,8 +4,11 @@ import { AnyView, NestedInput } from "@types"
 import TableView from '../views/tableview'
 
 class TableBloc extends BlocWithView {
-    static ACCEPTS_HEADER = false
-    static LABELS = ['table', 'tableau']
+    static readonly ACCEPTS_HEADER = false
+    static readonly ALLOWED_PARAMS = [
+        'rows', 'rows[]', 'rowheaders', 'rowheaders[]', 'colheaders', 'colheaders[]'
+    ]
+    static readonly LABELS = ['table', 'tableau']
     private _rows?:Array<Array<string>>
     private _rowheaders?:Array<string>
     private _colheaders?:Array<string>

@@ -4,7 +4,8 @@ import { ChoicesView, ChoiceView, ChoiceFormLayout } from '../../views/choice'
 import { AnyView } from "@types"
 
 class InputChoice extends InputBloc {
-    static LABELS = ['inputchoice', 'inputchoix', 'choixinput', 'choiceinputchoix']
+    static readonly LABELS = ['inputchoice', 'inputchoix', 'choixinput', 'choiceinputchoix']
+    static readonly ALLOWED_PARAMS = ChoiceManager.ALLOWED_PARAMS
     static readonly HAS_OPTIONS = true
     private _manager?:ChoiceManager
 
