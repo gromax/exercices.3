@@ -1,14 +1,21 @@
 import _ from "underscore"
-import { BlocWithView } from "./bloc"
+import { BlocWithView } from "./contentbloc"
 import FormView from "../views/formview"
 import ResultsView from "../views/resultsview"
 import { AnyView } from "@types"
-import TextNode from "../textnode"
+import TextNode from "../simplenodes/textnode"
 
 /* Il faut vérifier les answers dans entity et choisir si on affiche
    le formulaire ou pas. */
 
 class FormBloc extends BlocWithView {
+    static ACCEPTS_HEADER = true
+    private readonly _header: string
+    private constructor(tag:string, header:string) {
+        super(tag)
+        this._header = header
+    }
+    
     static readonly LABELS = ['form', 'formulaire']
     protected _getView(answers:Record<string, string>):AnyView {
         if (this._needSubmit(answers)) {
@@ -37,9 +44,9 @@ class FormBloc extends BlocWithView {
         const formView = new FormView({
             errorMessage: "L'erreur est due à une erreur de conception de l'exercice. Prévenez l'administrateur / le professeur.",
             blocParent: this,
-            name: this.header,
+            name: this._header,
             subViews: subViews,
-            header: this.header || '',
+            header: this._header || '',
         })
         return formView
     }
@@ -161,7 +168,6 @@ class FormBloc extends BlocWithView {
         }
         return false
     }
-
 }
 
 export default FormBloc

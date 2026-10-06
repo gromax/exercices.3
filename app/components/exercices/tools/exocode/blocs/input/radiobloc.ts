@@ -22,7 +22,7 @@ class RadioBloc extends InputBloc {
      */
     validation(userValue?:string):string|boolean {
         if (typeof userValue === 'undefined') {
-            return this.header
+            return this._name
         }
         // le radio sera toujours valide grâce au formulaire
         // qui requiert une réponse
@@ -32,9 +32,9 @@ class RadioBloc extends InputBloc {
     protected _getView(answers:Record<string, string>):AnyView {
         const items = _.shuffle(this._options || []).map((option) => [option.key, option.value])
         return new RadioView({
-            name: this.header,
+            name: this._name,
             items: items,
-            answer: answers[this.header] || null
+            answer: answers[this._name] || null
         })
     }
 
@@ -44,7 +44,7 @@ class RadioBloc extends InputBloc {
     }
 
     protected _calcResult(userData:Record<string, string>):[AnyView, number] {
-        const name = this.header
+        const name = this._name
         const userValue = userData[name] || ''
         const userValueTag = this._getOption(userValue)
         const solution = getNumberOption(this.params, 'solution', NaN).toString()

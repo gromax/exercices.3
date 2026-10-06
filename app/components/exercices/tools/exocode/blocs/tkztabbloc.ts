@@ -1,5 +1,5 @@
 import _ from "underscore"
-import { BlocWithView } from "./bloc";
+import { BlocWithView } from "./contentbloc";
 import TkzTabView from "../views/tkztabview";
 import TkzTab from "../views/tkztab/tkztab";
 import TabVarLineInput from "../views/tkztab/tabvarlineinput"
@@ -9,6 +9,7 @@ import FormItemImplementation from "../implementation/formitem"
 class TkzTabBloc extends BlocWithView implements FormItemImplementation {
     readonly IMPLEMENTATION_FORMITEM = true
     static readonly LABELS = ['tkztab']
+    static ACCEPTS_HEADER = false
 
     private _lines:Array<TabLineConfig>
     private _color:string
@@ -17,8 +18,8 @@ class TkzTabBloc extends BlocWithView implements FormItemImplementation {
     private _score?:number
     private _xList?:Array<string>|string
 
-    constructor(tag:string, paramsString:string) {
-        super(tag, paramsString, false)
+    constructor(tag:string) {
+        super(tag)
         this._lines = []
         this._color = 'black'
     }
@@ -223,8 +224,6 @@ class TkzTabBloc extends BlocWithView implements FormItemImplementation {
         })
         return [resultView, count]
     }
-
-
 }
 
 export default TkzTabBloc;

@@ -48,7 +48,7 @@ class InputChoice extends InputBloc {
 
         const n = this._options ? this._options.length : 0
         const layout = new ChoiceFormLayout({
-            name: this.header,
+            name: this._name,
             value: '0'.repeat(n),
         })
 
@@ -60,7 +60,7 @@ class InputChoice extends InputBloc {
         view.on('item:click', (childView: typeof ChoiceView) => {
             childView.itemClick(
                 manager,
-                layout.$el.find(`input[name="${this.header}"]`),
+                layout.$el.find(`input[name="${this._name}"]`),
             )
         })
         layout.on('render', function() {
@@ -74,7 +74,7 @@ class InputChoice extends InputBloc {
      * @param {Record<string, string>} userData 
      */
     protected _calcResult(userData:Record<string, string>):[AnyView, number] {
-        const userValue = userData[this.header] || ''
+        const userValue = userData[this._name] || ''
         const manager = this._getManager()
         const score = manager.verification(userValue)
         const resultView = manager.collection.map(model => {

@@ -1,15 +1,18 @@
-import { ContentBloc } from './bloc'
+import { ContentBloc } from './contentbloc'
 
 class OptionBloc extends ContentBloc {
     static readonly LABELS = ['option']
+    static NEEDS_ID = true
     readonly HAS_OPTIONS = true
+    private readonly _identifiant: string
 
-    constructor(tag:string, paramsString:string) {
-        super(tag, paramsString, false)
+    constructor(tag:string, identifiant:string) {
+        super(tag)
+        this._identifiant = identifiant
     }
 
     parseOption():[string, string, Record<string, string>] {
-        if (this._paramsString === '') {
+        if (this._identifiant === '') {
             throw new Error("Un bloc <option> doit avoir une étiquette <option:étiquette>")
         }
         this.run({})
@@ -22,7 +25,7 @@ class OptionBloc extends ContentBloc {
                 options[option.key] = option.value
             }
         }
-        return [this._paramsString, this._defaultOption, options]
+        return [this._identifiant, this._defaultOption, options]
     }
 }
 

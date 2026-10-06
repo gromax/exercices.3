@@ -1,17 +1,13 @@
 import _ from "underscore"
-import { BlocWithView } from './bloc'
+import { BlocWithView } from './contentbloc'
 import { AnyView, NestedInput } from "@types"
 import TableView from '../views/tableview'
 
 class TableBloc extends BlocWithView {
-    static readonly LABELS = ['table']
+    static ACCEPTS_HEADER = false
     private _rows?:Array<Array<string>>
     private _rowheaders?:Array<string>
     private _colheaders?:Array<string>
-
-    constructor(tag:string, paramsString:string) {
-        super(tag, paramsString, false)
-    }
 
     protected _verifParam(name:string, value:NestedInput):void {
         const hasBrackets = name.endsWith('[]')

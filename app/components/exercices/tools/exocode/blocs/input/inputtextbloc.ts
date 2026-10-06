@@ -19,7 +19,7 @@ class InputTextBloc extends InputBloc {
             (child): child is TextBloc => child instanceof TextBloc && child.isHelp
         )
         if (aideBlocs.length > 1) {
-            console.warn(`Le bloc <input:${this.header}> contient plusieurs blocs d'aide. Seul le premier sera pris en compte.`)
+            console.warn(`Le bloc <input:${this._name}> contient plusieurs blocs d'aide. Seul le premier sera pris en compte.`)
         }
         if (aideBlocs.length > 0) {
             if (typeof this.params.keyboard === 'undefined') {
@@ -36,9 +36,9 @@ class InputTextBloc extends InputBloc {
             this.params.keyboard = [this.params.keyboard]
         }
         const view =  new InputView({
-            name: this.header,
-            tag: this.params.tag || this.header,
-            answer: answers[this.header] || null,
+            name: this._name,
+            tag: this.params.tag || this._name,
+            answer: answers[this._name] || null,
             keyboard: this.params.keyboard || [],
             placeholder: getStringOption(this.params, "placeholder", '')
         })
@@ -65,15 +65,15 @@ class InputTextBloc extends InputBloc {
                 throw new Error("<format> devrait être un texte.")
             }
             if (value === "inf") {
-                console.warn(`Le format "inf" pour le bloc <input:${this.header}> est obsolète. Utilisez "infini" à la place.`)
+                console.warn(`Le format "inf" pour le bloc <input:${this._name}> est obsolète. Utilisez "infini" à la place.`)
                 value = "infini"
             } else if (value === "vide") {
-                console.warn(`Le format "vide" pour le bloc <input:${this.header}> est obsolète. Utilisez "empty" à la place.`)
+                console.warn(`Le format "vide" pour le bloc <input:${this._name}> est obsolète. Utilisez "empty" à la place.`)
                 value = "empty"
             }
             // je veux éviter un format non défini
             if (!formatExists(value)) {
-                throw new Error(`Format inconnu pour le bloc <input:${this.header}> : ${value}`)
+                throw new Error(`Format inconnu pour le bloc <input:${this._name}> : ${value}`)
             }
             // pour certains formats, je modifie aussi le clavier
             if (value === "infini") {
@@ -124,7 +124,7 @@ class InputTextBloc extends InputBloc {
      * @param {Record<string, string>} data 
      */
     protected _calcResult(userData:Record<string, string>):[AnyView, number] {
-        const name = this.header
+        const name = this._name
         const userValue = userData[name] || ''
         const userValueTag = userValue.includes('\\') ? `$${userValue}$` : userValue
         const solution = this.params.solution
@@ -132,7 +132,7 @@ class InputTextBloc extends InputBloc {
         const format = this._format || 'none'
         const entete = tag?`${tag} : `:''
         if (!solution) {
-            throw new Error(`Dans <${this.tag}:${this.header}>, la solution doit être spécifiée.`)
+            throw new Error(`Dans <${this.tag}:${this._name}>, la solution doit être spécifiée.`)
         }
         // C'est là qu'il faudra prévoir les divers vérifications
         // solution pourrait être un tableau et alors il suffit qu'une valeur convienne
@@ -188,17 +188,17 @@ class InputTextBloc extends InputBloc {
 
     protected verifyMyParams():void {
         if (typeof this._format === 'undefined') {
-            throw new Error(`Dans <${this.tag}:${this.header}>, le format doit être spécifié.`)
+            throw new Error(`Dans <${this.tag}:${this._name}>, le format doit être spécifié.`)
         }
         if (!this.params.solution) {
-            throw new Error(`Dans <${this.tag}:${this.header}>, la solution doit être spécifiée.`)
+            throw new Error(`Dans <${this.tag}:${this._name}>, la solution doit être spécifiée.`)
         }
     }
 
     protected verifyMyChildren():void {
         // on accepte les TextNode et les Text
         if (this._children.some(child => !((child instanceof TextBloc)&& child.isHelp))) {
-            throw new Error(`<${this.tag}:${this.header}> ne peut avoir que des blocs d'aide comme enfants.`)
+            throw new Error(`<${this.tag}:${this._name}> ne peut avoir que des blocs d'aide comme enfants.`)
         }
     }
 }

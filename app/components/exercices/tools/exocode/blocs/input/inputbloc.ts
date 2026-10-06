@@ -1,15 +1,16 @@
-import { BlocWithView } from "../bloc"
+import { BlocWithView } from "../contentbloc"
 import FormItemImplementation from "../../implementation/formitem"
 import { AnyView } from "@types"
 
 abstract class InputBloc extends BlocWithView implements FormItemImplementation {
+    static NEED_ID = true
     readonly IMPLEMENTATION_FORMITEM = true
     protected _resultView?:AnyView
     protected _score?:number
     protected _name:string
 
     constructor(tag:string, paramsString:string) {
-        super(tag, paramsString, false)
+        super(tag)
         if (!paramsString) {
             throw new Error(`<${tag}> doit avoir un nom (ex: <${tag}:le_nom>)`)
         }
@@ -44,7 +45,7 @@ abstract class InputBloc extends BlocWithView implements FormItemImplementation 
      */
     resultScore(userData:Record<string, string>):number {
         // pas encore répondu
-        if (typeof userData[this.header] === 'undefined') {
+        if (typeof userData[this._name] === 'undefined') {
             return 0
         }
         if (typeof this._score === 'undefined') {
