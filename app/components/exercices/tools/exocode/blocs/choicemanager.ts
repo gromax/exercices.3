@@ -2,7 +2,7 @@ import _ from 'underscore'
 import { Model, Collection } from 'backbone'
 import { TParams } from "@types"
 import Colors from "../colors"
-import Option from "../option"
+import Option from "../simplenodes/option"
 import { getBooleanOption } from "../misc"
 
 class ChoiceManager {
