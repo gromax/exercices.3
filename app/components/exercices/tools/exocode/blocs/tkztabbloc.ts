@@ -88,14 +88,15 @@ class TkzTabBloc extends BlocWithView implements FormItemImplementation {
     }
 
     protected setParam(key:string, value:NestedInput):void {
-        if (TkzTab.LINESTYPES.includes(key)) {
+        const lowerKey = key.toLocaleLowerCase()
+        if (TkzTab.LINESTYPES.includes(lowerKey)) {
             if (typeof value !== 'string') {
                 throw new Error(`<tkztab> format de la ligne invalide : ${key}`)
             }
-            this._lines.push(TkzTab.parseLine(key, value))
+            this._lines.push(TkzTab.parseLine(lowerKey, value))
             return
         }
-        if (key === 'color') {
+        if (lowerKey === 'color') {
             if (Array.isArray(value)) {
                 throw new Error(`<tkztab>, le paramètre ${key} ne devrait pas être un tableau.`)
             }
@@ -107,7 +108,7 @@ class TkzTabBloc extends BlocWithView implements FormItemImplementation {
             this._color = stringValue
             return
         }
-        if (key === "xlist") {
+        if (lowerKey === "xlist") {
             this._xList = (Array.isArray(value))
                 ? _.flatten(value).map(item => String(item))
                 : String(value)

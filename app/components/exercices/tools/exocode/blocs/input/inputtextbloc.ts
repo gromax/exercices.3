@@ -16,7 +16,7 @@ import { getStringOption } from "../../misc"
 class InputTextBloc extends InputBloc {
     static readonly LABEL = 'input'
     static readonly ALLOWED_PARAMS = [
-        'format', 'keyboard', 'placeholder', 'tag', 'excluded', 'solution', 'tagSolution'
+        'format', 'keyboard', 'placeholder', 'tag', 'excluded', 'solution', 'tagsolution'
     ]
     protected _format:Array<string> = []
     
@@ -68,14 +68,15 @@ class InputTextBloc extends InputBloc {
     }
 
     protected setParam(key:string, value:NestedInput):void {
-        if (key === 'format') {
+        const lowerKey = key.toLocaleLowerCase()
+        if (lowerKey === 'format') {
             if (typeof value !== "string") {
-                throw new Error("<format> devrait être un texte.")
+                throw new Error(`<${key}:###> devrait être un texte.`)
             }
             // je veux éviter un format non défini
             const standard = standardName(value)
             if (standard === "") {
-                throw new Error(`Format inconnu pour le bloc <input:${this._name}> : ${value}`)
+                throw new Error(`<${key}:###> Format inconnu pour le bloc <input:${this._name}> : ${value}`)
             }
             // pour certains formats, je modifie aussi le clavier
             if (standard === "infini") {
@@ -151,8 +152,8 @@ class InputTextBloc extends InputBloc {
             return [resultView, score]
         } else {
             const message = `${userValueTag} est une Mauvaise réponse.`
-            let solutionFormatted = (typeof this.params.tagSolution !== 'undefined')
-                ? this.params.tagSolution
+            let solutionFormatted = (typeof this.params.tagsolution !== 'undefined')
+                ? this.params.tagsolution
                 : formatValue(solution, format)
             // Il peut arriver que l'on envisage plusieurs formules mais qui au final
             // donne le même résultat formaté. Dans ce cas il faut éviter les répétitions

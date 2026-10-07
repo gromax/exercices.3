@@ -16,7 +16,7 @@ class GraphBloc extends BlocWithView implements FormItemImplementation {
     static readonly ALLOWED_PARAMS = [
         "xmin", "xmax", "ymin", "ymax", "axis",
         "axes", "pan", "zoom", "grid", "grille",
-        "gridX", "gridY", "gridx", "gridy", "aspectratio"
+        "gridx", "gridy", "aspectratio"
     ]
     static ACCEPTS_HEADER = false
     private _cadre:[number, number, number, number]
@@ -75,11 +75,11 @@ class GraphBloc extends BlocWithView implements FormItemImplementation {
         options["pan"] = getBooleanOption(this.params, "pan", false)
         options["zoom"] = getBooleanOption(this.params, "zoom", false)
         options["grid"] = getBooleanOption(this.params, ["grid", "grille"], true)
-        if ((typeof this.params["gridX"] !== "undefined") ||
-            (typeof this.params["gridY"] !== "undefined"))
+        if ((typeof this.params["gridx"] !== "undefined") ||
+            (typeof this.params["gridy"] !== "undefined"))
         {
-            const gridX = getNumberOption(this.params, ["gridx", "gridX"], 1)
-            const gridY = getNumberOption(this.params, ["gridy", "gridY"], 1)
+            const gridX = getNumberOption(this.params, "gridx", 1)
+            const gridY = getNumberOption(this.params, "gridy", 1)
             options["majorStep"] = [gridX, gridY]
         }
  

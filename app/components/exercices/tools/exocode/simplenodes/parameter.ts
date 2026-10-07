@@ -5,7 +5,7 @@ import { SimpleNode } from "./simplenode"
 
 class Parameter extends SimpleNode {
     private _param:string
-    static readonly REGEX = /^<(\w+(?:\[\])?)\s*:(.*)\/>$/
+    static readonly REGEX = /^<\s*(\w+(?:\[\])?)\s*:(.*)\/>$/
     static parse(line:string):Parameter|null {
         const m = line.match(Parameter.REGEX)
         if (m) {

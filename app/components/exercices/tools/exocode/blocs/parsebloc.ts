@@ -35,7 +35,7 @@ function parseBloc(line:string):ContentBloc|null {
     if (m=== null) {
         return null
     }
-    const label = m[1]
+    const label = m[1].toLowerCase()
     const paramsString = m[2]
         ? m[2] // en attente de tolowecase
         : null

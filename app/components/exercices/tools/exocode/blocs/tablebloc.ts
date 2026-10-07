@@ -50,16 +50,18 @@ class TableBloc extends BlocWithView {
     }
 
     protected setParam(key:string, value:NestedInput):void {
-        if (/^(rowheaders|colheaders)(\[\])?$/.test(key)) {
-            this._verifParam(key, value)
+        const lowerKey = key.toLocaleLowerCase()
+        if (/^(rowheaders|colheaders)(\[\])?$/.test(lowerKey)) {
+            this._verifParam(lowerKey, value)
             return
         }
-        if (key === "rows") {
-            throw new Error("<rows: ajoutez les lignes une par une avec <rows[]:")
+        
+        if (lowerKey === "rows") {
+            throw new Error("<rows:###> ajoutez les lignes une par une avec <rows[]:###>")
         }
-        if (key === "rows[]") {
+        if (lowerKey === "rows[]") {
             if (!Array.isArray(value)) {
-                throw new Error("<rows[]: le paramètre devrait être un tableau")
+                throw new Error("<rows[]:###> le paramètre devrait être un tableau")
             }
             if (typeof this._rows === "undefined") {
                 this._rows = []

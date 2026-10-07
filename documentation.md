@@ -466,6 +466,8 @@ Certains paramètres sont essentiels au fonctionnement. Par exemple :
 
 On renseigne ici que le bloc `<input>` aura un paramètre `solution` égal à 3 et une étiquette `$x$` qui sert à l'affichage.
 
+**La casse du nom de paramètre n'a pas d'importance.** Ici, par exemple, vous pouvre aussi bien mettre `Solution` ou même `SOLUTION`.
+
 ###### Paramètres comme tableaux
 
 Il est possible de traiter ces paramètres en tableaux :
