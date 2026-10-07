@@ -65,7 +65,7 @@ function build(rpn:Array<Token>, withComplex:boolean = false):Base {
         if (sItem === "i") {
             // selon le mode, i est reconnu comme nombre complexe ou symbole
             if (withComplex) {
-                stack.push(Constant.fromString("i"))
+                stack.push(Constant.fromString("𝐢")) // on utilise le i imaginaire complexe
             } else {
                 stack.push(Symbol.fromString("i"))
             }
