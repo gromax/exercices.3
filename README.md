@@ -23,9 +23,14 @@ This is a modern JS skeleton with MarionetteJS for [Webpack](https://webpack.git
 
 ## à faire
 
+* prévoir un champ de saisie attendant une collection, adjointe soit à un check qui vérifie chaque item 2 à 2, soit dans le désordre, ou éventuellement fixe un critère, un critère de taille éventuellement
+* pouvoir faire un repeat for
+* pouvoir mettre autre chose que 0,1,2... dans les options
+* lire la longueur d'un tableau
+* les fractions comme -7/2 sont écrites souvent -7 en haut et 2 en bas. serait mieux - devant puis 7/2. Voir si je peux améliorer cela.
+
 * prévoir une petite calculatrice
 * cas d'interface
   * zone d'édit intelligente
   * sauvegarde sur aperçu
 * admin : interface de nettoyage
-
