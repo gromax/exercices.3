@@ -91,8 +91,8 @@ class InputTextBloc extends InputBloc {
                 this.setParam('keyboard', 'empty')
                 this.setParam('keyboard', 'union')
             }
-            if (!this._format.includes(standard)) {
-                this._format.push(standard)
+            if (!this._format.includes(value)) {
+                this._format.push(value)
             }
             return
         }
