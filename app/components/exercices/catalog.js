@@ -3,47 +3,6 @@
 const catalog = {
     list: [
         {
-            id: 1,
-            filename: "exo0001",
-            title: "Équation de droite",
-            description: "Déterminer l'équation d'une droite passant par deux points.",
-            keyWords: "geometrie;droite;equation;seconde"
-        },
-        {
-            id: 2,
-            filename: "exo0002",
-            title: "Milieu d'un segment",
-            description: "Calculer les coordonnées du milieu d'un segment.",
-            keyWords: "geometrie;repere;seconde"
-        },
-        {
-            id: 3,
-            filename: "exo0003",
-            title: "Symétrique d'un point",
-            description: "Calculer les coordonnées du symétrique d'un point par rapport à un autre point.",
-            keyWords: "geometrie;repere;seconde"
-        },
-        {
-            id: 4,
-            filename: "exo0004",
-            title: "Quatrième point d'un parallélogramme.",
-            description: "Connaissant trois points, calculer les coordonnées d'un quatrième point pour former un parallélogramme.",
-            keyWords: "geometrie;repere;seconde",
-            fixedSettings: {
-                complexe: false
-            }
-        },
-        {
-            id: 5,
-            filename: "exo0005",
-            title: "Distance entre deux points.",
-            description: "Dans un repère orthonormé, calculer la distance entre deux points dont on connait les coordonnées.",
-            keyWords: "geometrie;repere;seconde;distance",
-            fixedSettings: {
-                complexe: false
-            }
-        },
-        {
             id: 6,
             filename: "exo0006",
             title: "Placer des points dans un repère",
@@ -52,27 +11,6 @@ const catalog = {
             fixedSettings: {
                 complexe: true
             }
-        },
-        {
-            id: 7,
-            filename: "exo0007",
-            title: "Image et antécédent avec un tableau de valeurs",
-            description: "Un tableau de valeur d'une fonction est donné. Il faut déterminer une image et un antécédent.",
-            keyWords: "fonction;antecedent;image;seconde"
-        },
-        {
-            id: 8,
-            filename: "exo0008",
-            title: "Image et antécédent avec une courbe",
-            description: "La courbe d'une fonction étant donnée, il faut déterminer un antécédent et une image.",
-            keyWords: "fonction;antecedent;image;seconde"
-        },
-        {
-            id: 9,
-            filename: "exo0009",
-            title: "Expression d'une fonction affine",
-            description: "On connaît deux valeurs d'une fonction affine. Il faut en déduire l'expression de la fonction.",
-            keyWords: "analyse;fonction;expression;affine;seconde"
         },
         {
             id: 10,
@@ -86,13 +24,6 @@ const catalog = {
                     options: ["Réels", "complexes"]
                 }
             }
-        },
-        {
-            id: 11,
-            filename: "exo0011",
-            title: "Équation somme et produit",
-            description: "On connaît la somme et le produit de deux nombres, il faut calculer ces nombres.",
-            keyWords: "analyse;trinome;equation;racines;1stl"
         },
         {
             id: 12,
@@ -109,42 +40,6 @@ const catalog = {
             description: "On donne l'équation réduite d'une droite. Il faut tracer cette droite.",
             keyWords: "geometrie;droite;equation;seconde",
             fixedSettings: { affine: false, point: false }
-        },
-        {
-            id: 14,
-            filename: "exo0015",
-            title: "Associer droites et fonctions affines",
-            description: "On donne cinq fonctions affines et cinq droites. Il faut associer chaque fonction affine avec la droite qui la représente.",
-            keyWords: "analyse;fonction;courbe;affine;seconde", 
-            options: {
-                n: { tag: "Nombre de courbes", options: ["3", "4", "5", "6", "7"] }
-            },
-            fixedSettings: { affine: true, point: false }
-        },
-        {
-            id: 15,
-            filename: "exo0015",
-            title: "Associer droites et équations réduites",
-            description: "On donne des équations réduites et des droites. Il faut associer chaque équation avec la droite qui la représente.",
-            keyWords: "analyse;fonction;courbe;affine;seconde",
-            options: {
-                n: { tag: "Nombre de courbes", options: ["3", "4", "5", "6", "7"] }
-            },
-            fixedSettings: { affine: false }
-        },
-        {
-            id: 16,
-            filename: "exo0016",
-            title: "Associer courbes et fonctions du second degré",
-            description: "Cinq paraboles et cinq fonctions du second degré sont données. À chaque fonction, il faut attribuer la parabole qui la représente.",
-            keyWords: "analyse;fonction;courbe;Second degré;seconde"
-        },
-        {
-            id: 17,
-            filename: "exo0017",
-            title: "Associer courbes et fonctions du second degré",
-            description: "Cinq paraboles sont données. On propose cinq fonctions du second degré dont on ne connait que le discriminant et le coefficient du terme de second degré. À chaque fonction, il faut attribuer la parabole qui la représente.",
-            keyWords: "analyse;fonction;courbe;affine;seconde"
         },
         {
             id: 18,
@@ -263,14 +158,6 @@ const catalog = {
             }
         },
         {
-            id: 30,
-            filename: "exo0030",
-            title: "Suites et termes général et récurrence",
-            description: "On donne l'expression de suites et il faut l'associer à la forme donnée par récurence.",
-            keyWords: "analyse;suite;1stl",
-            options: {}
-        },
-        {
             id: 31,
             filename: "exo0031",
             title: "Conversion entre degré et radians",
@@ -345,13 +232,6 @@ const catalog = {
             filename: "exo0041",
             title: "Termes d'une suite explicite",
             description: "Calculer les termes d'une suite donnée explicitement.",
-            keyWords: "analyse;suite;1stl"
-        },
-        {
-            id: 42,
-            filename: "exo0042",
-            title: "Termes d'une suite récurrente",
-            description: "Calculer les termes d'une suite donnée par récurence.",
             keyWords: "analyse;suite;1stl"
         },
         {
@@ -464,13 +344,6 @@ const catalog = {
             title: "Calculer une intégrale",
             description: "Calculer l'intégrale d'une fonction polynôme.",
             keyWords: "analyse;fonction;primitive;integrale;tstl"
-        },
-        {
-            id: 56,
-            filename: "exo0056",
-            title: "Intervalle de fluctuation asymptotique",
-            description: "Dans le cadre de l'approximation d'une loi Binomiale par une loi Normale, calculer un intervalle de fluctuation asymptotique et prendre une décision.",
-            keyWords: "probabilite;binomiale;normale;intervalle de fluctuation;tstl"
         },
         {
             id: 57,
@@ -641,13 +514,6 @@ const catalog = {
             keyWords: "analyse;fonction;derivee;derivation;1stl"
         },
         {
-            id: 76,
-            filename: "exo0076",
-            title: "Loi de Poisson",
-            description: "Calculer des probabilités avec la loi de Poisson.",
-            keyWords: "probabilite;poisson;bts;loi"
-        },
-        {
             id: 77,
             filename: "exo0029",
             title: "Équation du premier degré, dans $\\mathbb{C}$",
@@ -667,14 +533,6 @@ const catalog = {
                 c: true
             }
         },
-        {
-            id: 9999,
-            filename: "exoTest",
-            title: "Exercice de test",
-            description: "Exercice utilisé pour développer de nouvelles fonctionalités",
-            keyWords: "",
-            options: {}
-        }
     ],
     get: (id) => {
         idExo = Number(id)
