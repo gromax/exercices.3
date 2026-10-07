@@ -27,7 +27,7 @@ class TOperator extends Token {
     }
 
     static readonly sREGEX = "[*×⋅\\+\\-\\/\\^÷;]|cdot"
-    static readonly REGEX = new RegExp("[*×⋅\\+\\-\\/\\^÷;]|cdot", 'i')
+    static readonly REGEX = new RegExp("[*×⋅\\+\\-\\/\\^÷;]|cdot")
 
     /**
      * renvoie le niveau de priorité
