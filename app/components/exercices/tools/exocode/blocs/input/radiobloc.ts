@@ -1,11 +1,11 @@
 import _ from "underscore"
-import { getNumberOption } from "../../misc"
+import { getBooleanOption, getNumberOption } from "../../misc"
 import InputBloc from "./inputbloc"
 import RadioView from "../../views/radioview"
 import { InputResultView } from "../../views/inputview"
 import { AnyView } from "@types"
 class RadioBloc extends InputBloc {
-    static readonly ALLOWED_PARAMS = ['solution', 'tag']
+    static readonly ALLOWED_PARAMS = ['solution', 'tag', 'shuffle']
     static readonly HAS_OPTIONS = true
     static readonly LABEL = 'radio'
 
@@ -31,7 +31,10 @@ class RadioBloc extends InputBloc {
     }
 
     protected _getView(answers:Record<string, string>):AnyView {
-        const items = _.shuffle(this._options || []).map((option) => [option.key, option.value])
+        const shuffle = getBooleanOption(this.params, 'shuffle', true)
+        const items = shuffle
+            ? _.shuffle(this._options || []).map((option) => [option.key, option.value])
+            : (this._options || []).map((option) => [option.key, option.value])
         return new RadioView({
             name: this._name,
             items: items,
