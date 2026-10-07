@@ -21,8 +21,8 @@ class TSymbol extends Token {
         return this._name
     }
 
-    static readonly sREGEX = "([∞πa-zA-Z_][a-zA-Z0-9_]*)"
-    static readonly REGEX = new RegExp("([∞πa-zA-Z_][a-zA-Z0-9_]*)", 'i')
+    static readonly sREGEX = "([∞π𝐢]|([a-zA-Z_][a-zA-Z0-9_]*))"
+    static readonly REGEX = new RegExp("([∞π𝐢]|([a-zA-Z_][a-zA-Z0-9_]*))")  
 
     /**
      * renvoie le niveau de priorité

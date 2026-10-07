@@ -4,14 +4,14 @@ import { Signature } from "./signature"
 import Decimal from "decimal.js"
 import { NestedString } from '@types'
 class Constant extends Base {
-    static readonly NAMES = ['e', 'pi', 'π', '∞', '-inf', '-∞', 'infinity', 'inf', 'infini', 'i', 'NaN', 'nan']
+    static readonly NAMES = ['e', 'pi', 'π', '∞', '-inf', '-∞', 'infinity', 'inf', 'infini', '𝐢', 'NaN', 'nan']
     static readonly TEX = {
         'e': 'e',
         'π': '\\pi',
-        'i': 'i',
+        '𝐢': '\\mathrm{i}',
         '∞': '\\infty',
         '-∞': '-\\infty',
-        'NaN': '\\mathrm{NaN}',
+        'NaN': '\\mathrm{NaN}'
     }
     
     private static _list:Record<string, Constant> = {}
@@ -169,11 +169,11 @@ class Constant extends Base {
 
 }
 
-const E = Constant.fromString('e');
-const PI = Constant.fromString('pi');
-//const I = Constant.fromString('i');
-const INFINI = Constant.fromString('infini');
-const MINUS_INFINI = Constant.fromString('-∞');
-const NAN = Constant.fromString('NaN');
+const E = Constant.fromString('e')
+const PI = Constant.fromString('pi')
+const INFINI = Constant.fromString('infini')
+const MINUS_INFINI = Constant.fromString('-∞')
+const NAN = Constant.fromString('NaN')
+const I = Constant.fromString('𝐢')
 
-export { Constant, E, PI, INFINI, MINUS_INFINI, NAN } // I
+export { Constant, E, PI, INFINI, MINUS_INFINI, NAN, I }
