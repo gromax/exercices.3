@@ -202,6 +202,10 @@ function functionSimplify(node:Function):Base {
         return childSim.child
     }
 
+    if (funcName === 'ln' && (childSim instanceof Scalar) && childSim.isOne()) {
+        return Scalar.ZERO
+    }
+
     if (funcName == 'sqrt') {
         if (childSim instanceof Scalar && childSim.isPerfectSquare()) {
             return new Scalar(childSim.toDecimal({}).sqrt())
