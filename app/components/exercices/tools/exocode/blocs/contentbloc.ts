@@ -78,7 +78,7 @@ class ContentBloc extends Bloc {
             }
         }
         this.verifyMyChildren()
-        this.verifyMyParams()
+        this.verifyNeededParams()
     }
 
     setOption(option:Option):void {
@@ -157,7 +157,7 @@ class ContentBloc extends Bloc {
      * Déclencher après l'enregistrement des paramètres.
      * @returns {void}
      */
-    protected verifyMyParams():void {
+    protected verifyNeededParams():void {
         return
     }
 

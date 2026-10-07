@@ -84,6 +84,13 @@ class RadioBloc extends InputBloc {
         })
         return [resultView, score]
     }
+
+    verifyNeededParams():void {
+        if (!this.params.solution) {
+            throw new Error(`Dans <${this.tag}:${this._name}>, la solution doit être spécifiée.`)
+        }
+
+    }
 }
 
 export default RadioBloc
