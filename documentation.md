@@ -748,6 +748,9 @@ Ici `@gn` qui aura été préalablement initialisé, contiendra une valeur parmi
 
 À l'affichage, les différentes possibilités sont mélangées, mais bien sûr, chaque réponse reste convenablement associée à sa clé.
 
+  * le paramètre `solution` est obligatoire
+  * vous disposez du paramètre `tag` qui sert à améliorer l'affichage de la réponse. Par ici, on pourrait même le tag `<tag:Nombre de solutions>` de sorte que si l'élève répond "deux solutions", on pourra avoir un affichage comme "Nombre de solutions : 2 solutions est une bonne réponse".
+
 #### Bloc input ensemble
 
 Ci-dessous, deux exemple avec les solutions.
