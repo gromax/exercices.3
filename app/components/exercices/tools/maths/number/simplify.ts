@@ -4,7 +4,7 @@ import { Div } from './div'
 import { Power } from './power'
 import { Exponential } from './exponential'
 import { Scalar } from './scalar'
-import { Constant, E, NAN } from './constant'
+import { Constant, E, NAN, I } from './constant'
 import { Symbol } from './symbol'
 import { Base } from './base'
 import { Function } from './function'
@@ -139,6 +139,24 @@ function powerSimplify(node:Power):Base {
     }
     if (sbase === E ) {
         return simplify(new Function('exp', exposant))
+    }
+    if (sbase === I) {
+        if (!exposant.isInteger()) {
+            return NAN
+        }
+        const n = exposant.toDecimal({}).mod(4)
+        if (n.isZero()) {
+            return Scalar.ONE
+        }
+        if (n.equals(1)) {
+            return I
+        }
+        if (n.equals(2)) {
+            return Scalar.MINUS_ONE
+        }
+        if (n.equals(3)) {
+            return new Function('(-)', I)
+        }
     }
     if (sbase === base) {
         return node
@@ -438,6 +456,5 @@ function decimalize(node:Base):Base {
     return node
 
 }
-
 
 export { simplify, decimalize }
