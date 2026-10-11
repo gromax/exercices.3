@@ -35,7 +35,7 @@ class TEnsemble extends Token {
     }
 
     static readonly sREGEX = "[\\[\\]∩∪∅&|]"
-    static readonly REGEX = new RegExp("[\\[\\]∩∪∅&|]")
+    static readonly REGEX = new RegExp("[\\[\\]∩∪∅&|]", 'u')
 
     /**
      * renvoie le symbole
