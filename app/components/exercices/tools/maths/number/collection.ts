@@ -3,6 +3,7 @@ import { Base } from "./base"
 import { Scalar } from "./scalar"
 import Decimal from "decimal.js"
 import { NestedString } from '@types'
+import { ComplexDecimal } from '../misc/complexdecimal'
 
 class Collection extends Base {
     private _children:Array<Base> /** @type {Base[]} */
@@ -50,6 +51,24 @@ class Collection extends Base {
                 ? item.children
                 : item
         )
+    }
+
+    /**
+     * évaluation numérique en decimal
+     * @param {object|undefined} values
+     * @returns {Decimal}
+     */
+    toDecimal(values:Record<string, Decimal|string|number>|undefined):Decimal {
+        return new Decimal(NaN)
+    }
+
+    /**
+     * évaluation numérique en decimal complexe
+     * @param {object|undefined} values
+     * @returns {ComplexDecimal}
+     */
+    toComplexDecimal(values:Record<string, Decimal|string|number>|undefined):ComplexDecimal {
+        return new ComplexDecimal(NaN, NaN)
     }
 
     /**

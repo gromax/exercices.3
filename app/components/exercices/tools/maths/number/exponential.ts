@@ -6,6 +6,7 @@ import { Mult } from "./mult"
 import { Div } from "./div"
 import { Function } from "./function"
 import Decimal from "decimal.js"
+import { ComplexDecimal } from "../misc/complexdecimal"
 import { AddMinus } from "./add"
 import { NestedString } from '@types'
 import { Power } from "./power"
@@ -179,10 +180,28 @@ class Exponential extends Base {
      * @returns {Decimal}
      */
     toDecimal(values:Record<string, Decimal|string|number>):Decimal {
-        let base = this._base.toDecimal(values);
-        let exposant = this._exposant.toDecimal(values);
-        return base.pow(exposant);
+        const base = this._base.toDecimal(values)
+        const exposant = this._exposant.toDecimal(values)
+        return base.pow(exposant)
     }
+
+    /**
+     * evaluation numérique en decimal complexe
+     * @param {object|undefined} values
+     * @returns {ComplexDecimal}
+     */
+    toComplexDecimal(values:Record<string, Decimal|string|number>):ComplexDecimal {
+        const base = this._base.toComplexDecimal(values)
+        const exposant = this._exposant.toComplexDecimal(values)
+        const exposantArg = exposant.mult(base.arg())
+        const magnitude = base.abs().pow(exposantArg.abs())
+        const angle = exposantArg.arg()
+        const reel = magnitude.mul(Decimal.cos(angle))
+        const imag = magnitude.mul(Decimal.sin(angle))
+        return new ComplexDecimal(reel, imag)
+    }
+
+
 
     signature():Signature {
         const expoValue = this._exposant.toDecimal(undefined)

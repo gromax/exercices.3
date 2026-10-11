@@ -30,6 +30,7 @@ import { Signature } from './signature'
 import { Scalar } from './scalar'
 Decimal.set({ precision: 50, rounding: Decimal.ROUND_HALF_UP });
 import { NestedString } from '@types'
+import type { ComplexDecimal } from '../misc/complexdecimal';
 
 function flattenStrings(values: NestedString): string[] {
     return values.flatMap(value =>
@@ -136,9 +137,15 @@ abstract class Base {
      * @param {object|undefined} values
      * @returns {Decimal}
      */
-    toDecimal(values:Record<string, Decimal|string|number>|undefined):Decimal {
-        return new Decimal(NaN);
-    }
+    abstract toDecimal(values:Record<string, Decimal|string|number>|undefined):Decimal
+
+    /**
+     * evaluation numérique en decimal
+     * @param {object|undefined} values
+     * @returns {Decimal}
+     */
+    abstract toComplexDecimal(values:Record<string, Decimal|string|number>|undefined):ComplexDecimal
+
 
     /**
      * renvoie une signature, c'est à dire un objet avec un facteur scalair

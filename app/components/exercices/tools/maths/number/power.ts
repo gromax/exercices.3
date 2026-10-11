@@ -4,6 +4,7 @@ import { Scalar } from "./scalar"
 import { Signature } from "./signature"
 import { Mult } from "./mult"
 import Decimal from "decimal.js"
+import { ComplexDecimal } from "../misc/complexdecimal"
 import { NestedString } from '@types'
 
 /* Classe représentant une puissance (base^exposant)
@@ -196,6 +197,31 @@ class Power extends Base {
         let base = this._base.toDecimal(values);
         return base.pow(this._decExposant);
     }
+
+    /**
+     * evaluation numérique en decimal complexe
+     * @param {object|undefined} values
+     * @returns {ComplexDecimal}
+     */
+    toComplexDecimal(values:Record<string, Decimal|string|number>):ComplexDecimal {
+        const base = this._base.toComplexDecimal(values)
+        if (this._decExposant.isInteger() && this._decExposant.gte(0) && this._decExposant.lte(5)) {
+            const n = this._decExposant
+            let acc = ComplexDecimal.makeReal(1)
+            for (let i=0; i<n.toNumber(); i++) {
+                acc = acc.mult(base)
+            }
+            return acc
+        }
+        const exposant = ComplexDecimal.makeReal(this._decExposant)
+        const exposantArg = exposant.mult(base.arg())
+        const magnitude = base.abs().pow(exposantArg.abs())
+        const angle = exposantArg.arg()
+        const reel = magnitude.mul(Decimal.cos(angle))
+        const imag = magnitude.mul(Decimal.sin(angle))
+        return new ComplexDecimal(reel, imag)
+    }
+
 
     signature():Signature {
         return this._base.signature().power(this._decExposant.toNumber())
