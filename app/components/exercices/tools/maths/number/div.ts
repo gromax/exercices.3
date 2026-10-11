@@ -5,6 +5,7 @@ import { Mult } from "./mult"
 import { Power } from "./power"
 import { AddMinus } from "./add"
 import Decimal from "decimal.js"
+import { ComplexDecimal } from "../misc/complexdecimal"
 import { Signature } from "./signature"
 import { NestedString } from '@types'
 import { gcd } from "../misc/functions"
@@ -209,6 +210,17 @@ class Div extends Base {
         let left = this._left.toDecimal(values);
         let right = this._right.toDecimal(values);
         return left.dividedBy(right);
+    }
+
+    /**
+     * evaluation numérique en decimal complexe
+     * @param {object|undefined} values
+     * @returns {ComplexDecimal}
+     */
+    toComplexDecimal(values:Record<string, Decimal|string|number>|undefined):ComplexDecimal {
+        let left = this._left.toComplexDecimal(values);
+        let right = this._right.toComplexDecimal(values);
+        return left.divide(right);
     }
 
     signature():Signature {

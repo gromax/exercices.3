@@ -3,6 +3,7 @@ import { Base } from "./base"
 import { Scalar } from "./scalar"
 import Decimal from "decimal.js"
 import { NestedString } from '@types'
+import { ComplexDecimal } from '../misc/complexdecimal'
 
 class AddMinus extends Base {
     private _children:Array<Base> /** @type {Base[]} */
@@ -258,6 +259,25 @@ class AddMinus extends Base {
         }
         return acc
     }
+
+    /**
+     * evaluation numérique en decimal
+     * @param {object|undefined} values
+     * @returns {Decimal}
+     */
+    toComplexDecimal(values:Record<string, Decimal|string|number>|undefined):ComplexDecimal {
+        const children = this._children.map( c => c.toComplexDecimal(values) )
+        let acc = new ComplexDecimal(0, 0)
+        for (let i=0; i<children.length; i++) {
+            if (this._positive[i]) {
+                acc = acc.plus( children[i] )
+            } else {
+                acc = acc.minus( children[i] )
+            }
+        }
+        return acc
+    }
+
 
     opposite():Base {
         const newPositive = this._positive.map( p => !p )

@@ -3,6 +3,7 @@ import { Scalar } from "./scalar"
 import { Signature } from "./signature"
 import Decimal from "decimal.js"
 import { NestedString } from '@types'
+import { ComplexDecimal } from "../misc/complexdecimal"
 class Constant extends Base {
     static readonly NAMES = ['e', 'pi', 'π', '∞', '-inf', '-∞', 'infinity', 'inf', 'infini', '𝐢', 'NaN', 'nan']
     static readonly TEX = {
@@ -115,6 +116,22 @@ class Constant extends Base {
             case '∞': return new Decimal(Infinity)
             case '-∞': return new Decimal(-Infinity)
             default: return new Decimal(NaN)
+        }
+    }
+
+    /**
+     * evaluation numérique en decimal complexe
+     * @param {object|undefined} values
+     * @returns {ComplexDecimal}
+     */
+    toComplexDecimal(values:Record<string, Decimal|string|number>|undefined):ComplexDecimal {
+        switch (this._name) {
+            case 'e': return ComplexDecimal.makeReal(Decimal.exp(1))
+            case 'π': return ComplexDecimal.makeReal(Decimal.acos(-1))
+            case '∞': return ComplexDecimal.makeReal(new Decimal(Infinity))
+            case '-∞': return ComplexDecimal.makeReal(new Decimal(-Infinity))
+            case '𝐢': return new ComplexDecimal(new Decimal(0), new Decimal(1))
+            default: return ComplexDecimal.NaN()
         }
     }
 

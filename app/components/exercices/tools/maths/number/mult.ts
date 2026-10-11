@@ -3,6 +3,7 @@ import { Base } from "./base"
 import { Scalar } from "./scalar"
 import { AddMinus } from "./add"
 import Decimal from "decimal.js"
+import { ComplexDecimal } from "../misc/complexdecimal"
 import { Signature } from "./signature"
 import { NestedString } from '@types'
 class Mult extends Base {
@@ -223,6 +224,20 @@ class Mult extends Base {
         for (let child of this._children) {
             let v = child.toDecimal(values)
             acc = acc.mul(v)
+        }
+        return acc
+    }
+
+    /**
+     * evaluation numérique en decimal complexe
+     * @param {object|undefined} values
+     * @returns {ComplexDecimal}
+     */
+    toComplexDecimal(values:Record<string, Decimal|string|number>|undefined):ComplexDecimal {
+        let acc = ComplexDecimal.makeReal(1)
+        for (let child of this._children) {
+            let v = child.toComplexDecimal(values)
+            acc = acc.mult(v)
         }
         return acc
     }

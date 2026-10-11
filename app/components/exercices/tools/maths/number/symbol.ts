@@ -2,6 +2,7 @@ import { Base } from "./base"
 import { Scalar } from "./scalar"
 import { Signature } from "./signature"
 import Decimal from "decimal.js"
+import { ComplexDecimal } from "../misc/complexdecimal"
 import { NestedString } from '@types'
 
 const GREEK_TO_TEX = {
@@ -133,6 +134,16 @@ class Symbol extends Base {
         return ((typeof values !== 'undefined') && (values[this._name] !== 'undefined'))
             ? new Decimal(values[this._name])
             : new Decimal(NaN)
+    }
+
+    /**
+     * evaluation numérique en decimal complexe
+     * @param {object|undefined} values
+     * @returns {ComplexDecimal}
+     */
+    toComplexDecimal(values:Record<string, Decimal|string|number>|undefined):ComplexDecimal {
+        const real = this.toDecimal(values)
+        return new ComplexDecimal(real, new Decimal(0))
     }
 
     signature():Signature {
