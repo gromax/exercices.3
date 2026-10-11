@@ -7,6 +7,7 @@ import { Mult } from "./mult"
 import { Div } from "./div"
 import { Power } from "./power"
 import Decimal from "decimal.js"
+import { ComplexDecimal } from "../misc/complexdecimal"
 import { Signature } from "./signature"
 import { NestedString } from '@types'
 import { INFINI } from "./constant"
@@ -144,6 +145,29 @@ class Function extends Base {
             default: return new Decimal(NaN)
         }
     }
+
+    /**
+     * exécute une fonction numérique
+     * @param {string} name 
+     * @param {ComplexDecimal} value 
+     * @returns {ComplexDecimal}
+     */
+    static calcComplex(name:string, value:ComplexDecimal):ComplexDecimal {
+        switch (name) {
+            case 'exp':
+                const mag = Decimal.exp(value.real)
+                const real = mag.times(Decimal.cos(value.imag))
+                const imag = mag.times(Decimal.sin(value.imag))
+                return new ComplexDecimal(real, imag)
+            case 'abs':
+                return ComplexDecimal.makeReal(value.abs())
+            case '(-)': return value.negated()
+            case '(+)': return value
+            case 'inverse': return value.inverse()
+            default: return ComplexDecimal.NaN()
+        }
+    }
+
 
     /**
      * exécute une fonction numérique pour les opérateurs à deux arguments
@@ -371,6 +395,28 @@ class Function extends Base {
                 ? this._child.children.map(child => child.toDecimal(values))
                 : [this._child.toDecimal(values)]
             return Function.calcn(this._name, decvalues)
+        }
+        throw new Error(`Unsupported arity: ${this.arity}`)
+    }
+
+    /**
+     * evaluation numérique en decimal complexe
+     * @param {object|undefined} values
+     * @returns {ComplexDecimal}
+     */
+    toComplexDecimal(values:Record<string, Decimal|string|number>|undefined):ComplexDecimal {
+        if (this.arity == 1) {
+            let child = this._child.toComplexDecimal(values)
+            if (child.isReal()) {
+                return ComplexDecimal.makeReal(Function.calc(this._name, child.real))
+            }
+            return Function.calcComplex(this._name, child)
+        } else if (this._name == "diff") {
+            return this._getDerForDiff().toComplexDecimal(values)
+        } else if (this.arity == 2) {
+            throw new Error(`ComplexDecimal not supported for arity 2 yet`)
+        } else if (this.arity == -1) {
+            throw new Error(`ComplexDecimal not supported for arity -1 yet`)
         }
         throw new Error(`Unsupported arity: ${this.arity}`)
     }
