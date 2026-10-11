@@ -43,7 +43,7 @@ class Parser {
             TOKENS,
             (tok) => `(${tok.getRegexString()})`
         ).join("|"),
-        "gi"
+        "gu"
     )
 
     static REGEX_INTERVAL = new RegExp (
@@ -51,7 +51,7 @@ class Parser {
             TOKENS_INTERVAL,
             (tok) => `(${tok.getRegexString()})`
         ).join("|"),
-        "gi"
+        "gu"
     )
 
     /**
@@ -381,7 +381,6 @@ class Parser {
         if (!matchList) {
             throw new Error("Aucun item valide reconnu !")
         }
-        
         // Vérifier qu'il n'y a pas de caractères non reconnus
         this._verifyNotTokenized(expression, matchList)
 
@@ -479,7 +478,6 @@ class Parser {
                 filteredTokensList.push(new TEnsemble("&"))
                 continue
             }
-            console.log(chaine)
             throw new Error(`<${this._saisie}> Intervalle mal construit.`)
         }
         return buildEnsemble(this._buildRpn(filteredTokensList) as Array<TEnsemble>)
