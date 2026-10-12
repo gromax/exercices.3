@@ -1,8 +1,9 @@
 import { Base } from "./base"
 import { Scalar } from "./scalar"
-import { Signature } from "./signature"
+import { Signature } from "../misc/signature"
 import Decimal from "decimal.js"
 import { NestedString } from '@types'
+import { Complex } from "./complex"
 import { ComplexDecimal } from "../misc/complexdecimal"
 class Constant extends Base {
     static readonly NAMES = ['e', 'pi', 'π', '∞', '-inf', '-∞', 'infinity', 'inf', 'infini', 'i', 'NaN', 'nan']
@@ -15,7 +16,7 @@ class Constant extends Base {
         'NaN': '\\mathrm{NaN}'
     }
     
-    private static _list:Record<string, Constant> = {}
+    private static _list:Record<string, Constant|Complex> = {}
 
     private _name:string /** @type{string} */
 
@@ -43,15 +44,22 @@ class Constant extends Base {
      * @param {string} chaine 
      * @return {null, Constant}
      */
-    static fromString(chaine:string): Constant | null {
+    static fromString(chaine:string): Constant | Complex | null {
         if (!Constant.isConstant(chaine)) {
             return null;
         }
         const name = this.alias(chaine);
         if (typeof Constant._list[name] == 'undefined') {
-            Constant._list[name] = new Constant(name)
+            Constant._list[name] = Constant.make(name)
         }
         return Constant._list[name]
+    }
+
+    static make(name:string): Constant | Complex {
+        if (name=="i") {
+            return Complex.I
+        }
+        return Constant.fromString(name)
     }
 
     /**
