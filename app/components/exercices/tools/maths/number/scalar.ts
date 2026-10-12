@@ -1,5 +1,5 @@
 import { Base } from "./base"
-import { Signature } from "./signature"
+import { Signature } from "../misc/signature"
 import Decimal from "decimal.js"
 import { ComplexDecimal } from "../misc/complexdecimal"
 import { NestedString } from '@types'
@@ -358,11 +358,14 @@ class Scalar extends Base {
         if (this.isNaN()) {
             return "\\mathrm{NaN}"
         }
-        const numerator = this._value.toString().replace('.', ',')
+        const numerator = this._value.abs().toString().replace('.', ',')
         if (this._denominator === null) {
             return numerator;
         }
         const denominator = this._denominator.toString().replace('.', ',')
+        if (this._value.isNegative()) {
+            return `-\\frac{${numerator}}{${denominator}}`
+        }
         return `\\frac{${numerator}}{${denominator}}`
     }
 
@@ -393,7 +396,7 @@ class Scalar extends Base {
         return new Signature()
     }
 
-    toFixed(n:number):Base {
+    toFixed(n:number):Scalar {
         return new Scalar(this.toDecimal(undefined).toFixed(n))
     }
 
