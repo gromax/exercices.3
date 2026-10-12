@@ -63,6 +63,9 @@ class Mult extends Base {
         if (operandes.length == 1) {
             return operandes[0]
         }
+        if (operandes.some( item => (item instanceof Mult))) {
+            operandes = operandes.flatMap( item => item instanceof Mult ? item.children : [item] )
+        }
         if (!operandes.every( item => item instanceof Base)) {
             throw new Error('Tous les éléments de la liste doivent être des instances de Base')
         }
@@ -264,11 +267,11 @@ class Mult extends Base {
             if (typeof (child as any).opposite === 'function') {
                 const newChild = (child as any).opposite()
                 children[i] = newChild
-                return new Mult(children)
+                return Mult.fromList(children)
             }
         }
         children.unshift(Scalar.MINUS_ONE)
-        return new Mult(children)
+        return Mult.fromList(children)
     }
 
     toDict():object {
@@ -295,7 +298,7 @@ class Mult extends Base {
                 return null
             }
             const otherChildren = children.filter( (_, i) => i !== index )
-            return new Mult([der, ...otherChildren])
+            return Mult.fromList([der, ...otherChildren])
         }).filter( t => t !== null )
         if (terms.length === 0) {
             return Scalar.ZERO
@@ -308,6 +311,10 @@ class Mult extends Base {
 
     isNaN():boolean {
         return this._children.some( c => c.isNaN() )
+    }
+
+    isComplex():boolean {
+        return this._children.some( c => c.isComplex() )
     }
 }
 
