@@ -5,11 +5,11 @@ import Decimal from "decimal.js"
 import { NestedString } from '@types'
 import { ComplexDecimal } from "../misc/complexdecimal"
 class Constant extends Base {
-    static readonly NAMES = ['e', 'pi', 'π', '∞', '-inf', '-∞', 'infinity', 'inf', 'infini', '𝐢', 'NaN', 'nan']
+    static readonly NAMES = ['e', 'pi', 'π', '∞', '-inf', '-∞', 'infinity', 'inf', 'infini', 'i', 'NaN', 'nan']
     static readonly TEX = {
         'e': 'e',
         'π': '\\pi',
-        '𝐢': '\\mathrm{i}',
+        'i': '\\mathrm{i}',
         '∞': '\\infty',
         '-∞': '-\\infty',
         'NaN': '\\mathrm{NaN}'
@@ -130,7 +130,7 @@ class Constant extends Base {
             case 'π': return ComplexDecimal.makeReal(Decimal.acos(-1))
             case '∞': return ComplexDecimal.makeReal(new Decimal(Infinity))
             case '-∞': return ComplexDecimal.makeReal(new Decimal(-Infinity))
-            case '𝐢': return new ComplexDecimal(new Decimal(0), new Decimal(1))
+            case 'i': return new ComplexDecimal(new Decimal(0), new Decimal(1))
             default: return ComplexDecimal.NaN()
         }
     }
@@ -184,6 +184,13 @@ class Constant extends Base {
         return this._name === 'NaN'
     }
 
+    /**
+     * prédicat : le noeud est-il complexe ?
+     * @returns {boolean} true si le noeud représente un nombre complexe, false sinon
+     */
+    isComplex():boolean {
+        return this._name === 'i'
+    }
 }
 
 const E = Constant.fromString('e')
@@ -191,6 +198,6 @@ const PI = Constant.fromString('pi')
 const INFINI = Constant.fromString('infini')
 const MINUS_INFINI = Constant.fromString('-∞')
 const NAN = Constant.fromString('NaN')
-const I = Constant.fromString('𝐢')
+const I = Constant.fromString('i')
 
 export { Constant, E, PI, INFINI, MINUS_INFINI, NAN, I }
