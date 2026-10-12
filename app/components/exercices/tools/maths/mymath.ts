@@ -26,8 +26,7 @@ interface MyMathOptions {
     ensemble?: Ensemble,
 }
 
-type TValue = "expression" | "brutText" | "ensemble" | "complex"
-const PREFIX_COMPLEX = '__complex__'
+type TValue = "expression" | "brutText" | "ensemble"
 const PREFIX_ENSEMBLE = '__inter__'
 
 function _isBrutText(expression: string): boolean {
@@ -37,12 +36,6 @@ function _isBrutText(expression: string): boolean {
 function _isEnsemble(expression: string): boolean {
     return expression.startsWith(PREFIX_ENSEMBLE)
 }
-
-function _isComplex(expression: string): boolean {
-    return expression.startsWith(PREFIX_COMPLEX)
-}
-
-
 
 class MyMath {
     /** @type{string} expression d'origine */
@@ -206,6 +199,7 @@ class MyMath {
     /**
      * Analyse une expression fournie par l'utilisateur et la convertit en instance de MyMath.
      * @param {string} expression L'expression utilisateur à analyser
+     * @param {boolean} complex Indique si l'expression doit être interprétée comme un nombre complexe
      * @returns {MyMath} L'instance de MyMath correspondant à l'expression fournie
      */
     static parseUser(expression:string): MyMath {
@@ -376,7 +370,6 @@ class MyMath {
             .replace(/\blog\(/g, 'log10(') // log( → log10(
             .replace(/\bln\(/g, 'log(')    // ln( → log(
             .replace(/%/g, '/100')        // % → /100
-            .replace(/𝐢/g, 'i')
     }
 
     /**
@@ -462,6 +455,7 @@ class MyMath {
             this._expression = MyMath.denormalization(this._nerdamer_processed.toString())
             this._slicedExpression = this._expression
             this._type = "expression"
+
         } else if (typeof options.mynumber !== 'undefined') {
             this._mynumber = options.mynumber
             this._expression = this._mynumber.toString()
@@ -494,12 +488,6 @@ class MyMath {
             this._slicedExpression = expression.slice(PREFIX_ENSEMBLE.length).trim()
             return
         }
-        if (_isComplex(expression)) {
-            this._type = "complex"
-            this._expression = expression
-            this._slicedExpression = expression.slice(PREFIX_COMPLEX.length).trim()
-            return
-        }
 
         if (expression.includes('expand(')) {
             // cas particulier où on a une commande nerdamer
@@ -518,15 +506,12 @@ class MyMath {
      * @returns {Base} objet Base
      */
     getMyNumber(): Base {
-        if (this._type !== "expression" && this._type !== "complex") {
-            throw new Error(`<${this._slicedExpression}> : L'objet MyMath n'est pas de type expression ou complexe.`)
+        if (this._type !== "expression") {
+            throw new Error(`<${this._slicedExpression}> : L'objet MyMath n'est pas de type expression.`)
         }
         if (typeof this._mynumber === "undefined") {
             try {
-                const mode = this._type === "complex"
-                    ? "complex"
-                    : "default"
-                this._mynumber = Parser.build(this._slicedExpression, mode)
+                this._mynumber = Parser.build(this._slicedExpression)
             } catch(e) {
                 console.warn("Erreur lors du parsing de l'expression :", this._slicedExpression)
                 console.warn(e.message)
@@ -562,8 +547,8 @@ class MyMath {
      * @returns {nerdamer.Expression} expression nerdamer
      */
     private _getNerdamerProcessed(): nerdamer.Expression {
-        if (this._type !== "expression" && this._type !== "complex") {
-            throw new Error(`<${this._expression}> : L'objet MyMath n'est pas de type expression ou complexe.`)
+        if (this._type !== "expression") {
+            throw new Error(`<${this._expression}> : L'objet MyMath n'est pas de type expression.`)
         }
         if (typeof this._nerdamer_processed !== "undefined") {
             return this._nerdamer_processed
@@ -638,9 +623,6 @@ class MyMath {
         if (this._type === "ensemble") {
             return PREFIX_ENSEMBLE + ' ' + EnsembleCalculator.simplify(this._getEnsemble()).toString()
         }
-        if (this._type === "complex") {
-            return PREFIX_COMPLEX + ' ' + simplify(this.getMyNumber()).toString()
-        }
         return this._expression
     }
 
@@ -653,8 +635,6 @@ class MyMath {
             return this._expression.slice(1, -1)
         } else if (this._type === "ensemble") {
             return this._expression.slice(PREFIX_ENSEMBLE.length).trim()
-        } else if (this._type === "complex") {
-            return this._expression.slice(PREFIX_COMPLEX.length).trim()
         } else {
             return this.getMyNumber().toString()
         }
@@ -665,7 +645,7 @@ class MyMath {
      * @returns {string} LaTeX de l'expression simplifiée
      */
     latex():string {
-        if (this._type === "expression" || this._type === "complex") {
+        if (this._type === "expression") {
             if (this.isPlusInfinity()) {
                 return "+\\infty"
             } else if (this.isMinusInfinity()) {
@@ -693,7 +673,7 @@ class MyMath {
         }
         if (format === 's$') {
             // format personnalisé pour contourner des soucis de nerdamer
-            if (this._type =="expression" || this._type === "complex") {
+            if (this._type =="expression") {
                 const simplified = simplify(this.getMyNumber())
                 return simplified.isPlusInfinity(undefined)
                     ? "+\\infty"
@@ -705,7 +685,7 @@ class MyMath {
         }
         if (format === 's') {
             // format personnalisé pour contourner des soucis de nerdamer
-            if (this._type === "expression" || this._type === "complex") {
+            if (this._type === "expression") {
                 return simplify(this.getMyNumber()).toString()
             } else if (this._type === "ensemble") {
                 return EnsembleCalculator.simplify(this._getEnsemble()).toString()
@@ -737,21 +717,22 @@ class MyMath {
     private _toFormatDecimal(n:number):string {
         if (this._type === "ensemble") {
             throw new Error(`<${this._expression}> : Pas implémenté pour le type ensemble.`)
-        } else if (this._type !== "expression" && this._type !== "complex") {
+        } else if (this._type !== "expression") {
             return this.toString()
         }
         // cas général pour type expression
-        if (this.variables.length > 0 || this._type === "complex") {
+        if (this.variables.length > 0) {
             // La procédure de décimalisation va calculer ce qui peut l'être
             // et on peut fixer au besoin, sinon on garde toute la précision
             return n>=0
                 ? decimalize(this.getMyNumber()).toFixed(n).toString()
                 : decimalize(this.getMyNumber()).toString()
         }
+        const dec = this.getMyNumber().toComplexDecimal(undefined)
         if (n >= 0) {
-            return this.getMyNumber().toDecimal(undefined).toFixed(n).replace('.', ',')
+            return dec.toFixed(n).replace('.', ',')
         }
-        return this.getMyNumber().toDecimal(undefined).toString().replace('.', ',')
+        return dec.toString().replace('.', ',')
     }
 
 
@@ -763,12 +744,10 @@ class MyMath {
     toFixed(n:number, dot:string = '.'):string {
         if (this._type === "ensemble") {
             throw new Error(`<${this._expression}> : Pas implémenté pour le type ensemble.`)
-        } else if (this._type !== "expression" && this._type !== "complex") {
+        } else if (this._type !== "expression") {
             return this.toString()
         }
-        const fixed = this._type === "complex"
-            ? this.getMyNumber().toComplexDecimal(undefined).toFixed(n)
-            : this.getMyNumber().toDecimal(undefined).toFixed(n)
+        const fixed = this.getMyNumber().toComplexDecimal(undefined).toFixed(n)
         if (dot === '.') {
             return fixed
         }
@@ -783,7 +762,7 @@ class MyMath {
     private _toTexDecimal(n:number):string {
         if (this._type === "ensemble") {
             return this._getEnsemble().toTexDecimal(n)
-        } else if (this._type === "expression" || this._type === "complex") {
+        } else if (this._type === "expression") {
             const expr = this._toFormatDecimal(n)
             // ensuite on veut générer du TeX
             // J'utilise mon parser
@@ -800,24 +779,17 @@ class MyMath {
      */
     pseudoEquality(right:InputType):boolean {
         // déclenchera une erreur sur Decimal() si _type pas expression sur this et right
-        if (this._type !== "expression" && this._type !== "complex") {
+        if (this._type !== "expression") {
             throw new Error(`<${this._expression}> : Comparaison pas implémenté pour le type non expression.`)
         }
         const rightMyMath = MyMath.make(right)
-        if (rightMyMath._type !== "expression" && rightMyMath._type !== "complex") {
+        if (rightMyMath._type !== "expression") {
             throw new Error(`<${rightMyMath._expression}> : Comparaison pas implémenté pour le type non expression.`)
         }
-        if (this._type === "complex" || rightMyMath._type === "complex") {
-            const leftCD = this.getMyNumber().toComplexDecimal({})
-            const rightCD = rightMyMath.getMyNumber().toComplexDecimal({})
-            const ecart = leftCD.minus(rightCD)
-            return ecart.abs().lt('1e-30')
-        }
-        // cas ordinaire, 2 expressions réelles
-        const lStr = this.toDecimal()
-        const rStr = rightMyMath.toDecimal()
-        // on admet un bruit de calcul très faible
-        return lStr.minus(rStr).abs().lt('1e-30')
+        const leftCD = this.getMyNumber().toComplexDecimal({})
+        const rightCD = rightMyMath.getMyNumber().toComplexDecimal({})
+        const ecart = leftCD.minus(rightCD)
+        return ecart.abs().lt('1e-30')
     }
 
     /**
@@ -839,15 +811,15 @@ class MyMath {
      * @returns {NestedArray<boolean>} résultat de la comparaison
      */
     compare(rightExpr:NestedInput, operator:string):NestedArray<boolean> {
-        if (this._type !== "expression" && this._type !== "complex") {
-            throw new Error(`<${this.expression}> : Comparaison pas implémenté pour le type non expression ou complexe.`)
+        if (this._type !== "expression") {
+            throw new Error(`<${this.expression}> : Comparaison pas implémenté pour le type non expression.`)
         }
         if (Array.isArray(rightExpr)) {
             return rightExpr.map(r => this.compare(r, operator) as boolean)
         }
         const right = MyMath.make(rightExpr)
-        if (right._type !== "expression" && right._type !== "complex") {
-            throw new Error(`<${right.expression}> : Comparaison pas implémenté pour le type non expression ou complexe.`)
+        if (right._type !== "expression") {
+            throw new Error(`<${right.expression}> : Comparaison pas implémenté pour le type non expression.`)
         }
         if (this.isInfinity()) {
             return this._compareInfinityCase(right, operator)
@@ -856,9 +828,6 @@ class MyMath {
         }
         const p1 = this._getNerdamerProcessed()
         const p2 = right._getNerdamerProcessed()
-        if ((this._type !== "complex" || right._type !== "complex") && operator !== '==') {
-            throw new Error(`Comparaison non implémentée pour les expressions non complexes avec l'opérateur ${operator}`)
-        }
         switch (operator) {
             case '==':
                 return p1.eq(p2)
@@ -1040,7 +1009,7 @@ class MyMath {
      * @returns {MyMath} nouveau MyMath représentant l'expression simplifiée
      */
     simplify():MyMath {
-        if (this._isExpression()) {
+        if (this._type === "expression") {
             return new MyMath({ mynumber: simplify(this.getMyNumber()) })
         } else if (this._type === "ensemble") {
             return new MyMath({ ensemble: EnsembleCalculator.simplify(this._getEnsemble()) })
