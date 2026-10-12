@@ -42,6 +42,7 @@ class Function extends Base {
         '(-)',
         '(+)',
         'cos',
+        'acos',
         'sin',
         'tan',
         'atan',
@@ -134,6 +135,7 @@ class Function extends Base {
             case 'log': return Decimal.log(value)
             case 'exp': return Decimal.exp(value)
             case 'cos': return Decimal.cos(value)
+            case 'acos': return Decimal.acos(value)
             case 'sin': return Decimal.sin(value)
             case 'tan': return Decimal.tan(value)
             case 'atan': return Decimal.atan(value)
@@ -371,6 +373,9 @@ class Function extends Base {
         if (this._name == 'atan') {
             return `\\arctan\\left(${this._child.toTex()}\\right)`
         }
+        if (this._name == 'acos') {
+            return `\\arccos\\left(${this._child.toTex()}\\right)`
+        }
         return `\\${this._name}\\left(${this._child.toTex()}\\right)`
     }
 
@@ -535,6 +540,11 @@ class Function extends Base {
             const minusSin = new Function('(-)', new Function('sin', child))
             return Mult.mult(childPrime, minusSin)
         }
+        if (this._name === 'acos') {
+            const numerator = Mult.mult(Scalar.MINUS_ONE, childPrime)
+            const denominator = new Function('sqrt', AddMinus.minus(Scalar.ONE, new Power(this._child, Scalar.TWO)))
+            return Div.div(numerator, denominator)
+        }
         if (this._name === 'tan') {
             const cos2 = Power.make(new Function('cos', child), Scalar.TWO)
             return Div.div(childPrime, cos2)
@@ -575,6 +585,10 @@ class Function extends Base {
             return false
         }
         return true
+    }
+    
+    isComplex():boolean {
+        return this._child.isComplex()
     }
 
     /**
