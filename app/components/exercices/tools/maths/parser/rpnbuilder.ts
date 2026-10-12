@@ -19,10 +19,9 @@ import { TEnsemble } from './tokens/ensemble'
 /**
  * Construit un objet Base représentant un nombre
  * @param {Array<Token>} rpn 
- * @param {boolean} withComplex 
  * @returns {Base}
  */
-function build(rpn:Array<Token>, withComplex:boolean = false):Base {
+function build(rpn:Array<Token>):Base {
     let stack:Array<Base> = [];
     for (let item of rpn) {
         const sItem = String(item)
@@ -59,15 +58,6 @@ function build(rpn:Array<Token>, withComplex:boolean = false):Base {
                 throw new Error(`Intersection d'intervalles non encore supportée.`)
             } else {
                 throw new Error(`Opérateur binaire ${item} non reconnu.`)
-            }
-            continue
-        }
-        if (sItem === "i") {
-            // selon le mode, i est reconnu comme nombre complexe ou symbole
-            if (withComplex) {
-                stack.push(Constant.fromString("𝐢")) // on utilise le i imaginaire complexe
-            } else {
-                stack.push(Symbol.fromString("i"))
             }
             continue
         }
@@ -128,7 +118,7 @@ function buildEnsemble(rpn:Array<TEnsemble>):Ensemble {
         }
         if ((item instanceof TEnsemble) && item.isInterval) {
             // L'objet contient des enfants qu'il faut analyser pour produire un nombre
-            const child:Base = build(item.subTokenList, false)
+            const child:Base = build(item.subTokenList)
             const sBornes = item.toString()
             const interval = EnsembleCalculator.makeInterval(
                 sBornes[0], child, sBornes[1]

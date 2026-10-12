@@ -393,7 +393,7 @@ class Parser {
             tokensList.push(token)
         }
         const stokensList = this._sanityseTokenList(tokensList)
-        return build(this._buildRpn(stokensList), this._mode == "complex")
+        return build(this._buildRpn(stokensList))
     }
 
     /**
