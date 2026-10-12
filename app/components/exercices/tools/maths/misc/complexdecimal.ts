@@ -1,5 +1,5 @@
 import { Decimal } from 'decimal.js'
-const ISYMBOL = "𝐢"
+const ISYMBOL = "i"
 
 class ComplexDecimal {
     private _real: Decimal
@@ -128,6 +128,10 @@ class ComplexDecimal {
             return `${realPart} - ${imagPart}${ISYMBOL}`
         }
         return `${realPart} + ${imagPart}${ISYMBOL}`
+    }
+
+    isZero(): boolean {
+        return this._real.isZero() && this._imag.isZero()
     }
 }
 
