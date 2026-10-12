@@ -4,7 +4,7 @@ import { Scalar } from "./scalar"
 import { AddMinus } from "./add"
 import Decimal from "decimal.js"
 import { ComplexDecimal } from "../misc/complexdecimal"
-import { Signature } from "./signature"
+import { Signature } from "../misc/signature"
 import { NestedString } from '@types'
 class Mult extends Base {
     private _children:Array<Base> /** @type {Base[]} */

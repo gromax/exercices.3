@@ -26,7 +26,7 @@
 
 
 import Decimal from 'decimal.js'
-import { Signature } from './signature'
+import { Signature } from '../misc/signature'
 import { Scalar } from './scalar'
 Decimal.set({ precision: 50, rounding: Decimal.ROUND_HALF_UP });
 import { NestedString } from '@types'

@@ -1,6 +1,6 @@
 import { Base } from "./base"
 import { Scalar } from "./scalar"
-import { Signature } from "./signature"
+import { Signature } from "../misc/signature"
 import Decimal from "decimal.js"
 import { ComplexDecimal } from "../misc/complexdecimal"
 import { NestedString } from '@types'

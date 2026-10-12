@@ -6,7 +6,7 @@ import { Power } from "./power"
 import { AddMinus } from "./add"
 import Decimal from "decimal.js"
 import { ComplexDecimal } from "../misc/complexdecimal"
-import { Signature } from "./signature"
+import { Signature } from "../misc/signature"
 import { NestedString } from '@types'
 import { gcd } from "../misc/functions"
 

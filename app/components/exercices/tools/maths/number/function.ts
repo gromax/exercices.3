@@ -8,7 +8,7 @@ import { Div } from "./div"
 import { Power } from "./power"
 import Decimal from "decimal.js"
 import { ComplexDecimal } from "../misc/complexdecimal"
-import { Signature } from "./signature"
+import { Signature } from "../misc/signature"
 import { NestedString } from '@types'
 import { INFINI } from "./constant"
 import { gcd } from "../misc/functions"
