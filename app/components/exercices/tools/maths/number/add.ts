@@ -368,6 +368,10 @@ class AddMinus extends Base {
     isNaN():boolean {
         return this._children.some( c => c.isNaN() )
     }
+
+    isComplex():boolean {
+        return this._children.some( c => c.isComplex() )
+    }
 }
 
 export { AddMinus};
