@@ -446,6 +446,10 @@ class Scalar extends Base {
         }
         return this._value.mod(2).isZero()
     }
+
+    isComplex():boolean {
+        return false
+    }
 }
 
 /** @type {Scalar} */

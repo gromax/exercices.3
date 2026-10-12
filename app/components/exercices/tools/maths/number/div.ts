@@ -275,6 +275,10 @@ class Div extends Base {
     isNaN():boolean {
         return this._left.isNaN() || this._right.isNaN()
     }
+    
+    isComplex():boolean {
+        return this._left.isComplex() || this._right.isComplex()
+    }
 }
 
 export { Div }

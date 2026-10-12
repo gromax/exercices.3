@@ -263,6 +263,13 @@ abstract class Base {
      * @returns {boolean} true si le noeud représente NaN, false sinon
      */
     abstract isNaN():boolean
+
+    /**
+     * prédicat : le noeud est-il complexe ?
+     * @returns {boolean} true si le noeud représente un nombre complexe, false sinon
+     */
+    abstract isComplex():boolean
+
 }
 
 export { Base }

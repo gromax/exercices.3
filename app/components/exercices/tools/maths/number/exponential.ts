@@ -282,6 +282,10 @@ class Exponential extends Base {
     isNaN():boolean {
         return this._base.isNaN() || this._exposant.isNaN()
     }
+    
+    isComplex():boolean {
+        return this._base.isComplex() || this._exposant.isComplex()
+    }
 }
 
 export { Exponential }
