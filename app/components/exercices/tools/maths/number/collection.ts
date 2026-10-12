@@ -19,7 +19,7 @@ class Collection extends Base {
      * @param operandes La liste des opérandes à inclure dans la collection
      * @returns Une instance de Collection contenant les opérandes fournis
      */
-    static collectionFromList(operandes:Array<Base>):Base {
+    static fromList(operandes:Array<Base>):Base {
         if (operandes.length == 0){
             return Scalar.ZERO
         }
@@ -239,6 +239,10 @@ class Collection extends Base {
 
     isNaN():boolean {
         return this._children.some( c => c.isNaN() )
+    }
+
+    isComplex():boolean {
+        return this._children.some( c => c.isComplex() )
     }
 }
 
