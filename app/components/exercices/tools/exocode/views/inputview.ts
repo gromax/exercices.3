@@ -14,8 +14,7 @@ const KEYS = {
     'minfini': { tag: '$-\\infty$', rep:'-∞' },
     'empty': { tag: '$\\varnothing$', rep:'∅' },
     'union': { tag: '$\\cup$', rep:'∪' },
-    'intersection': { tag: '$\\cap$', rep:'∩' },
-    'i': { tag: '$i$', rep:'𝐢' }
+    'intersection': { tag: '$\\cap$', rep:'∩' }
 }
 
 const InputView = View.extend({
