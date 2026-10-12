@@ -199,7 +199,6 @@ class MyMath {
     /**
      * Analyse une expression fournie par l'utilisateur et la convertit en instance de MyMath.
      * @param {string} expression L'expression utilisateur à analyser
-     * @param {boolean} complex Indique si l'expression doit être interprétée comme un nombre complexe
      * @returns {MyMath} L'instance de MyMath correspondant à l'expression fournie
      */
     static parseUser(expression:string): MyMath {
