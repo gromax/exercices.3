@@ -19,6 +19,26 @@ class Complex extends Base {
     /** @type{Scalar} */
     private _imag:Scalar
 
+    static plus(a: Complex|Scalar, b:Complex|Scalar): Complex|Scalar {
+        if (a instanceof Complex) {
+            return a.plus(b)
+        }
+        if (b instanceof Complex) {
+            return b.plus(a)
+        }
+        return a.plus(b)
+    }
+
+    static minus(a: Complex|Scalar, b:Complex|Scalar): Complex|Scalar {
+        if (a instanceof Complex) {
+            return a.minus(b)
+        }
+        if (b instanceof Complex) {
+            return b.opposite().plus(a)
+        }
+        return a.minus(b)
+    }
+    
     static mult(a: Complex|Scalar, b:Complex|Scalar): Complex|Scalar {
         if (a instanceof Complex) {
             return a.mult(b)
@@ -27,6 +47,16 @@ class Complex extends Base {
             return b.mult(a)
         }
         return a.mult(b)
+    }
+
+    static div(a: Complex|Scalar, b:Complex|Scalar): Complex|Scalar {
+        if (a instanceof Complex) {
+            return a.div(b)
+        }
+        if (b instanceof Complex) {
+            return b.inverse().mult(a)
+        }
+        return a.div(b)
     }
         
 
