@@ -5,7 +5,7 @@ import { Symbol } from '../number/symbol'
 import { Power } from '../number/power'
 import { Mult } from '../number/mult'
 import { AddMinus } from '../number/add'
-import { simplify } from '../number/simplify'
+import { simplify } from './simplify'
 
 function taylor(expression:Base, varName:string, order:number):Base {
     if (Math.trunc(order)!=order || order < 0) {

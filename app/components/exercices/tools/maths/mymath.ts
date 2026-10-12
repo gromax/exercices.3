@@ -15,7 +15,7 @@ import { Base } from './number/base'
 import { NAN } from './number/constant'
 import type { Ensemble } from './number/ensemblesitems/parent'
 import { EnsembleCalculator } from './number/ensemble'
-import { simplify, decimalize } from './number/simplify'
+import { simplify, decimalize } from './misc/simplify'
 import Decimal from 'decimal.js'
 import { TParams, InputType, NestedArray, NestedInput } from "@types"
 

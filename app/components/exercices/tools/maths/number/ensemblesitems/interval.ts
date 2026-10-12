@@ -1,7 +1,7 @@
 import type { Base } from "../base"
 import Decimal from "decimal.js"
 import { EnsemblePrimitif } from "./parent"
-import { simplify } from "../simplify"
+import { simplify } from "../../misc/simplify"
 
 const DEC_P_INFINITY = new Decimal(Infinity)
 const DEC_M_INFINITY = new Decimal(-Infinity)

@@ -9,7 +9,7 @@ import { Symbol } from './symbol'
 import { Base } from './base'
 import { Function } from './function'
 import { Collection } from './collection'
-import { simplify } from './simplify'
+import { simplify } from '../misc/simplify'
 
 /**
  * fonction de simplification
