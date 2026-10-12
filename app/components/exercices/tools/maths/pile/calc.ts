@@ -2,7 +2,7 @@ import MyMath from '../mymath'
 import { Decimal } from 'decimal.js'
 import { NestedArray, InputType } from '@types'
 import { gcd } from '../misc/functions'
-import { taylor } from '../number/taylor'
+import { taylor } from '../misc/taylor'
 
 class Calc {
     static readonly NAME = 'Calc'
