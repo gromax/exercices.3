@@ -187,6 +187,14 @@ class Symbol extends Base {
     isNaN():boolean {
         return false
     }
+
+    /**
+     * prédicat : le noeud est-il complexe ?
+     * @returns {boolean} true si le noeud représente un nombre complexe, false sinon
+     */
+    isComplex():boolean {
+        return false
+    }
 }
 
 export { Symbol }
