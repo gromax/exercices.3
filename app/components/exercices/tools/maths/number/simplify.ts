@@ -4,11 +4,12 @@ import { Div } from './div'
 import { Power } from './power'
 import { Exponential } from './exponential'
 import { Scalar } from './scalar'
-import { Constant, E, NAN, I } from './constant'
+import { Constant, E, NAN, I, PI } from './constant'
 import { Symbol } from './symbol'
 import { Base } from './base'
 import { Function } from './function'
 import { Collection } from './collection'
+import { pifrac } from '../misc/functions'
 
 /**
  * Renvoie l'opposé d'un noeud
@@ -180,6 +181,15 @@ function functionSimplify(node:Function):Base {
         } else if (childSim === MINUS_INFINI) {
             return INFINI
         }*/
+    }
+
+    if (funcName == "acos") {
+        const d = node.toDecimal(undefined)
+        const res = pifrac(d)
+        if (res !== false) {
+            const s = new Scalar(res[0], res[1])
+            return Mult.mult(s, PI)
+        }
     }
 
     if (funcName === 'diff') {
