@@ -951,11 +951,10 @@ Naturellement, comme pour tous les params, on a le droit de placer des variables
 
 ##### input ligne tableau de signe
 
-La forme est `<inputsign:$f(x)$:2:,-,z,-,:b/>`
+La forme est `<inputsign:$f(x)$:,-,z,-,:b/>`
 
   * `inputsign` indique qu'il s'agit d'une ligne tableau de signe input
   * `$f(x)$` est l'entête (obligatoire)
-  * `2` est la hauteur de la ligne, en unité (obligatoire, minimum 1)
   * `,-,z,-,` est la réponse attendue
   * `b` est l'identifiant de la réponse, utilisée notamment pour la sauvegarde BDD
 
@@ -1404,6 +1403,14 @@ Le vecteur est conçu pour ne pas être lié à des points. Donc, si on crée pa
   * `Dist.normPDF` reçoit `x`, `mu` et `std` et renvoie la valeur de la fonction densité en $x$ pour la loi $\mathcal{N}\left(\mu\,;\sigma^2\right)$
   * `Dist.normal` reçoit `mu` et `std` et renvoie  un tirage selon la loi $\mathcal{N}\left(\mu\,;\sigma^2\right)$
   * `Dist.normList` reçoit `count`, `mu` et `std` et renvoie un tableau de `count` aléas selon la loi $\mathcal{N}\left(\mu\,;\sigma^2\right)$.
+
+#### Module Complex
+
+  * `Complex.conj` reçoit `z` et donne son conjugué
+  * `Complex.abs` reçoit `z` et donne son module
+  * `Complex.arg` reçoit `z` et donne son argument
+  * `Complex.real` reçoit `z` et donne sa partie réelle
+  * `Complex.imag` reçoit `z` et donne sa partie imaginaire
 
 #### Module Str
 
