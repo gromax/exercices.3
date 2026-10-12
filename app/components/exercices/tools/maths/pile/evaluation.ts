@@ -3,6 +3,7 @@ import Table from './table'; // Tables et stats
 import Calc from './calc';
 import Dist from './dist'; // Distributions
 import Str from './str'
+import { Complex } from './complex'
 import Tkztab from './tkztab'
 import MyMath from '../mymath';
 import { getValue, substituteLabels, substituteParams } from '../misc/substitution';
@@ -15,6 +16,7 @@ const MODULES = {
     'Dist': Dist,
     'Str': Str,
     'Tkztab': Tkztab,
+    'Complex': Complex,
 };
 
 function _tryAsPile(expression:string, params:TParams):null|InputType {
