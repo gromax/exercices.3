@@ -10,6 +10,8 @@ import { Base } from '../number/base'
 import { Function } from '../number/function'
 import { Collection } from '../number/collection'
 import { pifrac } from './functions'
+import { scalarFactor } from './scalarfactor'
+import { Complex } from '../number/complex'
 
 /**
  * Renvoie l'opposé d'un noeud
@@ -408,13 +410,13 @@ function _regroupeSameSignatur(items:Array<Base>, positive:Array<boolean>):[Base
         return [items[0], positive[0]]
     }
     // Il y a plusieurs termes avec même signature qu'il faut contracter
-    const scalars = items.map(n => n.scalarFactor)
-    let scalar = Scalar.ZERO
+    const scalars = items.map(n => scalarFactor(n))
+    let scalar:Complex|Scalar = Scalar.ZERO
     for (let i=0; i<scalars.length; i++) {
         if (positive[i]) {
-            scalar = scalar.plus(scalars[i])
+            scalar = Complex.plus(scalar, scalars[i])
         } else {
-            scalar = scalar.minus(scalars[i])
+            scalar = Complex.minus(scalar, scalars[i])
         }
     }
     const w = items[0].withoutScalarFactor
