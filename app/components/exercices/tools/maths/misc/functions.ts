@@ -65,4 +65,72 @@ function ppcm(a: Decimal, b: Decimal): Decimal {
     return a.times(b).dividedBy(gcd(a, b))
 }
 
-export { gcd, aleaPrime, ppcm }
+/**
+ * Un décimal étant fourni, on cherche une fraction a/b approchée
+ * @param {Decimal} x
+ * @returns {[Decimal, Decimal]|false} une fraction approchée [a, b] telle que a/b ≈ x ou false en cas d'échec
+ */
+function approxFraction(x:Decimal): [Decimal, Decimal]|false {
+    if (x.isNaN()) {
+        return false
+    }
+    if (x.isInteger()) {
+        return [x, new Decimal(1)]
+    }
+    const entier = x.floor()
+    const fracPart = x.minus(entier)
+    const strDecimalsFull = fracPart.toString().split('.')[1] || ''
+    const nFull = strDecimalsFull.length
+    if (nFull < 30) {
+        const den = new Decimal("1"+"0".repeat(nFull))
+        const num = new Decimal(strDecimalsFull)
+        const PGCD = gcd(den, num)
+        const den2 = den.div(PGCD)
+        const num2 = num.div(PGCD)
+        return [entier.mul(den2).plus(num2), den2]
+    }
+    const strDecimals = strDecimalsFull.slice(0,-5)
+    const n = nFull-5
+
+    // on part de la fin à la recherche d'une période
+    // au max de 15 chiffres
+    for (let periodSize = 1; periodSize<=10; periodSize++) {
+        // Je veux au moins 30 chiffres qui se répètent
+        const minRepeat = Math.ceil(30 / periodSize)
+        const periodDigits = strDecimals.slice(-periodSize)
+        if (!strDecimals.endsWith(periodDigits.repeat(minRepeat))) {
+            continue
+        }
+        // maintenant, cherchons le début de la période
+        let periodNumber:number
+        for (periodNumber=minRepeat+1; periodNumber<n; periodNumber++) {
+            if (periodNumber*periodSize > n) {
+                break
+            }
+            if (!strDecimals.endsWith(periodDigits.repeat(periodNumber))) {
+                break
+            }
+        }
+        // à ce stade on a trouvé j. Il faut j-1
+        periodNumber--
+        const prePeriod = new Decimal(strDecimals.slice(0, -periodNumber*periodSize))
+        const den = (new Decimal("1" + "0".repeat(n-periodSize*periodNumber))).minus(1)
+        const PGCD = gcd(prePeriod, den)
+        const prePeriod2 = prePeriod.div(PGCD)
+        const den2 = den.div(PGCD)
+        return [entier.mul(den2).plus(prePeriod2), den2]
+    }
+    return false
+}
+
+/**
+ * tente de trouver x sous forme d'une fraction approchée de pi
+ * @param {Decimal } x 
+ * @returns {[Decimal, Decimal]|false} une fraction approchée [a, b] telle que a/b ≈ x ou false en cas d'échec
+ */
+function pifrac(x:Decimal): [Decimal, Decimal]|false {
+    const y = x.div(Decimal.acos(-1))
+    return approxFraction(y)
+}
+
+export { gcd, aleaPrime, ppcm, approxFraction, pifrac }
