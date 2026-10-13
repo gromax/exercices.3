@@ -10,7 +10,7 @@ import { Base } from '../number/base'
 import { Function } from '../number/function'
 import { Collection } from '../number/collection'
 import { pifrac } from './functions'
-import { scalarFactor } from './scalarfactor'
+import { scalarFactor, nonScalars } from './scalarfactor'
 import { Complex } from '../number/complex'
 
 /**
@@ -307,31 +307,28 @@ function functionSimplify(node:Function):Base {
 }
 
 function multSimplify(node:Mult):Base {
-    const factors = node.children.map(f => simplify(f))
-    const scalarsFactors = factors.filter(f => f instanceof Scalar);
-    let scalarFactor = Scalar.ONE;
-    for (let sf of scalarsFactors) {
-        scalarFactor = scalarFactor.mult(sf);
-    }
-    if (scalarFactor.isZero()) {
+    const schildren = node.children.map(f => simplify(f))
+    const factor = scalarFactor(schildren)
+    if (factor.isZero()) {
         return Scalar.ZERO;
     }
-    const nonScalarFactors = factors.filter(f => !(f instanceof Scalar) && !f.isOne())
-    if (nonScalarFactors.length === 0) {
-        return scalarFactor
+    const nsFactors = nonScalars(schildren)
+    if (nsFactors.length === 0) {
+        return factor
     }
 
-    if (scalarFactor.isOne()) {
-        return Mult.fromList(nonScalarFactors)
-    } else if (scalarFactor.isMinusOne()) {
-        if (typeof (nonScalarFactors[0] as any).opposite === 'function') {
-            nonScalarFactors[0] = (nonScalarFactors[0] as any).opposite()
-            return Mult.fromList(nonScalarFactors)
-        }
-        return new Function('(-)', Mult.fromList(nonScalarFactors))
+    if (factor.isOne()) {
+        return Mult.fromList(nsFactors)
     }
-    nonScalarFactors.unshift(scalarFactor)
-    return Mult.fromList(nonScalarFactors)
+    if (factor.isMinusOne()) {
+        if (typeof (nsFactors[0] as any).opposite === 'function') {
+            nsFactors[0] = (nsFactors[0] as any).opposite()
+            return Mult.fromList(nsFactors)
+        }
+        return new Function('(-)', Mult.fromList(nsFactors))
+    }
+    nsFactors.unshift(factor)
+    return Mult.fromList(nsFactors)
 }
 
 function divSimplify(node:Div):Base {
@@ -419,8 +416,12 @@ function _regroupeSameSignatur(items:Array<Base>, positive:Array<boolean>):[Base
             scalar = Complex.minus(scalar, scalars[i])
         }
     }
-    const w = items[0].withoutScalarFactor
-    return [simplify(Mult.mult(scalar, w)), true]
+    const w = nonScalars(items[0])
+    if (w.length == 0) {
+        return [scalar, true]
+    }
+    w.unshift(scalar)
+    return [simplify(Mult.fromList(w)), true]
 }
 
 /**
