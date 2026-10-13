@@ -122,5 +122,39 @@ function arg(node:Base):Base {
     return new Function('(-)', acos)
 }
 
+/**
+ * Je veut renvoyer false si je m'éloigne d'une forme algébrique :
+ * i dans une fonction ou au dénominateur
+ * @param {Base} node
+ * @returns {boolean} true s'il n'y a que des i au numérateur
+ */
+function isAlgebraic(node:Base):boolean {
+    if (node instanceof Div) {
+        if (node.denominator.hasI()) {
+            return false
+        }
+        return isAlgebraic(node.numerator)
+    }
+    if (node instanceof Mult || node instanceof AddMinus || node instanceof Collection) {
+        return node.children.every(c => isAlgebraic(c))
+    }
+    if (node instanceof Function) {
+        if (node.name === '(+)' || node.name === '(-)') {
+            return isAlgebraic(node.child)
+        }
+        return !node.child.hasI()
+    }
+    if (node instanceof Power) {
+        if (node.exposant.gte(0)) {
+            return isAlgebraic(node.base)
+        }
+        return !node.base.hasI()
+    }
+    if (node instanceof Exponential) {
+        return !node.hasI()
+    }
+    return true
+}
 
-export { conjugaison, real, imaginaire, abs, arg }
+
+export { conjugaison, real, imaginaire, abs, arg, isAlgebraic }
