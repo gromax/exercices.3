@@ -279,8 +279,8 @@ class Exponential extends Base {
         return this._base.isNaN() || this._exposant.isNaN()
     }
     
-    isComplex():boolean {
-        return this._base.isComplex() || this._exposant.isComplex()
+    hasI():boolean {
+        return this._base.hasI() || this._exposant.hasI()
     }
 }
 

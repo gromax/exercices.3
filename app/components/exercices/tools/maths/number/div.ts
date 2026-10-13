@@ -266,8 +266,8 @@ class Div extends Base {
         return this._left.isNaN() || this._right.isNaN()
     }
     
-    isComplex():boolean {
-        return this._left.isComplex() || this._right.isComplex()
+    hasI():boolean {
+        return this._left.hasI() || this._right.hasI()
     }
 }
 

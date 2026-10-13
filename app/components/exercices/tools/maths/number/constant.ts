@@ -50,13 +50,9 @@ class Constant extends Base {
         }
         const name = this.alias(chaine);
         if (typeof Constant._list[name] == 'undefined') {
-            Constant._list[name] = Constant.make(name)
+            Constant._list[name] = new Constant(name)
         }
         return Constant._list[name]
-    }
-
-    static make(name:string): Constant | Complex {
-        return Constant.fromString(name)
     }
 
     /**
@@ -191,7 +187,7 @@ class Constant extends Base {
      * prédicat : le noeud est-il complexe ?
      * @returns {boolean} true si le noeud représente un nombre complexe, false sinon
      */
-    isComplex():boolean {
+    hasI():boolean {
         return this._name === 'i'
     }
 }

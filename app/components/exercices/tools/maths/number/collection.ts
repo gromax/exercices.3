@@ -237,8 +237,8 @@ class Collection extends Base {
         return this._children.some( c => c.isNaN() )
     }
 
-    isComplex():boolean {
-        return this._children.some( c => c.isComplex() )
+    hasI():boolean {
+        return this._children.some( c => c.hasI() )
     }
 }
 

@@ -580,8 +580,8 @@ class Function extends Base {
         return true
     }
     
-    isComplex():boolean {
-        return this._child.isComplex()
+    hasI():boolean {
+        return this._child.hasI()
     }
 
     /**

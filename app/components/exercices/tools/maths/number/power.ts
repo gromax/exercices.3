@@ -281,8 +281,8 @@ class Power extends Base {
         return this._base.isNaN() || this._exposant.isNaN()
     }
     
-    isComplex():boolean {
-        return this._base.isComplex()
+    hasI():boolean {
+        return this._base.hasI()
     }
 }
 

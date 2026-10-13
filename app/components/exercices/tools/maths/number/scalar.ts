@@ -454,7 +454,7 @@ class Scalar extends Base {
         return this._value.mod(2).isZero()
     }
 
-    isComplex():boolean {
+    hasI():boolean {
         return false
     }
 }

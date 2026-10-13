@@ -27,7 +27,6 @@
 
 import Decimal from 'decimal.js'
 import { Signature } from '../misc/signature'
-import { Scalar } from './scalar'
 Decimal.set({ precision: 50, rounding: Decimal.ROUND_HALF_UP });
 import { NestedString } from '@types'
 import type { ComplexDecimal } from '../misc/complexdecimal';
@@ -259,10 +258,10 @@ abstract class Base {
     abstract isNaN():boolean
 
     /**
-     * prédicat : le noeud est-il complexe ?
-     * @returns {boolean} true si le noeud représente un nombre complexe, false sinon
+     * prédicat : le noeud at-il I dans ses enfants ?
+     * @returns {boolean} true si oui
      */
-    abstract isComplex():boolean
+    abstract hasI():boolean
 
 }
 

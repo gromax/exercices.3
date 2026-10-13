@@ -415,8 +415,8 @@ class Complex extends Base {
         return Scalar.ZERO
     }
 
-    isComplex():boolean {
-        return !this._imag.isZero()
+    hasI():boolean {
+        return true
     }
 }
 
