@@ -250,7 +250,7 @@ class Div extends Base {
         const up_v = Mult.mult(up, this._right)
         const vp_u = Mult.mult(vp, this._left)
         const numerator = AddMinus.minus(up_v, vp_u)
-        const denominator = new Power(this._right, Scalar.TWO)
+        const denominator = Power.make(this._right, 2)
 
         return new Div(
             numerator,

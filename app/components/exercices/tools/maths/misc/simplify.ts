@@ -98,7 +98,7 @@ function exponentialSimplify(node:Exponential):Base {
     const sexposant = simplify(exposant)
     // cas des exposants nuls
     if ((sexposant instanceof Scalar) && sexposant.isInteger()) {
-        return powerSimplify(new Power(sbase, sexposant))
+        return simplify(Power.make(sbase, sexposant.toDecimal(undefined)))
     }
     if (sbase instanceof Scalar) {
         if (sbase.isZero()) {
@@ -134,20 +134,20 @@ function powerSimplify(node:Power):Base {
         }
         return Scalar.ONE
     }
-    if (exposant.isOne()) {
+    if (exposant.eq(1)) {
         return sbase
     }
     if (sbase instanceof Scalar) {
         return sbase.pow(exposant)
     }
     if (sbase === E ) {
-        return simplify(new Function('exp', exposant))
+        return simplify(new Function('exp', new Scalar(exposant)))
     }
     if (sbase === I) {
         if (!exposant.isInteger()) {
             return NAN
         }
-        const n = exposant.toDecimal({}).mod(4)
+        const n = exposant.mod(4)
         if (n.isZero()) {
             return Scalar.ONE
         }
@@ -164,7 +164,7 @@ function powerSimplify(node:Power):Base {
     if (sbase === base) {
         return node
     }
-    return new Power(sbase, exposant)
+    return Power.make(sbase, exposant)
 }
 
 function functionSimplify(node:Function):Base {
@@ -240,9 +240,9 @@ function functionSimplify(node:Function):Base {
         if (childSim instanceof Scalar && childSim.isPerfectSquare()) {
             return new Scalar(childSim.toDecimal({}).sqrt())
         }
-        if (childSim instanceof Power && childSim.exposant instanceof Scalar && childSim.exposant.isEven()) {
-            const nExp = new Scalar(childSim.exposant.toDecimal({}).div(2))
-            return simplify(new Power(childSim.base, nExp))
+        if (childSim instanceof Power && childSim.exposant.mod(2).eq(0)) {
+            const nExp = childSim.exposant.div(2)
+            return simplify(Power.make(childSim.base, nExp))
         }
     }
 
@@ -463,7 +463,7 @@ function decimalize(node:Base):Base {
 
     if (node instanceof Power) {
         const newBase = decimalize(node.base)
-        return simplify(new Power(newBase, node.exposant))
+        return simplify(Power.make(newBase, node.exposant))
     }
 
     return node

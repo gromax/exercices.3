@@ -25,7 +25,7 @@ function taylor(expression:Base, varName:string, order:number):Base {
         const sn = new Scalar(n)
         expr = new Div(expr.derivate(varName), sn)
         const fn0 = expr.substituteVariable(varName, 0)
-        const xn = new Power(s, sn)
+        const xn = Power.make(s, n)
         const monome = Mult.fromList([fn0, xn])
         coeffs.push(monome)
     }
