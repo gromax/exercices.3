@@ -33,7 +33,7 @@ class NumericCheck extends AbsChecker {
             return false
         }
         // on souhaite également que l'expression soit simplifiée
-        if (!mm.isSimplified()) {
+        if (!mm.isSimplified() || !mm.isExpanded()) {
             this._message = "Vous devez simplifier."
             return false
         }
