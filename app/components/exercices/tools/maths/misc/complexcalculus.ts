@@ -46,7 +46,7 @@ function conjugaison(node:Base):Base {
     if (node instanceof Power) {
         const base = conjugaison(node.base)
         if (base !== node.base) {
-            return new Power(base, node.exposant)
+            return Power.make(base, node.exposant)
         }
         return node
     }
