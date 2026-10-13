@@ -1,11 +1,13 @@
 import _ from "underscore"
 import { Base } from "./base"
 import { Scalar } from "./scalar"
+import { I } from "./constant"
 import { Signature } from "../misc/signature"
 import { Mult } from "./mult"
 import Decimal from "decimal.js"
 import { ComplexDecimal } from "../misc/complexdecimal"
 import { NestedString } from '@types'
+
 
 /* Classe représentant une puissance (base^exposant)
    avec un exposant constant
@@ -15,11 +17,8 @@ class Power extends Base {
     /** @type {Base} */
     private _base:Base
 
-    /** @type {Scalar|Constant} */
-    private _exposant:Scalar
-
-    /** @type {Scalar|Constant} */
-    private _decExposant:Decimal
+    /** @type {Decimal} */
+    private _exposant:Decimal
 
     /** @type {string|null} */
     private _string:string|null = null
@@ -40,11 +39,17 @@ class Power extends Base {
         return true
     }
 
-    static make(base:Base, exposant:Scalar):Base {
+    static make(base:Base, exposant:Decimal|number):Base {
+        if (typeof exposant === 'number') {
+            exposant = new Decimal(exposant)
+        }
         if (exposant.isZero()) {
             return Scalar.ONE
-        } else if (exposant.isOne()) {
+        } else if (exposant.eq(1)) {
             return base
+        }
+        if (!exposant.isInteger()) {
+            throw new Error(`La puissance ${base}^${exposant} est invalide`);
         }
         return new Power(base, exposant)
     }
@@ -52,16 +57,12 @@ class Power extends Base {
     /**
      * constructeur
      * @param {Base} base 
-     * @param {Scalar} exposant 
+     * @param {Scalar|Decimal} exposant, un entier
      */
-    constructor(base:Base, exposant:Scalar) {
+    private constructor(base:Base, exposant:Decimal) {
         super()
-        if (!Power.isPower(base, exposant)) {
-            throw new Error(`La puissance ${base}^${exposant} est invalide`);
-        }
         this._base = base;
         this._exposant = exposant;
-        this._decExposant = exposant.toDecimal(undefined);
     }
 
     /**
@@ -79,9 +80,9 @@ class Power extends Base {
                 ? this._base.toTex()
                 : String(this._base)
         let exposantStr = lang === 'en'
-            ? this._exposant.toStringEn()
+            ? this._exposant.toString()
             : lang == 'tex'
-                ? this._exposant.toTex()
+                ? this._exposant.toString().replace('.', ',')
                 : String(this._exposant)
         if ((this._base.priority <= this.priority) || (this._base.startsWithMinus)) {
             if (lang === 'tex') {
@@ -90,12 +91,8 @@ class Power extends Base {
                 baseStr = `(${baseStr})`
             }
         }
-        if ((this._exposant.priority <= this.priority) || (this._exposant.startsWithMinus)) {
-            if (lang === 'tex') {
-                exposantStr = `\\left(${exposantStr}\\right)`
-            } else {
-                exposantStr = `(${exposantStr})`
-            }
+        if (this._exposant.lt(0) && lang !== 'tex') {
+            exposantStr = `(${exposantStr})`
         }
         if (lang === 'tex') {
             return `${baseStr}^{${exposantStr}}`
@@ -141,7 +138,7 @@ class Power extends Base {
         return this._base;
     }
 
-    get exposant():Scalar {
+    get exposant():Decimal {
         return this._exposant;
     }
 
@@ -155,8 +152,9 @@ class Power extends Base {
         const canBeExpanded = this._base.canBeDistributed ||
             (this._base instanceof Power) ||
             (this._base instanceof Scalar) ||
-            (this._base instanceof Mult)
-        if (this._decExposant.gte(0) && canBeExpanded) {
+            (this._base instanceof Mult) ||
+            (this._base === I)
+        if (this._exposant.gte(0) && canBeExpanded) {
             return false
         }
         
@@ -171,14 +169,10 @@ class Power extends Base {
         if (!this._base.isSimplified()) {
             return false
         }
-        const d = this._decExposant
-        if (d.isNaN()) {
-            return true
-        }
-        if (d.isZero() || d.minus("1").isZero()) {
+        if (this._exposant.isZero() || this._exposant.eq(1)) {
             return false
         }
-        if (d.isInteger() && (this._base instanceof Scalar)) {
+        if (this._base instanceof Scalar || this._base === I) {
             return false
         }
         return true
@@ -191,7 +185,7 @@ class Power extends Base {
      */
     toDecimal(values:Record<string, Decimal|string|number>):Decimal {
         let base = this._base.toDecimal(values);
-        return base.pow(this._decExposant);
+        return base.pow(this._exposant);
     }
 
     /**
@@ -201,26 +195,11 @@ class Power extends Base {
      */
     toComplexDecimal(values:Record<string, Decimal|string|number>):ComplexDecimal {
         const base = this._base.toComplexDecimal(values)
-        if (this._decExposant.isInteger() && this._decExposant.gte(0) && this._decExposant.lte(5)) {
-            const n = this._decExposant
-            let acc = ComplexDecimal.makeReal(1)
-            for (let i=0; i<n.toNumber(); i++) {
-                acc = acc.mult(base)
-            }
-            return acc
-        }
-        const exposant = ComplexDecimal.makeReal(this._decExposant)
-        const exposantArg = exposant.mult(base.arg())
-        const magnitude = base.abs().pow(exposantArg.abs())
-        const angle = exposantArg.arg()
-        const reel = magnitude.mul(Decimal.cos(angle))
-        const imag = magnitude.mul(Decimal.sin(angle))
-        return new ComplexDecimal(reel, imag)
+        return base.pow(this._exposant)
     }
 
-
     signature():Signature {
-        return this._base.signature().power(this._decExposant.toNumber())
+        return this._base.signature().power(this._exposant.toNumber())
     }
 
     substituteVariable(varName:string, value:Base|Decimal|number):Base {
@@ -234,8 +213,7 @@ class Power extends Base {
 
     substituteVariables(values:Record<string, Base|Decimal|number>):Base {
         const newBase = this._base.substituteVariables(values)
-        const newExposant = this._exposant.substituteVariables(values)
-        if (newBase === this._base && newExposant === this._exposant) {
+        if (newBase === this._base) {
             // pas de changement
             return this
         }
@@ -244,15 +222,14 @@ class Power extends Base {
 
     toFixed(n:number):Base {
         const newBase = this._base.toFixed(n)
-        const newExposant = this._exposant.toFixed(n) as Scalar
-        return new Power(newBase, newExposant)
+        return new Power(newBase, this._exposant)
     }
 
     toDict():object {
         return {
             type: "Power",
             base: this._base.toDict(),
-            exposant: this._decExposant.toString()
+            exposant: this._exposant.toString()
         }
     }
 
@@ -268,11 +245,11 @@ class Power extends Base {
         // implémentation spécifique pour Power
         const baseDer = this._base.derivate(varName)
         return Mult.fromList([
-            this._exposant,
+            new Scalar(this._exposant),
             baseDer,
             Power.make(
                 this._base,
-                new Scalar(this._decExposant.minus('1'))
+                this._exposant.minus('1')
             )
         ])
     }
