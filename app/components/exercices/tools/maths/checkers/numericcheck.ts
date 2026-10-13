@@ -1,13 +1,13 @@
 import { AbsChecker } from "./abscheck"
 import { InputType } from "@components/types"
 import MyMath from '@mathstools/mymath'
-
+import { isAlgebraic } from "../misc/complexcalculus"
 
 class NumericCheck extends AbsChecker {
     protected _parsedUser?:MyMath
 
     static testFormat(format: string): boolean {
-        return format == "numeric"
+        return format == "numeric" || format == "algebraic"
     }
 
     parsedUser():MyMath {
@@ -37,6 +37,10 @@ class NumericCheck extends AbsChecker {
             this._message = "Vous devez simplifier."
             return false
         }
+        if (this._format === "algebraic" && !isAlgebraic(mm.getMyNumber())) {
+            this._message = "Vous devez mettre sous forme algébrique a+ib."
+            return false
+        }
         return true
     }
 
@@ -54,7 +58,7 @@ class NumericCheck extends AbsChecker {
     }
 
     name():string {
-        return "<numeric>"
+        return `<${this._format}>`
     }
 
     testExpectedFormat(expected: InputType): boolean {
