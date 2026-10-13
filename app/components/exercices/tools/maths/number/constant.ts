@@ -56,9 +56,6 @@ class Constant extends Base {
     }
 
     static make(name:string): Constant | Complex {
-        if (name=="i") {
-            return Complex.I
-        }
         return Constant.fromString(name)
     }
 
@@ -94,10 +91,6 @@ class Constant extends Base {
 
     get priority():number {
         return 10;
-    }
-
-    get scalarFactor():Scalar {
-        return Scalar.ONE
     }
 
     subVariables(): NestedString {
@@ -143,8 +136,10 @@ class Constant extends Base {
         }
     }
 
-    toFixed(n:number):Scalar {
-        return new Scalar(this.toDecimal(undefined).toFixed(n))
+    toFixed(n:number):Scalar|Complex {
+        return this._name == "i"
+            ? Complex.I
+            : new Scalar(this.toDecimal(undefined).toFixed(n))
     }
 
     toDict():object {
