@@ -61,7 +61,7 @@ function derivate(node:Base, varName:string):Base {
             Mult.mult(uPrime, v),
             Mult.mult(u, vPrime)
         )
-        const denominator = new Power(v, new Scalar(2))
+        const denominator = Power.make(v, 2)
         return simplify(Div.div(numerator, denominator))
     }
 
@@ -106,7 +106,7 @@ function derivate(node:Base, varName:string):Base {
         }
         if (node.name === 'inverse') {
             const numerator = Mult.mult(Scalar.MINUS_ONE, childPrime)
-            const denominator = new Power(child, new Scalar(2))
+            const denominator = Power.make(child, 2)
             return simplify(Div.div(numerator, denominator))
         }
         if (node.name === 'sin') {
@@ -117,12 +117,12 @@ function derivate(node:Base, varName:string):Base {
             return simplify(Mult.mult(childPrime, minusSin))
         }
         if (node.name === 'tan') {
-            const cos2 = Power.make(new Function('cos', child), Scalar.TWO)
+            const cos2 = Power.make(new Function('cos', child), 2)
             return simplify(Div.div(childPrime, cos2))
         }
         if (node.name === 'atan') {
             const numerator = childPrime
-            const denominator = AddMinus.add(Scalar.ONE, Power.make(child, Scalar.TWO))
+            const denominator = AddMinus.add(Scalar.ONE, Power.make(child, 2))
             return simplify(Div.div(numerator, denominator))
         }
         
@@ -133,11 +133,10 @@ function derivate(node:Base, varName:string):Base {
         const base = node.base
         const exponent = node.exposant
         const basePrime = derivate(base, varName)
-        const newExponent = new Scalar(exponent.floatValue-1)
         return Mult.fromList([
-            exponent,
+            new Scalar(exponent),
             basePrime,
-            Power.make(base, newExponent)
+            Power.make(base, exponent.minus(1))
         ])
     }
 

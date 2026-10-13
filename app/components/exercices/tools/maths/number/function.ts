@@ -518,7 +518,7 @@ class Function extends Base {
         }
         if (this._name === 'inverse') {
             const numerator = Mult.mult(Scalar.MINUS_ONE, childPrime)
-            const denominator = new Power(child, new Scalar(2))
+            const denominator = Power.make(child, 2)
             return Div.div(numerator, denominator)
         }
         if (this._name === 'sin') {
@@ -530,21 +530,21 @@ class Function extends Base {
         }
         if (this._name === 'acos') {
             const numerator = Mult.mult(Scalar.MINUS_ONE, childPrime)
-            const denominator = new Function('sqrt', AddMinus.minus(Scalar.ONE, new Power(this._child, Scalar.TWO)))
+            const denominator = new Function('sqrt', AddMinus.minus(Scalar.ONE, Power.make(this._child, 2)))
             return Div.div(numerator, denominator)
         }
         if (this._name === 'asin') {
             const numerator = childPrime
-            const denominator = new Function('sqrt', AddMinus.minus(Scalar.ONE, new Power(this._child, Scalar.TWO)))
+            const denominator = new Function('sqrt', AddMinus.minus(Scalar.ONE, Power.make(this._child, 2)))
             return Div.div(numerator, denominator)
         }
         if (this._name === 'tan') {
-            const cos2 = Power.make(new Function('cos', child), Scalar.TWO)
+            const cos2 = Power.make(new Function('cos', child), 2)
             return Div.div(childPrime, cos2)
         }
         if (this._name === 'atan') {
             const numerator = childPrime
-            const denominator = AddMinus.add(Scalar.ONE, Power.make(child, Scalar.TWO))
+            const denominator = AddMinus.add(Scalar.ONE, Power.make(child, 2))
             return Div.div(numerator, denominator)
         }
         throw new Error(`Dérivée non implémentée pour la fonction ${this._name}`)

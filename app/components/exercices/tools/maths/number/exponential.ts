@@ -29,7 +29,7 @@ class Exponential extends Base {
 
     static make(base:Base, exposant:Base):Base {
         if ((exposant instanceof Scalar) && exposant.isInteger()) {
-            return Power.make(base, exposant)
+            return Power.make(base, exposant.toDecimal(undefined))
         }
         return new Exponential(base, exposant)
     }
