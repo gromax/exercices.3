@@ -362,10 +362,10 @@ class Scalar extends Base {
         if (this.isNaN()) {
             return "\\mathrm{NaN}"
         }
-        const numerator = this._value.abs().toString().replace('.', ',')
         if (this._denominator === null) {
-            return numerator;
+            return this._value.toString().replace('.', ',');
         }
+        const numerator = this._value.abs().toString().replace('.', ',')
         const denominator = this._denominator.toString().replace('.', ',')
         if (this._value.isNegative()) {
             return `-\\frac{${numerator}}{${denominator}}`
