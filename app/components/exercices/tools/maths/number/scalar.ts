@@ -83,6 +83,18 @@ class Scalar extends Base {
     }
 
     /**
+     * fabrique un scalar selon besoin
+     * @param {string|Decimal|number|Scalar} x
+     * @returns {Scalar}
+     */
+    static make(x:string|Decimal|number|Scalar):Scalar {
+        if (x instanceof Scalar) {
+            return x
+        }
+        return new Scalar(x)
+    }
+
+    /**
      * constructeur
      * @param {string|Decimal|number} entree 
      * @param {Decimal|null} denominator
@@ -207,14 +219,6 @@ class Scalar extends Base {
 
     get priority():number {
         return 10
-    }
-
-    get scalarFactor():Scalar {
-        return this
-    }
-
-    get withoutScalarFactor():Scalar {
-        return Scalar.ONE
     }
 
     isInteger() {
