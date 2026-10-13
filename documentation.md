@@ -610,6 +610,7 @@ Le paramètre format permet d'indiquer le format attendu.
 Voici les formats reconnus :
 
   * `numeric` : on veut une expression dans laquelle il n'y a aucune variable et cette expression doit être développée un minimum. On n'acceptera pas `(1+2)/3`.
+  * `algebraic` : permet de forcer une écriture algébrique. N'acceptera pas des $i$ au dénominateur ou dans dans des fonctions et demandera de développer et de regrouper les termes qui peuvent l'être.
   * `round:2` : on veut un nombre arrondi, dans cet exemple à deux chiffres après la virgule.
   * `entier` ou integer, équivalent à `round:0`
   * `erreur:0.2` : demande un nombre. Sa valeur ne doit pas excéder une erreur de 0.2 dans l'exemple.
