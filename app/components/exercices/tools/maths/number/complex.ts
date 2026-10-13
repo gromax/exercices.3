@@ -58,7 +58,26 @@ class Complex extends Base {
         }
         return a.div(b)
     }
-        
+
+    /**
+     * fabrique un Complexe ou un Scalar selon le besoin
+     * @param {string|Decimal|number|Scalar} real partie réelle
+     * @param {string|Decimal|number|Scalar} imag partie imaginaire
+     */
+    static make(real:string|Decimal|number|Scalar, imag:string|Decimal|number|Scalar):Complex|Scalar {
+        const re = Scalar.make(real)
+        if (re.isNaN() || imag === "0" || imag === 0) {
+            return re
+        }
+        const im = Scalar.make(imag)
+        if (im.isZero()) {
+            return re
+        }
+        if (im.isNaN()) {
+            return im
+        }
+        return new Complex(re, im)
+    }
 
 
     /**
@@ -66,7 +85,7 @@ class Complex extends Base {
      * @param {string|Decimal|number} entree 
      * @param {Decimal|null} denominator
      */
-    constructor(real: string|Decimal|number|Scalar, imag:string|Decimal|number|Scalar) {
+    private constructor(real: string|Decimal|number|Scalar, imag:string|Decimal|number|Scalar) {
         super()
         this._real = real instanceof Scalar ? real : new Scalar(real)
         this._imag = imag instanceof Scalar ? imag : new Scalar(imag)
@@ -123,26 +142,6 @@ class Complex extends Base {
         return 10
     }
 
-    get scalarFactor():Scalar {
-        if (this._imag.isZero()) {
-            return this._real
-        }
-        if (this._real.isZero()) {
-            return this._imag
-        }
-        return Scalar.ONE
-    }
-
-    get withoutScalarFactor():Complex|Scalar {
-        if (this._imag.isZero()) {
-            return Scalar.ONE
-        }
-        if (this._real.isZero()) {
-            return Complex.I
-        }
-        return this
-    }
-
     isInteger() {
         return this._real.isInteger() && this._imag.isZero()
     }
@@ -154,9 +153,9 @@ class Complex extends Base {
         return NaN
     }
 
-    plus(value: Complex|Scalar|number|string): Complex {
+    plus(value: Complex|Scalar|number|string): Complex|Scalar {
         if (value instanceof Complex) {
-            return new Complex(
+            return Complex.make(
                 this._real.plus(value._real),
                 this._imag.plus(value._imag)
             )
@@ -174,9 +173,9 @@ class Complex extends Base {
         )
     }
 
-    minus(value: Complex|Scalar|number|string): Complex {
+    minus(value: Complex|Scalar|number|string): Complex|Scalar {
         if (value instanceof Complex) {
-            return new Complex(
+            return Complex.make(
                 this._real.minus(value._real),
                 this._imag.minus(value._imag)
             )
@@ -209,13 +208,13 @@ class Complex extends Base {
             exponent = Math.abs(exponent)
             // si l'exposant est un entier, on peut utiliser une méthode plus efficace
             // expo rapide
-            let result: Complex = new Complex(Scalar.ONE, Scalar.ZERO)
-            let base: Complex = this
+            let result: Complex|Scalar = new Complex(Scalar.ONE, Scalar.ZERO)
+            let base: Complex|Scalar = this
             while (exponent > 0) {
                 if (exponent % 2 === 1) {
-                    result = result.mult(base)
+                    result = Complex.mult(base,result)
                 }
-                base = base.mult(base)
+                base = Complex.mult(base, base)
                 exponent = Math.floor(exponent / 2)
             }
             if (neg) {
@@ -248,21 +247,21 @@ class Complex extends Base {
         return new Complex(this._real.div(abs2), this._imag.opposite().div(abs2))
     }
 
-    mult(value: Complex|Scalar|number|string):Complex {
+    mult(value: Complex|Scalar|number|string):Complex|Scalar {
         if (value instanceof Complex) {
-            return new Complex(
+            return Complex.make(
                 this._real.mult(value._real).minus(this._imag.mult(value._imag)),
                 this._real.mult(value._imag).plus(this._imag.mult(value._real))
             )
         }
         if (value instanceof Scalar) {
-            return new Complex(
+            return Complex.make(
                 this._real.mult(value),
                 this._imag.mult(value)
             )
         }
         const s = new Scalar(value)
-        return new Complex(
+        return Complex.make(
             this._real.mult(s),
             this._imag.mult(s)
         )
@@ -271,19 +270,19 @@ class Complex extends Base {
     div(value: Complex|Scalar|number|string):Complex|Scalar {
         if (value instanceof Complex) {
             const denominator = value.abs2()
-            return new Complex(
+            return Complex.make(
                 this._real.mult(value._real).plus(this._imag.mult(value._imag)).div(denominator),
                 this._imag.mult(value._real).minus(this._real.mult(value._imag)).div(denominator)
             )
         }
         if (value instanceof Scalar) {
-            return new Complex(
+            return Complex.make(
                 this._real.div(value),
                 this._imag.div(value)
             )
         }
         const s = new Scalar(value)
-        return new Complex(
+        return Complex.make(
             this._real.div(s),
             this._imag.div(s)
         )
@@ -395,7 +394,7 @@ class Complex extends Base {
         return new Signature()
     }
 
-    toFixed(n:number):Base {
+    toFixed(n:number):Complex {
         return new Complex(this._real.toFixed(n), this._imag.toFixed(n))
     }
 
@@ -422,10 +421,10 @@ class Complex extends Base {
 }
 
 /** @type {Complex} */
-Complex.I = new Complex(Scalar.ZERO, Scalar.ONE)
+Complex.I = Complex.make(0, 1) as Complex
 
 /** @type {Complex} */
-Complex.MINUS_I = new Complex(Scalar.ZERO, Scalar.MINUS_ONE)
+Complex.MINUS_I = Complex.make(0, -1) as Complex
 
 
 export { Complex }
