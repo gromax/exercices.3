@@ -110,10 +110,6 @@ class Symbol extends Base {
         return 10
     }
 
-    get scalarFactor():Scalar {
-        return Scalar.ONE
-    }
-
     /**
      * renvoie une représentation tex
      * @returns {string}

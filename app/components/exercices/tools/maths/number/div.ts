@@ -44,16 +44,6 @@ class Div extends Base {
         return this._right;
     }
 
-    get scalarFactor():Scalar {
-        return Scalar.div(this._left.scalarFactor, this._right.scalarFactor)
-    }
-
-    get withoutScalarFactor():Base {
-        const newLeft = this._left.withoutScalarFactor
-        const newRight = this._right.withoutScalarFactor
-        return Div.div(newLeft, newRight)
-    }
-
     get priority():number {
         return 2;
     }

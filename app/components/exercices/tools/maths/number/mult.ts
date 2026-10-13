@@ -23,27 +23,6 @@ class Mult extends Base {
         return 2
     }
 
-    get scalarFactor():Scalar {
-        const factors = this._children.map( child => child.scalarFactor ).filter( f => f instanceof Scalar )
-        if (factors.length === 0) {
-            return Scalar.ONE
-        }
-        return factors.reduce( (acc, val) => Scalar.mult(acc, val), Scalar.ONE )
-    }
-
-    get withoutScalarFactor():Base {
-        const newChildren = this._children
-            .map( child => child.withoutScalarFactor )
-            .filter( c => c !== Scalar.ONE )
-        if (newChildren.length === 0) {
-            return Scalar.ONE
-        }
-        if (newChildren.length === 1) {
-            return newChildren[0]
-        }
-        return new Mult(newChildren)
-    }
-
     get startsWithMinus():boolean {
         if (this._children.length === 0) {
             return false

@@ -145,10 +145,6 @@ class Power extends Base {
         return this._exposant;
     }
 
-    get scalarFactor():Scalar {
-        return Scalar.ONE
-    }
-
     /**
      * @returns {boolean} revoie vrai si la puissance est développée
      */

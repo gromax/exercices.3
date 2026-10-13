@@ -78,10 +78,6 @@ class Collection extends Base {
         return [...this._children]
     }
 
-    get scalarFactor():Scalar {
-        return Scalar.ONE
-    }
-
     /** 
      * @returns {number} Le nombre d'enfants dans la collection.
      */

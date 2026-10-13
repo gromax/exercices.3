@@ -72,12 +72,6 @@ abstract class Base {
         return 0;
     }
 
-    abstract get scalarFactor():Scalar
-
-    get withoutScalarFactor():Base {
-        return this
-    }
-
     /**
      * prédicat : le noeud peut-il être distribué ?
      * @return {boolean}

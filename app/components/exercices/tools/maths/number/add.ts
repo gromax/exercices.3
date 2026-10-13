@@ -165,10 +165,6 @@ class AddMinus extends Base {
         return true
     }
 
-    get scalarFactor():Scalar {
-        return Scalar.ONE
-    }
-
     subVariables(): NestedString {
         return this._children.map( c => c.subVariables() )
     }

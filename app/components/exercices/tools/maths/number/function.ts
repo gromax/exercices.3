@@ -299,23 +299,6 @@ class Function extends Base {
         return this._child
     }
 
-    get scalarFactor():Scalar {
-        if (this._name === '(+)') {
-            return this._child.scalarFactor
-        }
-        if (this._name === '(-)') {
-            return this._child.scalarFactor.opposite()
-        }
-        return Scalar.ONE
-    }
-
-    get withoutScalarFactor():Base {
-        if (this._name === '(+)' || this._name === '(-)') {
-            return this._child.withoutScalarFactor
-        }
-        return this
-    }
-
     /**
      * renvoie une représentation tex
      * @returns {string}
