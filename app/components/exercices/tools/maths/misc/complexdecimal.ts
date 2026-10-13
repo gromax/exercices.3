@@ -133,6 +133,39 @@ class ComplexDecimal {
     isZero(): boolean {
         return this._real.isZero() && this._imag.isZero()
     }
+
+    pow(exponent: number|Decimal): ComplexDecimal {
+        const expo = typeof exponent === 'number'
+            ? new Decimal(exponent)
+            : exponent
+        if (!expo.isInteger()) {
+            // On passe par expo complexe
+            const arg = this.arg().mul(expo)
+            const c = Decimal.cos(arg)
+            const s = Decimal.sin(arg)
+            const z = new ComplexDecimal(c,s)
+            const r = this.abs().pow(expo)
+            return z.mult(r)
+        }
+        // exponentiation rapide
+        const pos = expo.gte(0)
+        let pExpo = pos
+            ? expo
+            : expo.negated()
+        let result:ComplexDecimal = new ComplexDecimal(1,0)
+        let base:ComplexDecimal = this
+        while (pExpo.gt(0)) {
+            const mod = pExpo.mod(2)
+            if (mod.eq(1)) {
+                result = base.mult(result)
+            }
+            base = base.mult(base)
+            pExpo = pExpo.dividedToIntegerBy(2)
+        }
+        return pos
+            ? result
+            : result.inverse()
+    }
 }
 
 export { ComplexDecimal }
