@@ -193,36 +193,34 @@ class Complex extends Base {
         )
     }
 
-    pow(exponent: number): Complex|Scalar {
+    pow(exponent: number|Decimal): Complex|Scalar {
         if (this.isNaN()) {
             return Scalar.NAN
         }
-        if (exponent === 0) {
-            return Scalar.ONE
+        const expo = typeof exponent === 'number'
+            ? new Decimal(exponent)
+            : exponent
+        if (!expo.isInteger()) {
+            return Scalar.NAN
         }
-        if (exponent === 1) {
-            return this
-        }
-        if (Math.floor(exponent) == exponent) {
-            const neg = exponent < 0
-            exponent = Math.abs(exponent)
-            // si l'exposant est un entier, on peut utiliser une méthode plus efficace
-            // expo rapide
-            let result: Complex|Scalar = new Complex(Scalar.ONE, Scalar.ZERO)
-            let base: Complex|Scalar = this
-            while (exponent > 0) {
-                if (exponent % 2 === 1) {
-                    result = Complex.mult(base,result)
-                }
-                base = Complex.mult(base, base)
-                exponent = Math.floor(exponent / 2)
+        // exponentiation rapide
+        const pos = expo.gte(0)
+        let pExpo = pos
+            ? expo
+            : expo.negated()
+        let result: Complex|Scalar = Scalar.ONE
+        let base: Complex|Scalar = this
+        while (pExpo.gt(0)) {
+            const mod = pExpo.mod(2)
+            if (mod.eq(1)) {
+                result = Complex.mult(base,result)
             }
-            if (neg) {
-                return result.inverse()
-            }
-            return result
+            base = Complex.mult(base, base)
+            pExpo = pExpo.dividedToIntegerBy(2)
         }
-        return Scalar.NAN
+        return pos
+            ? result
+            : result.inverse()
     }
 
     conjugate(): Complex|Scalar {
