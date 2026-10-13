@@ -185,7 +185,7 @@ function functionSimplify(node:Function):Base {
         }*/
     }
 
-    if (funcName == "acos") {
+    if (funcName == "acos" || funcName == "asin" || funcName == "atan") {
         const d = node.toDecimal(undefined)
         const res = pifrac(d)
         if (res !== false) {

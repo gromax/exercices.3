@@ -44,6 +44,7 @@ class Function extends Base {
         'cos',
         'acos',
         'sin',
+        'asin',
         'tan',
         'atan',
         'ln',
@@ -137,6 +138,7 @@ class Function extends Base {
             case 'cos': return Decimal.cos(value)
             case 'acos': return Decimal.acos(value)
             case 'sin': return Decimal.sin(value)
+            case 'asin': return Decimal.asin(value)
             case 'tan': return Decimal.tan(value)
             case 'atan': return Decimal.atan(value)
             case 'abs': return Decimal.abs(value)
@@ -359,6 +361,9 @@ class Function extends Base {
         if (this._name == 'acos') {
             return `\\arccos\\left(${this._child.toTex()}\\right)`
         }
+        if (this._name == 'asin') {
+            return `\\arcsin\\left(${this._child.toTex()}\\right)`
+        }
         return `\\${this._name}\\left(${this._child.toTex()}\\right)`
     }
 
@@ -525,6 +530,11 @@ class Function extends Base {
         }
         if (this._name === 'acos') {
             const numerator = Mult.mult(Scalar.MINUS_ONE, childPrime)
+            const denominator = new Function('sqrt', AddMinus.minus(Scalar.ONE, new Power(this._child, Scalar.TWO)))
+            return Div.div(numerator, denominator)
+        }
+        if (this._name === 'asin') {
+            const numerator = childPrime
             const denominator = new Function('sqrt', AddMinus.minus(Scalar.ONE, new Power(this._child, Scalar.TWO)))
             return Div.div(numerator, denominator)
         }
