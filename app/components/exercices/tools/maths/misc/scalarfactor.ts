@@ -62,15 +62,10 @@ function nonScalars(node:Base|Base[]):Base[] {
         return node.children.map(c => nonScalars(c)).flat()
     }
     if (node instanceof Function) {
-        if (node.name === '(+)') {
+        if (node.name === '(+)' || node.name === '(-)') {
             return nonScalars(node.child)
         }
-        if (node.name === '(-)') {
-            const factors = nonScalars(node.child)
-            factors.unshift(Scalar.MINUS_ONE)
-            return factors
-        }
-        return []
+        return [node]
     }
 
     if (node === I) {
