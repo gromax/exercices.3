@@ -260,7 +260,7 @@ class Scalar extends Base {
         return this.plus(value.opposite())
     }
 
-    pow(exponent: Scalar|number|string): Scalar {
+    pow(exponent: Scalar|number|string|Decimal): Scalar {
         const _expo = exponent instanceof Scalar
             ? exponent.toDecimal(undefined)
             : new Decimal(exponent)
