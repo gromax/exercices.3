@@ -163,7 +163,7 @@ const Controller = MnObject.extend({
         const SujetExo = require("./sujetexo.js").Item
         const newSujetExo = new SujetExo({
             title: "Nouvel exercice",
-            description: "Description de l'exercice",
+            description: "",
             published: false,
             idOwner: logged.get("id"),
             nomOwner: logged.get("nom")
