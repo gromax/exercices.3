@@ -25,7 +25,7 @@ class GraphBloc extends BlocWithView implements FormItemImplementation {
     private _score?:number
 
     protected verifyMyChildren(): void {
-        if (this._children.some((child:any) => !(child instanceof GraphItemBloc))) {
+        if (!this._children.every((child:any) => (child instanceof GraphItemBloc))) {
             throw new Error(`Un bloc <${this.tag}> ne peut contenir que des blocs de type graphique.`)
         }
     }
