@@ -77,6 +77,7 @@ class ContentBloc extends Bloc {
                 throw new Error(`Unsupported item type: ${item.constructor.name}`)
             }
         }
+        this._children = this._children.filter(c => !c.empty)
         this.verifyMyChildren()
         this.verifyNeededParams()
     }
