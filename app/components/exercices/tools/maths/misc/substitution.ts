@@ -1,4 +1,4 @@
-import { TParams, InputType, NestedArray, NestedInput } from "@types"
+import type { TParams, InputType, NestedArray, NestedInput } from "@types"
 import MyMath from "../mymath";
 import { aleaPrime } from "./functions";
 
@@ -161,7 +161,7 @@ function _getAlea(sub:string): number | string {
     }
 }
 
-function substituteParams(expression:NestedArray<any>, params:TParams):NestedArray<InputType> {
+function substituteParams(expression:NestedArray<InputType>, params:TParams):NestedArray<InputType> {
     if (Array.isArray(expression)) {
         return expression.map(expr => substituteParams(expr, params))
     }

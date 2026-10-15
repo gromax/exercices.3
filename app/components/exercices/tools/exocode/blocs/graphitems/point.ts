@@ -4,7 +4,7 @@ import _ from "underscore"
 import MyMath from "../../../maths/mymath"
 
 import { getNumberOption, getStringOption, getBooleanOption } from "../../misc"
-import { NestedInput } from "@components/types/InputType"
+import type { NestedInput } from "@components/types/InputType"
 class GraphPoint extends GraphItem {
     static readonly KEYWORDS: string[] = ['point']
     static readonly TYPE = 'Point'

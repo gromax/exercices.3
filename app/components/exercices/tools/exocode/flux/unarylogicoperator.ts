@@ -1,7 +1,7 @@
 import _ from "underscore"
 import SimpleCondition from "./simplecondition"
 import BinaryLogicalOperator from "./binarylogicaloperator"
-import { InputType, NestedArray, TParams } from "@types"
+import type { TParams } from "@types"
 import LogicalNode from "./logicalnode"
 
 class UnaryLogicalOperator extends LogicalNode {

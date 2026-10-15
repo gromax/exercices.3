@@ -3,6 +3,7 @@ import evaluate from '@mathstools/pile/evaluation'
 import { SimpleNode } from './simplenode'
 import MyMath from "@mathstools/mymath"
 import { TParams, NestedArray, InputType, NestedInput } from "@types"
+import { toNumber } from '../../maths/misc/inputtype'
 
 class Affectation extends SimpleNode {
     private _expression:string
@@ -124,7 +125,7 @@ class Affectation extends SimpleNode {
     }
 
     private _evaluateWithNumberRepeater(params:TParams, repeater:InputType) {
-        const n = MyMath.toNumber(repeater)
+        const n = toNumber(repeater)
         if (!Number.isInteger(n) || n < 0) {
             throw new Error(`La valeur de répétition pour le paramètre ${this._tag} doit être un entier positif ou un tableau.`)
         }

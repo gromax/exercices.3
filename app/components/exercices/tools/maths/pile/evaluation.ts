@@ -7,7 +7,7 @@ import { Complex } from './complex'
 import Tkztab from './tkztab'
 import MyMath from '../mymath';
 import { getValue, substituteLabels, substituteParams } from '../misc/substitution';
-import { NestedInput, InputType, TParams } from '@types'
+import type { NestedInput, InputType, TParams } from '@types'
 
 const MODULES = {
     'Alea': Alea,

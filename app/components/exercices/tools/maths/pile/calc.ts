@@ -1,8 +1,9 @@
 import MyMath from '../mymath'
 import { Decimal } from 'decimal.js'
-import { NestedArray, InputType } from '@types'
+import type { NestedArray, InputType } from '@types'
 import { gcd } from '../misc/functions'
 import { taylor } from '../misc/taylor'
+import { toInteger, toDecimal, toNumber } from '../misc/inputtype'
 
 class Calc {
     static readonly NAME = 'Calc'
@@ -115,11 +116,13 @@ class Calc {
      * @returns {InputType} objet représentant x % y
      */
     static mod(x: InputType, y: InputType): InputType {
-        const ix = MyMath.tryInteger(x)
-        const iy = MyMath.tryInteger(y)
-        if ((ix !== false) && (iy !== false)) {
-            return ix % iy
+        const ix = toDecimal(x)
+        const iy = toDecimal(y)
+
+        if (!ix.isNaN() && !iy.isNaN()) {
+            return ix.mod(iy)
         }
+
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `mod(${x}; ${y})`
         }
@@ -133,10 +136,10 @@ class Calc {
      * @returns {InputType} objet représentant x div y
      */
     static intDivide(x: InputType, y: InputType): InputType {
-        const ix = MyMath.tryInteger(x)
-        const iy = MyMath.tryInteger(y)
-        if ((ix !== false) && (iy !== false)) {
-            return (ix - ix%iy)/iy
+        const ix = toDecimal(x)
+        const iy = toDecimal(y)
+        if (!ix.isNaN() && !iy.isNaN()) {
+            return ix.divToInt(iy)
         }
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `(${x} - mod(${x};${y}))/(${y})`
@@ -151,10 +154,10 @@ class Calc {
      * @returns {InputType} objet représentant pgcd(x, y)
      */
     static pgcd(x: InputType, y: InputType): InputType {
-        const decX = MyMath.toDecimal(x)
-        const decY = MyMath.toDecimal(y)
+        const decX = toDecimal(x)
+        const decY = toDecimal(y)
         if (!decX.isNaN() && !decY.isNaN()) {
-            return MyMath.make(gcd(decX, decY).toString())
+            gcd(decX, decY)
         }
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `pgcd(${x}; ${y})`
@@ -169,11 +172,11 @@ class Calc {
      * @returns {InputType} objet représentant ppcm(x, y)
      */
     static ppcm(x: InputType, y: InputType): InputType {
-        const decX = MyMath.toDecimal(x)
-        const decY = MyMath.toDecimal(y)
+        const decX = toDecimal(x)
+        const decY = toDecimal(y)
         if (!decX.isNaN() && !decY.isNaN()) {
             if (decX.isZero() || decY.isZero()) return MyMath.make('0')
-            return MyMath.make(decX.mul(decY).div(gcd(decX, decY)).abs().toString())
+            return decX.mul(decY).div(gcd(decX, decY)).abs()
         }
         if ((typeof x === 'string') && (typeof y === 'string')) {
             return `ppcm(${x}; ${y})`
@@ -234,7 +237,7 @@ class Calc {
      * @returns {number|string} 1 si x positif, -1 si x négatif, 0 si x nul, ou expression symbolique si x n'est pas un nombre
      */
     static sign(x: InputType): number|string {
-        const a = MyMath.toNumber(x)
+        const a = toNumber(x)
         if (isNaN(a)) {
             return `sign(${String(x)})`
         }
@@ -246,8 +249,8 @@ class Calc {
      * @param {InputType} n
      * @returns {InputType} objet représentant n!
      */
-    static factorial(n: InputType): string {
-        const _n = MyMath.toInteger(n)
+    static factorial(n: InputType): Decimal {
+        const _n = toInteger(n)
         if (isNaN(_n)) {
             throw new Error(`[${String(n)}] Paramètre invalide pour Calc.factorial. Entier requis.`)
         }
@@ -258,7 +261,7 @@ class Calc {
         for (let i = 2; i <= _n; i++) {
             result = result.mul(i)
         }
-        return result.toString()
+        return result
     }
 
     /**
@@ -288,6 +291,9 @@ class Calc {
         if (typeof x === 'string') {
             return `sqrt(${x})`
         }
+        if (x instanceof Decimal) {
+            return x.sqrt()
+        }
         return MyMath.make(`sqrt(${String(x)})`)
     }
 
@@ -298,8 +304,8 @@ class Calc {
      * @returns {string} valeur arrondie ou expression symbolique si x n'est pas un nombre
      */
     static round(x: InputType, n: InputType):string {
-        const a = MyMath.toDecimal(x)
-        const digits = MyMath.toInteger(n)
+        const a = toDecimal(x)
+        const digits = toInteger(n)
         if (a.isNaN()) {
             return 'NaN'
         }
@@ -316,8 +322,8 @@ class Calc {
      * @returns {string} valeur arrondie ou expression symbolique si x n'est pas un nombre
      */
     static floor(x: InputType, n: InputType):string {
-        const a = MyMath.toDecimal(x)
-        const digits = MyMath.toInteger(n)
+        const a = toDecimal(x)
+        const digits = toInteger(n)
         if (a.isNaN()) {
             return "NaN"
         }
@@ -334,8 +340,8 @@ class Calc {
      * @returns {string} valeur arrondie ou expression symbolique si x n'est pas un nombre
      */
     static ceil(x: InputType, n: InputType):string {
-        const a = MyMath.toDecimal(x)
-        const digits = MyMath.toInteger(n)
+        const a = toDecimal(x)
+        const digits = toInteger(n)
         if (a.isNaN()) {
             return "NaN"
         }
@@ -388,7 +394,7 @@ class Calc {
             return expression.map(expr => Calc.float(expr))
         }
         try {
-            return MyMath.toFloat(expression)
+            return toNumber(expression)
         } catch (e) {
             console.warn(`Erreur lors de la conversion en float de l'expression ${expression} :`, e)
             return NaN
@@ -413,8 +419,8 @@ class Calc {
      * @returns {string} expression développée limitée
      */
     static taylor(expression:InputType, xName:InputType, order:InputType):MyMath {
-        const n = MyMath.tryInteger(order)
-        if ( n === false || n< 0) {
+        const n = toInteger(order, false)
+        if ( isNaN(n) || n< 0) {
             throw new Error(`L'ordre spécifié n'est pas un entier positif valide : ${order}`)
         }
         xName = xName.toString()
