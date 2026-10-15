@@ -179,63 +179,6 @@ class GraphBloc extends BlocWithView implements FormItemImplementation {
     nombrePts():number {
         return this._getItems().filter(item => item.isInput()).length
     }
-
-    /*
-    La suite me parait trop compliquée pour l'instant
-
-
-    // il s'agirait de trouver une expression en name.x ou name.y
-    const labels = []
-    const getters = {}
-    const subCoordString = coordString.replace(/([a-zA-Z_][a-zA-Z0-9_]*)\.(x|y)/g, function(match, label, axe) {
-        const coord = `${label}_${axe}`
-        if (!labels.includes(coord)) {
-            labels.push(coord)
-            getters[coord] = function(graphObjects) {
-                const obj = graphObjects[label]
-                if (!obj) {
-                    throw new Error(`L'objet graphique '${label}' n'existe pas.`)
-                }
-                return axe === 'x' ? obj.X() : obj.Y()
-            }
-        }
-        return coord
-    })
-    if (labels.length === 0) {
-        // pas de dépendance, on évalue directement
-        return MyMath.toFloat(coordString)
-    }
-    // il y a des dépendances, on crée une fonction
-    const func = nerdamer(subCoordString).buildFunction(labels)
-    return function(graphObjects) {
-        const params = {}
-    }
-    */
 }
 
 export default GraphBloc
-
-/* Liste des params qu'il faut envisager
-
-Point
-a = board.create('point', [x, y], {name:'A', size:1, color:'red'})
-b = board.create('line', [p1, p2])
-également 'segment'
-var c = board.create('curve', [xarr,yarr])
-ou :
-  [function(t) {...}, function(t){}, min, max ]
-'functiongraph' [function(x) {...}, min, max ]
-
-p.X(), p.Y() accèss to coordinates
-
-function() {...} décide d'une coordonnée
-
-options:
-fixed
-attractToGrid (attractorDistance, attractorunit)
-strokeColor
-strokeWidth
-dash:val
-straightFirst, straightLast [faut il prolonger la ligne]
-lastArrow:{type:5} [ajouter une flèche à la fin]
-*/
