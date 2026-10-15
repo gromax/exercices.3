@@ -1,5 +1,6 @@
 import MyMath from "../mymath"
-import { InputType } from "@types"
+import type { InputType } from "@types"
+import { toNumber } from "../misc/inputtype";
 
 class Tkztab {
     static readonly NAME = 'Tkztab';
@@ -19,7 +20,7 @@ class Tkztab {
         if (bornes.length < 2) {
             throw new Error("Tkztab.sign nécessite au moins deux bornes.")
         }
-        const f_bornes = bornes.map(MyMath.toFloat).sort((a, b) => a - b)
+        const f_bornes = bornes.map(toNumber).sort((a, b) => a - b)
         const variables = f.variables
         const n = bornes.length
         if (variables.length == 0) {
