@@ -2,7 +2,7 @@
 Classe pour gérer une validation de saisie utilisateur
 */
 
-import { InputType } from "@components/types"
+import type { InputType } from "@components/types"
 
 abstract class AbsChecker {
     /** @param {string} _expr Expression testée, par ex celle de l'utilisateur */

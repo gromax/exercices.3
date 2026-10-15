@@ -3,7 +3,7 @@
  */
 
 import MyMath from '@mathstools/mymath'
-import { InputType, NestedInput } from '@types'
+import type { InputType, NestedInput } from '@types'
 
 import { InfiniteCheck } from './infinitecheck'
 import { EmptyCheck } from './emptycheck'

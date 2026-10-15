@@ -1,6 +1,6 @@
 import { AbsChecker } from "./abscheck"
 import { VarsCheck } from "./varscheck"
-import { InputType } from "@components/types"
+import type { InputType } from "@components/types"
 import MyMath from '@mathstools/mymath'
 
 class EquationCheck extends AbsChecker {

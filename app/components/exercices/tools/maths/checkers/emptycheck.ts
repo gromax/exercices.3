@@ -1,5 +1,5 @@
 import { AbsChecker } from "./abscheck"
-import { InputType } from "@components/types"
+import type { InputType } from "@components/types"
 
 
 class EmptyCheck extends AbsChecker {
