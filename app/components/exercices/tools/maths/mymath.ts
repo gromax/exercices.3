@@ -12,12 +12,13 @@ import 'nerdamer/all'
 import Parser from './parser/parser'
 import { substituteParams } from './misc/substitution'
 import { Base } from './number/base'
+import { Scalar } from './number/scalar'
 import { NAN } from './number/constant'
 import type { Ensemble } from './number/ensemblesitems/parent'
 import { EnsembleCalculator } from './number/ensemble'
 import { simplify, decimalize } from './misc/simplify'
 import Decimal from 'decimal.js'
-import { TParams, InputType, NestedArray, NestedInput } from "@types"
+import type { TParams, InputType, NestedArray, NestedInput } from "@types"
 
 interface MyMathOptions {
     expression?: string,
@@ -57,15 +58,6 @@ class MyMath {
     private _type:TValue = "expression" // type par défaut
 
     /**
-     * alias de toFloat
-     * @param {*} value 
-     * @returns 
-     */
-    static toNumber(value:InputType):number {
-        return MyMath.toFloat(value)
-    }
-
-    /**
      * Extrait le texte brut d'une expression entourée de guillemets.
      * @param {string} expression 
      * @returns {string} Le texte brut extrait de l'expression.
@@ -76,36 +68,6 @@ class MyMath {
             return strExpression.slice(1, -1)
         }
         return strExpression
-    }
-
-    /**
-     * Convertit la valeur en nombre entier
-     * @param {InputType} value La valeur à convertir en nombre entier
-     * @returns {number} Le nombre entier correspondant à la valeur fournie
-     */
-    static toInteger(value:InputType):number {
-        const f = MyMath.toFloat(value)
-        if (isNaN(f)) {
-            throw new Error(`La valeur ${value} ne peut pas être convertie en entier.`)
-        }
-        const n = Math.trunc(f)
-        if (f !== n) {
-            throw new Error(`La valeur ${value} ne peut pas être convertie en entier.`)
-        }
-        return n
-    }
-
-    /**
-     * Essaie de convertir la valeur en entier.
-     * @param {InputType} value valeur à convertir en entier
-     * @returns {false|number} l'entier correspondant ou false si la conversion échoue
-     */
-    static tryInteger(value:InputType):false|number {
-        try {
-            return MyMath.toInteger(value)
-        } catch (e) {
-            return false
-        }
     }
 
     /**
@@ -133,42 +95,6 @@ class MyMath {
     }
 
     /**
-     * Analyse une valeur et la convertit en nombre à virgule flottante.
-     * @param {InputType} value La valeur à analyser
-     * @returns {number} Le nombre à virgule flottante correspondant à la valeur fournie
-     */
-    static parseFloat(value:InputType):number {
-        if (typeof value === 'number') {
-            return value
-        }
-        if (value instanceof MyMath) {
-            return value.toFloat()
-        }
-        if (typeof value !== 'string') {
-            throw new Error(`La valeur ${value} ne peut pas être convertie en nombre.`)
-        }
-        value = value.trim()
-        if (/^[+-]?\s?inf(?:inity|ty|ini)?$/.test(value)) {
-            return value.startsWith('-') ? -Infinity : Infinity
-        }
-        return MyMath.toFloat(value)
-    }
-
-    /**
-     * Analyse une valeur et la convertit en nombre entier.
-     * @param {InputType} value La valeur à analyser
-     * @returns {number} Le nombre entier correspondant à la valeur fournie
-     */
-    static parseInt(value:InputType):number {
-        const f = MyMath.parseFloat(value)
-        const n = Math.trunc(f)
-        if (f !== n) {
-            throw new Error(`La valeur ${value} ne peut pas être convertie en entier.`)
-        }
-        return n
-    }
-
-    /**
      * fabrique un MyMath à partir d'une expression
      * @param {InputType|Base} expression 
      * @returns {MyMath}
@@ -179,6 +105,10 @@ class MyMath {
         }
         if (expression instanceof MyMath) {
             return expression
+        }
+        if (expression instanceof Decimal) {
+            const s = Scalar.make(expression)
+            return new MyMath({ mynumber: s })
         }
         if ((typeof expression !== 'string') && (typeof expression !== 'number')) {
             throw new Error('L\'expression doit être une chaîne de caractères, un nombre ou une instance de MyMath')
@@ -242,27 +172,6 @@ class MyMath {
             return expression.map(item => MyMath.toFixedArray(item, n))
         }
         return MyMath.make(expression).toFixed(n)
-    }
-
-    /**
-     * Convertit une expression en nombre à virgule flottante.
-     * @param {InputType} expression L'expression à convertir
-     * @returns {number} Le nombre à virgule flottante correspondant à l'expression fournie
-     */
-    static toFloat(expression:InputType):number {
-        if (typeof expression === 'number') {
-            return expression
-        }
-        return MyMath.make(expression).toFloat()
-    }
-
-    /**
-     * Convertit une expression en instance de Decimal.
-     * @param {InputType} expression L'expression à convertir
-     * @returns {Decimal} L'instance de Decimal correspondant à l'expression fournie
-     */
-    static toDecimal(expression:InputType):Decimal {
-        return MyMath.make(expression).toDecimal()
     }
 
     /**
