@@ -3,9 +3,9 @@
  * Implémente des fonctions pour la loi binomiale et autres
  */
 
-import { InputType } from "@types"
-import MyMath from '../mymath'
+import type { InputType } from "@types"
 import { Decimal } from 'decimal.js';
+import { toInteger, toNumber } from "../misc/inputtype";
 
 class Dist {
     static readonly NAME = 'Dist'
@@ -27,16 +27,16 @@ class Dist {
      * renvoie le coefficient binomial C(n,k)
      * @param {InputType} n 
      * @param {InputType} k
-     * @returns {MyMath} le coefficient binomial C(n,k)
+     * @returns {Decimal} le coefficient binomial C(n,k)
      */
-    static binomialCoefficient(n:InputType, k:InputType):MyMath {
-        const _n = MyMath.toInteger(n)
-        const _k = MyMath.toInteger(k)
+    static binomialCoefficient(n:InputType, k:InputType):Decimal {
+        const _n = toInteger(n)
+        const _k = toInteger(k)
         if (isNaN(_n) || isNaN(_k) || _n < 0) {
             throw new Error('Paramètres invalides pour le coefficient binomial')
         }
         if (_k > _n || _k < 0) {
-            return MyMath.make(0)
+            return new Decimal(0)
         }
         const k1 = Math.min(_k, _n - _k)
         const k2 = Math.max(_k, _n - _k)
@@ -47,7 +47,7 @@ class Dist {
         for (let i = 1; i <= k1; i++) {
             result = result.div(i)
         }
-        return MyMath.make(result.toString())
+        return result
     }
 
 
@@ -59,8 +59,8 @@ class Dist {
      * @returns {number} un nombre aléatoire suivant une loi binomiale B(n,p)
      */
     static binomial(n:InputType, p:InputType):number {
-        const _n = MyMath.toInteger(n);
-        const _p = MyMath.toNumber(p);
+        const _n = toInteger(n);
+        const _p = toNumber(p);
         if (isNaN(_n) || isNaN(_p) || _n <= 0 || _p < 0 || _p > 1) {
             throw new Error('Paramètres invalides pour la loi binomiale');
         }
@@ -84,11 +84,11 @@ class Dist {
      * @return {Array<number>} un tableau de count nombres aléatoires suivant une loi binomiale B(n,p)
      */
     static binomialList(count:InputType, n:InputType, p:InputType):Array<number> {
-        const _count = MyMath.toInteger(count)
+        const _count = toInteger(count)
         if (_count <= 0) {
             throw new Error('Paramètre count invalide pour binomialList')
         }
-        const _p = MyMath.toNumber(p)
+        const _p = toNumber(p)
         if (isNaN(_p) || _p < 0 || _p > 1) {
             throw new Error('Paramètre p invalide pour binomialList');
         }
@@ -151,9 +151,9 @@ class Dist {
      * @return {number} P(X <= x)
      */
     static binomialCDF(x:InputType, n:InputType, p:InputType):number {
-        const _x = MyMath.toNumber(x)
-        const _n = MyMath.toInteger(n)
-        const _p = MyMath.toNumber(p)
+        const _x = toNumber(x)
+        const _n = toInteger(n)
+        const _p = toNumber(p)
         
         if (isNaN(_x) || isNaN(_n) || isNaN(_p)) {
             throw new Error('Paramètres invalides pour binomialCDF')
@@ -197,9 +197,9 @@ class Dist {
      * @return {number} P(X = k) pour X ~ B(n, p)
      */
     static binomialPDF(k:InputType, n:InputType, p:InputType):number {
-        const _k = MyMath.toInteger(k)
-        const _n = MyMath.toInteger(n)
-        const _p = MyMath.toNumber(p)
+        const _k = toInteger(k)
+        const _n = toInteger(n)
+        const _p = toNumber(p)
         if (isNaN(_k) || isNaN(_n) || isNaN(_p)) {
             throw new Error('Paramètres invalides pour binomialPDF')
         }
@@ -226,8 +226,8 @@ class Dist {
      * @return {number} P(X <= x)
      */
     static poissonCDF(x:InputType, lambda:InputType):number {
-        const _x = MyMath.toNumber(x)
-        const _lambda = MyMath.toNumber(lambda)
+        const _x = toNumber(x)
+        const _lambda = toNumber(lambda)
         
         if (isNaN(_x)) {
             throw new Error(`Paramètre x [${x}] invalide pour poissonCDF`)
@@ -256,8 +256,8 @@ class Dist {
      * @return {number} P(X = k) pour X ~ P(lambda)
      */
     static poissonPDF(k:InputType, lambda:InputType):number {
-        const _k = MyMath.toInteger(k)
-        const _lambda = MyMath.toNumber(lambda)
+        const _k = toInteger(k)
+        const _lambda = toNumber(lambda)
         if (isNaN(_k)) {
             throw new Error(`Paramètre k [${k}] invalide pour PoissonPDF`)
         }
@@ -304,9 +304,9 @@ class Dist {
      * @param {InputType} std - écart type
      */
     static normalCDF(x:InputType, mu:InputType, std:InputType):number {
-        const _x = MyMath.toFloat(x)
-        const _mu = MyMath.toFloat(mu)
-        const _std = MyMath.toFloat(std)
+        const _x = toNumber(x)
+        const _mu = toNumber(mu)
+        const _std = toNumber(std)
         
         if (isNaN(_x) || isNaN(_mu) || isNaN(_std) || _std <= 0) {
             throw new Error('Paramètres invalides pour normalCDF')
@@ -327,9 +327,9 @@ class Dist {
      * @param {InputType} std - écart type
      */
     static normalPDF(x:InputType, mu:InputType, std:InputType):number {
-        const _x = MyMath.toFloat(x)
-        const _mu = MyMath.toFloat(mu)
-        const _std = MyMath.toFloat(std)
+        const _x = toNumber(x)
+        const _mu = toNumber(mu)
+        const _std = toNumber(std)
         
         if (isNaN(_x) || isNaN(_mu) || isNaN(_std) || _std <= 0) {
             throw new Error('Paramètres invalides pour normalPDF')
@@ -344,8 +344,8 @@ class Dist {
      * @returns {number} un nombre aléatoire suivant une loi normale N(mu, std2)
      */
     static normal(mu:InputType, std:InputType):number {
-        const _mu = MyMath.toFloat(mu)
-        const _std = MyMath.toFloat(std)
+        const _mu = toNumber(mu)
+        const _std = toNumber(std)
         if (isNaN(_mu) || isNaN(_std) || _std <= 0) {
             throw new Error('Paramètres invalides pour la loi normale')
         }
@@ -360,12 +360,12 @@ class Dist {
      * @return {Array<number>} un tableau de count nombres aléatoires suivant une loi normale N(mu, std2)
      */
     static normalList(count:InputType, mu:InputType, std:InputType):Array<number> {
-        const _count = MyMath.toInteger(count)
+        const _count = toInteger(count)
         if (_count <= 0) {
             throw new Error('Paramètre count invalide pour normalList')
         }
-        const _mu = MyMath.toFloat(mu)
-        const _std = MyMath.toFloat(std)
+        const _mu = toNumber(mu)
+        const _std = toNumber(std)
         if (isNaN(_mu) || isNaN(_std) || _std <= 0) {
             throw new Error('Paramètres invalides pour normalList')
         }
