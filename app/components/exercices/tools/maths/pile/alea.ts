@@ -1,7 +1,8 @@
 import _ from 'underscore'
 import MyMath from '../mymath'
-import { InputType } from "@types"
-import { aleaPrime } from '../misc/functions';
+import type { InputType } from "@types"
+import { aleaPrime } from '../misc/functions'
+import { toNumber } from '../misc/inputtype'
 
 class Alea {
     static readonly NAME = 'Alea'
@@ -16,16 +17,16 @@ class Alea {
     };
 
     static entier(min:InputType, max:InputType):number {
-        const a = MyMath.toNumber(min);
-        const b = MyMath.toNumber(max);
+        const a = toNumber(min);
+        const b = toNumber(max);
         const _min = Math.min(a, b);
         const _max = Math.max(a, b);
         return Math.floor(Math.random() * (_max - _min + 1)) + _min;
     }
 
     static decimal(min:InputType, max:InputType):number {
-        const a = MyMath.toNumber(min);
-        const b = MyMath.toNumber(max);
+        const a = toNumber(min);
+        const b = toNumber(max);
         const _min = Math.min(a, b);
         const _max = Math.max(a, b);
         return Math.random() * (_max - _min) + _min;
@@ -50,11 +51,11 @@ class Alea {
         ymax:InputType,
         n:InputType
     ):string {
-        const _xmin = MyMath.toNumber(xmin);
-        const _ymin = MyMath.toNumber(ymin);
-        const _xmax = MyMath.toNumber(xmax);
-        const _ymax = MyMath.toNumber(ymax);
-        const _n = MyMath.toNumber(n);
+        const _xmin = toNumber(xmin);
+        const _ymin = toNumber(ymin);
+        const _xmax = toNumber(xmax);
+        const _ymax = toNumber(ymax);
+        const _n = toNumber(n);
         if (isNaN(_xmin) || isNaN(_ymin) || isNaN(_xmax) || isNaN(_ymax) || isNaN(_n) || _n < 0) {
             throw new Error("Paramètres invalides pour Alea.lagrangePolynome");
         }
@@ -93,7 +94,7 @@ class Alea {
     }
     
     static prime(n:InputType):number {
-        const _n = MyMath.toNumber(n);
+        const _n = toNumber(n);
         if (isNaN(_n)) {
             throw new Error(`n=${_n} Paramètre invalide pour Alea.prime`);
         }   
