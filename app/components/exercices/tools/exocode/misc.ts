@@ -3,7 +3,31 @@
  */
 
 import type { NestedInput, TParams } from '@types'
-import MyMath from "@components/exercices/tools/maths/mymath"
+import { toNumber, toBoolean, toString } from '../maths/misc/inputtype'
+
+function _rejectArray_toNumber(value:NestedInput):number {
+    if (Array.isArray(value)) {
+        throw new Error(`${value} est un tableau. Interdit ici.`)
+    }
+    return toNumber(value)
+}
+
+function _rejectArray_toBoolean(value:NestedInput):boolean {
+    if (Array.isArray(value)) {
+        throw new Error(`${value} est un tableau. Interdit ici.`)
+    }
+    return toBoolean(value)
+}
+
+function _rejectArray_toString(value:NestedInput):string {
+    if (Array.isArray(value)) {
+        throw new Error(`${value} est un tableau. Interdit ici.`)
+    }
+    return toString(value)
+}
+
+
+
 
 /**
  * Récupère une option de type chaîne de caractères à partir d'un objet d'options.
@@ -20,13 +44,13 @@ function getStringOption(
     if (Array.isArray(key)) {
         for (const k of key) {
             if (options.hasOwnProperty(k)) {
-                return _inputTypeToString(options[k])
+                return _rejectArray_toString(options[k])
             }
         }
         return defaultValue
     } else {
         return options.hasOwnProperty(key)
-            ? _inputTypeToString(options[key])
+            ? _rejectArray_toString(options[key])
             : defaultValue
     }
 }
@@ -45,18 +69,16 @@ function getNumberOption(
 ): number {
     if (!Array.isArray(key)) {
         return options.hasOwnProperty(key)
-            ? _inputTypeToNumber(options[key])
+            ? _rejectArray_toNumber(options[key])
             : defaultValue
     }
     for (const k of key) {
         if (options.hasOwnProperty(k)) {
-            return _inputTypeToNumber(options[k])
+            return _rejectArray_toNumber(options[k])
         }
     }
     return defaultValue
 }
-
-
 
 /**
  * Récupère une option de type booléen à partir d'un objet d'options.
@@ -72,66 +94,15 @@ function getBooleanOption(
 ): boolean {
     if (!Array.isArray(key)) {
         return options.hasOwnProperty(key)
-            ? _inputTypeToBoolean(options[key])
+            ? _rejectArray_toBoolean(options[key])
             : defaultValue
     }
     for (const k of key) {
         if (options.hasOwnProperty(k)) {
-            return _inputTypeToBoolean(options[k])
+            return _rejectArray_toBoolean(options[k])
         }
     }
     return defaultValue
 }
-
-function _inputTypeToString(value: NestedInput): string {
-    if (Array.isArray(value)) {
-        throw new Error(`${value} est un tableau. Interdit ici.`)
-    }
-    if (typeof value === 'string') {
-        return value
-    }
-    if (typeof value === 'number') {
-        return value.toString()
-    }
-    if (value instanceof MyMath) {
-        return value.toString()
-    }
-    return String(value)
-}
-
-
-function _inputTypeToNumber(value: NestedInput): number {
-    if (Array.isArray(value)) {
-        throw new Error(`${value} est un tableau. Interdit ici.`)
-    }
-    if (typeof value === 'string') {
-        return parseFloat(value.replace(',', '.'))
-    }
-    if (typeof value === 'number') {
-        return value
-    }
-    if (value instanceof MyMath) {
-        return value.toFloat()
-    }
-    return NaN
-}
-
-function _inputTypeToBoolean(value: NestedInput): boolean {
-    if (Array.isArray(value)) {
-        throw new Error(`${value} est un tableau. Interdit ici.`)
-    }
-    if (typeof value === 'string') {
-        const val = value.toLocaleLowerCase()
-        return val === 'true' || val === '1'
-    }
-    if (typeof value === 'number') {
-        return value !== 0
-    }
-    if (value instanceof MyMath) {
-        return value.toFloat() !== 0
-    }
-    return false
-}
-
 
 export { getStringOption, getNumberOption, getBooleanOption }
