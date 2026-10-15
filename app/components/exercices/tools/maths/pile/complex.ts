@@ -1,4 +1,4 @@
-import { InputType } from "@types"
+import type { InputType } from "@types"
 import MyMath from '../mymath'
 import { conjugaison, real, imaginaire, abs, arg } from '../misc/complexcalculus'
 import { pifrac, approxFraction } from '../misc/functions'
