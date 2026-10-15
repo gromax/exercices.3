@@ -1,5 +1,16 @@
 import MyMath from "../mymath"
-import { InputType } from "@types"
+import type { InputType } from "@types"
+import Decimal from 'decimal.js'
+import { toNumber, toDecimal } from "../misc/inputtype"
+
+
+function prod(tab1:Decimal[], tab2:Decimal[]):Decimal[] {
+    return tab1.map( (item,i) => item.mul(tab2[i]))
+}
+
+function mean(tab:Decimal[]):Decimal {
+    return Decimal.sum(...tab).div(tab.length)
+}
 
 class Table {
     static readonly NAME = 'Table';
@@ -34,7 +45,7 @@ class Table {
         if (!Array.isArray(arr)) {
             throw new Error(`Le premier argument de Table.get doit être un tableau.`);
         }
-        const i = MyMath.toNumber(index)
+        const i = toNumber(index)
         if (!Number.isInteger(i) || i < 0 || i >= arr.length) {
             throw new Error(`L'indice passé à Table.get doit être un entier compris entre 0 et ${arr.length - 1}.`)
         }
@@ -45,7 +56,14 @@ class Table {
         if (!Array.isArray(arr)) {
             throw new Error(`L'argument de Table.numberArray doit être un tableau.`);
         }
-        return arr.map(v => MyMath.parseFloat(v));
+        return arr.map(v => toNumber(v));
+    }
+
+    static decimalArray(arr:Array<InputType>):Array<Decimal> {
+        if (!Array.isArray(arr)) {
+            throw new Error(`L'argument de Table.numberArray doit être un tableau.`);
+        }
+        return arr.map(v => toDecimal(v));
     }
 
     static stringArray(arr:Array<any>):Array<string> {
@@ -133,146 +151,145 @@ class Table {
         return arr.length
     }
 
-    static sum(arr:Array<InputType>):number {
+    static sum(arr:Array<InputType>):Decimal {
         if (!Array.isArray(arr)) {
             throw new Error(`L'argument de Table.sum doit être un tableau.`)
         }
-        const f_arr = Table.numberArray(arr)
-        return f_arr.reduce((acc, val) => acc + val, 0)
+        const f_arr = Table.decimalArray(arr)
+        return Decimal.sum(...f_arr)
     }
 
-    static product(arr1:Array<InputType>, arr2:Array<InputType>):Array<number> {
+    static product(arr1:Array<InputType>, arr2:Array<InputType>):Array<Decimal> {
         if (!Array.isArray(arr1) || !Array.isArray(arr2)) {
             throw new Error(`Les arguments de Table.product doivent être des tableaux.`);
         }
         if (arr1.length !== arr2.length) {
             throw new Error(`Les tableaux passés à Table.product doivent avoir la même taille.`);
         }
-        const f_arr1 = Table.numberArray(arr1)
-        const f_arr2 = Table.numberArray(arr2)
-        return f_arr1.map((val, index) => val * f_arr2[index])
+        return prod(Table.decimalArray(arr1), Table.decimalArray(arr2))
     }
 
-    static average(values:Array<InputType>):number {
+    static average(values:Array<InputType>):Decimal {
         if (!Array.isArray(values)) {
             throw new Error(`L'argument de Table.average doit être un tableau.`)
         }
         if (values.length === 0) {
             throw new Error(`Le tableau passé à Table.average est vide.`)
         }
-        const f_values = Table.numberArray(values)
-        return Table.sum(f_values) / f_values.length
+        return mean(Table.decimalArray(values))
     }
 
-    static average2(values:Array<InputType>, effectifs:Array<InputType>):number {
+    static average2(values:Array<InputType>, effectifs:Array<InputType>):Decimal {
         if (!Array.isArray(values) || !Array.isArray(effectifs)) {
             throw new Error(`Les arguments de Table.average doivent être des tableaux.`)
         }
         if (values.length !== effectifs.length) {
             throw new Error(`Les tableaux passés à Table.average doivent avoir la même taille.`)
         }
-        const f_values = Table.numberArray(values)
-        const f_effectifs = Table.numberArray(effectifs)
-        const N = Table.sum(f_effectifs)
-        if (N === 0) {
+        const xi = Table.decimalArray(values)
+        const ni = Table.decimalArray(effectifs)
+        const N = Decimal.sum(...ni)
+        if (N.eq(0)) {
             throw new Error(`La somme des effectifs est nulle dans Table.average.`)
         }
-        return Table.sum(Table.product(f_values, f_effectifs)) / N
+        return mean(prod(xi,ni))
     }
 
-    static covariance(values1:Array<InputType>, values2:Array<InputType>):number {
+    static covariance(values1:Array<InputType>, values2:Array<InputType>):Decimal {
         if (!Array.isArray(values1) || !Array.isArray(values2)) {
             throw new Error(`Les arguments de Table.covariance doivent être des tableaux.`);
         }
         if (values1.length !== values2.length) {
             throw new Error(`Les tableaux passés à Table.covariance doivent avoir la même taille.`);
         }
-        const f_values1 = Table.numberArray(values1)
-        const f_values2 = Table.numberArray(values2)
-        const m1 = Table.average(f_values1)
-        const m2 = Table.average(f_values2)
-        let cov = 0;
-        for (let i = 0; i < f_values1.length; i++) {
-            cov += (f_values1[i] - m1) * (f_values2[i] - m2)
+        const xi = Table.decimalArray(values1)
+        const yi = Table.decimalArray(values2)
+        const mx = mean(xi)
+        const my = mean(yi)
+        return mean(prod(xi,yi)).minus(mx.mul(my))
+    }
+
+    static variance(values:Array<InputType>):Decimal {
+        const xi = Table.decimalArray(values)
+        const mx2 = mean(xi).pow(2)
+        return mean(prod(xi,xi)).minus(mx2)
+    }
+
+    static std(values:Array<InputType>):Decimal {
+        const xi = Table.decimalArray(values)
+        const mx2 = mean(xi).pow(2)
+        return Decimal.sqrt(mean(prod(xi,xi)).minus(mx2))
+    }
+
+    static variance2(values:Array<InputType>, effectifs:Array<InputType>):Decimal {
+        const xi = Table.decimalArray(values)
+        const ni = Table.decimalArray(effectifs)
+        const N = Decimal.sum(...ni)
+        if (N.eq(0)) {
+            throw new Error(`La somme des effectifs est nulle dans Table.variance2.`)
         }
-        return cov / f_values1.length
+        const mx = Decimal.sum(...prod(xi,ni)).div(N)
+        const mx2 = Decimal.sum(...prod(prod(xi, xi), ni)).div(N)
+        return mx2.minus(mx.mul(mx))
     }
 
-    static variance(values:Array<InputType>):number {
-        const f_values = Table.numberArray(values)
-        const m = Table.average(f_values)
-        const squaredDiffs = f_values.map((val) => (val - m) ** 2)
-        return Table.average(squaredDiffs)
+    static std2(values:Array<InputType>, effectifs:Array<InputType>):Decimal {
+        return Decimal.sqrt(Table.variance2(values, effectifs))
     }
 
-    static std(values:Array<InputType>):number {
-        return Math.sqrt(Table.variance(values));
-    }
-
-    static variance2(values:Array<InputType>, effectifs:Array<InputType>):number {
-        const f_values = Table.numberArray(values)
-        const m = Table.average2(values, effectifs);
-        const squaredDiffs = f_values.map((val) => (val - m) ** 2)
-        return Table.average2(squaredDiffs, effectifs);
-    }
-
-    static std2(values:Array<InputType>, effectifs:Array<InputType>):number {
-        return Math.sqrt(Table.variance2(values, effectifs));
-    }
-
-    static mediane2(values:Array<InputType>, effectifs:Array<InputType>):number {
+    static mediane2(values:Array<InputType>, effectifs:Array<InputType>):Decimal {
         if (!Array.isArray(values) || !Array.isArray(effectifs)) {
-            throw new Error(`Les arguments de Table.mediane doivent être des tableaux.`);
+            throw new Error(`Les arguments de Table.mediane doivent être des tableaux.`)
         }
         if (values.length !== effectifs.length) {
-            throw new Error(`Les tableaux passés à Table.mediane doivent avoir la même taille.`);
+            throw new Error(`Les tableaux passés à Table.mediane doivent avoir la même taille.`)
         }
-        const N = Table.sum(effectifs);
-        if (N === 0) {
-            throw new Error(`La somme des effectifs est nulle dans Table.mediane.`);
+        const N = Table.sum(effectifs)
+        if (N.eq(0)) {
+            throw new Error(`La somme des effectifs est nulle dans Table.mediane.`)
         }
-        const f_values = Table.numberArray(values)
-        const f_effectifs = Table.numberArray(effectifs)
-        let cumulative = 0;
-        for (let i = 0; i < f_effectifs.length; i++) {
-            cumulative += f_effectifs[i]
-            if (2*cumulative == N) {
-                return (f_values[i]+f_values[i+1])/2
+        const Ns2 = N.div(2)
+        const xi = Table.decimalArray(values)
+        const ni = Table.decimalArray(effectifs)
+        let cumulative = new Decimal(0)
+        for (let i = 0; i < ni.length; i++) {
+            cumulative = cumulative.plus(ni[i])
+            if (cumulative.eq(Ns2)) {
+                return xi[i].plus(xi[i+1]).div(2)
             }
-            if (2*cumulative > N) {
-                return f_values[i]
+            if (cumulative.gt(Ns2)) {
+                return xi[i]
             }
         }
     }
 
-    static max(values:Array<InputType>):number {
-        const f_values = Table.numberArray(values)
-        return Math.max(...f_values);
+    static max(values:Array<InputType>):Decimal {
+        return Decimal.max(...Table.decimalArray(values))
     }
 
-    static min(values:Array<InputType>):number {
-        const f_values = Table.numberArray(values)
-        return Math.min(...f_values);
+    static min(values:Array<InputType>):Decimal {
+        return Decimal.min(...Table.decimalArray(values))
     }
 
-    static quantile2(values:Array<InputType>, effectifs:Array<InputType>, q:number):number {
+    static quantile2(values:Array<InputType>, effectifs:Array<InputType>, q:number):Decimal {
         if (!Array.isArray(values) || !Array.isArray(effectifs)) {
             throw new Error(`Les arguments de Table.quantile doivent être des tableaux.`);
         }
         if (values.length !== effectifs.length) {
             throw new Error(`Les tableaux passés à Table.quantile doivent avoir la même taille.`);
         }
-        const N = Table.sum(effectifs)
-        if (N === 0) {
+        const ni = Table.decimalArray(effectifs)
+        const N = Decimal.sum(...ni)
+        if (N.eq(0)) {
             throw new Error(`La somme des effectifs est nulle dans Table.quantile.`)
         }
-        const f_values = Table.numberArray(values)
-        const f_effectifs = Table.numberArray(effectifs)
-        let cumulative = 0
-        for (let i = 0; i < f_effectifs.length; i++) {
-            cumulative += f_effectifs[i];
-            if (cumulative >= q * N) {
-                return f_values[i]
+        const xi = Table.decimalArray(values)
+        const Nsq = N.div(q)
+        let cumulative = new Decimal(0)
+        for (let i = 0; i < ni.length; i++) {
+            cumulative = cumulative.plus(ni[i])
+            if (cumulative.gte(Nsq)) {
+                return xi[i]
             }
         }
     }
@@ -292,7 +309,7 @@ class Table {
         if (values.length !== effectifs.length) {
             throw new Error(`Les tableaux passés à Table.quantile doivent avoir la même taille.`)
         }
-        const f_value = MyMath.parseFloat(value)
+        const f_value = toNumber(value)
         const f_values = Table.numberArray(values)
         const f_effectifs = Table.numberArray(effectifs)
         let cumulative = 0
@@ -314,7 +331,7 @@ class Table {
         if (!Array.isArray(values)) {
             throw new Error(`Les arguments de Table.filter doivent être des tableaux.`)
         }
-        const f_value = MyMath.parseFloat(value)
+        const f_value = toNumber(value)
         if (!['==', '!=', '<', '<=', '>', '>='].includes(operator)) {
             throw new Error(`L'opérateur ${operator} passé à Table.filter est invalide.`)
         }
@@ -332,7 +349,7 @@ class Table {
         }
         // pour éviter de calculer à chaque comparaison le parse des valeurs
         // je les calcule une fois pour toutes puis je trie en utilisant ces valeurs
-        const couples = values.map((val) => [val, MyMath.parseFloat(val)])
+        const couples = values.map((val) => [val, toNumber(val)])
         couples.sort((a, b) => (a[1] as number) - (b[1] as number))
         return couples.map((c) => c[0])
     }
