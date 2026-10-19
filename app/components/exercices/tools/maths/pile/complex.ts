@@ -1,11 +1,15 @@
 import type { InputType } from "@types"
 import MyMath from '../mymath'
-import { conjugaison, real, imaginaire, abs, arg } from '../misc/complexcalculus'
-import { pifrac, approxFraction } from '../misc/functions'
+import { conjugaison } from '../misc/complexcalculus'
+import { pifrac } from '../misc/functions'
 import { Scalar } from '../number/scalar'
 import { Mult } from '../number/mult'
 import { PI } from '../number/constant'
-import { Function } from '../number/function'
+import Decimal from "decimal.js"
+
+import nerdamer from 'nerdamer'
+import 'nerdamer/all'
+import { ComplexDecimal } from '../misc/complexdecimal'
 
 class Complex {
     static readonly NAME = 'Complex'
@@ -18,13 +22,19 @@ class Complex {
     };
 
     static real(z: InputType): MyMath {
-        const zm = MyMath.make(z).getMyNumber()
-        return MyMath.make(real(zm))
+        const zStr = MyMath.normalization(z.toString())
+        // bug nerdamer ! il faut expand
+        const nerd = nerdamer(`realpart(expand(${zStr}))`)
+        const str = MyMath.denormalization(nerd.toString())
+        return MyMath.make(str)
     }
 
     static imag(z: InputType): MyMath {
-        const zm = MyMath.make(z).getMyNumber()
-        return MyMath.make(imaginaire(zm))
+        const zStr = MyMath.normalization(z.toString())
+        // bug nerdamer ! il faut expand
+        const nerd = nerdamer(`imagpart(expand(${zStr}))`)
+        const str = MyMath.denormalization(nerd.toString())
+        return MyMath.make(str)
     }
 
     static conj(z: InputType): MyMath {
@@ -33,24 +43,39 @@ class Complex {
     }
     
     static abs(z: InputType): MyMath {
-        const zm = MyMath.make(z).getMyNumber().toComplexDecimal(undefined).abs()
-        const res = approxFraction(zm)
-        if (res!==false) {
-            const s = new Scalar(res[0], res[1])
-            const f = new Function('sqrt', s)
-            return MyMath.make(f)
-        }
-        return MyMath.make(new Scalar(zm.sqrt()))
+        const real = Complex.real(z)
+        const imag = Complex.imag(z)
+        const nerd = nerdamer(`sqrt((${real})^2 + (${imag})^2)`)
+        const str = MyMath.denormalization(nerd.toString())
+        return MyMath.make(str)
     }
 
     static arg(z: InputType): MyMath {
-        const zm = MyMath.make(z).getMyNumber().toComplexDecimal(undefined).arg()
-        const res = pifrac(zm)
+        const real = Complex.real(z)
+        const imag = Complex.imag(z)
+        const cd = new ComplexDecimal(real.toDecimal(), imag.toDecimal())
+        const angle = cd.arg()
+        // tentative de reconnaître une fraction simple
+        const res = pifrac(angle)
         if (res!==false) {
             const s = new Scalar(res[0], res[1])
             return MyMath.make(Mult.mult(s, PI))
         }
-        return MyMath.make(new Scalar(zm))
+        // sinon c'est un nombre qui ne tombe pas juste
+        const realStr = MyMath.denormalization(real.toString())
+        const imagStr = MyMath.denormalization(imag.toString())
+        if (cd.real.gte(0)) {
+            if (cd.imag.gte(0)) {
+                return MyMath.make(`atan((${imagStr})/(${realStr}))`).simplify()
+            } else {
+                return MyMath.make(`-atan((-(${imagStr}))/(${realStr}))`).simplify()
+            }
+
+        }
+        if (cd.imag.gte(0)) {
+            return MyMath.make(`-atan((${imagStr})/(-(${realStr}))) + pi`).simplify()
+        }
+        return MyMath.make(`atan((${imagStr})/(${realStr})) - pi`).simplify()
     }
 }
 
