@@ -139,7 +139,16 @@ class Complex extends Base {
     }
 
     get priority():number {
-        return 10
+        // si pas de imag ou i, comme un scalaire
+        if (this._imag.isZero() || this._real.isZero() && this._imag.isOne()) {
+            return 10
+        }
+        // si pas de real, et _imcomme un produit b*i
+        if (this._real.isZero()) {
+            return 2
+        }
+        // sinon comme un add
+        return 1
     }
 
     isInteger() {
