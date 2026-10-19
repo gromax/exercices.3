@@ -400,7 +400,7 @@ class MyMath {
         if (expression.includes('expand(')) {
             // cas particulier où on a une commande nerdamer
             this._expression = expression
-            const n = this._getNerdamerProcessed()
+            const n = this.getNerdamerProcessed()
             this._expression = MyMath.denormalization(n.toString())
             this._slicedExpression = this._expression
             return
@@ -454,7 +454,7 @@ class MyMath {
      * Renvoie l'objet nerdamer correspondant à l'expression
      * @returns {nerdamer.Expression} expression nerdamer
      */
-    private _getNerdamerProcessed(): nerdamer.Expression {
+    public getNerdamerProcessed(): nerdamer.Expression {
         if (this._type !== "expression") {
             throw new Error(`<${this._expression}> : L'objet MyMath n'est pas de type expression.`)
         }
@@ -734,8 +734,8 @@ class MyMath {
         } else if (right.isInfinity()) {
             return right._compareInfinityCase(this, MyMath.reverseOperator(operator))
         }
-        const p1 = this._getNerdamerProcessed()
-        const p2 = right._getNerdamerProcessed()
+        const p1 = this.getNerdamerProcessed()
+        const p2 = right.getNerdamerProcessed()
         switch (operator) {
             case '==':
                 return p1.eq(p2)
@@ -797,7 +797,7 @@ class MyMath {
             return false
         }
         return this.getMyNumber().isPlusInfinity(undefined)
-        //return this._getNerdamerProcessed().eq('+infinity')
+        //return this.getNerdamerProcessed().eq('+infinity')
     }
 
     /**
@@ -840,7 +840,7 @@ class MyMath {
 
     expand():MyMath {
         // _gerNerdamerProcessed lèver une erreur si pas du bon _type
-        return new MyMath({ nerdamer: this._getNerdamerProcessed().expand() })
+        return new MyMath({ nerdamer: this.getNerdamerProcessed().expand() })
     }
 
     /**
@@ -908,8 +908,8 @@ class MyMath {
      * @returns {Function} fonction JavaScript correspondant à l'expression
      */
     buildFunction():Function {
-        // lèvera une erreur avec _getNerdamerProcessed() si le _type n'est pas correct
-        return this._getNerdamerProcessed().buildFunction()
+        // lèvera une erreur avec getNerdamerProcessed() si le _type n'est pas correct
+        return this.getNerdamerProcessed().buildFunction()
     }
 
     /**
