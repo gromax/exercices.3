@@ -589,6 +589,8 @@ Un champ input se traduira par une zone de saisie dans laquelle on peut entrer d
 * solution : la valeur attendue. Il est possible de fournir un tableau. Dans ce cas, la réponse sera considére valide du moment qu'elle correspond à au moins un item de solution.
 * `tagSolution` : on peut désirer forcer un affichage de solution. On peut le faire avec tagSolution. Voici un exemple d'usage :
 * `placeholder` : dans un champ de saisie, on peut donner une indicatiojn en griser. Par défaut ce sera "Entrez votre réponse". Mais on peut choisir autre chose. Par exemple, si on veut inviter l'élève à entrer une équation de droite, on peut mettre "y=mx+p"
+* `preTag` : un texte apparaissant en tête du champ de saisie.
+* `postTag` : un texte apparaissant en fin de champ de saisie
 
 ```
 @f = (x+5)*(x+7)
