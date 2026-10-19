@@ -89,7 +89,9 @@ function approxFraction(x:Decimal): [Decimal, Decimal]|false {
         const num2 = num.div(PGCD)
         return [entier.mul(den2).plus(num2), den2]
     }
-    const strDecimals = strDecimalsFull.slice(0,-5)
+
+    // On va arrondir au moins sur 2 décimales pour éviter les problème de .99
+    const strDecimals = x.toDecimalPlaces(strDecimalsFull.length-2).toString().slice(0,-3)
     const n = nFull-5
 
     // on part de la fin à la recherche d'une période
