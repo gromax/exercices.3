@@ -4,14 +4,11 @@ import { Div } from '../number/div'
 import { Power } from '../number/power'
 import { Exponential } from '../number/exponential'
 import { Scalar } from '../number/scalar'
-import { Constant, NAN, I, PI } from '../number/constant'
+import { Constant, NAN, I } from '../number/constant'
 import { Symbol } from '../number/symbol'
 import { Base } from '../number/base'
 import { Function } from '../number/function'
 import { Collection } from '../number/collection'
-import { pifrac } from './functions'
-
-
 
 /**
  * renvoie le complexe conjugué d'un nombre
@@ -83,45 +80,6 @@ function conjugaison(node:Base):Base {
     return NAN
 }
 
-function real(node:Base):Base {
-    const sum = AddMinus.add(node, conjugaison(node))
-    const demi = Scalar.div(1,2)
-    return Mult.mult(demi, sum)
-}
-
-function imaginaire(node:Base):Base {
-    const diff = AddMinus.minus(node, conjugaison(node))
-    const demi = Scalar.div(1,2)
-    return Mult.mult(demi, diff)
-}
-
-function abs(node:Base):Base {
-    return Mult.mult(node, conjugaison(node))
-}
-
-function arg(node:Base):Base {
-    // L'argument d'un nombre complexe peut être calculé comme suit :
-    const z = node.toComplexDecimal(undefined)
-    if (z.isZero()) {
-        return NAN
-    }
-    const angle = z.arg()
-    // Je vais chercher si cela tombe sur un une fraction connue.
-    const res = pifrac(angle)
-    if (res !== false) {
-        const factor = new Scalar(res[0], res[1])
-        return Mult.mult(factor, PI)
-    }
-    const realPart = real(node)
-    const module = abs(node)
-    const ratio = Div.div(realPart, module)
-    const acos = new Function('acos', ratio)
-    if (z.imag.gte(0)) {
-        return acos
-    }
-    return new Function('(-)', acos)
-}
-
 /**
  * Je veut renvoyer false si je m'éloigne d'une forme algébrique :
  * i dans une fonction ou au dénominateur
@@ -157,4 +115,4 @@ function isAlgebraic(node:Base):boolean {
 }
 
 
-export { conjugaison, real, imaginaire, abs, arg, isAlgebraic }
+export { conjugaison, isAlgebraic }
