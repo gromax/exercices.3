@@ -1,11 +1,17 @@
 <div class="mb-3">
     <label for="<%- name %>" class="form-label"><%- tag %></label>
-    <% if (keyboard && !_.isEmpty(keyboard)) { %>
+    <% if (keyboard && !_.isEmpty(keyboard) || pretag || posttag) { %>
     <div class="input-group mb-3">
         <% _.each(keyboard, (params, key) => { %>
         <button type="button" class="btn btn-outline-primary js-keyboard" data-name="<%- key %>"><%= params.tag %></button>
         <% }) %>
+        <% if (pretag) {%>
+        <span class="input-group-text"><%- pretag %></span>
+        <% } %>
         <input type="text" class="form-control" id="<%- name %>" name="<%- name %>" value="<%- answer %>" placeholder="<%- placeholder %>">
+        <% if (posttag) {%>
+        <span class="input-group-text"><%- posttag %></span>
+        <% } %>
     </div>
     <% } else { %>
     <input type="text" class="form-control" id="<%- name %>" name="<%- name %>" value="<%- answer %>" placeholder="<%- placeholder %>">

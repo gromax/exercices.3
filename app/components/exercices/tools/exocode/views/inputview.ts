@@ -52,6 +52,8 @@ const InputView = View.extend({
             tag: this.getOption("tag"),
             answer: this.getOption("answer"),
             keyboard: this._getKeyboard(),
+            pretag: this.getOption("pretag"),
+            posttag: this.getOption("posttag"),
             placeholder: this.getOption("placeholder") || 'Entrez votre réponse'
         }
     },

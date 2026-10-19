@@ -16,7 +16,7 @@ import { getStringOption } from "../../misc"
 class InputTextBloc extends InputBloc {
     static readonly LABEL = 'input'
     static readonly ALLOWED_PARAMS = [
-        'format', 'keyboard', 'placeholder', 'tag', 'excluded', 'solution', 'tagsolution'
+        'format', 'keyboard', 'placeholder', 'tag', 'excluded', 'solution', 'tagsolution', 'pretag', 'posttag'
     ]
     protected _format:Array<string> = []
     
@@ -45,7 +45,9 @@ class InputTextBloc extends InputBloc {
         }
         const view =  new InputView({
             name: this._name,
-            tag: this.params.tag || this._name,
+            pretag: getStringOption(this.params, 'pretag', ''),
+            tag: getStringOption(this.params, 'tag', this._name),
+            posttag: getStringOption(this.params, 'posttag', ''),
             answer: answers[this._name] || null,
             keyboard: this.params.keyboard || [],
             placeholder: getStringOption(this.params, "placeholder", '')
@@ -136,6 +138,8 @@ class InputTextBloc extends InputBloc {
         const tag = this.params.tag
         const format = this._format || 'none'
         const entete = tag?`${tag} : `:''
+        const pretag = getStringOption(this.params, 'pretag', '')
+        const posttag = getStringOption(this.params, 'posttag', '')
         if (!solution) {
             throw new Error(`Dans <${this.tag}:${this._name}>, la solution doit être spécifiée.`)
         }
@@ -147,7 +151,7 @@ class InputTextBloc extends InputBloc {
             const resultView = new InputResultView({
                 name: name,
                 success: true,
-                message: entete + message,
+                message: entete + pretag + message + posttag,
             })
             return [resultView, score]
         } else {
