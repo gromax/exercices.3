@@ -447,13 +447,6 @@ class Scalar extends Base {
         return sqrtValue.isInteger()
     }
 
-    isEven():boolean {
-        if (this.isNaN() || !this.isInteger()) {
-            return false
-        }
-        return this._value.mod(2).isZero()
-    }
-
     hasI():boolean {
         return false
     }
