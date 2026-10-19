@@ -52,9 +52,12 @@ function nonScalars(node:Base|Base[]):Base[] {
     if (node instanceof Div) {
         const num = nonScalars(node.numerator)
         const den = nonScalars(node.denominator)
+        if (den.length == 0) {
+            return num
+        }
         const d = Div.div(
             num.length==0 ? Scalar.ONE : num[0],
-            den.length==0 ? Scalar.ONE : den[0],
+            den[0],
         )
         return [d]
     }
