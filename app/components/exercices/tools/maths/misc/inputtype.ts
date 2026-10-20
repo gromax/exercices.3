@@ -19,7 +19,8 @@ function toNumber(value: InputType): number {
         if (/^[+-]?\s?inf(?:inity|ty|ini)?$/.test(value)) {
             return value.startsWith('-') ? -Infinity : Infinity
         }
-        return parseFloat(value.replace(',', '.'))
+        const mm = MyMath.make(value)
+        return mm.toFloat()
     }
     if (typeof value === 'number') {
         return value
@@ -41,7 +42,8 @@ function toDecimal(value: InputType): Decimal {
                 ? new Decimal(-Infinity)
                 : new Decimal (Infinity)
         }
-        return new Decimal(value.replace(',', '.'))
+        const mm = MyMath.make(value)
+        return mm.toDecimal()
     }
     if (typeof value === 'number') {
         return new Decimal(value)
