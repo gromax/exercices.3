@@ -25,6 +25,7 @@ class Table {
         'product': Table.product,
         'moyenne': Table.average,
         'average': Table.average,
+        'moyenne2': Table.average2,
         'average2': Table.average2,
         'covariance': Table.covariance,
         'variance': Table.variance,
@@ -192,7 +193,7 @@ class Table {
         if (N.eq(0)) {
             throw new Error(`La somme des effectifs est nulle dans Table.average.`)
         }
-        return mean(prod(xi,ni))
+        return Decimal.sum(...prod(xi,ni)).div(N)
     }
 
     static covariance(values1:Array<InputType>, values2:Array<InputType>):Decimal {
@@ -284,7 +285,7 @@ class Table {
             throw new Error(`La somme des effectifs est nulle dans Table.quantile.`)
         }
         const xi = Table.decimalArray(values)
-        const Nsq = N.div(q)
+        const Nsq = N.mul(q)
         let cumulative = new Decimal(0)
         for (let i = 0; i < ni.length; i++) {
             cumulative = cumulative.plus(ni[i])
@@ -292,6 +293,7 @@ class Table {
                 return xi[i]
             }
         }
+        return xi[xi.length-1]
     }
 
     /**
