@@ -1,12 +1,12 @@
-import Alea from './alea';
-import Table from './table'; // Tables et stats
-import Calc from './calc';
-import Dist from './dist'; // Distributions
+import Alea from './alea'
+import Table from './table' // Tables et stats
+import Calc from './calc'
+import Dist from './dist' // Distributions
 import Str from './str'
 import { Complex } from './complex'
 import Tkztab from './tkztab'
-import MyMath from '../mymath';
-import { getValue, substituteLabels, substituteParams } from '../misc/substitution';
+import MyMath from '../mymath'
+import { getValue, substituteLabels, substituteParams } from '../misc/substitution'
 import type { NestedInput, InputType, TParams } from '@types'
 
 const MODULES = {
@@ -17,64 +17,64 @@ const MODULES = {
     'Str': Str,
     'Tkztab': Tkztab,
     'Complex': Complex,
-};
+}
 
 function _tryAsPile(expression:string, params:TParams):null|InputType {
-    let expr = expression.trim();
+    let expr = expression.trim()
     if (! /^<(P|p):.*>$/.test(expr)) {
-        return null;
+        return null
     }
     let pile = expr.slice(3, -1).trim().split(/\s+/).map(
         s => {
-            const trimmed = s.trim();
-            return getValue(trimmed, params) ?? substituteLabels(trimmed, params);
+            const trimmed = s.trim()
+            return getValue(trimmed, params) ?? substituteLabels(trimmed, params)
         }
-    );
-    return _executePile(pile);
+    )
+    return _executePile(pile)
 }
 
 function _executePile(pile:Array<NestedInput>):InputType {
-    const operandes = [];
-    pile.reverse();
-    if (pile.length === 0) return null;
+    const operandes = []
+    pile.reverse()
+    if (pile.length === 0) return null
     while (pile.length > 0) {
-        let top = pile.pop();
+        let top = pile.pop()
         if (typeof top !== 'string') {
-            operandes.push(top);
-            continue;
+            operandes.push(top)
+            continue
         }
         if (top in Calc.SHORTCUTS) {
             top = Calc.SHORTCUTS[top]
         }
         if (!/^[A-Za-z_]+\.[A-Za-z_]\w*$/.test(top)) {
-            operandes.push(top);
-            continue;
+            operandes.push(top)
+            continue
         }
-        const match = top.match(/^(\w+)\.(\w+)$/);
-        const moduleName = match[1];
-        const functionName = match[2];
-        const m = MODULES[moduleName];
+        const match = top.match(/^(\w+)\.(\w+)$/)
+        const moduleName = match[1]
+        const functionName = match[2]
+        const m = MODULES[moduleName]
         if (!m) {
-            throw new Error(`Module ${moduleName} non trouvé`);
+            throw new Error(`Module ${moduleName} non trouvé`)
         }
         if (!m.METHODS[functionName]) {
-            throw new Error(`Fonction ${functionName} non trouvée dans le module ${moduleName}`);
+            throw new Error(`Fonction ${functionName} non trouvée dans le module ${moduleName}`)
         }
-        const f = m.METHODS[functionName];
-        const n = f.length;
+        const f = m.METHODS[functionName]
+        const n = f.length
         if (operandes.length < n) {
-            throw new Error(`Pas assez d'opérandes pour l'opération ${top}`);
+            throw new Error(`Pas assez d'opérandes pour l'opération ${top}`)
         }
         const args = operandes.splice(operandes.length - n, n)
-        const result = f(...args);
+        const result = f(...args)
         if (result !== undefined) {
-            operandes.push(result);
+            operandes.push(result)
         }
     }
     if (operandes.length !== 1) {
-        throw new Error("La pile n'a pas été réduite à une seule valeur.");
+        throw new Error("La pile n'a pas été réduite à une seule valeur.")
     }
-    return operandes[0];
+    return operandes[0]
 }
 
 /**
