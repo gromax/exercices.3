@@ -32,8 +32,15 @@ const ParamsView = View.extend({
         'click .js-recycle': 'recycle'
     },
     templateContext() {
+        const paramsStr = {}
+        for (const [key, value] of Object.entries(this.getOption("params"))) {
+            const stringValue = Array.isArray(value)
+                ? JSON.stringify(value).replaceAll('"', '')
+                : String(value) 
+            paramsStr[key] = stringValue
+        }
         return {
-            params: this.getOption("params"),
+            params: paramsStr,
             newButton: this.getOption("newButton")
         }
     }
